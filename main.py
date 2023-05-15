@@ -12,7 +12,7 @@ with open("configuration.json",'r',encoding='utf8') as config:
 '''
 
 bot = interactions.Client(token=token)
-bot.load_extension("Commands.new_users")
+bot.load_extension("Commands.users")
 
 
 @interactions.slash_command(
@@ -30,6 +30,7 @@ async def stop(ctx):
 async def on_ready(event: interactions.api.events.Ready):
   """Envoie ready quand le bot est lancé"""
   print("Ready !")
+
 
 keep_alive()
 bot.start()
