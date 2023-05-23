@@ -7,7 +7,6 @@ authors = ["Replit user <<>>"]
 [tool.poetry.dependencies]
 python = "^3.10"
 discord-py-interactions = "^5.3.1"
-discord-py-slash-command = "^4.2.1"
 Flask = "^2.3.2"
 
 [tool.poetry.dev-dependencies]

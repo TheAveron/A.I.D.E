@@ -113,14 +113,6 @@ speedup = ["aiodns", "orjson", "brotli", "faust-cchardet", "uvloop"]
 tests = ["pytest", "pytest-asyncio", "pytest-cov", "python-dotenv", "typeguard"]
 voice = ["PyNaCl (>=1.5.0,<1.6)"]
 
-[[package]]
-name = "discord-py-slash-command"
-version = "4.2.1"
-description = "Easy, simple, scalable and modular: a Python API wrapper for interactions."
-category = "main"
-optional = false
-python-versions = ">=3.8.6"
-
 [package.dependencies]
 aiohttp = ">=3.8.1"
 
@@ -281,7 +273,6 @@ charset-normalizer = []
 click = []
 colorama = []
 discord-py-interactions = []
-discord-py-slash-command = []
 discord-typings = []
 emoji = []
 flask = []
