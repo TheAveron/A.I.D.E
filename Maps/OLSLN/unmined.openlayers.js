@@ -111,7 +111,7 @@ class Unmined {
                             && tileX <= maxTileX
                             && tileY <= maxTileY
                             && hasTile()) {
-                            const url = ('tiles/zoom.{z}/{xd}/{yd}/tile.{x}.{y}.' + options.imageFormat)
+                            const url = ('../tiles/zoom.{z}/{xd}/{yd}/tile.{x}.{y}.' + options.imageFormat)
                                 .replace('{z}', worldZoom)
                                 .replace('{yd}', Math.floor(tileY / 10))
                                 .replace('{xd}', Math.floor(tileX / 10))
@@ -232,7 +232,7 @@ class Unmined {
     }
     
     defaultPlayerMarkerStyle = {
-            image: "playerimages/default.png",
+            image: "../playerimages/default.png",
             imageAnchor: [0.5, 0.5],
             imageScale: 0.25,
 
