@@ -5,10 +5,15 @@ Assistant Intelligent Dédié à l'Economie
 
 Maps accessibles en ligne : 
 
-- [Map de Cube Crusader](https://theaveron.github.io/A.I.D.E/Maps/OCube_crusader_zoom/unmined.index.html)
+- Maps de Cube Crusader:
+  - [Zoomable](https://theaveron.github.io/A.I.D.E/Maps/OCube_crusader/zoom/unmined.index.html)
+  - [non zoomable (1:1)](https://theaveron.github.io/A.I.D.E/Maps/OCube_crusader/nozoom/unmined.index.html)
 
-- [Map de la survie pour les Nuls](https://theaveron.github.io/A.I.D.E/Maps/OLSLN_zoom/unmined.index.html)
+- Map de la survie pour les Nuls :
 
+  - [Zoomable](https://theaveron.github.io/A.I.D.E/Maps/OLSLN/zoom/unmined.index.html)
+  - [non zoomable (1:1)](https://theaveron.github.io/A.I.D.E/Maps/OLSLN/nozoom/unmined.index.html)
+  
 - [Map de la survie pour les Wariors](https://theaveron.github.io/A.I.D.E/Maps/OLSPLW_zoom/unmined.index.html)
 
 - [Map de Strong World](https://theaveron.github.io/A.I.D.E/Maps/OStrong_world_zoom/unmined.index.html)

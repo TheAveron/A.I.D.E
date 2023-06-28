@@ -85,7 +85,7 @@ UnminedCustomMarkers = {
 		{
 			x: 1600,
 			z: 0,
-			image: "custom.pin.png",
+			image: "../custom.pin.png",
 			imageAnchor: [0.5, 1],
 			imageScale: 0.3,
 			text: "Spawn",
