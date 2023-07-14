@@ -96,6 +96,14 @@ UnminedCustomMarkers = {
 		},
 
 
+		{
+			x: 1600,
+			z: 0,
+			image: "../layer1.png",
+			imageAnchor: [0.5,0.5],
+			imageScale: 1,
+		},
+
 
 		// do not delete the following two closing brackets
 	]
