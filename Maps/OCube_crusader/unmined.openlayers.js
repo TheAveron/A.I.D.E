@@ -125,35 +125,109 @@ class Unmined {
 				})
 			});
 
-
+		/*
 		// Create a new layer for territory boundaries
 		
-		var territoryLayer = new ol.layer.Tile({
-			source: new ol.source.XYZ({
-				// Customize the properties of the territory layer source
-			  	// based on your specific requirements
-			 	projection: viewProjection,
-				tileGrid: new ol.tilegrid.TileGrid({
-					extent: mapExtent, // Set the extent based on your desired territory layer extent
-					origin: tileGrid.getOrigin(0), // Set the origin based on your desired territory layer origin
-					resolutions: tileGrid.getResolutions().slice(0, mapZoomLevels + 1), // Set the resolutions based on your desired territory layer resolutions
-					tileSize: 128, // Set the tile size based on your desired territory layer tile size
-				}),
-				tilePixelRatio: dpiScale,
-			  	tileSize: 128 / dpiScale,
-		  
-			  	tileUrlFunction: function (coordinate) {
-					const z = coordinate[0]-6;
-					const x = coordinate[1];
-					const y = coordinate[2];
+		var territoryLayer = 
+			new ol.layer.Tile({
+				source: new ol.source.XYZ({
+					projection: viewProjection,
+					tileGrid: tileGrid,
+					tilePixelRatio: dpiScale,
+					tileSize: worldTileSize / dpiScale,
 
-					console.log(z);
+					tileUrlFunction: function (coordinate) {
+						const worldZoom = -(mapZoomLevels - coordinate[0]) + options.maxZoom;
+						const worldZoomFactor = Math.pow(2, worldZoom);
+
+						const minTileX = Math.floor(worldMinX * worldZoomFactor / worldTileSize);
+						const minTileY = Math.floor(worldMinY * worldZoomFactor / worldTileSize);
+						const maxTileX = Math.ceil((worldMinX + worldWidth) * worldZoomFactor / worldTileSize) - 1;
+						const maxTileY = Math.ceil((worldMinY + worldHeight) * worldZoomFactor / worldTileSize) - 1;
+
+						const tileX = coordinate[1];
+						const tileY = coordinate[2];
+
+						const tileBlockSize = worldTileSize / worldZoomFactor;
+						const tileBlockPoint = {
+							x: tileX * tileBlockSize,
+							z: tileY * tileBlockSize
+						};
+
+						const hasTile = function () {
+							const tileRegionPoint = {
+								x: Math.floor(tileBlockPoint.x / 512),
+								z: Math.floor(tileBlockPoint.z / 512)
+							};
+							const tileRegionSize = Math.ceil(tileBlockSize / 512);
+				
+							for (let x = tileRegionPoint.x; x < tileRegionPoint.x + tileRegionSize; x++) {
+								for (let z = tileRegionPoint.z; z < tileRegionPoint.z + tileRegionSize; z++) {
+									const group = {
+										x: Math.floor(x / 32),
+										z: Math.floor(z / 32)
+									};
+									const regionMap = regions.find(e => e.x == group.x && e.z == group.z);
+									if (regionMap) {
+										const relX = x - group.x * 32;
+										const relZ = z - group.z * 32;
+										const inx = relZ * 32 + relX;
+										var b = regionMap.m[Math.floor(inx / 32)];
+										var bit = inx % 32;
+										var found = (b & (1 << bit)) != 0;
+										if (found) return true;
+									}
+								}
+							}
+							return false;
+						};
+
+						if (tileX >= minTileX
+							&& tileY >= minTileY
+							&& tileX <= maxTileX
+							&& tileY <= maxTileY
+							&& hasTile()) {
+							const url = ('../territory/zoom.{z}/{xd}/{yd}/tile.{x}.{y}.' + options.imageFormat)
+								.replace('{z}', worldZoom)
+								.replace('{yd}', Math.floor(tileY / 10))
+								.replace('{xd}', Math.floor(tileX / 10))
+								.replace('{y}', tileY)
+								.replace('{x}', tileX);
+							return url;
+						}
+						else
+							return undefined;
+					}
+				})
+			});
+
+		
+			new ol.layer.Tile({
+				source: new ol.source.XYZ({
+					// Customize the properties of the territory layer source
+					// based on your specific requirements
+					projection: viewProjection,
+					tileGrid: new ol.tilegrid.TileGrid({
+						extent: mapExtent, // Set the extent based on your desired territory layer extent
+						origin: tileGrid.getOrigin(0), // Set the origin based on your desired territory layer origin
+						resolutions: tileGrid.getResolutions().slice(0, mapZoomLevels + 1), // Set the resolutions based on your desired territory layer resolutions
+						tileSize: 128, // Set the tile size based on your desired territory layer tile size
+					}),
+					tilePixelRatio: dpiScale,
+					tileSize: 128 / dpiScale,
 			
-					const url = '../territory/zoom.'+ z + '/' + x + '.' + y + '.png';
-					return url;
-				},
-			}),
-		});
+					tileUrlFunction: function (coordinate) {
+						const z = coordinate[0]-6;
+						const x = coordinate[1];
+						const y = coordinate[2];
+
+						console.log(z);
+				
+						const url = '../territory/zoom.'+ z + '/' + x + '.' + y + '.png';
+						return url;
+					},
+				}),
+			});*/
 
 		var mousePositionControl = new ol.control.MousePosition({
 			coordinateFormat: ol.coordinate.createStringXY(0),
@@ -190,6 +264,7 @@ class Unmined {
 			})
 		});
 
+		/*
 		var territoryMap = new ol.Map({
 			target: 'territoryMap', // Replace 'territoryMap' with the actual ID or reference to your territory map container
 			controls: [],
@@ -205,6 +280,8 @@ class Unmined {
 		mainMap.getView().on('change:resolution', function () {
 			territoryMap.getView().setResolution(mainMap.getView().getResolution());
 		});
+
+		*/
 
 
 		if (options.markers) {

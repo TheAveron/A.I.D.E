@@ -1,9 +1,8 @@
 # A.I.D.E
 
-Assistant Intelligent Dédié à l'Economie 
+Assistant Intelligent Dédié à l'Economie
 
-
-Maps accessibles en ligne : 
+Maps accessibles en ligne :
 
 - Maps de Cube Crusader:
   - [Zoomable](https://theaveron.github.io/A.I.D.E/Maps/OCube_crusader/zoom/unmined.index.html)
