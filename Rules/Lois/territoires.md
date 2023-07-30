@@ -23,5 +23,5 @@ La seule exeption est le territoire autour du portail d'une cité ou Nation appa
 ---
 A lire ensuite:
 
-- [Cités](cites.m)
+- [Cités](cites.md)
 - [Nations](nations.md)

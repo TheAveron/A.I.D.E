@@ -15,3 +15,9 @@ Est reconnu comme Grand Conseiller le joueur FrelonVictorA.
 - Le pouvoir exécutif est détenu par le Grand Conseiller.
 
 Au Spawn se trouve également le Village du Spawn, où chaque joueur peut construire sa maison sur base de volontariat.
+
+----
+
+A lire ensuite:
+- []()
+- []()

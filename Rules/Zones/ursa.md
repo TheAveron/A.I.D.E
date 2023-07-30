@@ -19,3 +19,9 @@ La banque de l’URSA permet de convertir ses diamants en shells, ou d’emprunt
 Chaque résident de l’URSA est libre de vendre les ressources qu’il souhaite pour n’importe quel prix dans un slot acheté à la zone commerciale.
 
 Le Grand Marché (GM) est un gigantesque magasin où sont vendues toutes les ressources produites par l’URSA.
+
+----
+
+A lire ensuite:
+- []()
+- []()
