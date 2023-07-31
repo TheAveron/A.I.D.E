@@ -4,7 +4,7 @@
 
 Ce dépot regroupe les maps des différents realms, le bot qui gère les Friendship crédits, ainsi que les différents règlements du realm;
 
-Vous trouverez [ici](Rules/index.md) les différents règlements.
+Vous trouverez [ici](Rules) les différents règlements.
 
 Maps accessibles en ligne :
 

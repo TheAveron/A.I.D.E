@@ -19,5 +19,6 @@ Au Spawn se trouve également le Village du Spawn, où chaque joueur peut constr
 ----
 
 A lire ensuite:
-- []()
-- []()
+
+- [La citadelle de la paix](paix.md)
+- [L'URSA](ursa.md)
