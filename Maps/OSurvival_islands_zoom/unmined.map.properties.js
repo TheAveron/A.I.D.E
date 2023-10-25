@@ -9,6 +9,6 @@ var UnminedMapProperties = {
     maxRegionX: 0,
     maxRegionZ: 0,
     worldName: "Survival Islands 08/24/20 12:59:43 - Copy",
-    background: "",
+    background: "#313338",
     markers: new Array()
 }
