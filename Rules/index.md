@@ -8,6 +8,6 @@ A. Lois
 B. Règlements des différentes zones
 
 1. [Spawn](Zones/spawn.md)
-2. [Citadelle de la Paix](Zones/paix.md)
+2. [Citadelle de la Paix](Zones/Citadelle/paix.md)
 3. [URSA](Zones/ursa.md)
 4. [Alexandrie](Zones/alexandrie.md)
