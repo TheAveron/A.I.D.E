@@ -9,6 +9,6 @@ var UnminedMapProperties = {
     maxRegionX: 1,
     maxRegionZ: 1,
     worldName: "CC - Utopia",
-    background: "",
+    background: "#313338",
     markers: new Array()
 }
