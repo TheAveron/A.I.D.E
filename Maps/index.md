@@ -1,14 +1,6 @@
-# A.I.D.E
+# Maps
 
-(Assistant Intelligent Dédié à l'Economie)
-
-Ce dépot regroupe les maps des différents realms, le bot qui gère les Friendship crédits, ainsi que les différents règlements du realm;
-
-Vous trouverez [ici](Rules/index.md) les différents règlements.
-
-Vous trouverez [ici](Maps/index.md) la liste des maps visualiables en ligne.
-
-Maps accessibles en ligne :
+Voici la liste des maps des précédents realms
 
 - Maps de Cube Crusader:
 
@@ -26,6 +18,6 @@ Maps accessibles en ligne :
 
 - [Map de Survival Islands](https://theaveron.github.io/A.I.D.E/Maps/OSurvival_islands_zoom/unmined.index.html)
 
-- [Map de l'overworld d'Uptopia](https://theaveron.github.io/A.I.D.E/Maps/OUtopia_zoom/unmined.index.html)
+- [Map de l'overworld d'Utopia](https://theaveron.github.io/A.I.D.E/Maps/OUtopia_zoom/unmined.index.html)
 
-- [Map de l'end d'Uptopia](https://theaveron.github.io/A.I.D.E/Maps/EUtopia_zoom/unmined.index.html)
+- [Map de l'end d'Utopia](https://theaveron.github.io/A.I.D.E/Maps/EUtopia_zoom/unmined.index.html)
