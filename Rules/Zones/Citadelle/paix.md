@@ -77,9 +77,9 @@ L'économie du Palais de la Paix est entièrement contrôlée par le Trésor de 
 
 Vous pouvez trouver le contrat d'achat de slots à la NTA **[ici](contractNTA.md)**:
 
-----
+---
 
 A lire ensuite:
 
-- [L'URSA](ursa.md)
-- [Alexandrie](alexandrie.md)
+- [L'URSA](../ursa.md)
+- [Alexandrie](../alexandrie.md)
