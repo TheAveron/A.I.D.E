@@ -15,5 +15,5 @@ Les investissements se font en blocs de diamant.
 ----
 A lire ensuite:
 
-- []()
-- []()
+- [Spawn](../Zones/spawn.md)
+- [Citadelle de la Paix](../Zones/Citadelle/paix.md)
