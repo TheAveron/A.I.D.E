@@ -4,7 +4,9 @@
 
 ## Monnaie d’échange
 
-La monnaie d’échange utilisée en URSA et la coquille de nautile (shell), tous les échanges dans la zone commerciale de l’URSA doivent donc s’effectuer avec cette monnaie.
+La monnaie d’échange utilisée en URSA et la coquille de nautile (shell), tous les échanges dans les zones commerciales de l’URSA doivent donc s’effectuer avec cette monnaie.
+
+Toute tentative de falsification sera sévèrement sanctionnée.
 
 ## Permissions
 
@@ -12,7 +14,7 @@ Sont autorisés à commercer avec les shells uniquement les joueurs possédant u
 
 ## Banque
 
-La banque de l’URSA permet de convertir ses diamants en shells, ou d’emprunter avec un taux d’intérêt de 10%.
+La banque de l’URSA permet de convertir ses diamants en shells, ou d’emprunter avec un taux d’intérêt de 5% (+1% par mois).
 
 ## Magasins
 
@@ -25,4 +27,4 @@ Le Grand Marché (GM) est un gigantesque magasin où sont vendues toutes les res
 A lire ensuite:
 
 - [Alexandrie](alexandrie.md)
-- []()
+- [Arbre de la sagesse](arbresagesse.md)

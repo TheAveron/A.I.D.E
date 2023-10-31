@@ -9,7 +9,9 @@
 
 ## I. Territoire
 
-COordonnées de la citadelle de la paix: **1860, 70, -960**.
+**Propriétaire:** Averon
+
+**Coordonnées:** 1860, 70, -960
 
 ## II. Économie
 
