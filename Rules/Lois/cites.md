@@ -4,11 +4,17 @@
 
 ### Cité
 
-Projet connecté à au moins un réseau de transport, contenant au moins 3 bâtiments habitables et un commercial.
+Projet composé d'au moins 3 batiments distincs, en plus d'un batiment remarquable.
+
+Exemple de batiment remarquable:
+
+- Le CEA
+- La Cathédrale de Mountheaven
+- La maison de Victor
 
 ### Cité-État
 
-Projet connecté à au moins un réseau de transport, contenant au moins 9 bâtiments habitables et 3 commerciaux.
+Projet composé d'au moins 3 batiments habitables, une zone commercial et un complexe administratif.
 
 ## Cas particulier
 
@@ -19,4 +25,4 @@ Un projet peut être considéré comme cité après accord du Conseil s’il est
 A lire ensuite:
 
 - [Nations](nations.md)
-- [Economire](economie.md)
+- [Economie](../Marches/index.md)

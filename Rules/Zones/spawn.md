@@ -16,7 +16,7 @@ Est reconnu comme Grand Conseiller le joueur FrelonVictorA.
 
 Au Spawn se trouve également le Village du Spawn, où chaque joueur peut construire sa maison sur base de volontariat.
 
-----
+---
 
 A lire ensuite:
 
