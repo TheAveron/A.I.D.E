@@ -77,7 +77,7 @@ L'économie du Palais de la Paix est entièrement contrôlée par le Trésor de 
 
 5. Les joueurs qui abusent du système NTA ou tentent de l'utiliser pour obtenir un avantage déloyal peuvent être bannis du système ou faire l'objet d'autres sanctions, déterminées par le Trésor.
 
-Vous pouvez trouver le contrat d'achat de slots à la NTA **[ici](contractNTA.md)**:
+Vous pouvez trouver le contrat d'achat de slots à la NTA **[ici](../../Marches/contractNTA.md)**:
 
 ---
 

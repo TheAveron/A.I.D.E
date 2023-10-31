@@ -15,4 +15,4 @@ B. Règlements des différentes zones
 
 C. Ventes
 
-[Vous trouverez ici la liste des choses en vente](Marchés/index.md)
+[Vous trouverez ici la liste des choses en vente](Marches/index.md)
