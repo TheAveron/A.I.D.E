@@ -1,5 +1,7 @@
 # C. Alexandrie
 
+**Propriétaire:** Lucien
+
 ## Monopole
 
 L’achat et la vente de slots de commerce ou de propriétés entre joueurs ne peut se faire qu’entre nobles.
@@ -23,5 +25,5 @@ Le Centre d'Échanges d’Alexandrie (CEA) est l’espace d’échange centralis
 
 A lire ensuite:
 
-- []()
+- [Arbre de la sagesse](arbresagesse.md)
 - []()

@@ -2,17 +2,19 @@
 
 ## Definition
 
-Une Alliance est un groupe de 3 joueurs et 3 cités-États (ou plus) reliées entre elles par les terres possédées par les joueurs membres de la Nation. Son dirigeant siège au Conseil.
+Une Nation est une alliance d'au moins 3 joueurs. Son dirigeant siège au Conseil
+
+Elle doit au minimum comporter 3 cités (ou plus) dont une respecte les critères d'une cité-état. Deux d'entre elles doivent être reliéespar la terre et connectées à la troisième par un chemin de fer ou une route maritime
 
 Le Spawn taxe les Nations de 2 diamants par mois par joueur membre.
 
 Chaque Nation a sa propre législation quant aux crimes et trolls. Pour être prise en compte devant le Conseil, cette dernière doit être exposée à la vue de tous, proche du portail.
 
-Un membre d’une Nation ne peut être membre d’une autre Nation.
+On ne peut être membre de plusieurs nations en même temps.
 
 ----
 
 Lire ensuite:
 
-- [Economie](economie.md)
+- [Economie](../Marchés/index.md)
 - [Spawn](../Zones/spawn.md)
