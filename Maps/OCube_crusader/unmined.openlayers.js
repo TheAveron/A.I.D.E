@@ -232,7 +232,7 @@ class Unmined {
     }
     
     defaultPlayerMarkerStyle = {
-            image: "playerimages/default.png",
+            image: "../playerimages/default.png",
             imageAnchor: [0.5, 0.5],
             imageScale: 0.25,
 
