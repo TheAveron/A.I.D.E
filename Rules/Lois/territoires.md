@@ -20,7 +20,10 @@ Le possesseur d’un territoire détient les droits de construction sur celui-ci
 
 Un territoire de la taille d’environ un biome est offert par le Spawn à chaque joueur pour son premier projet, éloigné d’au moins 1000 blocs (du Spawn).
 
-Pour étendre son territoire ou en acheter un nouveaux, le prix en diamant a été défini par le Conseil comme étant le résultat de la formule $P = {m}*{log\left(\frac{d}{200}\right)} + 5$,  
+Pour étendre son territoire ou en acheter un nouveaux, le prix en diamant a été défini par le Conseil comme étant le résultat de la formule:
+
+![P=m*log(d/200) + 5](/Static/territoires_formula.png)
+
 où P est la somme à reverser au Spawn, m le nombre de cartes de taille 0 occupées par le territoire demandé et d sa distance par rapport au Spawn.
 
 ## Le Nether
