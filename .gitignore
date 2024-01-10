@@ -161,3 +161,6 @@ cython_debug/
 
 configuration.json
 *.jpeg
+
+node_modules/
+.vite/
