@@ -1,0 +1,12 @@
+#theme-button {
+    background: none;
+    padding: 0;
+    place-items: center;
+    padding: 3px;
+    display: flex;
+}
+
+#theme-img {
+    margin: 0;
+    width: 2em;
+}

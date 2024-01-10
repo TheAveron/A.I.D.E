@@ -4,11 +4,11 @@ var UnminedMapProperties = {
     maxZoom: 2,
     defaultZoom: 0,
     imageFormat: "png",
-    minRegionX: -10,
-    minRegionZ: -11,
-    maxRegionX: 11,
-    maxRegionZ: 7,
-    worldName: "Cube Crusader",
+    minRegionX: -5,
+    minRegionZ: -10,
+    maxRegionX: 9,
+    maxRegionZ: 5,
+    worldName: "CC - The Origin 20/12/21",
     background: "#313338",
     markers: new Array()
 }
