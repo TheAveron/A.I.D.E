@@ -1,0 +1,16 @@
+#previous {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    margin-top: 15px;
+    text-decoration: none;
+    align-content: center;
+}
+
+#previous a {
+    text-decoration: none;
+}
+
+#previous a:hover {
+    color: var(--text);
+}
