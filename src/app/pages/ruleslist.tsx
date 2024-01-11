@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom"
+import previousArrow from "../../assets/images/previous.svg"
 
 function Rules() {
-    return <section>
+    return <>
+    <button id="previous"><img src={previousArrow} width={"20px"}/><Link to="/">  Retour</Link></button>
+    <section className="text-section">
         <h1>Règlements du realm</h1>
 
         <h2>A. Lois</h2>
@@ -26,6 +29,7 @@ function Rules() {
 
         <p><Link to="marches/index">Vous trouverez ici la liste des choses en vente</Link></p>
     </section>
+    </>
 
 }
 

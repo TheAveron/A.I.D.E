@@ -5,5 +5,4 @@ footer {
     border-top: solid 1px var(--separations);
     width: 90vw;
     padding: 2vh 5vw;
-    padding-top: max(8vh, calc(4vh + 50px));
 }

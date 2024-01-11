@@ -1,17 +1,17 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import {
     createBrowserRouter,
     RouterProvider,
 } from "react-router-dom";
-import App from './app/App.tsx'
-import './assets/styles/index.css'
+import App from './app/App.tsx';
 import ErrorPage from './app/components/errors.tsx';
-import Map from './app/pages/maps.tsx';
-import Rules from './app/pages/rules.tsx';
 import Home from './app/pages/home.tsx';
-import Loi from './app/pages/lois.tsx';
-import { loader as markdownLoader } from './app/pages/lois.tsx';
+import Loi, { loader as rulesLoader } from './app/pages/lois.tsx';
+import Map, { loader as mapsLoader } from './app/pages/maps.tsx';
+import Rules from './app/pages/ruleslist.tsx';
+import Maps from './app/pages/mapslist.tsx'
+import './assets/styles/index.css';
 
 
 const router = createBrowserRouter([
@@ -25,8 +25,8 @@ const router = createBrowserRouter([
                 element: <Home />
             },
             {
-                path: "maps/:mapid",
-                element: <Map />,
+                path: "maps/",
+                element: <Maps />,
             },
             {
                 path: "rules/",
@@ -35,16 +35,22 @@ const router = createBrowserRouter([
             {
                 path: "rules/lois/:rulename",
                 element: <Loi folder={"lois"}/>,
-                loader: markdownLoader,
+                loader: rulesLoader,
             },
             {
                 path: "rules/marches/:rulename",
                 element: <Loi folder={"marches"}/>,
-                loader: markdownLoader,
-            },{
+                loader: rulesLoader,
+            },
+            {
                 path: "rules/zones/:rulename",
                 element: <Loi folder={"zones"} />,
-                loader: markdownLoader,
+                loader: rulesLoader,
+            },
+            {
+                path: "maps/:mapname",
+                element: <Map />,
+                loader: mapsLoader,
             },
         ],
     },
