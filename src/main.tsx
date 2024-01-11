@@ -16,7 +16,7 @@ import './assets/styles/index.css';
 
 const router = createBrowserRouter([
     {
-        path: "A.I.D.E/",
+        path: "/A.I.D.E/",
         element: <App />,
         errorElement: <ErrorPage />,
         children: [
