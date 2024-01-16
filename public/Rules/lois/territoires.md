@@ -44,6 +44,6 @@ Le reste de l'End est achetable selon les même modalités que dans l'overworld,
 
 A lire ensuite:
 
-- [Spawn](../Zones/spawn)
+- [Spawn](../zones/spawn)
 - [Cités](cites)
 - [Nations](nations)

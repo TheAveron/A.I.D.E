@@ -16,5 +16,5 @@ On ne peut être membre de plusieurs nations en même temps.
 
 Lire ensuite:
 
-- [Economie](../Marches/index)
-- [Spawn](../Zones/spawn)
+- [Economie](../marches/index)
+- [Spawn](../zones/spawn)
