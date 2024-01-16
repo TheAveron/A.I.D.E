@@ -11,4 +11,4 @@ var UnminedMapProperties = {
     worldName: "CC - Utopia",
     background: "",
     markers: new Array()
-}
+};

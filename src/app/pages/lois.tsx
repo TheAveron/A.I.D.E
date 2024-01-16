@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { Link, useLoaderData } from "react-router-dom";
 import "../../assets/styles/goback.css";
 import previousArrow from "../../assets/images/previous.svg";
@@ -21,14 +21,19 @@ function Loi({ folder }: LoiParams) {
     const { page } = useLoaderData() as pageLoader;
     const [content, setContent] = useState(<></>);
     useEffect(() => {
-        fetch(`/Rules/${folder}/${page}.md`)
+        fetch(`/A.I.D.E/Rules/${folder}/${page}.md`)
             .then(async (response) => setContent(md_converter(await response.text()) as JSX.Element))
             .catch(error => console.log(error))
     });
 
     return <>
-        <button id="previous"><img src={previousArrow} width={"20px"}/><Link to="/rules">  Retour</Link></button>
-        <section className="text-section">{content}</section>
+        <Suspense fallback={<div>Page is Loading...</div>}>
+            <section className="text-section">
+                <button id="previous"><img src={previousArrow} width={"20px"}/><Link to="/A.I.D.E/rules">  Retour</Link></button>
+                {content}
+                </section>
+        </Suspense>
+        
     </>
 }
 

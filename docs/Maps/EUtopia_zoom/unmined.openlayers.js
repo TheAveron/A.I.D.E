@@ -261,4 +261,4 @@ class Unmined {
         return markers;
     }
 
-}
+};

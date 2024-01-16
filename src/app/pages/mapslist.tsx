@@ -3,7 +3,7 @@ import previousArrow from "../../assets/images/previous.svg";
 
 function Maps() {
     return <>
-        <button id="previous"><img src={previousArrow} width={"20px"} /><Link to="/">  Retour</Link></button>
+        <button id="previous"><img src={previousArrow} width={"20px"} /><Link to="/A.I.D.E">  Retour</Link></button>
         <section className="text-section">
             <h1>Liste des maps consultables</h1>
             <ul>

@@ -36,7 +36,7 @@ Use the imageScale property if the pin image is too large.
 
 */
 
-UnminedCustomMarkers = {
+var UnminedCustomMarkers = {
 
     isEnabled: false,
 
@@ -83,4 +83,4 @@ UnminedCustomMarkers = {
 
         // do not delete the following two closing brackets
     ]
-}
+};

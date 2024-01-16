@@ -7,19 +7,19 @@ function changetheme() {
 
     if (data_theme == "light") {
         document.documentElement.setAttribute("data-theme", "dark");
-        button?.setAttribute("src", `/images/dark/moon.png`);
+        button?.setAttribute("src", `/A.I.D.E/images/dark/moon.png`);
     } else {
         document.documentElement.setAttribute("data-theme", "light");
-        button?.setAttribute("src", `/images/light/sun.png`);
+        button?.setAttribute("src", `/A.I.D.E/images/light/sun.png`);
     }
 }
 
 function ChooseThemeIcon() {
     const data_theme = document.documentElement.getAttribute("data-theme");
     if (data_theme == "light") {
-        return `/images/${data_theme}/sun.png`;
+        return `/A.I.D.E/images/${data_theme}/sun.png`;
     } else {
-        return `/images/${data_theme}/moon.png`;
+        return `/A.I.D.E/images/${data_theme}/moon.png`;
     }
 }
 

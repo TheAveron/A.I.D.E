@@ -85,23 +85,25 @@ body {
 
 .text-section {
   min-height: 50vh;
-  max-width: 80vw;
+  max-width: 60vw;
   display: flex;
   place-content: center;
   /*place-items: center;*/
   margin: auto;
   flex-direction: column;
+  padding-bottom: 10vh;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  margin-top: 0.5em;
 }
 
 button {
   border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+  padding: 1.5vh 1.5vw;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;

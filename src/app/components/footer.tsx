@@ -2,7 +2,7 @@ import "../../assets/styles/footer.css"
 
 function Footer() {
     return (
-        <footer>
+        <footer id="footer">
             <div className="footer-section">
                 <h3>About Me</h3>
                 <ul style={{textAlign:"left"}}>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { Link, useLoaderData } from "react-router-dom";
 import previousArrow from "../../assets/images/previous.svg";
 
@@ -14,26 +15,26 @@ type pageLoader = {
 function Map() {
     const { page } = useLoaderData() as pageLoader;
 
-    const actual_url = window.location;
+    function render2() {
+        const render_block = document.getElementById("render")
+        if (render_block) render_block.style.display = "none"
 
-    console.log(actual_url.origin)
-    
+        const footer_block = document.getElementById("footer")
+        if (footer_block) footer_block.style.display = "none"
 
-    const doc_head = document.head.innerHTML;
-    document.head.innerHTML = doc_head + '<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" integrity="sha256-jckPZk66EJrEBQXnJ5QC2bD+GxWPDRVVoMGr5vrMZvM=" crossorigin="anonymous"></script>'
+        const previous_block = document.getElementById("previous")
+        if (previous_block) {
+            previous_block.style.display = "none"
+        }
 
-    + '<script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js" integrity="sha256-77dogUPZ1WVoK9BDF0CxsKnAouX3YzK6n4tIcbDgtFI=" crossOrigin="anonymous"></script>'
 
-    + `<script type="text/javascript" src="${actual_url.origin}/Maps/${page}/unmined.map.properties.js"}></script>`
-    + `<script type="text/javascript" src="${actual_url.origin}/Maps/${page}/unmined.map.regions.js"}></script>`
-    + `<script type="text/javascript" src="${actual_url.origin}/Maps/${page}/unmined.map.players.js"></script>`
-    + `<script type="text/javascript" src="${actual_url.origin}/Maps/${page}/custom.markers.js"></script>`
-    + `<script type="text/javascript" src="${actual_url.origin}/Maps/${page}/unmined.openlayers.js"></script>`    
-    + `<script type="text/javascript" src="${actual_url.origin}/scripts/maprendering.js"></script>`
+        const content = document.getElementById("content")
+        if (content) content.innerHTML += `<iframe style="width:100vw; height:90vh; display:fixed" src="/A.I.D.E/Maps/${page}/unmined.index.html"></iframe>`
+    }
 
     return <>
-        <button id="previous"><img src={previousArrow} width={"20px"}/><Link to="/maps">  Retour</Link></button>
-        <div id="map"></div>
+        <button id="previous"><img src={previousArrow} width={"20px"} /><Link to="/A.I.D.E/maps">  Retour</Link></button>
+        <button id="render" onClick={render2}>Render</button>
     </>
 }
 
