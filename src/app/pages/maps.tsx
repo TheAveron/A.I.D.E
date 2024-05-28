@@ -29,7 +29,7 @@ function Map() {
 
 
         const content = document.getElementById("content")
-        if (content) content.innerHTML += `<iframe style="width:100vw; height:90vh; display:fixed" src="/A.I.D.E/Maps/${page}/unmined.index.html"></iframe>`
+        if (content) content.innerHTML += `<iframe style="width:100vw; height:calc(100vh - max(8vh, calc(4vh + 50px)))" src="/A.I.D.E/Maps/${page}/unmined.index.html"></iframe>`
     }
 
     return <>
