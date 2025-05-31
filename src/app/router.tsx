@@ -10,6 +10,7 @@ import Loi, { loader as rulesLoader } from './pages/lois';
 import Map, { loader as mapsLoader } from './pages/maps';
 import Rules from './pages/ruleslist';
 import Maps from './pages/mapslist';
+import Contribution from './pages/contribution';
 
 const routes: RouteObject[] = [
     {
@@ -48,6 +49,10 @@ const routes: RouteObject[] = [
                 path: 'rules/zones/:rulename',
                 element: <Loi folder="zones" />,
                 loader: rulesLoader,
+            },
+            {
+                path: 'contribution',
+                element: <Contribution />,
             },
         ],
     },

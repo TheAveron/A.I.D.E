@@ -9,7 +9,7 @@ function Header() {
             <nav className="navbar">
                 <Link to={"/A.I.D.E/maps"}>Maps</Link>
                 <Link to={"/A.I.D.E/rules"}>Rules</Link>
-                <Link to={"/A.I.D.E/credits"}>Credits</Link>
+                <Link to={"/A.I.D.E/contribution"}>Contribuer</Link>
                 <ThemeChoice />
             </nav>
         </header>
