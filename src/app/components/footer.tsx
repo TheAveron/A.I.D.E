@@ -5,7 +5,7 @@ function Footer() {
         <footer id="footer">
             <div className="footer-section">
                 <h3>About Me</h3>
-                <ul style={{textAlign:"left"}}>
+                <ul style={{ textAlign: "left" }}>
                     <li><a href="https://github.com/TheAveron" target="_blank">My Gihub</a></li>
                     <li><a href="">My Discord</a></li>
                 </ul>

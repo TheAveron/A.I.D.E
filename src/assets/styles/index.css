@@ -1,146 +1,128 @@
-html[data-theme="light"] {
-  --text: #0d1117;
-  --background: #ffffff;
-  --primary: #00be36;
-  --secondary: #99e1c9;
-  --accent: #50aae8;
-  --nav_color:#f6f8fa;
-  --separations: #868686;
-  
-}
-html[data-theme="dark"] {
-  --text: #ffffff;
-  --background: #0d1117;
-  --primary: #42ff78;
-  --secondary: #1e674e;
-  --accent: #1773b0;
-  --nav_color: #010409;
-  --separations: #868686;
-}
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Roboto:wght@100;300;400;500;700;900&display=swap');
+
+
+html[data-theme="light"] {
+    --text: #0d1117;
+    --background: #ffffff;
+    --primary: #00be36;
+    --secondary: #99e1c9;
+    --accent: #50aae8;
+    --nav_color: #f6f8fa;
+    --separations: #868686;
+
+}
+
+html[data-theme="dark"] {
+    --text: #ffffff;
+    --background: #0d1117;
+    --primary: #42ff78;
+    --secondary: #1e674e;
+    --accent: #1773b0;
+    --nav_color: #010409;
+    --separations: #868686;
+}
 
 /*
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+width: 5px;
+height: 5px;
 }
 
 ::-webkit-scrollbar:active {
-  width: 15;
-  height: 15px;
+width: 15;
+height: 15px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F2F2F2;
+background: #F2F2F2;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #BDBDBD;
-  border-radius: 15px;
+background: #BDBDBD;
+border-radius: 15px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6E6E6E;
+background: #6E6E6E;
 }
 */
 
-:root, body {
-  font-family: 'Poppins', sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+:root,
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
 
-  color-scheme: light dark;
-  color: var(--text);
-  background-color: var(--background);
+    color-scheme: light dark;
+    color: var(--text);
+    background-color: var(--background);
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
 
-  scrollbar-width: thin;
-  overflow-x: hidden;
+    scrollbar-width: thin;
+    overflow-x: hidden;
 }
 
 a {
-  font-weight: 500;
-  color: var(--text);
-  text-decoration: underline;
-  text-decoration-color: var(--accent);
+    font-weight: 500;
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
 }
 
 a:hover {
-  color: var(--primary);
+    color: var(--primary);
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-  flex-direction: column;
+    margin: 0;
+    display: flex;
+    place-items: center;
+    min-width: 320px;
+    min-height: 100vh;
+    flex-direction: column;
 }
 
 .text-section {
-  min-height: 50vh;
-  max-width: 60vw;
-  display: flex;
-  place-content: center;
-  /*place-items: center;*/
-  margin: auto;
-  flex-direction: column;
-  padding-bottom: 10vh;
+    min-height: 50vh;
+    max-width: 60vw;
+    display: flex;
+    place-content: center;
+    /*place-items: center;*/
+    margin: auto;
+    flex-direction: column;
+    padding-bottom: 10vh;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-  margin-top: 0.5em;
+    font-size: 3.2em;
+    line-height: 1.1;
+    margin-top: 0.5em;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 1.5vh 1.5vw;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: var(--secondary);
-  cursor: pointer;
-  transition: border-color 0.25s;
-  transition: background-color 0.25s;
-}
-
-button:hover {
-  background-color: var(--secondary);
-  border-color: var(--accent);
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
 
 li {
-  text-align: left;
+    text-align: left;
 }
 
 main {
-  min-width: 88vw;
+    min-width: 88vw;
 }
 
 #content {
-  padding-top: max(8vh, calc(4vh + 50px));
+    padding-top: max(8vh, calc(4vh + 50px));
 
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 
 
-  place-content: center;
-  /*place-items: center;*/
+    place-content: center;
+    /*place-items: center;*/
 
-  /*justify-content: space-between;*/
-  height: auto;
+    /*justify-content: space-between;*/
+    height: auto;
 }
