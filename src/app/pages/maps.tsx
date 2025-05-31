@@ -1,41 +1,77 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Link, useLoaderData } from "react-router-dom";
+/**
+ * Map.tsx
+ *
+ * This component renders an iframe view of a specific map page in the Cube Crusader application.
+ * It uses a loader to receive the `mapname` route param and conditionally shows the iframe after
+ * a user interaction. Legacy DOM manipulation is removed in favor of React state and effects.
+ */
+
+import { useLoaderData, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import previousArrow from "../../assets/images/previous.svg";
 
+// Loader to extract the map name from URL parameters
 export function loader({ params }) {
     const page: string = params.mapname;
     return { page };
 }
 
-type pageLoader = {
-    page: string
-}
-
+type PageLoader = {
+    page: string;
+};
 
 function Map() {
-    const { page } = useLoaderData() as pageLoader;
+    const { page } = useLoaderData() as PageLoader;
+    const [showIframe, setShowIframe] = useState(false);
 
-    function render2() {
-        const render_block = document.getElementById("render")
-        if (render_block) render_block.style.display = "none"
+    // Optional: Hide footer and previous button when iframe is displayed
+    useEffect(() => {
+        if (!showIframe) return;
 
-        const footer_block = document.getElementById("footer")
-        if (footer_block) footer_block.style.display = "none"
+        const renderBlock = document.getElementById("render");
+        const footerBlock = document.getElementById("footer");
+        const previousBlock = document.getElementById("previous");
 
-        const previous_block = document.getElementById("previous")
-        if (previous_block) {
-            previous_block.style.display = "none"
-        }
+        if (renderBlock) renderBlock.style.display = "none";
+        if (footerBlock) footerBlock.style.display = "none";
+        if (previousBlock) previousBlock.style.display = "none";
 
+        return () => {
+            if (renderBlock) renderBlock.style.display = "";
+            if (footerBlock) footerBlock.style.display = "";
+            if (previousBlock) previousBlock.style.display = "";
+        };
+    }, [showIframe]);
 
-        const content = document.getElementById("content")
-        if (content) content.innerHTML += `<iframe style="width:100vw; height:calc(100vh - max(8vh, calc(4vh + 50px)))" src="/A.I.D.E/Maps/${page}/unmined.index.html"></iframe>`
-    }
+    return (
+        <>
+            {!showIframe && (
+                <>
+                    <button id="previous" className="nav-button">
+                        <img src={previousArrow} width="20px" alt="Back" />
+                        <Link to="/A.I.D.E/maps"> Retour</Link>
+                    </button>
 
-    return <>
-        <button id="previous"><img src={previousArrow} width={"20px"} /><Link to="/A.I.D.E/maps">  Retour</Link></button>
-        <button id="render" onClick={render2}>Render</button>
-    </>
+                    <button id="render" onClick={() => setShowIframe(true)}>
+                        Render
+                    </button>
+                </>
+            )}
+
+            {showIframe && (
+                <iframe
+                    title={`Map Viewer for ${page}`}
+                    style={{
+                        width: "100vw",
+                        height: "calc(100vh - max(8vh, calc(4vh + 50px)))",
+                        border: "none",
+                    }}
+                    src={`/A.I.D.E/Maps/${page}/unmined.index.html`}
+                />
+            )}
+        </>
+    );
 }
 
-export default Map
+export default Map;
