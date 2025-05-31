@@ -34,12 +34,12 @@ const router = createBrowserRouter([
             },
             {
                 path: "rules/lois/:rulename",
-                element: <Loi folder={"lois"}/>,
+                element: <Loi folder={"lois"} />,
                 loader: rulesLoader,
             },
             {
                 path: "rules/marches/:rulename",
-                element: <Loi folder={"marches"}/>,
+                element: <Loi folder={"marches"} />,
                 loader: rulesLoader,
             },
             {
