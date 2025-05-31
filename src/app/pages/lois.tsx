@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, useLoaderData } from "react-router-dom";
-import "../../assets/styles/goback.css";
-import previousArrow from "../../assets/images/previous.svg";
+import { useEffect, useState, Suspense } from "react";
+import { useLoaderData } from "react-router-dom";
 import md_converter from "../utils/markdown_converter";
+import { GoBackButton } from "../components/goback_button";
 
 export function loader({ params }) {
     const page: string = params.rulename;
@@ -20,16 +19,30 @@ type pageLoader = {
 function Loi({ folder }: LoiParams) {
     const { page } = useLoaderData() as pageLoader;
     const [content, setContent] = useState(<></>);
-    useEffect(() => {
-        fetch(`/Rules/${folder}/${page}.md`)
-            .then(async (response) => setContent(md_converter(await response.text()) as JSX.Element))
-            .catch(error => console.log(error))
-    });
 
-    return <>
-        <button id="previous"><img src={previousArrow} width={"20px"}/><Link to="/rules">  Retour</Link></button>
-        <section className="text-section">{content}</section>
-    </>
+    useEffect(() => {
+        fetch(`/A.I.D.E/Rules/${folder}/${page}.md`)
+            .then(async (response) => {
+                if (!response.ok) throw new Error('Failed to load markdown');
+                const text = await response.text();
+                setContent(md_converter(text) as JSX.Element);
+            })
+            .catch(error => {
+                console.error(error);
+                setContent(<p>Error loading content.</p>);
+            });
+    }, [folder, page]);
+
+    return (
+        <>
+            <Suspense fallback={<div>Page is Loading...</div>}>
+                <section className="text-section">
+                    <GoBackButton />
+                    {content}
+                </section>
+            </Suspense>
+        </>
+    );
 }
 
-export default Loi
+export default Loi;

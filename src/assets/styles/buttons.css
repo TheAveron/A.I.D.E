@@ -1,0 +1,49 @@
+button {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1vw;
+
+    width: 10vw;
+    height: 5vh;
+    margin-top: 15px;
+    padding: 1.5vh 1.5vw;
+
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--text);
+
+    background-color: var(--secondary);
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    text-decoration: none;
+    cursor: pointer;
+
+    transition: border-color 0.25s, background-color 0.25s;
+}
+
+
+button:hover {
+    color: var(--text);
+    background-color: var(--secondary);
+    border-color: var(--accent);
+    filter: brightness(1.1);
+}
+
+button img {
+    display: inline-block;
+}
+
+button p {
+    margin: 0;
+    font-size: inherit;
+}
+
+button:focus,
+button:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+}

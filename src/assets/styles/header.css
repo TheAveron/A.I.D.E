@@ -17,6 +17,7 @@ header {
 header .title {
     display: flex;
 }
+
 header .title a {
     font-weight: 800;
     font-size: x-large;

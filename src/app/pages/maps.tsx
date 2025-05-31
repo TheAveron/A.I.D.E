@@ -1,40 +1,69 @@
-import { Link, useLoaderData } from "react-router-dom";
-import previousArrow from "../../assets/images/previous.svg";
+/* eslint-disable @typescript-eslint/no-var-requires */
+/**
+ * Map.tsx
+ *
+ * This component renders an iframe view of a specific map page in the Cube Crusader application.
+ * It uses a loader to receive the `mapname` route param and conditionally shows the iframe after
+ * a user interaction. Legacy DOM manipulation is removed in favor of React state and effects.
+ */
 
+import { useLoaderData } from "react-router-dom";
+import { useEffect, useState } from "react";
+import "../../assets/styles/maps.css";
+import { GoBackButton } from "../components/goback_button";
+
+// Loader to extract the map name from URL parameters
 export function loader({ params }) {
     const page: string = params.mapname;
     return { page };
 }
 
-type pageLoader = {
-    page: string
-}
-
+type PageLoader = {
+    page: string;
+};
 
 function Map() {
-    const { page } = useLoaderData() as pageLoader;
+    const { page } = useLoaderData() as PageLoader;
+    const [showIframe, setShowIframe] = useState(false);
 
-    const actual_url = window.location;
+    // Optional: Hide footer and previous button when iframe is displayed
+    useEffect(() => {
+        if (!showIframe) return;
 
-    console.log(actual_url.origin)
-    
+        const renderBlock = document.getElementById("render");
+        const footerBlock = document.getElementById("footer");
+        const previousBlock = document.getElementById("previous");
 
-    const doc_head = document.head.innerHTML;
-    document.head.innerHTML = doc_head + '<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" integrity="sha256-jckPZk66EJrEBQXnJ5QC2bD+GxWPDRVVoMGr5vrMZvM=" crossorigin="anonymous"></script>'
+        if (renderBlock) renderBlock.style.display = "none";
+        if (footerBlock) footerBlock.style.display = "none";
+        if (previousBlock) previousBlock.style.display = "none";
 
-    + '<script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js" integrity="sha256-77dogUPZ1WVoK9BDF0CxsKnAouX3YzK6n4tIcbDgtFI=" crossOrigin="anonymous"></script>'
+        return () => {
+            if (renderBlock) renderBlock.style.display = "";
+            if (footerBlock) footerBlock.style.display = "";
+            if (previousBlock) previousBlock.style.display = "";
+        };
+    }, [showIframe]);
 
-    + `<script type="text/javascript" src="${actual_url.origin}/Maps/${page}/unmined.map.properties.js"}></script>`
-    + `<script type="text/javascript" src="${actual_url.origin}/Maps/${page}/unmined.map.regions.js"}></script>`
-    + `<script type="text/javascript" src="${actual_url.origin}/Maps/${page}/unmined.map.players.js"></script>`
-    + `<script type="text/javascript" src="${actual_url.origin}/Maps/${page}/custom.markers.js"></script>`
-    + `<script type="text/javascript" src="${actual_url.origin}/Maps/${page}/unmined.openlayers.js"></script>`    
-    + `<script type="text/javascript" src="${actual_url.origin}/scripts/maprendering.js"></script>`
+    return (
+        <>
+            {!showIframe && (
+                <>
+                    <GoBackButton />
+                    <button id="render" onClick={() => setShowIframe(true)}>
+                        Render
+                    </button>
+                </>
+            )}
 
-    return <>
-        <button id="previous"><img src={previousArrow} width={"20px"}/><Link to="/maps">  Retour</Link></button>
-        <div id="map"></div>
-    </>
+            {showIframe && (
+                <iframe
+                    title={`Map Viewer for ${page}`}
+                    src={`/A.I.D.E/Maps/${page}/unmined.index.html`}
+                />
+            )}
+        </>
+    );
 }
 
-export default Map
+export default Map;
