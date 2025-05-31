@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { Suspense } from 'react'
 import '../assets/styles/App.css'
 import '../assets/styles/content.css'
+import '../assets/styles/buttons.css'
 import Footer from './components/footer'
 import Header from './components/header'
 

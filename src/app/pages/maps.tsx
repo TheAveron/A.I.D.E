@@ -7,9 +7,10 @@
  * a user interaction. Legacy DOM manipulation is removed in favor of React state and effects.
  */
 
-import { useLoaderData, Link } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 import { useEffect, useState } from "react";
-import previousArrow from "../../assets/images/previous.svg";
+import "../../assets/styles/maps.css";
+import { GoBackButton } from "../components/goback_button";
 
 // Loader to extract the map name from URL parameters
 export function loader({ params }) {
@@ -48,11 +49,7 @@ function Map() {
         <>
             {!showIframe && (
                 <>
-                    <button id="previous" className="nav-button">
-                        <img src={previousArrow} width="20px" alt="Back" />
-                        <Link to="/A.I.D.E/maps"> Retour</Link>
-                    </button>
-
+                    <GoBackButton />
                     <button id="render" onClick={() => setShowIframe(true)}>
                         Render
                     </button>
@@ -62,11 +59,6 @@ function Map() {
             {showIframe && (
                 <iframe
                     title={`Map Viewer for ${page}`}
-                    style={{
-                        width: "100vw",
-                        height: "calc(100vh - max(8vh, calc(4vh + 50px)))",
-                        border: "none",
-                    }}
                     src={`/A.I.D.E/Maps/${page}/unmined.index.html`}
                 />
             )}

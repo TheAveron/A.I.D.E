@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom"
-import previousArrow from "../../assets/images/previous.svg"
+import { GoBackButton } from "../components/goback_button"
 
 function Rules() {
     return <>
-        <button id="previous"><img src={previousArrow} width={"20px"} /><Link to="/A.I.D.E">  Retour</Link></button>
+        <GoBackButton />
         <section className="text-section">
             <h1>Règlements du realm</h1>
 
