@@ -1,27 +1,26 @@
 import { useEffect, useState, Suspense } from "react";
 import { useLoaderData } from "react-router-dom";
-import md_converter from "../utils/markdown_converter";
-import { GoBackButton } from "../components/goback_button";
+import md_converter from "../../utils/markdown_converter";
+import { GoBackButton } from "../../components/goback_button";
 
-export function loader({ params }) {
-    const page: string = params.rulename;
-    return { page };
-}
 
 type LoiParams = {
-    folder: string
+    type: string
 }
 
 type pageLoader = {
     page: string
+    server: string
 }
 
-function Loi({ folder }: LoiParams) {
-    const { page } = useLoaderData() as pageLoader;
+function Loi({ type }: LoiParams) {
+    const { page, server } = useLoaderData() as pageLoader;
     const [content, setContent] = useState(<></>);
 
+    console.log(`Loading content for ${server}/${type}/${page}`);
+
     useEffect(() => {
-        fetch(`/A.I.D.E/Rules/${folder}/${page}.md`)
+        fetch(`/A.I.D.E/Rules/${server}/${type}/${page}.md`)
             .then(async (response) => {
                 if (!response.ok) throw new Error('Failed to load markdown');
                 const text = await response.text();
@@ -31,7 +30,7 @@ function Loi({ folder }: LoiParams) {
                 console.error(error);
                 setContent(<p>Error loading content.</p>);
             });
-    }, [folder, page]);
+    }, [server, type, page]);
 
     return (
         <>

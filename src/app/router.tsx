@@ -6,10 +6,12 @@ import {
 import App from './App';
 import ErrorPage from './components/errors';
 import Home from './pages/home';
-import Loi, { loader as rulesLoader } from './pages/lois';
-import Map, { loader as mapsLoader } from './pages/maps';
-import Rules from './pages/ruleslist';
-import Maps from './pages/mapslist';
+import Loi from './pages/rules/rulespages';
+import { loader as rulesLoader } from './pages/rules/rulesloader';
+import { loader as mapsLoader } from './pages/maps/mapsloader';
+import Map from './pages/maps/mapspages';
+import Rules from './pages/rules/ruleslist';
+import Maps from './pages/maps/mapslist';
 import Contribution from './pages/contribution';
 
 const routes: RouteObject[] = [
@@ -36,18 +38,18 @@ const routes: RouteObject[] = [
                 element: <Rules />,
             },
             {
-                path: 'rules/lois/:rulename',
-                element: <Loi folder="lois" />,
+                path: 'rules/:server/lois/:rulename',
+                element: <Loi type="lois" />,
                 loader: rulesLoader,
             },
             {
-                path: 'rules/marches/:rulename',
-                element: <Loi folder="marches" />,
+                path: 'rules/:server/marches/:rulename',
+                element: <Loi type="marches" />,
                 loader: rulesLoader,
             },
             {
-                path: 'rules/zones/:rulename',
-                element: <Loi folder="zones" />,
+                path: 'rules/:server/zones/:rulename',
+                element: <Loi type="zones" />,
                 loader: rulesLoader,
             },
             {
@@ -58,4 +60,6 @@ const routes: RouteObject[] = [
     },
 ];
 
-export default createBrowserRouter(routes);
+const router = createBrowserRouter(routes);
+
+export default router;

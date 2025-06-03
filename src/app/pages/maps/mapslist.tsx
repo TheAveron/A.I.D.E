@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { GoBackButton } from "../components/goback_button";
+import { GoBackButton } from "../../components/goback_button";
 
 const mapFolders = [
   "OCube_crusader",

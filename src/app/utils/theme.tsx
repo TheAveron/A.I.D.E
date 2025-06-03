@@ -25,11 +25,9 @@ function ChooseThemeIcon() {
 
 function ThemeChoice() {
     return (
-        <>
-            <button onClick={changetheme} id="theme-button">
-                <img id="theme-img" src={ChooseThemeIcon()} />
-            </button>
-        </>
+        <div onClick={changetheme} id="theme-button">
+            <img id="theme-img" src={ChooseThemeIcon()} />
+        </div>
     );
 }
 

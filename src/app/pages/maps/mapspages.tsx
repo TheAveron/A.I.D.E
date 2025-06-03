@@ -9,14 +9,9 @@
 
 import { useLoaderData } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "../../assets/styles/maps.css";
-import { GoBackButton } from "../components/goback_button";
+import "../../../assets/styles/maps.css";
+import { GoBackButton } from "../../components/goback_button";
 
-// Loader to extract the map name from URL parameters
-export function loader({ params }) {
-    const page: string = params.mapname;
-    return { page };
-}
 
 type PageLoader = {
     page: string;

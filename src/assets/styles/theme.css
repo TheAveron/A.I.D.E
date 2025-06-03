@@ -4,6 +4,8 @@
     place-items: center;
     padding: 3px;
     display: flex;
+
+    cursor: pointer;
 }
 
 #theme-img {
