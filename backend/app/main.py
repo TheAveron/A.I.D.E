@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.app.api import offer
+
 from .api import auth, faction, user
 from .database import Base, engine
 
@@ -21,6 +23,7 @@ app.add_middleware(
 app.include_router(user.router)
 app.include_router(faction.router)
 app.include_router(auth.router)
+app.include_router(offer.router)
 
 
 @app.get("/")

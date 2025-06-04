@@ -8,10 +8,12 @@ def test_create_faction(client):
     assert data["name"] == "Test Faction"
     assert "id" in data
 
+
 def test_create_duplicate_faction(client):
     response = client.post("/factions", json={"name": "Test Faction"})
     assert response.status_code == 400
     assert response.json()["detail"] == "Faction already exists"
+
 
 def test_list_factions(client):
     response = client.get("/factions")
@@ -19,6 +21,7 @@ def test_list_factions(client):
     data = response.json()
     assert isinstance(data, list)
     assert any(f["name"] == "Test Faction" for f in data)
+
 
 def test_update_faction(client):
     # First, get the faction ID
