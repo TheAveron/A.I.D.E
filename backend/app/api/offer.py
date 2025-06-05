@@ -1,22 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from ..database import get_db
-from ..schemas.offer import OfferCreate, OfferUpdate, OfferOut
-from ..crud.offer import (
-    create_offer,
-    get_offer,
-    list_offers,
-    update_offer_status,
-    update_offer,
-    delete_offer,
-)
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
-router = APIRouter(
-    prefix="/offers",
-    tags=["marketplace"]
-)
+from ..crud import (create_offer, delete_offer, get_offer, list_offers,
+                    update_offer, update_offer_status)
+from ..database import get_db
+from ..schemas import OfferCreate, OfferOut, OfferUpdate
+
+router = APIRouter(prefix="/offers", tags=["marketplace"])
 
 
 @router.post("/", response_model=OfferOut, status_code=status.HTTP_201_CREATED)
@@ -36,7 +28,7 @@ def read_offer(offer_id: int, db: Session = Depends(get_db)):
 def read_offers(
     only_open: bool = True,
     currency: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     return list_offers(db, only_open=only_open, currency=currency)
 
@@ -50,7 +42,9 @@ def change_offer_status(offer_id: int, status: str, db: Session = Depends(get_db
 
 
 @router.put("/{offer_id}", response_model=OfferOut)
-def modify_offer(offer_id: int, update_data: OfferUpdate, db: Session = Depends(get_db)):
+def modify_offer(
+    offer_id: int, update_data: OfferUpdate, db: Session = Depends(get_db)
+):
     updated = update_offer(db, offer_id, update_data)
     if not updated:
         raise HTTPException(status_code=404, detail="Offer not found")

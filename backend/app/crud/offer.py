@@ -3,8 +3,8 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from ..database.models.offer import Offer
-from ..schemas.offer import OfferCreate, OfferUpdate
+from ..database import Offer
+from ..schemas import OfferCreate, OfferUpdate
 
 
 def create_offer(db: Session, offer_data: OfferCreate) -> Offer:

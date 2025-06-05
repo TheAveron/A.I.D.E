@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api import offer
-
-from .api import auth, faction, user
+from .api import auth, faction, offer, user
 from .database import Base, engine
 
 app = FastAPI(title="A.I.D.E Backend")

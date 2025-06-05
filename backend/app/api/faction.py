@@ -3,10 +3,10 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from ..core.security import get_current_user
+from ..core import get_current_user
 from ..crud import faction as faction_crud
 from ..database import get_db
-from ..schemas.factions import FactionCreate, FactionOut, FactionUpdate
+from ..schemas import FactionCreate, FactionOut, FactionUpdate
 
 router = APIRouter(
     prefix="/factions",

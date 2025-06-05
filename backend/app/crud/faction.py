@@ -3,7 +3,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from ..database import Faction, User
-from ..schemas.factions import FactionCreate, FactionUpdate
+from ..schemas import FactionCreate, FactionUpdate
 
 
 def get_faction(db: Session, faction_id: int) -> Optional[Faction]:
