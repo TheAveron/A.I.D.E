@@ -32,7 +32,7 @@ class OfferCreate(OfferBase):
 
 class OfferUpdate(BaseModel):
     status: Optional[OfferStatus] = None
-    price_per_unit: Optional[float] = None
+    price: Optional[float] = None
     quantity: Optional[int] = None
     allowed_parties: Optional[List[int]] = None
 

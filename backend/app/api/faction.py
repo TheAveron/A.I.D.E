@@ -15,20 +15,32 @@ router = APIRouter(
 
 
 @router.post("/", response_model=FactionOut, status_code=status.HTTP_201_CREATED)
-def create_faction(faction_data: FactionCreate, db: Session = Depends(get_db)):
-    # Check unique name
-    existing = faction_crud.get_faction_by_name(db, faction_data.name)
+def create_faction(
+    faction_data: FactionCreate, db: Session = Depends(get_db)
+) -> FactionOut:
+    """
+    Create a new faction.
+
+    Parameters:
+    - faction: Faction data including name
+
+    Returns:
+    - FactionOut: Created faction data
+
+    Raises:
+    - 400: Faction already exists
+    - 422: Invalid faction data
+    """
+    if faction_crud.get_faction_by_name(db, faction_data.name):
+        raise HTTPException(status_code=400, detail="Faction name already exists")
 
     user = get_current_user()
-
-    if existing:
-        raise HTTPException(status_code=400, detail="Faction name already exists")
-    # Check user already has a faction
     user_faction = faction_crud.get_faction_by_user_id(db, user.id) if user else None  # type: ignore
+
     if user_faction:
         raise HTTPException(status_code=400, detail="User already belongs to a faction")
-    faction = faction_crud.create_faction(db, faction_data)
-    return faction
+
+    return faction_crud.create_faction(db, faction_data)
 
 
 @router.get("/", response_model=List[FactionOut])

@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
-from app.database import database
+from backend.app.database import database
 
 
 def test_load_db_config():

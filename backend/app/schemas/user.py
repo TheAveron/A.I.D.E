@@ -1,13 +1,22 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
     username: str
+    email: EmailStr
     password: str
 
 
-class UserLogin(UserCreate):
+class UserUpdate(UserBase):
     pass
+
+
+class UserLogin(UserBase):
+    pass
+
+
+class UserCreate(UserBase):
+    is_admin: bool = False
 
 
 class UserOut(BaseModel):

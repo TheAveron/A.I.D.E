@@ -1,5 +1,8 @@
+import os
 from datetime import datetime, timedelta
+from tkinter import SE
 
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -9,8 +12,14 @@ from sqlalchemy.orm import Session
 from ..crud import get_user_by_username
 from ..database import get_db
 
+load_dotenv()
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-SECRET_KEY = "your-secret-key"  # should be stored securely
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+if SECRET_KEY is None:
+    raise ValueError("No SECRET_KEY environment variable set")
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
@@ -28,6 +37,9 @@ def verify_password(plain_password: str, hashed: str) -> bool:
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None):  # type: ignore
+    if SECRET_KEY is None:
+        raise ValueError("No SECRET_KEY environment variable set")
+
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
@@ -42,6 +54,9 @@ def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    if SECRET_KEY is None:
+        raise ValueError("No SECRET_KEY environment variable set")
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")  # type: ignore
