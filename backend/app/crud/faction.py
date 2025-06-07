@@ -1,13 +1,11 @@
 from typing import List, Optional
 
+from fastapi import HTTPException
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ..database import Faction, User
 from ..schemas import FactionCreate, FactionUpdate
-
-
-from fastapi import HTTPException
-from sqlalchemy.exc import SQLAlchemyError
 
 
 def get_faction(db: Session, faction_id: int) -> Optional[Faction]:
