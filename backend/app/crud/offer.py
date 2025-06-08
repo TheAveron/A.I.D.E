@@ -5,12 +5,16 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from ..database import Offer
+from ..crud import log_offer_history
+from ..database import Offer, OfferAction
 from ..schemas import OfferCreate, OfferUpdate
 
 
 def create_offer(db: Session, offer_data: OfferCreate) -> Offer:
     offer = Offer(**offer_data.dict(), created_at=datetime.utcnow())
+
+    log_offer_history(db, offer.id, OfferAction.CREATED, offer.accepted_by_user_id)  # type: ignore
+
     db.add(offer)
     db.commit()
     db.refresh(offer)

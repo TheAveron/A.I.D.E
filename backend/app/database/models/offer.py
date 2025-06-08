@@ -47,6 +47,14 @@ class Offer(Base):
     status = Column(Enum(OfferStatus), default=OfferStatus.OPEN, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    accepted_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    accepted_by_user = relationship("User", back_populates="accepted_offers")
+
+    # inside Offer class
+    history = relationship(
+        "OfferHistory", back_populates="offer", cascade="all, delete-orphan"
+    )
+
     __table_args__ = (
         CheckConstraint(
             "(user_id IS NOT NULL AND faction_id IS NULL) OR "
