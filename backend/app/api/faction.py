@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=FactionOut, status_code=status.HTTP_201_CREATED)
+@router.post("/create", response_model=FactionOut, status_code=status.HTTP_201_CREATED)
 def create_faction(
     faction_data: FactionCreate, db: Session = Depends(get_db)
 ) -> FactionOut:
@@ -43,7 +43,7 @@ def create_faction(
     return faction_crud.create_faction(db, faction_data)
 
 
-@router.get("/", response_model=List[FactionOut])
+@router.get("/lsit", response_model=List[FactionOut])
 def list_factions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return faction_crud.list_factions(db, skip=skip, limit=limit)
 
@@ -72,7 +72,7 @@ def update_faction(
     return updated_faction
 
 
-@router.delete("/{faction_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{faction_id}/delete", status_code=status.HTTP_204_NO_CONTENT)
 def delete_faction(faction_id: int, db: Session = Depends(get_db)):
     faction = faction_crud.get_faction(db, faction_id)
     if not faction:

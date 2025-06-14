@@ -46,3 +46,15 @@ class OfferOut(OfferBase):
 
     class Config:
         from_attributes = True
+
+
+class OfferHistoryOut(BaseModel):
+    id: int
+    offer_id: int
+    action: str
+    actor_user_id: Optional[int] = None
+    actor_faction_id: Optional[int] = None
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True

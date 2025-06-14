@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from ..core import get_current_user
-from ..crud import fulfill_offer, get_offer, log_offer_history
+from ..crud import fulfill_offer, get_offer, log_offer_history, update_offer_status
 from ..database import Offer, OfferAction, OfferStatus, Role, User, get_db
 from ..schemas import OfferOut, TransactionOut
 
@@ -68,8 +68,6 @@ def accept_offer(
         raise HTTPException(
             status_code=500, detail=f"Failed to fulfill offer: {str(e)}"
         )
-
-    log_offer_history(db, offer.id, OfferAction.ACCEPTED, user_id=current_user.id)  # type: ignore
     return fulfilled_offer
 
 
@@ -101,7 +99,7 @@ def decline_offer(
             status_code=403, detail="Not authorized to cancel this offer"
         )
 
-    offer.status = OfferStatus.CANCELLED  # type: ignore
+    update_offer_status(db, offer.id, OfferStatus.CANCELLED)  # type: ignore
     log_offer_history(db, offer.id, OfferAction.CANCELLED, current_user.id)  # type: ignore
 
     db.commit()

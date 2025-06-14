@@ -5,15 +5,15 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from ..crud import log_offer_history
-from ..database import Offer, OfferAction
+from ..database import Offer, OfferAction, OfferHistory, OfferStatus
 from ..schemas import OfferCreate, OfferUpdate
+from .offer_history import log_offer_history
 
 
 def create_offer(db: Session, offer_data: OfferCreate) -> Offer:
     offer = Offer(**offer_data.dict(), created_at=datetime.utcnow())
 
-    log_offer_history(db, offer.id, OfferAction.CREATED, offer.accepted_by_user_id)  # type: ignore
+    log_offer_history(db, offer.id, OfferAction.CREATED, offer.user_id)  # type: ignore
 
     db.add(offer)
     db.commit()
@@ -41,7 +41,9 @@ def list_offers(
     return query.all()
 
 
-def update_offer_status(db: Session, offer_id: int, new_status: str) -> Optional[Offer]:
+def update_offer_status(
+    db: Session, offer_id: int, new_status: OfferStatus
+) -> Optional[Offer]:
     offer = db.query(Offer).filter(Offer.id == offer_id).first()
     if offer:
         offer.status = new_status  # type: ignore
@@ -79,3 +81,12 @@ def delete_offer(db: Session, offer_id: int) -> bool:
         db.commit()
         return True
     return False
+
+
+def get_offer_history(db: Session, offer_id: int):
+    return (
+        db.query(OfferHistory)
+        .filter(OfferHistory.offer_id == offer_id)
+        .order_by(OfferHistory.timestamp.desc())
+        .all()
+    )
