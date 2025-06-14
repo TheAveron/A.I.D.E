@@ -1,8 +1,7 @@
 {
-
     "name": "guide",
     "private": true,
-    "version": "0.2.1",
+    "version": "0.3.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -13,27 +12,24 @@
         "preview": "vite preview"
     },
     "dependencies": {
-        "gh-pages": "^6.1.1",
-        "html-react-parser": "^5.0.11",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "react-router": "^7.6.1",
-        "react-router-dom": "^7.6.1",
-        "showdown": "^2.1.0",
-        "usehooks-ts": "^2.9.2"
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0"
     },
     "devDependencies": {
-        "@types/node": "^20.11.0",
-        "@types/react": "^18.2.43",
-        "@types/react-dom": "^18.2.17",
-        "@types/showdown": "^2.0.6",
-        "@typescript-eslint/eslint-plugin": "^6.14.0",
-        "@typescript-eslint/parser": "^6.14.0",
-        "@vitejs/plugin-react": "^4.2.1",
-        "eslint": "^8.55.0",
-        "eslint-plugin-react-hooks": "^4.6.0",
-        "eslint-plugin-react-refresh": "^0.4.5",
-        "typescript": "^5.2.2",
+        "@eslint/js": "^9.25.0",
+        "@types/react": "^19.1.2",
+        "@types/react-dom": "^19.1.2",
+        "@vitejs/plugin-react": "^4.4.1",
+        "eslint": "^9.25.0",
+        "eslint-plugin-react-hooks": "^5.2.0",
+        "eslint-plugin-react-refresh": "^0.4.19",
+        "globals": "^16.0.0",
+        "typescript": "~5.8.3",
+        "typescript-eslint": "^8.30.1",
         "vite": "^6.3.5"
-    }
+    },
+    "description": "New Hub with more modulability",
+    "main": "index.js",
+    "author": "TheAveron",
+    "license": "ISC"
 }
