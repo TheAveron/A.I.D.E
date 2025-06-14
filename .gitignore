@@ -221,3 +221,5 @@ cython_debug/
 .cursorindexingignore
 
 database.ini
+
+.react-router
