@@ -25,7 +25,7 @@
         transform: rotate(0deg);
     }
 
-    q to {
+    to {
         transform: rotate(360deg);
     }
 }

@@ -3,7 +3,9 @@
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
         "target": "ES2022",
         "lib": [
-            "ES2023"
+            "ES2023",
+            "DOM",
+            "DOM.Iterable"
         ],
         "module": "ESNext",
         "skipLibCheck": true,
@@ -20,7 +22,8 @@
         "erasableSyntaxOnly": true,
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true,
-        "composite": true
+        "composite": true,
+        "jsx": "react-jsx"
     },
     "include": [
         "src",
