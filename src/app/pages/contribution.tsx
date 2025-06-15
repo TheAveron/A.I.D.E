@@ -2,7 +2,7 @@ function Contribution() {
     return (
         <section className="text-section contribution" style={{ textAlign: "justify" }}>
             <h1>Contribuer au site</h1>
-            <p>Afin de pouvoir ajouter de nouvelles cartes au site, vous devez pour cela les générer avec numined. Il y a quelques informations supplémentaires qui seront indiqués ultérieuerement sur la configuration nécessaire d'unmined pour conserver une cohérence.
+            <p>Afin de pouvoir ajouter de nouvelles cartes au site, vous devez pour cela les générer avec unmined. Il y a quelques informations supplémentaires qui seront indiqués ultérieuerement sur la configuration nécessaire d'unmined pour conserver une cohérence.
             </p>
             <p>
                 Une fois la carte générée, vous pouvez l'ajouter dans le dossier <code>public/maps</code> du projet. Il est important de respecter la structure de nommage suivante : <code>nom_de_la_map/</code>.
