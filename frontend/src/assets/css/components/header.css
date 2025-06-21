@@ -1,0 +1,44 @@
+header {
+    width: 92vw;
+    padding: 2vh 4vw;
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    left: 0;
+    top: 0;
+    justify-content: space-between;
+    place-items: center;
+    background-color: var(--background);
+    height: 4vh;
+    min-height: 75px;
+    border-bottom: 0.003mm solid var(--text);
+}
+
+nav {
+    display: flex;
+    flex-direction: row;
+    column-gap: 2em;
+    place-items: center;
+}
+
+header .link {
+    font-size: larger;
+    font-weight: 500;
+}
+
+header .title {
+    font-weight: 800;
+    font-size: x-large;
+}
+
+header nav .link:hover {
+    color: var(--primary);
+}
+
+@media only screen and (min-width: 1500px) {
+    header {
+        padding-left: 2vw;
+        padding-right: 2vw;
+        width: 96vw;
+    }
+}

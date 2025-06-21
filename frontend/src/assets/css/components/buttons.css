@@ -1,0 +1,36 @@
+.button {
+    padding: min(1.5vh, 10px) min(2vw, 30px);
+    background-color: var(--primary);
+    color: var(--background);
+    border-radius: 0.4em;
+    text-decoration: none;
+    transition: border-color .25s, background-color .25s, color .25s, fill .25s;
+    border: solid 1px transparent;
+    max-width: fit-content;
+
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.6vw;
+    fill: var(--background);
+}
+
+.button:hover {
+    background-color: var(--secondary);
+    border-color: var(--accent);
+    color: var(--text);
+    fill: var(--text);
+}
+
+.button p {
+    color: inherit;
+    font-weight: 500;
+    font-size: large;
+    margin: 0;
+}
+
+.button svg {
+    fill: inherit;
+    vertical-align: middle;
+    width: 24px;
+    height: 24px;
+}
