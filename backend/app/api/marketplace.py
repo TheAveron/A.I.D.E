@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from ..core import get_current_user
-from ..crud import fulfill_offer, get_offer, log_offer_history, update_offer_status
+from ..crud import (fulfill_offer, get_offer, log_offer_history,
+                    update_offer_status)
 from ..database import Offer, OfferAction, OfferStatus, Role, User, get_db
 from ..schemas import OfferOut, TransactionOut
 

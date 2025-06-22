@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from ..database import Role
+from database import Role
 
 
 def get_role_by_id(db: Session, role_id: int):

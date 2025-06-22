@@ -9,8 +9,9 @@ for ORM operations and dependency injection.
 import configparser
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm.session import Session
 
 # ---------------------------------------------------------------------
 # CONFIGURATION
@@ -22,7 +23,8 @@ def load_db_config(filename=None, section="postgresql") -> dict:
     Reads database configuration from a .ini file.
     """
     filename = (
-        filename or Path(__file__).parent.parent.parent / "config" / "database.ini"
+        filename
+        or Path(__file__).parent.parent.parent / "app" / "config" / "database.ini"
     )
 
     parser = configparser.ConfigParser()
@@ -46,8 +48,10 @@ SQLALCHEMY_DATABASE_URL = (
 )
 
 # SQLAlchemy engine and session
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False, future=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine: Engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False, future=True)
+SessionLocal: sessionmaker[Session] = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine
+)
 
 # Declarative base for models
 Base = declarative_base()

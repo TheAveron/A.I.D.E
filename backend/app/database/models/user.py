@@ -12,7 +12,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, nullable=False, index=True)
     email = Column(String(120), unique=True, nullable=False, index=True)
-    hashed_password = Column(String(128), nullable=False)
+    password_hash = Column(String(128), nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -23,6 +23,12 @@ class User(Base):
     role = relationship("Role", back_populates="users")
 
     offers = relationship("Offer", back_populates="user")
+
+    accepted_offers = relationship(
+        "Offer",
+        back_populates="accepted_by_user",
+        foreign_keys="Offer.accepted_by_user_id",
+    )
 
     def __repr__(self):
         return f"<User(username={self.username}, faction={self.faction.name if self.faction else None})>"

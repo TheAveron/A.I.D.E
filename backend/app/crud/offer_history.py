@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from ..database import OfferAction, OfferHistory
+from database import OfferAction, OfferHistory
 
 
 def log_offer_history(

@@ -1,19 +1,27 @@
 from datetime import datetime
-from enum import Enum as PyEnum
+import enum
 
-from sqlalchemy import (JSON, CheckConstraint, Column, DateTime, Enum, Float,
-                        ForeignKey, Integer, String)
+from sqlalchemy import (
+    JSON,
+    CheckConstraint,
+    Column,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+)
 from sqlalchemy.orm import relationship
 
 from ..database import Base
 
 
-class OfferType(PyEnum):
+class OfferType(enum.Enum):
     BUY = "buy"
     SELL = "sell"
 
 
-class OfferStatus(PyEnum):
+class OfferStatus(enum.Enum):
     OPEN = "open"
     CLOSED = "closed"
     CANCELLED = "cancelled"
@@ -26,8 +34,6 @@ class Offer(Base):
 
     # Creator (either user or faction)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    user = relationship("User", back_populates="offers")
-
     faction_id = Column(Integer, ForeignKey("factions.id"), nullable=True)
     faction = relationship("Faction", back_populates="offers")
 
@@ -36,7 +42,9 @@ class Offer(Base):
     item_description = Column(JSON, nullable=False)
 
     # Price
-    currency = Column(String(50), nullable=False)  # Custom currency name
+    currency_id = Column(Integer, ForeignKey("currencies.id"), nullable=False)
+    currency = relationship("Currency", back_populates="offers")
+
     price_per_unit = Column(Float, nullable=False)
     quantity = Column(Integer, nullable=False)
 
@@ -48,7 +56,14 @@ class Offer(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     accepted_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    accepted_by_user = relationship("User", back_populates="accepted_offers")
+    user = relationship("User", back_populates="offers", foreign_keys=[user_id])
+    accepted_by_user = relationship(
+        "User", back_populates="accepted_offers", foreign_keys=[accepted_by_user_id]
+    )
+
+    transactions = relationship(
+        "Transaction", back_populates="offer", cascade="all, delete-orphan"
+    )
 
     # inside Offer class
     history = relationship(

@@ -1,6 +1,14 @@
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    CheckConstraint,
+)
 from sqlalchemy.orm import relationship
 
 from ..database import Base
@@ -18,8 +26,17 @@ class Transaction(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     offer = relationship("Offer")
-    buyer = relationship("User")
-    buyer_faction = relationship("Faction")
+    buyer = relationship("User", foreign_keys=[buyer_id])
+    buyer_faction = relationship("Faction", foreign_keys=[buyer_faction_id])
+    offer = relationship("Offer", back_populates="transactions")
+
+    __table_args__ = (
+        CheckConstraint(
+            "(buyer_id IS NOT NULL AND buyer_faction_id IS NULL) OR "
+            "(buyer_id IS NULL AND buyer_faction_id IS NOT NULL)",
+            name="check_one_buyer_type",
+        ),
+    )
 
     def __repr__(self):
         return f"<Transaction(id={self.id}, offer_id={self.offer_id}, buyer_id={self.buyer_id}, amount={self.amount}, currency={self.currency}, timestamp={self.timestamp})>"

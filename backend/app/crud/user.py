@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from ..database import User
+from database import User
 
 
 def get_user_by_username(db: Session, username: str):

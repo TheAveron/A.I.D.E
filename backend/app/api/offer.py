@@ -3,11 +3,18 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from ..core import get_current_user
-from ..crud import (create_offer, delete_offer, get_offer, get_offer_history,
-                    list_offers, update_offer, update_offer_status)
-from ..database import User, get_db
-from ..schemas import OfferCreate, OfferHistoryOut, OfferOut, OfferUpdate
+from core import get_current_user
+from crud import (
+    create_offer,
+    delete_offer,
+    get_offer,
+    get_offer_history,
+    list_offers,
+    update_offer,
+    update_offer_status,
+)
+from database import User, get_db
+from schemas import OfferCreate, OfferHistoryOut, OfferOut, OfferUpdate
 
 router = APIRouter(prefix="/offers", tags=["marketplace"])
 
@@ -58,6 +65,7 @@ def remove_offer(offer_id: int, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(status_code=404, detail="Offer not found")
     return
+
 
 @router.get("/{offer_id}/history", response_model=List[OfferHistoryOut])
 def read_offer_history(

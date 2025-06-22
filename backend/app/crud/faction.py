@@ -4,8 +4,8 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from ..database import Faction, User
-from ..schemas import FactionCreate, FactionUpdate
+from database import Faction, User
+from schemas import FactionCreate, FactionUpdate
 
 
 def get_faction(db: Session, faction_id: int) -> Optional[Faction]:

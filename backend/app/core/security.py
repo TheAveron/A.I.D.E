@@ -8,8 +8,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from ..crud import get_user_by_username
-from ..database import get_db
+from crud import get_user_by_username
+from database import get_db
 
 load_dotenv()
 

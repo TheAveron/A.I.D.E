@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from ..core import create_access_token, hash_password
-from ..crud import authenticate_user, create_user, get_user_by_username
-from ..database import get_db
-from ..schemas import UserCreate, UserLogin, UserOut
+from core import create_access_token, hash_password
+from crud import authenticate_user, create_user, get_user_by_username
+from database import get_db
+from schemas import UserCreate, UserLogin, UserOut
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -26,6 +26,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
+    print("e")
     authenticated_user = authenticate_user(db, user.username, user.password)
     if not authenticated_user:
         raise HTTPException(

@@ -1,40 +1,20 @@
-import os
-
+# backend/app/tests/conftest.py
 import pytest
-from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import clear_mappers
 
-from app.database import Base, get_db
-from app.main import app
-
-# Use PostgreSQL for testing to match production
-POSTGRES_TEST_URL = os.getenv(
-    "TEST_DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/aide_test"
-)
+from backend.app.database.database import Base
 
 
-@pytest.fixture(scope="session")
-def engine():
-    engine = create_engine(POSTGRES_TEST_URL)
+@pytest.fixture(scope="function")
+def session():
+    engine = create_engine("sqlite:///:memory:", echo=False)
+    TestingSessionLocal = sessionmaker(bind=engine)
     Base.metadata.create_all(bind=engine)
-    yield engine
-    Base.metadata.drop_all(bind=engine)
-
-
-@pytest.fixture(scope="function")
-def db_session(engine):
-    SessionLocal = sessionmaker(bind=engine)
-    session = SessionLocal()
+    db = TestingSessionLocal()
     try:
-        yield session
+        yield db
     finally:
-        session.rollback()
-        session.close()
-
-
-@pytest.fixture(scope="function")
-def client(db_session):
-    app.dependency_overrides[get_db] = lambda: db_session
-    with TestClient(app) as test_client:
-        yield test_client
+        db.close()
+        Base.metadata.drop_all(bind=engine)

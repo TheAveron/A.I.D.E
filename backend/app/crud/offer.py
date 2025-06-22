@@ -5,8 +5,8 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from ..database import Offer, OfferAction, OfferHistory, OfferStatus
-from ..schemas import OfferCreate, OfferUpdate
+from database import Offer, OfferAction, OfferHistory, OfferStatus
+from schemas import OfferCreate, OfferUpdate
 from .offer_history import log_offer_history
 
 
