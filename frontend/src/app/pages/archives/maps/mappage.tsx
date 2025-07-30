@@ -8,13 +8,13 @@
  */
 
 import { useParams } from "react-router";
-import PageGenerator from "../../components/pagegen";
+import ServerPage from "../server";
 
 function Map() {
     const { page } = useParams();
     console.log(page);
 
-    return PageGenerator(page ?? "", false);
+    return ServerPage(page ?? "");
 }
 
 export default Map;

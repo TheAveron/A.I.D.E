@@ -12,18 +12,25 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@hookform/resolvers": "^5.2.1",
         "@react-router/node": "^7.6.2",
         "@types/react-router-dom": "^5.3.3",
+        "axios": "^1.11.0",
+        "html-react-parser": "^5.2.5",
         "isbot": "^5",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
-        "react-router-dom": "^7.6.2"
+        "react-hook-form": "^7.61.1",
+        "react-router-dom": "^7.6.2",
+        "showdown": "^2.1.0",
+        "yup": "^1.6.1"
     },
     "devDependencies": {
         "@eslint/js": "^9.25.0",
         "@react-router/dev": "^7.6.2",
         "@types/react": "^19.1.2",
         "@types/react-dom": "^19.1.2",
+        "@types/showdown": "^2.0.6",
         "@vitejs/plugin-react": "^4.4.1",
         "eslint": "^9.25.0",
         "eslint-plugin-react-hooks": "^5.2.0",

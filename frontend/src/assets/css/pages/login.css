@@ -21,7 +21,19 @@ form {
     margin-bottom: 5vh;
 }
 
-#login {
-    height: calc(100vh - 2 * var(--header-height));
+#login,
+#register {
+    min-height: calc(100vh - 2 * var(--header-height));
     align-items: center;
+}
+
+.form-end {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.form-end * {
+    font-size: 1.2em;
+    font-weight: 500;
 }

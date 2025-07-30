@@ -6,11 +6,13 @@ import Header from "./components/header";
 import Footer from "./components/footer";
 import "../assets/css/components/buttons.css";
 
+import "../assets/css/pages/archives.css";
+
 function App() {
     return (
         <>
             <Header />
-            <main>
+            <main id="main">
                 <Outlet />
             </main>
             <Footer />

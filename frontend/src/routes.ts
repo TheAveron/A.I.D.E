@@ -10,15 +10,22 @@ export default [
     route("/A.I.D.E", "./app/App.tsx", [
         index("./app/pages/home.tsx"),
         route("login", "./app/pages/login.tsx"),
+        route("register", "./app/pages/register.tsx"),
         route("contribuer", "./app/pages/contribution.tsx"),
 
-        ...prefix("maps", [
-            ...prefix("archives", [
-                index("./app/pages/maps/archiveslist.tsx"),
-                route(":page", "./app/pages/maps/mappage.tsx"),
+        ...prefix("archives", [
+            index("./app/pages/archives/archives.tsx"),
+
+            ...prefix("rule:rule", [
+                index("./app/pages/archives/rules/ruleslist.tsx"),
+                route(":type/:name", "./app/pages/archives/rules/rulepage.tsx"),
             ]),
-            route("actual", "./app/pages/maps/currentmap.tsx"),
+
+            ...prefix("maps", [
+                route(":page", "./app/pages/archives/maps/mappage.tsx"),
+            ]),
         ]),
+        route("actual", "./app/pages/archives/maps/currentmap.tsx"),
         route("profile", "./app/pages/profile.tsx"),
         route("factions", "./app/pages/factionlist.tsx"),
         route("*", "./app/pages/404.tsx"),

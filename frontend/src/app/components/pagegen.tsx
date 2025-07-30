@@ -1,24 +1,51 @@
 import { useState, useEffect } from "react";
-import { GoBackButton } from "./return";
+
+function toggleLayout(isColumn: boolean) {
+    const mapTitle = document.getElementById("map-title");
+    if (isColumn) {
+        mapTitle?.classList.add("column-layout");
+    } else {
+        mapTitle?.classList.remove("column-layout");
+    }
+}
 
 function PageGenerator(page: string, render: boolean) {
     const [showIframe, setShowIframe] = useState(render);
+    let isColumn = true;
 
     useEffect(() => {
         if (!showIframe) return;
 
         const renderBlock = document.getElementById("render");
         const footerBlock = document.getElementById("footer");
-        const previousBlock = document.getElementById("previous");
+        const headerBlock = document.getElementById("header");
+        const main = document.getElementById("main");
+        isColumn = !isColumn;
+        toggleLayout(isColumn);
 
         if (renderBlock) renderBlock.style.display = "none";
         if (footerBlock) footerBlock.style.display = "none";
-        if (previousBlock) previousBlock.style.display = "none";
+        if (headerBlock) {
+            headerBlock.style.height = "0vh";
+            headerBlock.style.minHeight = "0";
+            headerBlock.style.paddingTop = "0";
+            headerBlock.style.paddingBottom = "0";
+        }
+        if (main) main.style.marginTop = "0";
 
         return () => {
             if (renderBlock) renderBlock.style.display = "";
             if (footerBlock) footerBlock.style.display = "";
-            if (previousBlock) previousBlock.style.display = "";
+            if (headerBlock) {
+                headerBlock.style.display = "4vh";
+                headerBlock.style.minHeight = "75px";
+                headerBlock.style.paddingTop = " 2vh";
+                headerBlock.style.paddingBottom = " 2vh";
+            }
+            if (main) main.style.marginTop = "calc(var(--header-height))";
+
+            isColumn = !isColumn;
+            toggleLayout(isColumn);
         };
     }, [showIframe]);
 
@@ -26,7 +53,6 @@ function PageGenerator(page: string, render: boolean) {
         <>
             {!showIframe && (
                 <section style={{ rowGap: "5vh" }}>
-                    <GoBackButton />
                     <button
                         className="button"
                         id="render"
@@ -41,7 +67,7 @@ function PageGenerator(page: string, render: boolean) {
                 <iframe
                     title={`Map Viewer for ${page}`}
                     src={`/A.I.D.E/Maps/${page}/unmined.index.html`}
-                    style={{ width: "100%", height: "100vh", border: "none" }}
+                    style={{ width: "100%", height: "96vh", border: "none" }}
                 />
             )}
         </>

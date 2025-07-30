@@ -12,6 +12,8 @@ header {
     height: 4vh;
     min-height: 75px;
     border-bottom: 0.003mm solid var(--text);
+    transition: 0.4s ease-out;
+    overflow: hidden;
 }
 
 nav {

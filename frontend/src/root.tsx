@@ -3,7 +3,7 @@ import logo from "./assets/images/CC_logo.png";
 
 export function Layout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="fr" data-theme="light">
+        <html lang="fr" data-theme="dark">
             <head>
                 <meta charSet="UTF-8" />
                 <link rel="icon" type="image/png" href={logo} />

@@ -4,7 +4,8 @@
     color: var(--background);
     border-radius: 0.4em;
     text-decoration: none;
-    transition: border-color .25s, background-color .25s, color .25s, fill .25s;
+    transition: border-color 0.25s, background-color 0.25s, color 0.25s,
+        fill 0.25s;
     border: solid 1px transparent;
     max-width: fit-content;
 
@@ -12,6 +13,8 @@
     flex-direction: row;
     column-gap: 0.6vw;
     fill: var(--background);
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .button:hover {

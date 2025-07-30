@@ -1,0 +1,24 @@
+#map-header {
+    display: flex;
+    place-content: center;
+    align-items: center;
+    padding: 2vh 4vw;
+    height: 4vh;
+    min-height: 75px;
+    flex-direction: row;
+    min-width: 96vw;
+    flex-grow: 1;
+}
+
+#map-header.column-layout {
+    flex-direction: column;
+}
+
+#map-header #previous {
+    position: absolute;
+    left: 4vw;
+}
+
+#map-header h2 {
+    height: fit-content;
+}
