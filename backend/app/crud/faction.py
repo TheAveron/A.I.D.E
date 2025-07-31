@@ -9,7 +9,7 @@ from ..schemas import FactionCreate, FactionUpdate
 
 
 def get_faction(db: Session, faction_id: int) -> Optional[Faction]:
-    return db.query(Faction).filter(Faction.id == faction_id).first()
+    return db.query(Faction).filter(Faction.faction_id == faction_id).first()
 
 
 def get_faction_by_name(db: Session, name: str) -> Optional[Faction]:
@@ -17,9 +17,9 @@ def get_faction_by_name(db: Session, name: str) -> Optional[Faction]:
 
 
 def get_faction_by_user_id(db: Session, user_id: int) -> Optional[Faction]:
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.user_id == user_id).first()
     if user and user.faction_id:  # type: ignore
-        return db.query(Faction).filter(Faction.id == user.faction_id).first()
+        return db.query(Faction).filter(Faction.faction_id == user.faction_id).first()
     return None
 
 

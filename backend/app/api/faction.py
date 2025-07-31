@@ -35,7 +35,7 @@ def create_faction(
         raise HTTPException(status_code=400, detail="Faction name already exists")
 
     user = get_current_user()
-    user_faction = faction_crud.get_faction_by_user_id(db, user.id) if user else None  # type: ignore
+    user_faction = faction_crud.get_faction_by_user_id(db, user.user_id) if user else None  # type: ignore
 
     if user_faction:
         raise HTTPException(status_code=400, detail="User already belongs to a faction")
@@ -43,7 +43,7 @@ def create_faction(
     return faction_crud.create_faction(db, faction_data)
 
 
-@router.get("/lsit", response_model=List[FactionOut])
+@router.get("/list", response_model=List[FactionOut])
 def list_factions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return faction_crud.list_factions(db, skip=skip, limit=limit)
 
@@ -56,7 +56,7 @@ def get_faction(faction_id: int, db: Session = Depends(get_db)):
     return faction
 
 
-@router.put("/{faction_id}", response_model=FactionOut)
+@router.put("/{faction_id}/update", response_model=FactionOut)
 def update_faction(
     faction_id: int, faction_update: FactionUpdate, db: Session = Depends(get_db)
 ):

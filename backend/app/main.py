@@ -7,12 +7,9 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
 from .api import auth, faction, offer, user
-from .core.logging import setup_logger
-from .database import Base, engine
+from .core.logger import setup_logger
 
 app = FastAPI(title="A.I.D.E Backend")
-
-Base.metadata.create_all(bind=engine)  # Create database tables
 
 # CORS setup
 app.add_middleware(
@@ -22,12 +19,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Include routers
-app.include_router(user.router)
-app.include_router(faction.router)
-app.include_router(auth.router)
-app.include_router(offer.router)
 
 # Setup logging
 log_path = Path("logs/aide.log")
@@ -65,6 +56,13 @@ app.openapi = custom_openapi
 @app.get("/")
 def root():
     return {"message": "A.I.D.E backend is running"}
+
+
+# Include routers
+app.include_router(user.router)
+app.include_router(faction.router)
+app.include_router(auth.router)
+app.include_router(offer.router)
 
 
 @app.middleware("http")

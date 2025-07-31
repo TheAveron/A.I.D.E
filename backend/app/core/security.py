@@ -4,14 +4,20 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+from fastapi import Depends, HTTPException
 
-from ..crud import get_user_by_username
-from ..database import get_db
+from ..database import get_db, User
 
-load_dotenv()
+import jwt
+
+
+def get_user_by_username(db: Session, username: str):
+    return db.query(User).filter(User.username == username).first()
+
+
+load_dotenv("app/config/.env")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -61,7 +67,7 @@ def get_current_user(
         username: str = payload.get("sub")  # type: ignore
         if username is None:
             raise credentials_exception
-    except JWTError:
+    except jwt.PyJWTError:
         raise credentials_exception
     user = get_user_by_username(db, username)
     if user is None:

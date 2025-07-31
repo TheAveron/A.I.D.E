@@ -1,6 +1,7 @@
 import logging
-import sys
 from logging.handlers import RotatingFileHandler
+import sys
+
 from pathlib import Path
 from typing import Optional
 

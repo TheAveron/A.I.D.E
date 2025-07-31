@@ -4,7 +4,7 @@ from ..database import Role
 
 
 def get_role_by_id(db: Session, role_id: int):
-    return db.query(Role).filter(Role.id == role_id).first()
+    return db.query(Role).filter(Role.role_id == role_id).first()
 
 
 def get_role_by_name(db: Session, name: str):
@@ -22,7 +22,7 @@ def create_role(db: Session, name: str, description: str | None = None):
 def update_role(
     db: Session, role_id: int, name: str | None = None, description: str | None = None
 ):
-    role = db.query(Role).filter(Role.id == role_id).first()
+    role = db.query(Role).filter(Role.role_id == role_id).first()
     if not role:
         return None
     if name is not None:
@@ -35,7 +35,7 @@ def update_role(
 
 
 def delete_role(db: Session, role_id: int):
-    role = db.query(Role).filter(Role.id == role_id).first()
+    role = db.query(Role).filter(Role.role_id == role_id).first()
     if not role:
         return None
     db.delete(role)

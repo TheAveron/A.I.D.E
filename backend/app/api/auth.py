@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from ..core import create_access_token, hash_password
+from ..core import hash_password, create_access_token
 from ..crud import authenticate_user, create_user, get_user_by_username
 from ..database import get_db
 from ..schemas import UserCreate, UserLogin, UserOut
@@ -15,11 +15,11 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Username already taken")
     hashed = hash_password(user.password)
     db_user = create_user(
-        db,
+        db=db,
         username=user.username,
         hashed_password=hashed,
-        faction_id=None,  # no faction at registration
-        role_id=None,  # no role at registration
+        faction_id=None,
+        role_id=None,
     )
     return db_user
 

@@ -13,7 +13,7 @@ class FactionRoleCreate(FactionRoleBase):
 
 
 class FactionRoleOut(FactionRoleBase):
-    id: int
+    rrolde_id: int
     faction_id: int
 
     class Config:

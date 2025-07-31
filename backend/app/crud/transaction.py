@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 
-from ..database import (Faction, Offer, OfferAction, OfferStatus, Transaction,
-                        User)
+from ..database import Faction, Offer, OfferAction, OfferStatus, Transaction, User
 from .offer_history import log_offer_history
 
 
@@ -10,14 +9,14 @@ def fulfill_offer(
 ) -> Transaction:
     offer.status = OfferStatus.CLOSED  # type: ignore
 
-    log_offer_history(db, offer.id, OfferAction.ACCEPTED, user_id=buyer_faction.id if buyer_faction else buyer.id)  # type: ignore
+    log_offer_history(db, offer.offer_id, OfferAction.ACCEPTED, user_id=buyer_faction.faction_id if buyer_faction else buyer.user_id)  # type: ignore
     db.add(offer)
 
     transaction = Transaction(
-        offer_id=offer.id,
-        buyer_id=buyer.id if buyer else None,
-        buyer_faction_id=buyer_faction.id if buyer_faction else None,
-        amount=offer.price,
+        offer_id=offer.offer_id,
+        buyer_id=buyer.user_id if buyer else None,
+        buyer_faction_id=buyer_faction.faction_id if buyer_faction else None,
+        amount=offer.quantity,
         currency=offer.currency,
     )
     db.add(transaction)

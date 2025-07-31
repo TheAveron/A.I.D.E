@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 
+from ..core.security import verify_password
+
 from ..database import User
 
 
@@ -33,7 +35,7 @@ def create_user(
 def update_user_faction_and_role(
     db: Session, user_id: int, faction_id: int | None, role_id: int | None
 ):
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
         return None
     if faction_id is not None:
@@ -51,7 +53,7 @@ def remove_user_faction_and_role(db: Session, user_id: int):
 
 
 def user_has_faction(db: Session, user_id: int) -> bool:
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.user_id == user_id).first()
     return bool(user and user.faction_id)
 
 
@@ -59,6 +61,6 @@ def authenticate_user(db: Session, username: str, password: str) -> User | None:
     user = db.query(User).filter(User.username == username).first()
     if not user:
         return None
-    if not verify_password(password, user.hashed_password):  # type: ignore
+    if not verify_password(password, user.hashed_password):
         return None
     return user

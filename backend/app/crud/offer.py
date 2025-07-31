@@ -13,7 +13,7 @@ from .offer_history import log_offer_history
 def create_offer(db: Session, offer_data: OfferCreate) -> Offer:
     offer = Offer(**offer_data.dict(), created_at=datetime.utcnow())
 
-    log_offer_history(db, offer.id, OfferAction.CREATED, offer.user_id)  # type: ignore
+    log_offer_history(db, offer.offer_id, OfferAction.CREATED, offer.user_id)  # type: ignore
 
     db.add(offer)
     db.commit()
@@ -22,7 +22,7 @@ def create_offer(db: Session, offer_data: OfferCreate) -> Offer:
 
 
 def get_offer(db: Session, offer_id: int) -> Optional[Offer]:
-    return db.query(Offer).filter(Offer.id == offer_id).first()
+    return db.query(Offer).filter(Offer.offer_id == offer_id).first()
 
 
 def list_offers(
@@ -33,7 +33,7 @@ def list_offers(
     query = db.query(Offer)
 
     if only_open:
-        query = query.filter(Offer.status == "open")
+        query = query.filter(Offer.status == OfferStatus.OPEN)
 
     if currency:
         query = query.filter(Offer.currency == currency)
@@ -44,7 +44,7 @@ def list_offers(
 def update_offer_status(
     db: Session, offer_id: int, new_status: OfferStatus
 ) -> Optional[Offer]:
-    offer = db.query(Offer).filter(Offer.id == offer_id).first()
+    offer = db.query(Offer).filter(Offer.offer_id == offer_id).first()
     if offer:
         offer.status = new_status  # type: ignore
         db.commit()
@@ -54,7 +54,7 @@ def update_offer_status(
 
 def update_offer(db: Session, offer_id: int, update_data: OfferUpdate) -> Offer:
     try:
-        offer = db.query(Offer).filter(Offer.id == offer_id).first()
+        offer = db.query(Offer).filter(Offer.offer_id == offer_id).first()
         if not offer:
             raise HTTPException(status_code=404, detail="Offer not found")
 
@@ -75,7 +75,7 @@ def update_offer(db: Session, offer_id: int, update_data: OfferUpdate) -> Offer:
 
 
 def delete_offer(db: Session, offer_id: int) -> bool:
-    offer = db.query(Offer).filter(Offer.id == offer_id).first()
+    offer = db.query(Offer).filter(Offer.offer_id == offer_id).first()
     if offer:
         db.delete(offer)
         db.commit()

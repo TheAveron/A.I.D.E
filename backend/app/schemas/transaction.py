@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class TransactionOut(BaseModel):
-    id: int
+    transaction_id: int
     offer_id: int
     buyer_id: Optional[int]
     buyer_faction_id: Optional[int]

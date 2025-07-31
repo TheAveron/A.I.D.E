@@ -6,6 +6,7 @@ loaded from an external database.ini file. Used throughout A.I.D.E backend
 for ORM operations and dependency injection.
 """
 
+from ast import parse
 import configparser
 from pathlib import Path
 
@@ -22,7 +23,8 @@ def load_db_config(filename=None, section="postgresql") -> dict:
     Reads database configuration from a .ini file.
     """
     filename = (
-        filename or Path(__file__).parent.parent.parent / "config" / "database.ini"
+        filename
+        or Path(__file__).parent.parent.parent / "app" / "config" / "database.ini"
     )
 
     parser = configparser.ConfigParser()
@@ -45,8 +47,11 @@ SQLALCHEMY_DATABASE_URL = (
     f"@{_db_params['host']}:{_db_params['port']}/{_db_params['database']}"
 )
 
+print(SQLALCHEMY_DATABASE_URL)
+
 # SQLAlchemy engine and session
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False, future=True)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Declarative base for models

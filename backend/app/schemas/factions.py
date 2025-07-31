@@ -11,13 +11,12 @@ class FactionBase(BaseModel):
 
 
 class FactionCreate(FactionBase):
-    pass  # all fields optional except name which is required by base
+    pass
 
 
 class FactionOut(FactionBase):
-    id: int
-    is_validated: bool
-    created_by_user_id: int
+    faction_id: int
+    is_approved: bool
 
     class Config:
         from_attributes = True

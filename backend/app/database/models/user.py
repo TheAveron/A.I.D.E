@@ -1,28 +1,59 @@
 from datetime import datetime
+from typing import Optional
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Index
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from ..database import Base
 
 
 class User(Base):
+    """
+    SQLAlchemy User model representing a user in the system.
+    """
+
     __tablename__ = "users"
+    __table_args__ = (Index("ix_users_username_email", "username", "email"),)
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), unique=True, nullable=False, index=True)
-    email = Column(String(120), unique=True, nullable=False, index=True)
-    hashed_password = Column(String(128), nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=True)
+    hashed_password: Mapped[str] = mapped_column(String(128), nullable=False)
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
 
-    faction_id = Column(Integer, ForeignKey(column="factions.id"), nullable=True)
+    faction_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("factions.faction_id"), nullable=True
+    )
     faction = relationship("Faction", back_populates="users")
 
-    role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
+    role_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("roles.role_id"), nullable=True
+    )
     role = relationship("Role", back_populates="users")
 
-    offers = relationship("Offer", back_populates="user")
+    # Offers created by this user
+    offers = relationship(
+        "Offer",
+        back_populates="user",  # must match Offer.user relationship name
+        foreign_keys="[Offer.user_id]",
+    )
 
-    def __repr__(self):
-        return f"<User(username={self.username}, faction={self.faction.name if self.faction else None})>"
+    # Offers accepted by this user
+    accepted_offers = relationship(
+        "Offer",
+        back_populates="accepted_by_user_obj",  # must match Offer relationship name
+        foreign_keys="[Offer.accepted_by_user_id]",
+    )
+
+    def __repr__(self) -> str:
+        print(dir(self))
+        return f"<User(username={self.username}, email={self.email}, faction={self.faction.name if self.faction else None})>"
+
+    def __str__(self) -> str:
+        return f"User: {self.username} ({self.email})"

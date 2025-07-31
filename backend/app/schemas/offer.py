@@ -6,14 +6,14 @@ from pydantic import BaseModel, Field
 
 
 class OfferType(str, Enum):
-    BUY = "buy"
-    SELL = "sell"
+    BUY = "BUY"
+    SELL = "SELL"
 
 
 class OfferStatus(str, Enum):
-    OPEN = "open"
-    CLOSED = "closed"
-    CANCELLED = "cancelled"
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
+    CANCELLED = "CANCELLED"
 
 
 class OfferBase(BaseModel):
