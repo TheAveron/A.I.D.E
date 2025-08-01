@@ -47,8 +47,6 @@ SQLALCHEMY_DATABASE_URL = (
     f"@{_db_params['host']}:{_db_params['port']}/{_db_params['database']}"
 )
 
-print(SQLALCHEMY_DATABASE_URL)
-
 # SQLAlchemy engine and session
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False)
 

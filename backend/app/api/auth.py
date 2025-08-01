@@ -20,6 +20,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         hashed_password=hashed,
         faction_id=None,
         role_id=None,
+        admin=user.is_admin,
     )
     return db_user
 

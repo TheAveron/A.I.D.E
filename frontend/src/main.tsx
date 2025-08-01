@@ -1,14 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { HydratedRouter } from "react-router/dom";
-import "./index.css";
 import { HashRouter } from "react-router-dom";
+import "./index.css";
+import AuthProvider from "./app/utils/authprovider";
 
 ReactDOM.hydrateRoot(
     document,
     <React.StrictMode>
         <HashRouter>
-            <HydratedRouter />
+            <AuthProvider>
+                <HydratedRouter />
+            </AuthProvider>
         </HashRouter>
     </React.StrictMode>
 );

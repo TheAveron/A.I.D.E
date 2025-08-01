@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
 
@@ -25,3 +26,11 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserFull(UserOut):
+    email: str | None
+    created_at: datetime
+
+    faction_id: int | None
+    role_id: int | None

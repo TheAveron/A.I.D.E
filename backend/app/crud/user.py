@@ -19,6 +19,7 @@ def create_user(
     hashed_password: str,
     faction_id: int | None = None,
     role_id: int | None = None,
+    admin: bool = False,
 ):
     user = User(
         username=username,

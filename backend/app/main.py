@@ -6,23 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
-from .api import auth, faction, offer, user
+from .api import auth, faction, offer, user, marketplace
 from .core.logger import setup_logger
-
-app = FastAPI(title="A.I.D.E Backend")
-
-# CORS setup
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React dev server
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Setup logging
-log_path = Path("logs/aide.log")
-logger = setup_logger("aide", log_path)
 
 app = FastAPI(
     title="A.I.D.E API",
@@ -33,6 +18,19 @@ app = FastAPI(
         {"name": "offers", "description": "Market offer operations"},
     ],
 )
+
+# CORS setup
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Setup logging
+log_path = Path("logs/aide.log")
+logger = setup_logger("aide", log_path)
 
 
 def custom_openapi():
@@ -51,18 +49,6 @@ def custom_openapi():
 
 
 app.openapi = custom_openapi
-
-
-@app.get("/")
-def root():
-    return {"message": "A.I.D.E backend is running"}
-
-
-# Include routers
-app.include_router(user.router)
-app.include_router(faction.router)
-app.include_router(auth.router)
-app.include_router(offer.router)
 
 
 @app.middleware("http")
@@ -90,3 +76,16 @@ async def global_exception_handler(request: Request, exc: Exception):
         },
     )
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+
+
+# Include routers
+app.include_router(user.router)
+app.include_router(faction.router)
+app.include_router(auth.router)
+app.include_router(offer.router)
+app.include_router(marketplace.router)
+
+
+@app.get("/")
+def root():
+    return {"message": "A.I.D.E backend is running"}

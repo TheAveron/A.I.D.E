@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import get_user_by_username
 from ..database import get_db
-from ..schemas import UserOut
+from ..schemas import UserOut, UserFull
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/me", response_model=UserOut)
+@router.get("/me", response_model=UserFull)
 def read_current_user(current_user=Depends(get_current_user)):
     return current_user
 

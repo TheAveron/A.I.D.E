@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useAuth } from "../components/authprovider";
+import { useAuth } from "../utils/authprovider";
 import axios from "axios";
 
 type userDataLogin = {
@@ -32,11 +32,11 @@ function Login() {
         try {
             // Replace with your actual API endpoint
             const response = await axios.post(
-                "http://localhost:3000/api/auth/login",
+                "http://127.0.0.1:8000/auth/login",
                 data
             );
-            if (response.data && response.data.token) {
-                setToken?.(response.data.token); // Save token to context
+            if (response.data && response.data.access_token) {
+                setToken?.(response.data.access_token); // Save token to context
                 console.log("You Are Successfully Logged In");
                 // Optionally redirect user here
             } else {

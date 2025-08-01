@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import axios from "axios";
-import { useAuth } from "../components/authprovider";
+import { useAuth } from "../utils/authprovider";
 
 type userDataRegistration = {
     username: string;
@@ -47,8 +47,8 @@ function Register() {
                     password: data.password,
                 }
             );
-            if (response.data && response.data.token) {
-                setToken?.(response.data.token);
+            if (response.data && response.data.acces_token) {
+                setToken?.(response.data.acces_token);
                 console.log("Registration successful!");
                 // Optionally redirect user here
             } else {

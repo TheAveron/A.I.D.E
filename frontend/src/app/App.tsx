@@ -7,16 +7,17 @@ import Footer from "./components/footer";
 import "../assets/css/components/buttons.css";
 
 import "../assets/css/pages/archives.css";
+import AuthProvider from "./utils/authprovider";
 
 function App() {
     return (
-        <>
+        <AuthProvider>
             <Header />
             <main id="main">
                 <Outlet />
             </main>
             <Footer />
-        </>
+        </AuthProvider>
     );
 }
 

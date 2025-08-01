@@ -3,6 +3,7 @@ import {
     route,
     index,
     prefix,
+    layout,
 } from "@react-router/dev/routes";
 
 export default [
@@ -11,7 +12,10 @@ export default [
         index("./app/pages/home.tsx"),
         route("login", "./app/pages/login.tsx"),
         route("register", "./app/pages/register.tsx"),
-        route("contribuer", "./app/pages/contribution.tsx"),
+
+        layout("./app/utils/requireauth.tsx", [
+            route("contribuer", "./app/pages/contribution.tsx"),
+        ]),
 
         ...prefix("archives", [
             index("./app/pages/archives/archives.tsx"),

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Index
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Index
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from ..database import Base
@@ -16,7 +16,9 @@ class User(Base):
     __table_args__ = (Index("ix_users_username_email", "username", "email"),)
 
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    is_admin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(128), nullable=False)
 
@@ -52,8 +54,7 @@ class User(Base):
     )
 
     def __repr__(self) -> str:
-        print(dir(self))
-        return f"<User(username={self.username}, email={self.email}, faction={self.faction.name if self.faction else None})>"
+        return f"<User(username={self.username}, email={self.email}, faction={self.faction_id})>"
 
     def __str__(self) -> str:
         return f"User: {self.username} ({self.email})"

@@ -29,7 +29,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="auth/login"
+    tokenUrl="token"
 )  # tokenUrl must match your login route
 
 
@@ -46,7 +46,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):  # type: i
         raise ValueError("No SECRET_KEY environment variable set")
 
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=120))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -59,12 +59,9 @@ def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    if SECRET_KEY is None:
-        raise ValueError("No SECRET_KEY environment variable set")
-
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")  # type: ignore
+        username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
     except jwt.PyJWTError:
