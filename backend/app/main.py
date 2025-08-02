@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
-from .api import auth, faction, marketplace, offer, user
+from .api import auth, currencies, faction, marketplace, offer, user
 from .core.logger import setup_logger
 
 app = FastAPI(
@@ -79,9 +79,10 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # Include routers
+app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(faction.router)
-app.include_router(auth.router)
+app.include_router(currencies.router)
 app.include_router(offer.router)
 app.include_router(marketplace.router)
 

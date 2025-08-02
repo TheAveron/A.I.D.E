@@ -1,6 +1,7 @@
-from sqlalchemy.orm import Session
-from fastapi import HTTPException
 from typing import Optional
+
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 from ..database import Currency
 from ..schemas import CurrencyCreate, CurrencyUpdate

@@ -4,9 +4,8 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import faction as faction_crud
 from ..database import get_db
+from ..misc import FactionPermission, check_faction_permission
 from ..schemas import FactionCreate, FactionOut, FactionUpdate
-
-from ..misc import check_faction_permission, FactionPermission
 
 router = APIRouter(
     prefix="/factions",

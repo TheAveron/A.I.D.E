@@ -1,7 +1,8 @@
 from enum import Enum
 
 from fastapi import HTTPException, status
-from .database import User
+
+from .database.models.user import User
 
 
 class OfferType(str, Enum):
