@@ -15,6 +15,10 @@ export default [
 
         layout("./app/utils/requireauth.tsx", [
             route("contribuer", "./app/pages/contribution.tsx"),
+            route("factions", "./app/pages/factions.tsx"),
+            route("profile", "./app/pages/profile.tsx"),
+            route("offers", "./app/pages/offers.tsx"),
+            route("faction/:factionid", "./app/pages/faction_page.tsx"),
         ]),
 
         ...prefix("archives", [
@@ -30,8 +34,6 @@ export default [
             ]),
         ]),
         route("actual", "./app/pages/archives/maps/currentmap.tsx"),
-        route("profile", "./app/pages/profile.tsx"),
-        route("factions", "./app/pages/factionlist.tsx"),
         route("*", "./app/pages/404.tsx"),
     ]),
 ] satisfies RouteConfig;

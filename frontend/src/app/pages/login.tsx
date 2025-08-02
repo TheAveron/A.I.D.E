@@ -1,7 +1,7 @@
 import "../../assets/css/pages/login.css";
 import logo from "../../assets/images/CC_logo.png";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "../utils/authprovider";
@@ -26,7 +26,12 @@ function Login() {
         resolver: yupResolver(formSchema),
     });
 
-    const { setToken } = useAuth() ?? {};
+    const { token, setToken } = useAuth() ?? {};
+    const navigate = useNavigate();
+
+    if (token) {
+        return navigate("/A.I.D.E");
+    }
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -38,7 +43,7 @@ function Login() {
             if (response.data && response.data.access_token) {
                 setToken?.(response.data.access_token); // Save token to context
                 console.log("You Are Successfully Logged In");
-                // Optionally redirect user here
+                navigate("/A.I.D.E");
             } else {
                 console.log("Login failed: No token received");
             }

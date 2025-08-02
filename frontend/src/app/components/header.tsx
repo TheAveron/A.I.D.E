@@ -3,8 +3,6 @@ import "../../assets/css/components/header.css";
 import { useAuth } from "../utils/authprovider";
 
 function Header() {
-    console.log("e");
-    console.log(useAuth());
     const { token } = useAuth() ?? {};
 
     return (
@@ -16,21 +14,32 @@ function Header() {
                 <Link className="link" to="/A.I.D.E/actual">
                     Map
                 </Link>
-                <Link className="link" to="/A.I.D.E/archives">
-                    Archives
-                </Link>
-                <Link className="link" to="/A.I.D.E/contribuer">
-                    Contribute
-                </Link>
 
                 {token ? (
-                    <Link className="link" to="/A.I.D.E/profile">
-                        Profile
-                    </Link>
+                    <>
+                        <Link className="link" to="/A.I.D.E/factions">
+                            Factions
+                        </Link>
+                        <Link className="link" to="/A.I.D.E/contribuer">
+                            Contribuer
+                        </Link>
+                        <Link className="link" to="/A.I.D.E/profile">
+                            Profile
+                        </Link>
+                    </>
                 ) : (
-                    <Link className="button" id="signin" to="/A.I.D.E/login">
-                        Sign in
-                    </Link>
+                    <>
+                        <Link className="link" to="/A.I.D.E/archives">
+                            Archives
+                        </Link>
+                        <Link
+                            className="button"
+                            id="signin"
+                            to="/A.I.D.E/login"
+                        >
+                            Sign in
+                        </Link>
+                    </>
                 )}
             </nav>
         </header>

@@ -1,26 +1,38 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import "../../assets/css/components/profile.css";
+import type { UserProfile } from "../types/users";
+import Profile from "../components/profile";
+import FactionList from "../components/factionlist";
 
-function Profile() {
-    const [profile, setProfile] = useState(null);
+function ProfileComponent() {
+    const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<String | null>(null);
 
     useEffect(() => {
-        axios
-            .get("http://127.0.0.1:8000/users/me")
-            .then((res) => {
+        const fetchProfile = async () => {
+            try {
+                const res = await axios.get<UserProfile>(
+                    "http://127.0.0.1:8000/users/me"
+                );
                 setProfile(res.data);
+            } catch (err) {
+                setError("Failed to load profile.");
+            } finally {
                 setLoading(false);
-            })
-            .catch((err) => {
-                setError(err.message);
-                setLoading(false);
-            });
+            }
+        };
+
+        fetchProfile();
     }, []);
 
     if (loading) {
-        return <p>Loading...</p>;
+        return (
+            <div className="profile-container">
+                <p>Loading...</p>
+            </div>
+        );
     }
 
     if (error) {
@@ -32,11 +44,15 @@ function Profile() {
     }
 
     return (
-        <div>
-            <h2>Profile</h2>
-            <pre>{JSON.stringify(profile, null, 2)}</pre>
+        <div className="profile-container">
+            <div className="profile-snippet">
+                <Profile value={profile} />
+            </div>
+            <div className="faction-snippet">
+                <FactionList />
+            </div>
         </div>
     );
 }
 
-export default Profile;
+export default ProfileComponent;

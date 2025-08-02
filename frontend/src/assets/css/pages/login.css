@@ -3,7 +3,7 @@ form {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: var(--secondary-100);
+    background-color: var(--primary-100);
     padding: 5vh 5vw;
     border-radius: 20px;
     width: fit-content;

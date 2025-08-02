@@ -5,6 +5,8 @@ import { Outlet } from "react-router-dom";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import "../assets/css/components/buttons.css";
+import "../assets/css/components/lists.css";
+import "../assets/css/components/snippets.css";
 
 import "../assets/css/pages/archives.css";
 import AuthProvider from "./utils/authprovider";

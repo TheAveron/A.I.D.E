@@ -21,19 +21,19 @@ function Contribution() {
                 Vous devez ensuite vous rendre dans le fichier{" "}
                 <code>src/app/pages/mapslist.tsx</code> et ajouter un nouvel
                 objet dans les variables suivantes :
-                <ul>
-                    <li>
-                        mapFolders : un tableau contenant les noms des dossiers
-                        des cartes (doit correspondre à la structure de nommage
-                        dans <code>public/maps</code>)
-                    </li>
-                    <li>
-                        getLabelFromFolder : une fonction prenant en entrée le
-                        nom d'un dossier et retournant le label à afficher pour
-                        ce dossier
-                    </li>
-                </ul>
             </p>
+            <ul>
+                <li>
+                    mapFolders : un tableau contenant les noms des dossiers des
+                    cartes (doit correspondre à la structure de nommage dans
+                    <code>public/maps</code>)
+                </li>
+                <li>
+                    getLabelFromFolder : une fonction prenant en entrée le nom
+                    d'un dossier et retournant le label à afficher pour ce
+                    dossier
+                </li>
+            </ul>
         </section>
     );
 }

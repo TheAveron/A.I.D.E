@@ -1,7 +1,7 @@
 .button {
     padding: min(1.5vh, 10px) min(2vw, 30px);
-    background-color: var(--primary);
-    color: var(--background);
+    background-color: var(--secondary);
+    color: var(--button-text);
     border-radius: 0.4em;
     text-decoration: none;
     transition: border-color 0.25s, background-color 0.25s, color 0.25s,
@@ -18,10 +18,9 @@
 }
 
 .button:hover {
-    background-color: var(--secondary);
+    background-color: var(--primary);
     border-color: var(--accent);
-    color: var(--text);
-    fill: var(--text);
+    fill: var(--button-text);
 }
 
 .button p {

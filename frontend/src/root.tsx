@@ -1,4 +1,10 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import {
+    Links,
+    Meta,
+    Outlet,
+    Scripts,
+    ScrollRestoration,
+} from "react-router-dom";
 import logo from "./assets/images/CC_logo.png";
 
 export function Layout({ children }: { children: React.ReactNode }) {

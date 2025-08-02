@@ -1,5 +1,5 @@
 header {
-    width: 92vw;
+    width: 100vw;
     padding: 2vh 4vw;
     display: flex;
     flex-direction: row;
@@ -34,13 +34,13 @@ header .title {
 }
 
 header nav .link:hover {
-    color: var(--primary);
+    color: var(--primary-700);
 }
 
 @media only screen and (min-width: 1500px) {
     header {
         padding-left: 2vw;
         padding-right: 2vw;
-        width: 96vw;
+        width: 100vw;
     }
 }

@@ -1,0 +1,45 @@
+.list {
+    overflow-y: scroll;
+    height: 60vh;
+    border-top: var(--background-300) 3px solid;
+}
+
+.row-element {
+    display: block;
+    min-width: 100%;
+    min-height: 100%;
+    place-content: center;
+    text-align: center;
+}
+
+.row-element:not(:last-child) {
+    border-right: var(--background-300) 1px solid;
+}
+
+.row {
+    width: 100%;
+    height: 10vh;
+    max-height: min(60px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: background 0.1s ease, box-shadow 0.2s ease;
+
+    display: grid;
+    grid-template-columns: repeat(4, 25%);
+    place-items: center;
+
+    justify-content: space-between;
+}
+
+.row:not(:last-child) {
+    border-bottom: var(--background-300) 2px solid;
+}
+
+.row:hover:not(.list-head) {
+    background: var(--secondary-50);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+}
+
+.list-head {
+    max-height: min(10vh, 40px);
+}

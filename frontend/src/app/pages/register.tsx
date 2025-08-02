@@ -1,7 +1,7 @@
 import "../../assets/css/pages/login.css";
 import { useForm } from "react-hook-form";
 import logo from "../../assets/images/CC_logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import axios from "axios";
@@ -35,7 +35,11 @@ function Register() {
         resolver: yupResolver(formSchema),
     });
 
-    const { setToken } = useAuth() ?? {};
+    const navigate = useNavigate();
+    const { token, setToken } = useAuth() ?? {};
+    if (token) {
+        return navigate("/A.I.D.E");
+    }
 
     const onSubmit = handleSubmit(async (data) => {
         try {

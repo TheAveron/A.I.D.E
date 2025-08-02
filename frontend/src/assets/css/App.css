@@ -29,7 +29,8 @@ main {
 input[type="username"],
 input[type="password"] {
     border: none;
-    background-color: var(--secondary);
+    background-color: var(--primary);
+    color: var(--button-text);
     height: 2vh;
     padding: 1vh 1vw;
     border-radius: 20px;

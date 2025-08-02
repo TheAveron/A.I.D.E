@@ -1,3 +1,4 @@
+// AuthProvider.tsx
 import axios from "axios";
 import {
     createContext,
@@ -7,10 +8,18 @@ import {
     useState,
     type ReactNode,
 } from "react";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
+// --- Types ---
 interface AuthContextType {
     token: string | null;
     setToken: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
+interface DecodedToken {
+    exp: number; // expiration time in seconds (from JWT)
+    [key: string]: unknown; // other claims from your backend
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,14 +33,65 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     useEffect(() => {
+        let logoutTimer: NodeJS.Timeout;
+
         if (token) {
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            localStorage.setItem("token", token);
+            try {
+                // Decode JWT and check expiration
+                const decoded = jwtDecode<DecodedToken>(token);
+
+                if (!decoded.exp) {
+                    console.warn("Token does not contain an expiration claim");
+                    setToken(null);
+                    return;
+                }
+
+                const expiryTime = decoded.exp * 1000; // convert seconds → ms
+                const timeUntilExpiry = expiryTime - Date.now();
+
+                if (timeUntilExpiry <= 0) {
+                    // Already expired
+                    handleLogout();
+                } else {
+                    // Schedule auto-logout when token expires
+                    logoutTimer = setTimeout(() => {
+                        handleLogout(true);
+                    }, timeUntilExpiry);
+
+                    // Set Axios header
+                    axios.defaults.headers.common[
+                        "Authorization"
+                    ] = `Bearer ${token}`;
+                    localStorage.setItem("token", token);
+                }
+            } catch (error) {
+                console.error("Invalid token", error);
+                setToken(null);
+            }
         } else {
             delete axios.defaults.headers.common["Authorization"];
             localStorage.removeItem("token");
         }
+
+        return () => {
+            if (logoutTimer) clearTimeout(logoutTimer);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
+
+    const navigate = useNavigate();
+
+    const handleLogout = (sessionExpired = false) => {
+        setToken(null);
+        if (sessionExpired) {
+            navigate("A.I.D.E/login", {
+                state: { message: "Session expired, please log in again." },
+                replace: true,
+            });
+        } else {
+            navigate("A.I.D.E/login", { replace: true });
+        }
+    };
 
     const contextValue = useMemo(() => ({ token, setToken }), [token]);
 

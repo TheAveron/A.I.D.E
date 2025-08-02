@@ -1,0 +1,15 @@
+.snippet-container {
+    display: flex;
+    flex-direction: column;
+
+    background: var(--background-100);
+    border: 3px solid var(--background-200);
+    border-radius: 10px;
+
+    gap: 0;
+    height: inherit;
+}
+
+.snippet-container a {
+    text-decoration: none;
+}
