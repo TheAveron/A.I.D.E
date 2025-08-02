@@ -1,11 +1,18 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, String, Text,
-                        UniqueConstraint)
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...enums import FactionPermission
+from ...misc import FactionPermission
 from ..database import Base
 
 

@@ -10,7 +10,7 @@ from backend.app.crud.faction import get_faction
 from backend.app.crud.user import get_user_by_id
 
 from ..database import Offer, OfferHistory, Role, Transaction, User
-from ..enums import OfferAction, OfferStatus
+from ..misc import OfferAction, OfferStatus
 from ..schemas import OfferAccept, OfferCreate, OfferUpdate
 from .offer_history import create_offer_history
 

@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from ..database import Offer, Transaction
-from ..enums import OfferAction, OfferStatus
+from ..misc import OfferAction, OfferStatus
 from ..schemas import TransactionCreate
 from .offer_history import create_offer_history
 

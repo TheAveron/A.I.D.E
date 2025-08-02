@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import offer as offer_crud
 from ..database import get_db
-from ..enums import OfferStatus
+from ..misc import OfferStatus
 from ..schemas import OfferAccept, OfferCreate, OfferOut, OfferUpdate
 
 router = APIRouter(prefix="/offers", tags=["offers"])

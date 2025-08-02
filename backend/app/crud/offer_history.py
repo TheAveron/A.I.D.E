@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from ..database import OfferHistory
-from ..enums import OfferAction
+from ..misc import OfferAction
 
 
 def create_offer_history(

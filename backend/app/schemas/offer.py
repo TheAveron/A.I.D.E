@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from ..enums import OfferStatus, OfferType
+from ..misc import OfferStatus, OfferType
 
 
 # ----- BASE -----

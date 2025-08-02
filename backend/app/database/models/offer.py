@@ -1,12 +1,20 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (JSON, CheckConstraint, DateTime, Float, ForeignKey,
-                        Index, Integer, String)
+from sqlalchemy import (
+    JSON,
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+)
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...enums import OfferStatus, OfferType
+from ...misc import OfferStatus, OfferType
 from ..database import Base
 
 offer_type_enum = ENUM(OfferType, name="offer_action_enum", create_type=True)

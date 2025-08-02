@@ -2,12 +2,11 @@ import enum
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (CheckConstraint, DateTime, ForeignKey, Index, Integer,
-                        String)
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...enums import OfferAction
+from ...misc import OfferAction
 from ..database import Base
 
 offer_action_enum = ENUM(OfferAction, name="offer_action_enum", create_type=True)
