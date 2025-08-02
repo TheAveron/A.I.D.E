@@ -39,7 +39,7 @@ def verify_password(plain_password: str, hashed: str) -> bool:
     return pwd_context.verify(plain_password, hashed)
 
 
-def create_access_token(data: dict, expires_delta: timedelta = None):  # type: ignore
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
     if SECRET_KEY is None:
         raise ValueError("No SECRET_KEY environment variable set")
 

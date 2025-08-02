@@ -1,77 +1,68 @@
-from typing import List, Optional
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from ..core import get_current_user
-from ..crud import (create_offer, delete_offer, get_offer, get_offer_history,
-                    list_offers, update_offer, update_offer_status)
-from ..database import User, get_db
-from ..schemas import OfferCreate, OfferHistoryOut, OfferOut, OfferUpdate
+from ..crud import offer as offer_crud
+from ..database import get_db
+from ..enums import OfferStatus
+from ..schemas import OfferAccept, OfferCreate, OfferOut, OfferUpdate
 
-router = APIRouter(prefix="/offers", tags=["marketplace"])
+router = APIRouter(prefix="/offers", tags=["offers"])
+
+
+@router.get("/", response_model=list[OfferOut])
+def list_offers(
+    status: Optional[OfferStatus] = Query(None),
+    currency: Optional[str] = Query(None),
+    skip: int = 0,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+):
+    return offer_crud.get_offers(
+        db, status=status, skip=skip, limit=limit, currency=currency
+    )
 
 
 @router.post("/create", response_model=OfferOut, status_code=status.HTTP_201_CREATED)
-def create_new_offer(offer: OfferCreate, db: Session = Depends(get_db)):
-    return create_offer(db, offer)
+def create_offer(offer_in: OfferCreate, db: Session = Depends(get_db)):
+    return offer_crud.create_offer(db, offer_in)
 
 
-@router.get("/get/{offer_id}", response_model=OfferOut)
-def read_offer(offer_id: int, db: Session = Depends(get_db)):
-    db_offer = get_offer(db, offer_id)
-    if not db_offer:
+@router.get("/{offer_id}", response_model=OfferOut)
+def get_offer(offer_id: int, db: Session = Depends(get_db)):
+    offer = offer_crud.get_offer(db, offer_id)
+    if not offer:
         raise HTTPException(status_code=404, detail="Offer not found")
-    return db_offer
+    return offer
 
 
-@router.get("/list", response_model=List[OfferOut])
-def read_offers(
-    only_open: bool = True,
-    currency: Optional[str] = None,
-    db: Session = Depends(get_db),
-):
-    return list_offers(db, only_open=only_open, currency=currency)
-
-
-@router.patch("/get/{offer_id}/status", response_model=OfferOut)
-def change_offer_status(offer_id: int, status: str, db: Session = Depends(get_db)):
-    updated_offer = update_offer_status(db, offer_id, status)  # type: ignore
-    if not updated_offer:
-        raise HTTPException(status_code=404, detail="Offer not found")
-    return updated_offer
-
-
-@router.put("/get/{offer_id}/update", response_model=OfferOut)
+@router.put("/{offer_id}/update", response_model=OfferOut)
 def modify_offer(
     offer_id: int, update_data: OfferUpdate, db: Session = Depends(get_db)
 ):
-    updated = update_offer(db, offer_id, update_data)
+    updated = offer_crud.update_offer(db, offer_id, update_data)
     if not updated:
         raise HTTPException(status_code=404, detail="Offer not found")
     return updated
 
 
-@router.delete("/get/{offer_id}/delete", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{offer_id}/delete", status_code=status.HTTP_204_NO_CONTENT)
 def remove_offer(offer_id: int, db: Session = Depends(get_db)):
-    deleted = delete_offer(db, offer_id)
+    deleted = offer_crud.update_offer(
+        db, offer_id, OfferUpdate(status=OfferStatus.CANCELLED)
+    )
     if not deleted:
         raise HTTPException(status_code=404, detail="Offer not found")
     return
 
 
-@router.get("/get/{offer_id}/history", response_model=List[OfferHistoryOut])
-def read_offer_history(
+@router.post("/{offer_id}/accept", response_model=OfferOut)
+def accept_offer(
     offer_id: int,
+    acceptance: OfferAccept,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user=Depends(get_current_user),
 ):
-    offer = get_offer(db, offer_id)
-    if not offer:
-        raise HTTPException(status_code=404, detail="Offer not found")
-
-    # Optionally, you can add permission checks here if needed
-    # e.g. only creators or faction members can see history
-
-    history = get_offer_history(db, offer_id)
-    return history
+    return offer_crud.accept_offer(db, current_user, offer_id, acceptance)

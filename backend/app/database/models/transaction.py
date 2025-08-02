@@ -1,18 +1,31 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (CheckConstraint, DateTime, Float, ForeignKey, Integer,
-                        String)
+from sqlalchemy import (CheckConstraint, DateTime, ForeignKey, Index, Integer,
+                        Numeric, String)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
 
 
 class Transaction(Base):
+    """
+    Represents a completed transaction resulting from an offer.
+    """
+
     __tablename__ = "transactions"
+    __table_args__ = (
+        CheckConstraint(
+            "(buyer_user_id IS NOT NULL AND buyer_faction_id IS NULL) OR "
+            "(buyer_user_id IS NULL AND buyer_faction_id IS NOT NULL)",
+            name="check_only_one_buyer",
+        ),
+        Index("ix_transactions_offer_id_timestamp", "offer_id", "timestamp"),
+    )
 
     transaction_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
+    # Related offer
     offer_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("offers.offer_id"), nullable=False, index=True
     )
@@ -20,7 +33,7 @@ class Transaction(Base):
         "Offer", back_populates="transactions", foreign_keys=[offer_id]
     )
 
-    # Buyer can be either user or faction but not both
+    # Buyer (user or faction)
     buyer_user_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("users.user_id"), nullable=True, index=True
     )
@@ -31,20 +44,17 @@ class Transaction(Base):
     )
     buyer_faction = relationship("Faction", foreign_keys=[buyer_faction_id])
 
-    # Enforce buyer_user_id XOR buyer_faction_id to be not both null or both set
-    __table_args__ = (
-        CheckConstraint(
-            "(buyer_user_id IS NOT NULL AND buyer_faction_id IS NULL) OR "
-            "(buyer_user_id IS NULL AND buyer_faction_id IS NOT NULL)",
-            name="check_only_one_buyer",
-        ),
+    # Transaction details
+    amount: Mapped[float] = mapped_column(
+        Numeric(precision=18, scale=2), nullable=False
     )
 
-    amount: Mapped[float] = mapped_column(Float, nullable=False)
+    # Currency snapshot at time of transaction
+    currency_name: Mapped[str] = mapped_column(
+        String(50), ForeignKey("currencies.name"), nullable=False
+    )
 
-    # Store the currency at the time of transaction for immutability
-    currency_name: Mapped[str] = mapped_column(String(50), nullable=False)
-
+    # When transaction occurred
     timestamp: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )
@@ -56,6 +66,7 @@ class Transaction(Base):
             else (self.buyer_faction.name if self.buyer_faction else "Unknown")
         )
         return (
-            f"<Transaction(id={self.transaction_id}, offer_id={self.offer_id}, buyer={buyer}, "
-            f"amount={self.amount} {self.currency_name}, timestamp={self.timestamp})>"
+            f"<Transaction(id={self.transaction_id}, offer_id={self.offer_id}, "
+            f"buyer={buyer}, amount={self.amount} {self.currency_name}, "
+            f"timestamp={self.timestamp})>"
         )

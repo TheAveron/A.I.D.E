@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
@@ -18,12 +18,12 @@ def get_faction_by_name(db: Session, name: str) -> Optional[Faction]:
 
 def get_faction_by_user_id(db: Session, user_id: int) -> Optional[Faction]:
     user = db.query(User).filter(User.user_id == user_id).first()
-    if user and user.faction_id:  # type: ignore
+    if user and user.faction_id:
         return db.query(Faction).filter(Faction.faction_id == user.faction_id).first()
     return None
 
 
-def list_factions(db: Session, skip: int = 0, limit: int = 100) -> List[Faction]:
+def list_factions(db: Session, skip: int = 0, limit: int = 100) -> list[Faction]:
     return db.query(Faction).offset(skip).limit(limit).all()
 
 

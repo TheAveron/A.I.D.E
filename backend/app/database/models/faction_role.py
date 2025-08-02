@@ -1,8 +1,11 @@
+from datetime import datetime
 from typing import Any, Optional
 
-from sqlalchemy import JSON, ForeignKey, Integer, String, Text
+from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, String, Text,
+                        UniqueConstraint)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from ...enums import FactionPermission
 from ..database import Base
 
 
@@ -12,27 +15,47 @@ class Role(Base):
     """
 
     __tablename__ = "roles"
+    __table_args__ = (
+        UniqueConstraint("faction_id", "name", name="uq_faction_role_name"),
+    )
 
-    role_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    role_id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     name: Mapped[str] = mapped_column(String(50), nullable=False)
 
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    permissions: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
-
-    faction_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("factions.faction_id"), nullable=False
+    # Permission flags as booleans (default to False)
+    accept_offers: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    create_offers: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    manage_funds: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    handle_members: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    manage_roles: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    view_transactions: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
     )
 
-    # Relationships
+    faction_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("factions.faction_id", ondelete="CASCADE"), nullable=False
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
+
     faction = relationship("Faction", back_populates="roles")
-    users = relationship("User", back_populates="role")
+    users = relationship("User", back_populates="role", passive_deletes=True)
+
+    def has_permission(self, permission: FactionPermission) -> bool:
+        """Check if this role has a specific permission."""
+        return getattr(self, permission.value, False)
 
     def __repr__(self) -> str:
-        return f"<Role(name={self.name}, faction={self.faction.name if self.faction else None})>"
+        return f"<Role(id={self.role_id}, name={self.name}, faction={self.faction_id})>"
 
     def __str__(self) -> str:
-        return (
-            f"Role: {self.name} ({self.faction.name if self.faction else 'No faction'})"
-        )
+        return f"{self.name} ({self.faction.name if self.faction else 'No faction'})"

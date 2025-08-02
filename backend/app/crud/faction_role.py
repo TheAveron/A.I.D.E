@@ -26,9 +26,9 @@ def update_role(
     if not role:
         return None
     if name is not None:
-        role.name = name  # type: ignore
+        role.name = name
     if description is not None:
-        role.description = description  # type: ignore
+        role.description = description
     db.commit()
     db.refresh(role)
     return role

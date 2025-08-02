@@ -39,9 +39,9 @@ def update_user_faction_and_role(
     if not user:
         return None
     if faction_id is not None:
-        user.faction_id = faction_id  # type: ignore
+        user.faction_id = faction_id
     if role_id is not None:
-        user.role_id = role_id  # type: ignore
+        user.role_id = role_id
 
     db.commit()
     db.refresh(user)

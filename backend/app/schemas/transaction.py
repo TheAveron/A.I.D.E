@@ -1,17 +1,26 @@
 from datetime import datetime
-from decimal import Decimal
 from typing import Optional
 
 from pydantic import BaseModel
 
 
-class TransactionOut(BaseModel):
-    transaction_id: int
+# ----- BASE -----
+class TransactionBase(BaseModel):
     offer_id: int
-    buyer_id: Optional[int]
-    buyer_faction_id: Optional[int]
-    amount: Decimal
-    currency: str
+    buyer_user_id: Optional[int] = None
+    buyer_faction_id: Optional[int] = None
+    amount: float
+    currency_name: str
+
+
+# ----- CREATE -----
+class TransactionCreate(TransactionBase):
+    pass
+
+
+# ----- OUTPUT -----
+class TransactionOut(TransactionBase):
+    transaction_id: int
     timestamp: datetime
 
     class Config:

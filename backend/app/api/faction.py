@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -35,7 +33,9 @@ def create_faction(
         raise HTTPException(status_code=400, detail="Faction name already exists")
 
     user = get_current_user()
-    user_faction = faction_crud.get_faction_by_user_id(db, user.user_id) if user else None  # type: ignore
+    user_faction = (
+        faction_crud.get_faction_by_user_id(db, user.user_id) if user else None
+    )
 
     if user_faction:
         raise HTTPException(status_code=400, detail="User already belongs to a faction")
@@ -43,7 +43,7 @@ def create_faction(
     return faction_crud.create_faction(db, faction_data)
 
 
-@router.get("/list", response_model=List[FactionOut])
+@router.get("/list", response_model=list[FactionOut])
 def list_factions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return faction_crud.list_factions(db, skip=skip, limit=limit)
 

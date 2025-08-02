@@ -1,37 +1,16 @@
 from datetime import datetime
-from enum import Enum as PyEnum
-from typing import Optional, Any
+from typing import Optional
 
-from sqlalchemy import (
-    JSON,
-    CheckConstraint,
-    DateTime,
-    Float,
-    ForeignKey,
-    Integer,
-    String,
-    Index,
-)
-from sqlalchemy.dialects.postgresql import ENUM  # <-- Use PostgreSQL ENUM
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import (JSON, CheckConstraint, DateTime, Float, ForeignKey,
+                        Index, Integer, String)
+from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from ...enums import OfferStatus, OfferType
 from ..database import Base
 
-
-# ----- ENUM DEFINITIONS -----
-class OfferType(PyEnum):
-    """Type of offer: buy or sell."""
-
-    BUY = "BUY"
-    SELL = "SELL"
-
-
-class OfferStatus(PyEnum):
-    """Status of the offer."""
-
-    OPEN = "OPEN"
-    CLOSED = "CLOSED"
-    CANCELLED = "CANCELLED"
+offer_type_enum = ENUM(OfferType, name="offer_action_enum", create_type=True)
+offer_status_enum = ENUM(OfferStatus, name="offer_action_enum", create_type=True)
 
 
 class Offer(Base):
@@ -66,11 +45,11 @@ class Offer(Base):
 
     # What is being offered/requested
     offer_type: Mapped[OfferType] = mapped_column(
-        ENUM(OfferType, name="offer_type_enum", create_type=True),  # PostgreSQL ENUM
+        offer_type_enum,
         nullable=False,
         index=True,
     )
-    item_description: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    item_description: Mapped[str] = mapped_column(String, nullable=False)
 
     # Price
     currency_name: Mapped[str] = mapped_column(
@@ -87,7 +66,7 @@ class Offer(Base):
 
     # State & metadata
     status: Mapped[OfferStatus] = mapped_column(
-        ENUM(OfferStatus, name="offer_status_enum", create_type=True),
+        offer_status_enum,
         default=OfferStatus.OPEN,
         nullable=False,
         index=True,
