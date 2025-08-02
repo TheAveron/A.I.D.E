@@ -1,16 +1,14 @@
 import os
 from datetime import datetime, timedelta
 
+import jwt
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException
 
-from ..database import get_db, User
-
-import jwt
+from ..database import User, get_db
 
 
 def get_user_by_username(db: Session, username: str):

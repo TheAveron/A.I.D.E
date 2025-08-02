@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import get_user_by_username
 from ..database import get_db
-from ..schemas import UserOut, UserFull
+from ..schemas import UserFull, UserOut
 
 router = APIRouter(prefix="/users", tags=["users"])
 

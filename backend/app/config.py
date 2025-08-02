@@ -1,15 +1,7 @@
-from sqlalchemy import create_engine
-
 from database.database import Base, engine
-from database.models import (
-    Currency,
-    Role,
-    Faction,
-    OfferHistory,
-    Offer,
-    Transaction,
-    User,
-)
+from database.models import (Currency, Faction, Offer, OfferHistory, Role,
+                             Transaction, User)
+from sqlalchemy import create_engine
 
 
 def create_tables():

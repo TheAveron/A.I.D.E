@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
-from ..database import Faction, Offer, OfferAction, OfferStatus, Transaction, User
+from ..database import (Faction, Offer, OfferAction, OfferStatus, Transaction,
+                        User)
 from .offer_history import log_offer_history
 
 

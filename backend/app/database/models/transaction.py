@@ -1,15 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (
-    CheckConstraint,
-    DateTime,
-    Float,
-    ForeignKey,
-    Integer,
-    String,
-)
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import (CheckConstraint, DateTime, Float, ForeignKey, Integer,
+                        String)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
 

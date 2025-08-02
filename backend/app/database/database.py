@@ -6,8 +6,8 @@ loaded from an external database.ini file. Used throughout A.I.D.E backend
 for ORM operations and dependency injection.
 """
 
-from ast import parse
 import configparser
+from ast import parse
 from pathlib import Path
 
 from sqlalchemy import create_engine

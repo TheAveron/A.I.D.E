@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
-from .api import auth, faction, offer, user, marketplace
+from .api import auth, faction, marketplace, offer, user
 from .core.logger import setup_logger
 
 app = FastAPI(
