@@ -1,4 +1,7 @@
-from sqlalchemy import Integer, String
+from datetime import datetime
+from typing import Optional
+
+from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
@@ -11,15 +14,26 @@ class Currency(Base):
 
     __tablename__ = "currencies"
 
-    name: Mapped[str] = mapped_column(
-        String(50),
-        primary_key=True,
-        nullable=False,
-        index=True,  # Useful if searched often
+    name: Mapped[str] = mapped_column(String(50), primary_key=True, index=True)
+    faction_id: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        ForeignKey("factions.faction_id"),
+        nullable=True,
+        index=True,
+        unique=True,
     )
+    faction = relationship("Faction", back_populates="currencies")
+    symbol: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
 
     total_in_circulation: Mapped[int] = mapped_column(
         Integer, default=0, nullable=False
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
 
     # Relationships
@@ -28,9 +42,8 @@ class Currency(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<Currency(name={self.name}, total={self.total_in_circulation})>"
+        return f"<Currency(name='{self.name}', symbol='{self.symbol}', "
 
     def __str__(self) -> str:
-        return (
-            f"Currency: {self.name} (Total in circulation: {self.total_in_circulation})"
-        )
+        symbol_part = f" ({self.symbol})" if self.symbol else ""
+        return f"Currency: {self.name}{symbol_part}"
