@@ -49,7 +49,9 @@ def list_factions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     return faction_crud.list_factions(db, skip=skip, limit=limit)
 
 
-@router.get("/{faction_id}", response_model=FactionOut, status_code=status.HTTP_200_OK)
+@router.get(
+    "/detail/{faction_id}", response_model=FactionOut, status_code=status.HTTP_200_OK
+)
 def get_faction(faction_id: int, db: Session = Depends(get_db)):
     faction = faction_crud.get_faction(db, faction_id)
     if not faction:
@@ -58,7 +60,7 @@ def get_faction(faction_id: int, db: Session = Depends(get_db)):
 
 
 @router.put(
-    "/{faction_id}/update",
+    "/update/{faction_id}",
     response_model=FactionOut,
     status_code=status.HTTP_202_ACCEPTED,
 )
@@ -84,7 +86,7 @@ def update_faction(
     return updated_faction
 
 
-@router.delete("/{faction_id}/delete", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/delete/{faction_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_faction(
     faction_id: int,
     db: Session = Depends(get_db),

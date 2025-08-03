@@ -4,6 +4,8 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from backend.app.crud.faction_role import create_default_faction_roles
+
 from ..database import Faction, User
 from ..schemas import FactionCreate, FactionUpdate
 
@@ -32,6 +34,7 @@ def create_faction(db: Session, faction_data: FactionCreate) -> Faction:
         name=faction_data.name,
         description=faction_data.description,
     )
+    create_default_faction_roles(db, faction.faction_id)
     db.add(faction)
     db.commit()
     db.refresh(faction)

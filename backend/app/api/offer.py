@@ -30,7 +30,7 @@ def create_offer(offer_in: OfferCreate, db: Session = Depends(get_db)):
     return offer_crud.create_offer(db, offer_in)
 
 
-@router.get("/{offer_id}", response_model=OfferOut)
+@router.get("/detail/{offer_id}", response_model=OfferOut)
 def get_offer(offer_id: int, db: Session = Depends(get_db)):
     offer = offer_crud.get_offer(db, offer_id)
     if not offer:
@@ -39,7 +39,7 @@ def get_offer(offer_id: int, db: Session = Depends(get_db)):
 
 
 @router.put(
-    "/{offer_id}/update", response_model=OfferOut, status_code=status.HTTP_202_ACCEPTED
+    "/update/{offer_id}", response_model=OfferOut, status_code=status.HTTP_202_ACCEPTED
 )
 def modify_offer(
     offer_id: int, update_data: OfferUpdate, db: Session = Depends(get_db)
@@ -50,7 +50,7 @@ def modify_offer(
     return updated
 
 
-@router.delete("/{offer_id}/delete", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/delete/{offer_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_offer(offer_id: int, db: Session = Depends(get_db)):
     deleted = offer_crud.update_offer(
         db, offer_id, OfferUpdate(status=OfferStatus.CANCELLED)
@@ -61,7 +61,7 @@ def remove_offer(offer_id: int, db: Session = Depends(get_db)):
 
 
 @router.post(
-    "/{offer_id}/accept", response_model=OfferOut, status_code=status.HTTP_202_ACCEPTED
+    "/accept/{offer_id}", response_model=OfferOut, status_code=status.HTTP_202_ACCEPTED
 )
 def accept_offer(
     offer_id: int,

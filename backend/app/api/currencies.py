@@ -31,7 +31,9 @@ def create_currency(
 
 
 @router.get(
-    "/{currency_name}", response_model=CurrencyOut, status_code=status.HTTP_200_OK
+    "/detail/{currency_name}",
+    response_model=CurrencyOut,
+    status_code=status.HTTP_200_OK,
 )
 def get_currency(
     currency_name: str,
@@ -63,7 +65,7 @@ def get_currency(
 
 
 @router.put(
-    "/{currency_name}/update",
+    "/update/{currency_name}",
     response_model=CurrencyOut,
     status_code=status.HTTP_202_ACCEPTED,
 )
@@ -77,7 +79,7 @@ def update_currency(
     return crud_currencies.update_currency(db, currency_name, currency_in)
 
 
-@router.delete("/{currency_name}/delete", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/delete/{currency_name}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_currency(
     currency_name: str,
     db: Session = Depends(get_db),
