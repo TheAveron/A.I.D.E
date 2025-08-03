@@ -22,7 +22,12 @@ class Currency(Base):
         index=True,
         unique=True,
     )
-    faction = relationship("Faction", back_populates="currencies")
+    faction = relationship(
+        "Faction",
+        back_populates="currency",
+        foreign_keys=[faction_id],
+        uselist=False,
+    )
     symbol: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
 
     total_in_circulation: Mapped[int] = mapped_column(

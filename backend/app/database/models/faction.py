@@ -21,12 +21,13 @@ class Faction(Base):
 
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    currency_name: Mapped[Optional[str]] = mapped_column(
-        String(50), ForeignKey("currencies.name", ondelete="SET NULL"), nullable=True
+    currency = relationship(
+        "Currency",
+        back_populates="faction",
+        foreign_keys="[Currency.faction_id]",  # <-- Explicitly specify foreign key
+        uselist=False,
+        cascade="all, delete-orphan",
     )
-
-    currency_amount: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
-
     is_approved: Mapped[bool] = mapped_column(Boolean, default=False)
 
     created_at: Mapped[datetime] = mapped_column(
@@ -61,7 +62,8 @@ class Faction(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<Faction(id={self.faction_id}, name={self.name}, currency={self.currency_name})>"
+        currency_name = self.currency.name if self.currency else "No currency"
+        return f"<Faction(id={self.faction_id}, name={self.name}, currency={currency_name})>"
 
     def __str__(self) -> str:
         return self.name

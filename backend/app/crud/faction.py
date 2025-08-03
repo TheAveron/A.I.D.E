@@ -31,7 +31,6 @@ def create_faction(db: Session, faction_data: FactionCreate) -> Faction:
     faction = Faction(
         name=faction_data.name,
         description=faction_data.description,
-        currency_amount=faction_data.currency_amount,
     )
     db.add(faction)
     db.commit()

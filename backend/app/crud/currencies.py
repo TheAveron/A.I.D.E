@@ -20,6 +20,7 @@ def create_currency(db: Session, currency_in: CurrencyCreate) -> Currency:
         name=currency_in.name,
         symbol=currency_in.symbol,
         faction_id=currency_in.faction_id,
+        total_in_circulation=currency_in.total_in_circulation,
     )
     db.add(db_currency)
     db.commit()
@@ -36,8 +37,10 @@ def update_currency(
 
     if currency_in.symbol is not None:
         db_currency.symbol = currency_in.symbol
-    if currency_in.faction_id is not None:
-        db_currency.faction_id = currency_in.faction_id
+    if currency_in.total_in_circulation is not None:
+        db_currency.total_in_circulation = currency_in.total_in_circulation
+    if currency_in.name is not None:
+        db_currency.name = currency_in.name
 
     db.commit()
     db.refresh(db_currency)
