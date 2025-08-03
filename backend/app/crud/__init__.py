@@ -1,3 +1,6 @@
+from .currencies import (create_currency, delete_currency, get_currencies,
+                         get_currency, get_currency_by_faction,
+                         update_currency)
 from .faction import (create_faction, delete_faction, get_faction,
                       get_faction_by_name, get_faction_by_user_id,
                       list_factions, update_faction_validation)

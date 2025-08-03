@@ -11,6 +11,10 @@ def get_currency(db: Session, currency_name: str) -> Optional[Currency]:
     return db.query(Currency).filter(Currency.name == currency_name).first()
 
 
+def get_currency_by_faction(db: Session, faction_id: int) -> Optional[Currency]:
+    return db.query(Currency).filter(Currency.faction_id == faction_id).first()
+
+
 def get_currencies(db: Session, skip: int = 0, limit: int = 100) -> list[Currency]:
     return db.query(Currency).offset(skip).limit(limit).all()
 

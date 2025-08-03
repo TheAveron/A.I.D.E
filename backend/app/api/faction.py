@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from ..core import get_current_user
 from ..crud import faction as faction_crud
-from ..database import get_db
+from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
 from ..schemas import FactionCreate, FactionOut, FactionUpdate
 
@@ -15,7 +15,9 @@ router = APIRouter(
 
 @router.post("/create", response_model=FactionOut, status_code=status.HTTP_201_CREATED)
 def create_faction(
-    faction_data: FactionCreate, db: Session = Depends(get_db)
+    faction_data: FactionCreate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
 ) -> FactionOut:
     """
     Create a new faction.
@@ -30,7 +32,6 @@ def create_faction(
     - 400: Faction already exists
     - 422: Invalid faction data
     """
-    user = get_current_user()
     user_faction = (
         faction_crud.get_faction_by_user_id(db, user.user_id) if user else None
     )
@@ -41,7 +42,7 @@ def create_faction(
     if faction_crud.get_faction_by_name(db, faction_data.name):
         raise HTTPException(status_code=400, detail="Faction name already exists")
 
-    return faction_crud.create_faction(db, faction_data)
+    return faction_crud.create_faction(db, faction_data, user.user_id)
 
 
 @router.get("/list", response_model=list[FactionOut], status_code=status.HTTP_200_OK)

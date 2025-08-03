@@ -1,11 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from backend.app.core.security import get_current_user
-from backend.app.database.models.user import User
-
+from ..core import get_current_user
 from ..crud import currencies as crud_currencies
-from ..database import get_db
+from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
 from ..schemas import CurrencyCreate, CurrencyOut, CurrencyUpdate
 
@@ -16,7 +14,7 @@ router = APIRouter(prefix="/currencies", tags=["currencies"])
 def create_currency(
     currency_in: CurrencyCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     # Check faction permission
     check_faction_permission(current_user, FactionPermission.MANAGE_FUNDS)
@@ -31,14 +29,38 @@ def create_currency(
 
 
 @router.get(
+    "/faction/{faction_id}",
+    response_model=CurrencyOut | None,
+    status_code=status.HTTP_200_OK,
+)
+def get_currency_by_faction(
+    faction_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    currency = crud_currencies.get_currency_by_faction(db, faction_id)
+
+    if not currency:
+        return None
+
+    if currency.faction_id != current_user.faction_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only view your own faction's currency",
+        )
+
+    return currency
+
+
+@router.get(
     "/detail/{currency_name}",
     response_model=CurrencyOut,
     status_code=status.HTTP_200_OK,
 )
-def get_currency(
+def get_currency_by_name(
     currency_name: str,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     currency = crud_currencies.get_currency(db, currency_name)
     if not currency:
@@ -83,7 +105,7 @@ def update_currency(
 def delete_currency(
     currency_name: str,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     check_faction_permission(current_user, FactionPermission.MANAGE_FUNDS)
     crud_currencies.delete_currency(db, currency_name)

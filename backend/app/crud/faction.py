@@ -4,7 +4,8 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from backend.app.crud.faction_role import create_default_faction_roles
+from backend.app.crud.faction_role import (create_default_faction_roles,
+                                           get_roles_by_faction)
 
 from ..database import Faction, User
 from ..schemas import FactionCreate, FactionUpdate
@@ -29,15 +30,17 @@ def list_factions(db: Session, skip: int = 0, limit: int = 100) -> list[Faction]
     return db.query(Faction).offset(skip).limit(limit).all()
 
 
-def create_faction(db: Session, faction_data: FactionCreate) -> Faction:
+def create_faction(db: Session, faction_data: FactionCreate, user_id: int) -> Faction:
     faction = Faction(
         name=faction_data.name,
         description=faction_data.description,
     )
-    create_default_faction_roles(db, faction.faction_id)
     db.add(faction)
     db.commit()
     db.refresh(faction)
+
+    create_default_faction_roles(db, faction.faction_id, user_id)
+
     return faction
 
 

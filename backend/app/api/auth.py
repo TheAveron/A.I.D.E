@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from ..core import create_access_token, hash_password
 from ..crud import authenticate_user, create_user, get_user_by_username
 from ..database import get_db
-from ..schemas import UserCreate, UserLogin, Auth
+from ..schemas import Auth, UserCreate, UserLogin
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

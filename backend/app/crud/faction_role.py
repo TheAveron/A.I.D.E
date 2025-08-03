@@ -2,6 +2,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from backend.app.crud.user import update_user_faction_and_role
+
 from ..database import Role
 from ..misc import FactionPermission
 from ..schemas import RoleCreate, RoleUpdate
@@ -47,7 +49,7 @@ def delete_role(db: Session, role: Role) -> None:
     db.commit()
 
 
-def create_default_faction_roles(db: Session, faction_id: int):
+def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
     """
     Create a set of default roles for a newly created faction with predefined permissions.
     """
@@ -130,5 +132,7 @@ def create_default_faction_roles(db: Session, faction_id: int):
             ],
         )
         db.add(db_role)
+        db.commit()
 
-    db.commit()
+        if db_role.name == "Chief":
+            update_user_faction_and_role(db, user_id, faction_id, db_role.role_id)
