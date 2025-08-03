@@ -30,7 +30,9 @@ def create_currency(
     return crud_currencies.create_currency(db, currency_in)
 
 
-@router.get("/{currency_name}", response_model=CurrencyOut)
+@router.get(
+    "/{currency_name}", response_model=CurrencyOut, status_code=status.HTTP_200_OK
+)
 def get_currency(
     currency_name: str,
     db: Session = Depends(get_db),
@@ -60,7 +62,11 @@ def get_currency(
     return currency
 
 
-@router.put("/{currency_name}/update", response_model=CurrencyOut)
+@router.put(
+    "/{currency_name}/update",
+    response_model=CurrencyOut,
+    status_code=status.HTTP_202_ACCEPTED,
+)
 def update_currency(
     currency_name: str,
     currency_in: CurrencyUpdate,

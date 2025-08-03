@@ -12,7 +12,7 @@ from ..schemas import OfferAccept, OfferCreate, OfferOut, OfferUpdate
 router = APIRouter(prefix="/offers", tags=["offers"])
 
 
-@router.get("/", response_model=list[OfferOut])
+@router.get("/", response_model=list[OfferOut], status_code=status.HTTP_200_OK)
 def list_offers(
     status: Optional[OfferStatus] = Query(None),
     currency: Optional[str] = Query(None),
@@ -38,7 +38,9 @@ def get_offer(offer_id: int, db: Session = Depends(get_db)):
     return offer
 
 
-@router.put("/{offer_id}/update", response_model=OfferOut)
+@router.put(
+    "/{offer_id}/update", response_model=OfferOut, status_code=status.HTTP_202_ACCEPTED
+)
 def modify_offer(
     offer_id: int, update_data: OfferUpdate, db: Session = Depends(get_db)
 ):
@@ -58,7 +60,9 @@ def remove_offer(offer_id: int, db: Session = Depends(get_db)):
     return
 
 
-@router.post("/{offer_id}/accept", response_model=OfferOut)
+@router.post(
+    "/{offer_id}/accept", response_model=OfferOut, status_code=status.HTTP_202_ACCEPTED
+)
 def accept_offer(
     offer_id: int,
     acceptance: OfferAccept,

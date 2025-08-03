@@ -9,12 +9,12 @@ from ..schemas import UserFull, UserOut
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/me", response_model=UserFull)
+@router.get("/me", response_model=UserFull, status_code=status.HTTP_200_OK)
 def read_current_user(current_user=Depends(get_current_user)):
     return current_user
 
 
-@router.get("/{username}", response_model=UserOut)
+@router.get("/{username}", response_model=UserOut, status_code=status.HTTP_200_OK)
 def read_user(username: str, db: Session = Depends(get_db)):
     user = get_user_by_username(db, username)
     if not user:
