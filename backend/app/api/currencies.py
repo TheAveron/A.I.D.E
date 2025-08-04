@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import currencies as crud_currencies
 from ..database import User, get_db
-from ..misc import FactionPermission, check_faction_permission
 from ..schemas import CurrencyCreate, CurrencyOut, CurrencyUpdate
 
 router = APIRouter(prefix="/currencies", tags=["currencies"])
@@ -16,9 +15,11 @@ def create_currency(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Check faction permission
-    check_faction_permission(current_user, FactionPermission.MANAGE_FUNDS)
-
+    if not (current_user.role and current_user.role.manage_funds):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You lack permission to create faction currency",
+        )
     existing = crud_currencies.get_currency(db, currency_in.name)
     if existing:
         raise HTTPException(
@@ -38,7 +39,6 @@ def get_currency_by_faction(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-
     currency = crud_currencies.get_currency_by_faction(db, faction_id)
 
     if not currency:
@@ -75,10 +75,7 @@ def get_currency_by_name(
             detail="You can only view your own faction's currency",
         )
 
-    if not (
-        current_user.role
-        and current_user.role.has_permission(FactionPermission.MANAGE_FUNDS)
-    ):
+    if not (current_user.role and current_user.role.manage_funds):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You lack permission to view faction currency information",
@@ -98,7 +95,11 @@ def update_currency(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    check_faction_permission(current_user, FactionPermission.MANAGE_FUNDS)
+    if not (current_user.role and current_user.role.manage_funds):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You lack permission to update faction currency information",
+        )
     return crud_currencies.update_currency(db, currency_name, currency_in)
 
 
@@ -108,6 +109,10 @@ def delete_currency(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    check_faction_permission(current_user, FactionPermission.MANAGE_FUNDS)
+    if not (current_user.role and current_user.role.manage_funds):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You lack permission to delete faction currency",
+        )
     crud_currencies.delete_currency(db, currency_name)
     return None

@@ -6,7 +6,6 @@ from backend.app.crud.faction import get_faction_by_user_id
 from ..core import get_current_user
 from ..crud import faction_role as crud_role
 from ..database import User, get_db
-from ..misc import FactionPermission, check_faction_permission
 from ..schemas import RoleCreate, RoleOut, RoleUpdate
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
@@ -31,7 +30,11 @@ def create_role(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    check_faction_permission(current_user, FactionPermission.MANAGE_ROLES)
+    if not (current_user.role and current_user.role.manage_roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You lack permission to create faction role",
+        )
 
     return crud_role.create_role(db, faction_id, role_in)
 
@@ -60,14 +63,15 @@ def update_role(
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
 
-    check_faction_permission(current_user, FactionPermission.MANAGE_ROLES)
+    if not (current_user.role and current_user.role.manage_roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You lack permission to update faction roles",
+        )
 
     return crud_role.update_role(db, role, role_update)
 
 
-# ----------------------
-# Delete a role
-# ----------------------
 @router.delete("/delete/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_role(
     role_id: int,
@@ -78,6 +82,10 @@ def delete_role(
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
 
-    check_faction_permission(current_user, FactionPermission.MANAGE_ROLES)
+    if not (current_user.role and current_user.role.manage_roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You lack permission to delete faction role",
+        )
 
     crud_role.delete_role(db, role)

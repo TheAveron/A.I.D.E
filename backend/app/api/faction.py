@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import faction as faction_crud
 from ..database import User, get_db
-from ..misc import FactionPermission, check_faction_permission
 from ..schemas import FactionCreate, FactionOut, FactionUpdate
 
 router = APIRouter(
@@ -71,8 +70,11 @@ def update_faction(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    # Require permission to manage roles or handle members
-    check_faction_permission(current_user, FactionPermission.MANAGE_ROLES)
+    if not (current_user.role and current_user.role.manage_roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You lack permission to update faction information",
+        )
 
     faction = faction_crud.get_faction(db, faction_id)
     if not faction:
@@ -93,8 +95,11 @@ def delete_faction(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    # Only allow deletion if the user can manage roles (or you can make this a different strict permission)
-    check_faction_permission(current_user, FactionPermission.MANAGE_ROLES)
+    if not (current_user.role and current_user.role.manage_roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You lack permission to delete faction",
+        )
 
     faction = faction_crud.get_faction(db, faction_id)
     if not faction:

@@ -1,8 +1,15 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, String, Text,
-                        UniqueConstraint)
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...misc import FactionPermission
@@ -49,10 +56,6 @@ class Role(Base):
 
     faction = relationship("Faction", back_populates="roles")
     users = relationship("User", back_populates="role", passive_deletes=True)
-
-    def has_permission(self, permission: FactionPermission) -> bool:
-        """Check if this role has a specific permission."""
-        return getattr(self, permission.value, False)
 
     def __repr__(self) -> str:
         return f"<Role(id={self.role_id}, name={self.name}, faction={self.faction_id})>"
