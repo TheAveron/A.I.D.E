@@ -27,7 +27,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/login"
+    tokenUrl="/auth/login"
 )  # tokenUrl must match your login route
 
 

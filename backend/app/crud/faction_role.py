@@ -56,8 +56,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
 
     default_roles = [
         {
-            "name": "Chief",
-            "description": "Leader of the faction with full permissions.",
+            "name": "Chef",
+            "description": "Chef de la faction avec toutes les permissions.",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: True,
                 FactionPermission.CREATE_OFFERS: True,
@@ -68,8 +68,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
             },
         },
         {
-            "name": "Treasurer",
-            "description": "Manages faction funds and transactions.",
+            "name": "Trésorier",
+            "description": "Gère la monaie et les transactions.",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: False,
                 FactionPermission.CREATE_OFFERS: False,
@@ -80,8 +80,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
             },
         },
         {
-            "name": "Merchant",
-            "description": "Can create and accept trade offers.",
+            "name": "Marchand",
+            "description": "Peut créer et accepter des offres.",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: True,
                 FactionPermission.CREATE_OFFERS: True,
@@ -92,8 +92,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
             },
         },
         {
-            "name": "Member",
-            "description": "Regular member with viewing rights.",
+            "name": "Membre",
+            "description": "Membre normal",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: False,
                 FactionPermission.CREATE_OFFERS: False,
@@ -104,8 +104,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
             },
         },
         {
-            "name": "Chief Assistant",
-            "description": "Second-in-command, assists the Chief but cannot manage funds.",
+            "name": "Chef Adjoint",
+            "description": "Adjoint du chef, l'aide à administrer mais ne peux pas gérer la monaie",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: True,
                 FactionPermission.CREATE_OFFERS: True,
@@ -134,5 +134,5 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
         db.add(db_role)
         db.commit()
 
-        if db_role.name == "Chief":
+        if db_role.name == "Chef":
             update_user_faction_and_role(db, user_id, faction_id, db_role.role_id)
