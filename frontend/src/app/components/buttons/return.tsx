@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
+import "../../../assets/css/components/buttons.css";
+
 type GoBackButtonProps = {
     label?: string;
 };

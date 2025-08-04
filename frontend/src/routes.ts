@@ -19,6 +19,7 @@ export default [
             route("profile", "./app/pages/profile.tsx"),
             route("offers", "./app/pages/offers.tsx"),
             route("faction/:factionid", "./app/pages/faction_page.tsx"),
+            route("user/:userid", "./app/pages/user_page.tsx"),
         ]),
 
         ...prefix("archives", [

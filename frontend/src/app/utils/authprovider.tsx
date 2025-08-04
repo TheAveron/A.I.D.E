@@ -18,8 +18,8 @@ interface AuthContextType {
 }
 
 interface DecodedToken {
-    exp: number; // expiration time in seconds (from JWT)
-    [key: string]: unknown; // other claims from your backend
+    exp: number;
+    [key: string]: unknown;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,7 +37,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (token) {
             try {
-                // Decode JWT and check expiration
                 const decoded = jwtDecode<DecodedToken>(token);
 
                 if (!decoded.exp) {
@@ -47,18 +46,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
                 }
 
                 const expiryTime = decoded.exp * 1000; // convert seconds → ms
-                const timeUntilExpiry = expiryTime - Date.now();
+                const timeUntilExpiry = expiryTime - Date.now() - 5000; // 5s safety margin
 
                 if (timeUntilExpiry <= 0) {
-                    // Already expired
                     handleLogout();
                 } else {
-                    // Schedule auto-logout when token expires
                     logoutTimer = setTimeout(() => {
                         handleLogout(true);
                     }, timeUntilExpiry);
 
-                    // Set Axios header
                     axios.defaults.headers.common[
                         "Authorization"
                     ] = `Bearer ${token}`;
@@ -76,7 +72,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => {
             if (logoutTimer) clearTimeout(logoutTimer);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
     const navigate = useNavigate();

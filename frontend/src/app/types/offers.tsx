@@ -1,6 +1,6 @@
-export interface OfferInfo {
+export interface OfferType {
     offer_type: "BUY" | "SELL";
-    item_description: string[];
+    item_description: string;
     currency: string;
     price_per_unit: number;
     quantity: number;
@@ -10,4 +10,5 @@ export interface OfferInfo {
     faction_id: number | null;
     status: "OPEN" | "CANCELLED" | "CLOSED";
     created_at: string;
+    updated_at: string;
 }

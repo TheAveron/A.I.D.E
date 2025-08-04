@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import "../../assets/css/components/header.css";
 import { useAuth } from "../utils/authprovider";
+
+import "../../assets/css/components/header.css";
 
 function Header() {
     const { token } = useAuth() ?? {};
@@ -12,7 +13,7 @@ function Header() {
             </Link>
             <nav>
                 <Link className="link" to="/A.I.D.E/actual">
-                    Map
+                    Carte
                 </Link>
 
                 {token ? (
@@ -20,6 +21,10 @@ function Header() {
                         <Link className="link" to="/A.I.D.E/factions">
                             Factions
                         </Link>
+                        <Link className="link" to="/A.I.D.E/offers">
+                            Offres
+                        </Link>
+
                         <Link className="link" to="/A.I.D.E/contribuer">
                             Contribuer
                         </Link>
@@ -37,7 +42,7 @@ function Header() {
                             id="signin"
                             to="/A.I.D.E/login"
                         >
-                            Sign in
+                            Connection
                         </Link>
                     </>
                 )}

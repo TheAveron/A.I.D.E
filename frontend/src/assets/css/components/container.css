@@ -1,0 +1,12 @@
+.information-container {
+    width: 100vw;
+    display: grid;
+    padding: 10vh 5vw;
+    padding-top: 5vh;
+    gap: min(10vh, 100px) 6vw;
+
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, max(15vh, 350px));
+
+    place-items: center;
+}

@@ -1,4 +1,3 @@
-import "../../assets/css/pages/login.css";
 import { useForm } from "react-hook-form";
 import logo from "../../assets/images/CC_logo.png";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,6 +5,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import axios from "axios";
 import { useAuth } from "../utils/authprovider";
+
+import "../../assets/css/pages/login.css";
 
 type userDataRegistration = {
     username: string;
@@ -43,18 +44,21 @@ function Register() {
 
     const onSubmit = handleSubmit(async (data) => {
         try {
-            // Replace with your actual API endpoint
             const response = await axios.post(
-                "http://localhost:3000/api/auth/register",
+                "http://127.0.0.1:8000/auth/register",
                 {
                     username: data.username,
                     password: data.password,
+                    is_admin: false,
                 }
             );
-            if (response.data && response.data.acces_token) {
-                setToken?.(response.data.acces_token);
+            if (response.data && response.data.access_token) {
+                setToken?.(response.data.access_token);
+                axios.defaults.headers.common[
+                    "Authorization"
+                ] = `Bearer ${token}`;
+                navigate("/A.I.D.E");
                 console.log("Registration successful!");
-                // Optionally redirect user here
             } else {
                 console.log("Registration failed: No token received");
             }
@@ -85,26 +89,26 @@ function Register() {
                         </div>
                         <div className="container">
                             <label>
-                                <b>Username</b>
+                                <b>Nom d'utilisateur</b>
                             </label>
                             <input
                                 type="username"
                                 {...register("username", { required: true })}
-                                placeholder="Enter username"
+                                placeholder="Entrez un nom"
                             />
                             {errors.username?.message && (
                                 <span style={{ color: "red" }}>
-                                    *Username* is mandatory,
+                                    *Nom* obligatoire,
                                     {errors.username?.message}
                                 </span>
                             )}
                             <label>
-                                <b>Password</b>
+                                <b>Mot de passe</b>
                             </label>
                             <input
                                 type="password"
                                 {...register("password")}
-                                placeholder="Enter password"
+                                placeholder="Entrez un mot de passe"
                             />
                             {errors.password && (
                                 <span style={{ color: "red" }}>
@@ -112,12 +116,12 @@ function Register() {
                                 </span>
                             )}
                             <label>
-                                <b>Password confirmation</b>
+                                <b>Confirmation</b>
                             </label>
                             <input
                                 type="password"
                                 {...register("cpassword")}
-                                placeholder="Enter password"
+                                placeholder="Entrez votre mot de passe"
                             />
                             {errors.password && (
                                 <span style={{ color: "red" }}>
@@ -131,9 +135,7 @@ function Register() {
                                     className="button"
                                     value="Register"
                                 />
-                                <Link to="../login">
-                                    Already have an account ?
-                                </Link>
+                                <Link to="../login">Déjà un compte ?</Link>
                             </div>
                         </div>
                     </form>

@@ -1,72 +1,70 @@
-import axios from "axios";
-import type { UserProfile } from "../types/users";
-import type { FactionInfo } from "../types/factions";
-import { useEffect, useState } from "react";
-import "../../assets/css/components/profile.css";
+import type { UserType } from "../types/users";
+import { Link } from "react-router-dom";
+import { useRole } from "./hooks/role";
+import { useFaction } from "./hooks/faction";
 
-function Profile({ value }: { value: UserProfile }) {
+import "../../assets/css/components/info.css";
+import "../../assets/css/components/snippets.css";
+
+function Profile({ value }: { value: UserType }) {
     const profile = value;
-    const [faction, setFaction] = useState<FactionInfo | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<String | null>(null);
 
-    if (profile.faction_id) {
-        useEffect(() => {
-            const fetchFaction = async () => {
-                try {
-                    const res = await axios.get<FactionInfo>(
-                        "http://127.0.0.1:8000/faction/" + profile.faction_id
-                    );
-                    setFaction(res.data);
-                } catch (err) {
-                    setError("Failed to load Faction infos.");
-                } finally {
-                    setLoading(false);
-                }
-            };
+    const factionId = profile.faction_id?.toString() ?? "";
+    const roleId = profile.role_id?.toString() ?? "";
 
-            fetchFaction();
-        }, []);
+    const { faction, loading: factionLoading } = useFaction(factionId);
+    const { role, loading: roleLoading } = useRole(roleId);
 
-        if (loading) {
-            return <p>Loading...</p>;
-        }
-
-        if (error) {
-            return <p style={{ color: "red" }}>Error: {error}</p>;
-        }
+    if (
+        (profile.faction_id && factionLoading) ||
+        (profile.role_id && roleLoading)
+    ) {
+        return <p>Chargement...</p>;
     }
 
     return (
-        <>
-            <div className="profile-header">
-                <div className="profile-username">{profile.username}</div>
+        <div className="snippet-container">
+            <div className="info-header">
+                <div className="info-title">{profile.username}</div>
                 {profile.is_admin && (
                     <div className="profile-role">Administrateur</div>
                 )}
             </div>
 
-            <div className="profile-info">
-                <div className="profile-info-row">
-                    <span className="profile-info-label">Faction:</span>
-                    <span className="profile-info-value">
-                        {faction?.name ?? "Aucune"}
+            <div className="info-values">
+                <Link
+                    to={
+                        faction ? `/A.I.D.E/faction/${faction.faction_id}` : "#"
+                    }
+                    style={{ width: "100%" }}
+                >
+                    <div className="info-row">
+                        <span className="info-label">Faction:</span>
+                        <span className="info-value-field">
+                            {faction?.name ?? "Aucune"}
+                        </span>
+                    </div>
+                </Link>
+                <div className="info-row">
+                    <span className="info-label">Role:</span>
+                    <span className="info-value-field">
+                        {role?.name ?? "Aucun"}
                     </span>
                 </div>
-                <div className="profile-info-row">
-                    <span className="profile-info-label">Email:</span>
-                    <span className="profile-info-value">
-                        {profile.email ?? "Not provided"}
+                <div className="info-row">
+                    <span className="info-label">Email:</span>
+                    <span className="info-value-field">
+                        {profile.email ?? "Non"}
                     </span>
                 </div>
-                <div className="profile-info-row">
-                    <span className="profile-info-label">Inscription:</span>
-                    <span className="profile-info-value">
+                <div className="info-row">
+                    <span className="info-label">Inscription:</span>
+                    <span className="info-value-field">
                         {new Date(profile.created_at).toLocaleDateString()}
                     </span>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 

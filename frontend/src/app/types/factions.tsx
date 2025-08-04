@@ -1,8 +1,7 @@
-export interface FactionInfo {
+export interface FactionType {
     name: string;
-    description: string;
-    currency_name: string;
-    currency_amount: number;
+    description: string | null;
     faction_id: number;
     is_approved: boolean;
+    created_at: string;
 }

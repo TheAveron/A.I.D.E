@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 
+import "../../assets/css/components/section.css";
+import "../../assets/css/components/buttons.css";
+
 function toggleLayout(isColumn: boolean) {
     const mapTitle = document.getElementById("map-title");
     if (isColumn) {
@@ -30,6 +33,7 @@ function PageGenerator(page: string, render: boolean) {
             headerBlock.style.minHeight = "0";
             headerBlock.style.paddingTop = "0";
             headerBlock.style.paddingBottom = "0";
+            headerBlock.style.borderBottomWidth = "0";
         }
         if (main) main.style.marginTop = "0";
 
@@ -41,6 +45,7 @@ function PageGenerator(page: string, render: boolean) {
                 headerBlock.style.minHeight = "75px";
                 headerBlock.style.paddingTop = " 2vh";
                 headerBlock.style.paddingBottom = " 2vh";
+                headerBlock.style.borderBottomWidth = "1px";
             }
             if (main) main.style.marginTop = "calc(var(--header-height))";
 
@@ -58,7 +63,7 @@ function PageGenerator(page: string, render: boolean) {
                         id="render"
                         onClick={() => setShowIframe(true)}
                     >
-                        <p>Render</p>
+                        <p>Afficher</p>
                     </button>
                 </section>
             )}

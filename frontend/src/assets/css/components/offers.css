@@ -1,0 +1,18 @@
+.offer-box {
+    width: 85vw;
+    margin-top: 5vh;
+    height: fit-content;
+}
+
+.offers-header {
+    max-height: 100px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    place-items: center;
+}
+
+.offers-header h2 {
+    color: var(--text);
+    font-size: 2em;
+}

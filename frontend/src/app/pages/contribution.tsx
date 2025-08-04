@@ -1,3 +1,5 @@
+import "../../assets/css/components/section.css";
+
 function Contribution() {
     return (
         <section

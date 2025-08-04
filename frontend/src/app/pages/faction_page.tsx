@@ -1,40 +1,17 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import type { FactionInfo } from "../types/factions";
-import { useParams } from "react-router-dom";
+import FactionInfo from "../components/snippets/faction_infos";
+import CurrencyInfo from "../components/snippets/currency_info";
+import RolesTable from "../components/snippets/roles_table";
+import UsersTable from "../components/snippets/userlist";
 
-function FactionPage() {
-    const { factionid } = useParams();
-    const [faction, setFaction] = useState<FactionInfo | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<String | null>(null);
+import "../../assets/css/components/container.css";
 
-    useEffect(() => {
-        const fetchFaction = async () => {
-            try {
-                const res = await axios.get<FactionInfo>(
-                    "http://127.0.0.1:8000/factions/" + factionid
-                );
-                setFaction(res.data);
-            } catch (err) {
-                setError("Failed to load Faction infos.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchFaction();
-    }, []);
-
-    if (loading) {
-        return <p>Loading...</p>;
-    }
-
-    if (error) {
-        return <p style={{ color: "red" }}>Error: {error}</p>;
-    }
-
-    return <>{faction?.name}</>;
+export default function FactionDashboard() {
+    return (
+        <div className="information-container">
+            <FactionInfo />
+            <CurrencyInfo />
+            <UsersTable />
+            <RolesTable />
+        </div>
+    );
 }
-
-export default FactionPage;

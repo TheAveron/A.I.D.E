@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { GoBackButton } from "../../../components/return";
+import { GoBackButton } from "../../../components/buttons/return";
 
 function Rules() {
     return (

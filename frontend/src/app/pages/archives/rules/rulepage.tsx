@@ -1,7 +1,7 @@
 import { useEffect, useState, Suspense, type JSX } from "react";
 import { useParams } from "react-router-dom";
 import md_converter from "../../../utils/mdconversion";
-import { GoBackButton } from "../../../components/return";
+import { GoBackButton } from "../../../components/buttons/return";
 
 type pageLoader = {
     page: string;

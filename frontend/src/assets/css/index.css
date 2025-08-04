@@ -41,41 +41,41 @@
     --background-900: #1a1a1a;
     --background-950: #0d0d0d;
 
-    --primary-50: #efffe5;
-    --primary-100: #e0ffcc;
-    --primary-200: #c0ff99;
-    --primary-300: #a1ff66;
-    --primary-400: #81ff33;
+    --primary-950: #efffe5;
+    --primary-900: #e0ffcc;
+    --primary-800: #c0ff99;
+    --primary-700: #a1ff66;
+    --primary-600: #81ff33;
     --primary-500: #62ff00;
-    --primary-600: #4ecc00;
-    --primary-700: #3b9900;
-    --primary-800: #276600;
-    --primary-900: #143300;
-    --primary-950: #0a1a00;
+    --primary-400: #4ecc00;
+    --primary-300: #3b9900;
+    --primary-200: #276600;
+    --primary-100: #143300;
+    --primary-50: #0a1a00;
 
-    --secondary-50: #fcfce8;
-    --secondary-100: #faf9d1;
-    --secondary-200: #f4f3a4;
-    --secondary-300: #efed76;
-    --secondary-400: #eae748;
+    --secondary-950: #fcfce8;
+    --secondary-900: #faf9d1;
+    --secondary-800: #f4f3a4;
+    --secondary-700: #efed76;
+    --secondary-600: #eae748;
     --secondary-500: #e4e11b;
-    --secondary-600: #b7b415;
-    --secondary-700: #898710;
-    --secondary-800: #5b5a0b;
-    --secondary-900: #2e2d05;
-    --secondary-950: #171603;
+    --secondary-400: #b7b415;
+    --secondary-300: #898710;
+    --secondary-200: #5b5a0b;
+    --secondary-100: #2e2d05;
+    --secondary-50: #171603;
 
-    --accent-50: #e9fafb;
-    --accent-100: #d4f6f7;
-    --accent-200: #a8ecf0;
-    --accent-300: #7de3e8;
-    --accent-400: #52d9e0;
+    --accent-950: #e9fafb;
+    --accent-900: #d4f6f7;
+    --accent-800: #a8ecf0;
+    --accent-700: #7de3e8;
+    --accent-600: #52d9e0;
     --accent-500: #26d0d9;
-    --accent-600: #1fa6ad;
-    --accent-700: #177d82;
-    --accent-800: #0f5357;
-    --accent-900: #082a2b;
-    --accent-950: #041516;
+    --accent-400: #1fa6ad;
+    --accent-300: #177d82;
+    --accent-200: #0f5357;
+    --accent-100: #082a2b;
+    --accent-50: #041516;
 }
 :root[data-theme="dark"] {
     --text-50: #0d0d0d;
@@ -151,11 +151,11 @@
 
 :root {
     --masklight04: rgba(255, 255, 255, 0.4);
-    --button-text: #000000;
+    --button-text: #4d4d4d;
 
     font-family: "Roboto", sans-serif;
     color: var(--text);
-    background-color: var(--background);
+    background-color: var(--background-50);
     text-rendering: optimizeLegibility;
     scrollbar-width: thin;
     overflow-x: hidden;

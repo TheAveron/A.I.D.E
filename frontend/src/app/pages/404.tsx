@@ -1,6 +1,10 @@
 import logo from "../../assets/images/Error.png";
+
+import { GoBackButton } from "../components/buttons/return";
+
+import "../../assets/css/components/section.css";
 import "../../assets/css/pages/404.css";
-import { Link } from "react-router-dom";
+import "../../assets/css/components/buttons.css";
 
 function Error404() {
     return (
@@ -16,9 +20,7 @@ function Error404() {
                     Oops, il semblerait que la page que vous cherchiez n'existe
                     pas
                 </p>
-                <Link className="button" to="/A.I.D.E">
-                    Retour au menu
-                </Link>
+                <GoBackButton label="Accueil" />
             </section>
         </div>
     );

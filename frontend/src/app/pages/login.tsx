@@ -1,4 +1,3 @@
-import "../../assets/css/pages/login.css";
 import logo from "../../assets/images/CC_logo.png";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,6 +5,8 @@ import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "../utils/authprovider";
 import axios from "axios";
+
+import "../../assets/css/pages/login.css";
 
 type userDataLogin = {
     username: string;
@@ -35,13 +36,15 @@ function Login() {
 
     const onSubmit = handleSubmit(async (data) => {
         try {
-            // Replace with your actual API endpoint
             const response = await axios.post(
                 "http://127.0.0.1:8000/auth/login",
                 data
             );
             if (response.data && response.data.access_token) {
-                setToken?.(response.data.access_token); // Save token to context
+                setToken?.(response.data.access_token);
+                axios.defaults.headers.common[
+                    "Authorization"
+                ] = `Bearer ${token}`;
                 console.log("You Are Successfully Logged In");
                 navigate("/A.I.D.E");
             } else {
@@ -77,29 +80,29 @@ function Login() {
                         </div>
                         <div className="container">
                             <label>
-                                <b>Username</b>
+                                <b>Nom d'utilisateur</b>
                             </label>
                             <input
                                 type="username"
                                 {...register("username", { required: true })}
-                                placeholder="Enter username"
+                                placeholder="Entrer votre nom"
                             />
                             {errors.username && (
                                 <span style={{ color: "red" }}>
-                                    *Username* is mandatory
+                                    *Nom* obligatoire
                                 </span>
                             )}
                             <label>
-                                <b>Password</b>
+                                <b>Mot de passe</b>
                             </label>
                             <input
                                 type="password"
                                 {...register("password", { required: true })}
-                                placeholder="Enter password"
+                                placeholder="Entrez votre mot de passe"
                             />
                             {errors.password && (
                                 <span style={{ color: "red" }}>
-                                    *Password* is mandatory
+                                    *Mot de passe* obligatoire
                                 </span>
                             )}
 
@@ -109,9 +112,7 @@ function Login() {
                                     className="button"
                                     value="Log in"
                                 />
-                                <Link to="../register">
-                                    Don't have an account ?
-                                </Link>
+                                <Link to="../register">Pas de compte ?</Link>
                             </div>
                         </div>
                     </form>
