@@ -1,7 +1,10 @@
-export interface FactionType {
+export interface FactionFormData {
     name: string;
     description: string | null;
-    faction_id: number;
     is_approved: boolean;
+}
+
+export interface FactionType extends FactionFormData {
+    faction_id: number;
     created_at: string;
 }

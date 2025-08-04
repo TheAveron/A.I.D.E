@@ -3,6 +3,7 @@ import { useCurrency } from "../hooks/factioncurrency";
 
 import "../../../assets/css/components/info.css";
 import "../../../assets/css/components/buttons.css";
+import { NewCurrency } from "../buttons/newcurrency";
 
 export default function CurrencyInfo() {
     const { factionid } = useParams();
@@ -20,7 +21,7 @@ export default function CurrencyInfo() {
                 <div className="info-title">Monnaie</div>
             </div>
             {currency ? (
-                <div className="profile-info">
+                <div className="info-values">
                     <div className="info-row">
                         <span className="info-label">Nom:</span>
                         <span className="info-value-field">
@@ -43,7 +44,7 @@ export default function CurrencyInfo() {
                     </div>
                 </div>
             ) : (
-                <div className="button">Créer une monnaie</div>
+                <NewCurrency />
             )}
         </div>
     );

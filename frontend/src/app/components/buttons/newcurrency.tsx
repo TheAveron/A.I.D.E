@@ -6,26 +6,27 @@ import axios from "axios";
 import * as yup from "yup";
 
 import { useAuth } from "../../utils/authprovider";
-import { useMe } from "../hooks/me";
 
-import type { FactionType, FactionFormData } from "../../types/factions";
+import type { CurrencyType, CurrencyFormData } from "../../types/currency";
 
 import "../../../assets/css/components/modals.css";
 import "../../../assets/css/components/buttons.css";
 
-const factionSchema = yup.object().shape({
-    name: yup.string().required("Le nom de la faction est obligatoire"),
-    description: yup
-        .string()
-        .max(500, "La description est trop longue")
-        .nullable()
-        .default(null),
+import { useMe } from "../hooks/me";
 
-    is_approved: yup.boolean().default(false),
+const currencySchema = yup.object().shape({
+    name: yup.string().required("Le nom de la monnaie est obligatoire"),
+    symbol: yup.string().optional().nullable().default(null),
+    total_in_circulation: yup
+        .number()
+        .typeError("Doit être un nombre")
+        .min(0, "La quantité ne peut pas être négative")
+        .required("La quantité en circulation est obligatoire"),
 });
 
-export function NewFaction() {
+export function NewCurrency() {
     const { token } = useAuth() ?? {};
+
     const { user } = useMe();
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -37,44 +38,44 @@ export function NewFaction() {
         handleSubmit,
         reset,
         formState: { errors },
-    } = useForm<FactionFormData>({
-        resolver: yupResolver(factionSchema),
+    } = useForm<CurrencyFormData>({
+        resolver: yupResolver(currencySchema),
     });
 
-    const onSubmit = async (data: FactionFormData) => {
+    const onSubmit = async (data: CurrencyFormData) => {
         setLoading(true);
         setMessage("");
 
         try {
             if (!token) {
                 throw new Error(
-                    "Vous devez être connecté pour créer une faction."
+                    "Vous devez être connecté pour créer une monnaie."
                 );
             }
 
-            if (user?.faction_id) {
-                throw new Error("Vous appartenez déjà à une faction.");
-            }
+            console.log("ererezr");
+
             const payload = {
                 ...data,
-                is_approved: false,
+                faction_id: user?.faction_id,
             };
 
-            const res = await axios.post<FactionType>(
-                "http://localhost:8000/factions/create",
+            const res = await axios.post<CurrencyType>(
+                "http://localhost:8000/currencies/create",
                 payload
             );
 
-            setMessage(`✅ Faction "${res.data.name}" créée avec succès`);
+            setMessage(`✅ Monnaie "${res.data.name}" créée avec succès`);
             reset();
             setIsOpen(false);
-
             window.location.reload();
         } catch (error: any) {
             if (error.response?.status === 409) {
-                setMessage("❌ Une faction avec ce nom existe déjà.");
+                setMessage(
+                    "❌ Une monnaie avec ce nom ou symbole existe déjà."
+                );
             } else {
-                setMessage("❌ Erreur lors de la création de la faction.");
+                setMessage("❌ Erreur lors de la création de la monnaie.");
             }
         } finally {
             setLoading(false);
@@ -84,7 +85,7 @@ export function NewFaction() {
     return (
         <div>
             <div className="button" onClick={() => setIsOpen(true)}>
-                Créer une faction
+                Créer une monnaie
             </div>
 
             {isOpen && (
@@ -93,7 +94,7 @@ export function NewFaction() {
                     onClick={() => setIsOpen(false)}
                 >
                     <div onClick={(e) => e.stopPropagation()} className="modal">
-                        <h2>Créer une faction</h2>
+                        <h2>Créer une monnaie</h2>
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <div className="modal-field">
                                 <label>Nom</label>
@@ -102,17 +103,27 @@ export function NewFaction() {
                             </div>
 
                             <div className="modal-field">
-                                <label>Description</label>
-                                <textarea {...register("description")} />
-                                {errors.description && (
-                                    <p>{errors.description.message}</p>
+                                <label>Symbole</label>
+                                <input type="text" {...register("symbol")} />
+                                {errors.symbol && (
+                                    <p>{errors.symbol.message}</p>
+                                )}
+                            </div>
+
+                            <div className="modal-field">
+                                <label>Total en circulation</label>
+                                <input
+                                    type="number"
+                                    {...register("total_in_circulation")}
+                                />
+                                {errors.total_in_circulation && (
+                                    <p>{errors.total_in_circulation.message}</p>
                                 )}
                             </div>
 
                             <div className="modal-buttons">
                                 <button
                                     type="submit"
-                                    disabled={loading}
                                     style={{
                                         flex: 1,
                                         backgroundColor: loading

@@ -1,7 +1,9 @@
+import { useParams } from "react-router-dom";
+
+import { useUser } from "../components/hooks/user";
+
 import Profile from "../components/profile";
 import FactionList from "../components/factionlist";
-import { useUser } from "../components/hooks/user";
-import { useParams } from "react-router-dom";
 
 import "../../assets/css/components/container.css";
 import "../../assets/css/components/snippets.css";

@@ -1,40 +1,13 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import type { UserType } from "../types/users";
 import Profile from "../components/profile";
 import FactionList from "../components/factionlist";
-import { useAuth } from "../utils/authprovider";
+
+import { useMe } from "../components/hooks/me";
 
 import "../../assets/css/components/container.css";
 import "../../assets/css/components/snippets.css";
 
 function ProfileComponent() {
-    const { token } = useAuth() ?? {};
-    const [profile, setProfile] = useState<UserType | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<String | null>(null);
-
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const res = await axios.get<UserType>(
-                    "http://127.0.0.1:8000/users/me",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                setProfile(res.data);
-            } catch (err) {
-                setError("Failed to load profile.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProfile();
-    }, []);
+    const { user, loading } = useMe();
 
     if (loading) {
         return (
@@ -44,18 +17,24 @@ function ProfileComponent() {
         );
     }
 
-    if (error) {
-        return <p style={{ color: "red" }}>Error: {error}</p>;
-    }
-
-    if (!profile) {
-        return <p style={{ color: "red" }}>No profile data found.</p>;
-    }
-
-    return (
+    return user ? (
         <div className="information-container">
-            <Profile value={profile} />
-            <FactionList />
+            <Profile value={user} />
+            <FactionList />{" "}
+        </div>
+    ) : (
+        <div
+            style={{
+                textAlign: "center",
+                placeContent: "center",
+                placeItems: "center",
+                color: "red",
+                fontSize: "3em",
+                margin: "auto",
+                height: "calc(100vh - var(--header-height))",
+            }}
+        >
+            Error: No profile data found.
         </div>
     );
 }

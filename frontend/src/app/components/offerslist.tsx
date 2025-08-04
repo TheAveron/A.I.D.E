@@ -9,7 +9,6 @@ import "../../assets/css/components/snippets.css";
 function OfferList() {
     const [offers, setOffers] = useState<OfferType[] | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     // Fetch offers from API
     useEffect(() => {
@@ -19,8 +18,6 @@ function OfferList() {
                     "http://127.0.0.1:8000/offers/list"
                 );
                 setOffers(res.data);
-            } catch (err) {
-                setError("Failed to load Offer infos.");
             } finally {
                 setLoading(false);
             }
@@ -29,9 +26,7 @@ function OfferList() {
         fetchOffers();
     }, []);
 
-    // Optional: Add a default dummy offer ONLY for testing/demo purposes
-    // (Runs only once)
-    useEffect(() => {
+    /*useEffect(() => {
         if (!offers || offers.length === 0) {
             setOffers([
                 {
@@ -50,14 +45,10 @@ function OfferList() {
                 },
             ]);
         }
-    }, [offers]);
+    }, [offers]);*/
 
     if (loading) {
         return <p>Chargement...</p>;
-    }
-
-    if (error) {
-        return <p style={{ color: "red" }}>Error: {error}</p>;
     }
 
     return (
@@ -73,7 +64,7 @@ function OfferList() {
                         <th>Item</th>
                         <th>Quantité</th>
                         <th>Prix par unité</th>
-                        <th>Date de création</th>
+                        <th>Création</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,7 +95,7 @@ function OfferList() {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={6}>Pas d'offres disponibles.</td>
+                            <td colSpan={6}>Pas d'offre disponible.</td>
                         </tr>
                     )}
                 </tbody>
