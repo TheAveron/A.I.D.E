@@ -26,7 +26,7 @@ const factionSchema = yup.object().shape({
 
 export function NewFaction() {
     const { token } = useAuth() ?? {};
-    const { user } = useMe();
+    const { user, loading: UserLoading } = useMe();
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -80,6 +80,10 @@ export function NewFaction() {
             setLoading(false);
         }
     };
+
+    if (UserLoading || user?.faction_id) {
+        return <></>;
+    }
 
     return (
         <div>

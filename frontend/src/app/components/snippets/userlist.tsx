@@ -3,6 +3,8 @@ import { useMembers } from "../hooks/factionmembers";
 import { Link } from "react-router-dom";
 import { useRole } from "../hooks/role";
 
+import PenImg from "../../../assets/images/penedit.png";
+
 import "../../../assets/css/components/tables.css";
 import "../../../assets/css/components/info.css";
 
@@ -17,7 +19,18 @@ function RoleElement({ role_id }: { role_id: string | undefined }) {
         return <p>No role found with this id</p>;
     }
 
-    return <td>{role.name}</td>;
+    return (
+        <>
+            <td>{role.name}</td>
+            {role.name != "Chef" ? (
+                <td>
+                    <div className="button">edit</div>
+                </td>
+            ) : (
+                <td></td>
+            )}
+        </>
+    );
 }
 
 function UsersTable() {
@@ -33,7 +46,7 @@ function UsersTable() {
     return (
         <div className="snippet-container users-container">
             <div className="info-header">
-                <div className="info-title">Users</div>
+                <div className="info-title">Membres</div>
             </div>
             <div className="info-values">
                 <table>
@@ -41,6 +54,7 @@ function UsersTable() {
                         <tr>
                             <th>Nom</th>
                             <th>Role</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>

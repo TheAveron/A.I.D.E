@@ -3,6 +3,8 @@ import { NewFaction } from "./buttons/newfaction";
 import { useFactions } from "./hooks/factions";
 import { useCurrency } from "./hooks/factioncurrency";
 
+import MemberCounter from "./snippets/member_count";
+
 import "../../assets/css/components/tables.css";
 import "../../assets/css/components/snippets.css";
 import "../../assets/css/components/factions.css";
@@ -12,18 +14,7 @@ function CurrencyCell({ factionId }: { factionId: string }) {
 
     return (
         <div className="faction-meta">
-            {currency ? (
-                <>
-                    <span className="currency">
-                        {currency.name || "Unknown"}
-                    </span>
-                    <span className="amount">
-                        {currency.total_in_circulation || 0}
-                    </span>
-                </>
-            ) : (
-                "Pas de monnaie"
-            )}
+            {currency ? <>{currency.name || "Unknown"}</> : "Pas de monnaie"}
         </div>
     );
 }
@@ -65,7 +56,11 @@ function FactionList() {
                                         ? faction.description
                                         : "No description provided."}
                                 </td>
-                                <td>{/* TODO: Add member count */}</td>
+                                <td>
+                                    <MemberCounter
+                                        faction_id={faction.faction_id.toString()}
+                                    />
+                                </td>
                                 <td>
                                     <CurrencyCell
                                         factionId={faction.faction_id.toString()}

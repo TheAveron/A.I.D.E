@@ -57,3 +57,8 @@ a:last-child td:last-child {
 table a {
     font-size: 1em;
 }
+
+table .button {
+    max-width: none;
+    place-content: center;
+}
