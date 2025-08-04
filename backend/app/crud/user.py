@@ -9,7 +9,7 @@ def get_user_by_username(db: Session, username: str):
 
 
 def get_user_by_id(db: Session, user_id: int):
-    return db.query(User).filter(User.id == user_id).first()
+    return db.query(User).filter(User.user_id == user_id).first()
 
 
 def get_users_by_faction(db: Session, faction_id: int):

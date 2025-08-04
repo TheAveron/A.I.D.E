@@ -25,9 +25,23 @@ def get_users_by_faction(faction_id: int, db: Session = Depends(get_db)):
     return users
 
 
-@router.get("/{username}", response_model=UserFull, status_code=status.HTTP_200_OK)
-def read_user(username: str, db: Session = Depends(get_db)):
+@router.get(
+    "/from_name/{username}", response_model=UserFull, status_code=status.HTTP_200_OK
+)
+def read_user_by_name(username: str, db: Session = Depends(get_db)):
     user = crud_user.get_user_by_username(db, username)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    return user
+
+
+@router.get(
+    "/detail/{user_id}", response_model=UserFull, status_code=status.HTTP_200_OK
+)
+def read_user_by_id(user_id: int, db: Session = Depends(get_db)):
+    user = crud_user.get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
