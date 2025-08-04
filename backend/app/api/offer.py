@@ -12,7 +12,7 @@ from ..schemas import OfferAccept, OfferCreate, OfferOut, OfferUpdate
 router = APIRouter(prefix="/offers", tags=["offers"])
 
 
-@router.get("/", response_model=list[OfferOut], status_code=status.HTTP_200_OK)
+@router.get("/list", response_model=list[OfferOut], status_code=status.HTTP_200_OK)
 def list_offers(
     status: Optional[OfferStatus] = Query(None),
     currency: Optional[str] = Query(None),

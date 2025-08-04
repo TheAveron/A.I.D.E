@@ -3,14 +3,14 @@ from sqlalchemy.orm import Session
 
 from ..core import get_current_user
 from ..crud import user as crud_user
-from ..database import get_db
+from ..database import User, get_db
 from ..schemas import UserFull
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("/me", response_model=UserFull, status_code=status.HTTP_200_OK)
-def read_current_user(current_user=Depends(get_current_user)):
+def read_current_user(current_user: User = Depends(get_current_user)):
     return current_user
 
 

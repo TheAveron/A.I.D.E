@@ -38,6 +38,7 @@ def get_currency_by_faction(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+
     currency = crud_currencies.get_currency_by_faction(db, faction_id)
 
     if not currency:
