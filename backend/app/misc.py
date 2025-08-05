@@ -37,6 +37,7 @@ class FactionPermission(str, Enum):
     MANAGE_FUNDS = "manage_funds"
     HANDLE_MEMBERS = "handle_members"
     MANAGE_ROLES = "manage_roles"
+    MANAGE_DOCS = "manage_docs"
     VIEW_TRANSACTIONS = "view_transactions"
 
 
