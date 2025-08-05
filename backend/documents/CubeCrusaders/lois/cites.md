@@ -20,7 +20,7 @@ Projet composé d'au moins 3 batiments habitables, une zone commercial et un com
 
 Un projet peut être considéré comme cité après accord du Conseil s’il est d’envergure assez conséquente.
 
-----
+---
 
 A lire ensuite:
 

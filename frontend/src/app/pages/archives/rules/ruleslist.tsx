@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { GoBackButton } from "../../../components/buttons/return";
 
+import "../../../../assets/css/components/section.css";
+
 function Rules() {
     return (
         <>
             <GoBackButton />
-            <section className="text-section">
+            <section className="text-section" style={{ paddingBottom: "10vh" }}>
                 <h1>Règlements du realm</h1>
 
                 <h2>A. Lois</h2>

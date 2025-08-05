@@ -12,7 +12,7 @@ Chaque Nation a sa propre législation quant aux crimes et trolls. Pour être pr
 
 On ne peut être membre de plusieurs nations en même temps.
 
-----
+---
 
 Lire ensuite:
 

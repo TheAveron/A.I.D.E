@@ -15,9 +15,6 @@ Les seules conditions pour utiliser l'arbre de la sagesse sont:
 - ranger le guide
 - ne rien casser/tuer
 
-----
+---
 
 A lire ensuite:
-
-- []()
-- []()

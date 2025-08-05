@@ -3,7 +3,7 @@ import unicodedata
 
 
 def normalize(
-    text,
+    text: str,
     *,
     lowercase=True,
     remove_numbers=True,
@@ -27,6 +27,8 @@ def normalize(
     Returns:
         str: Normalized text.
     """
+
+    assert type(text) == str
 
     if lowercase:
         text = text.lower()

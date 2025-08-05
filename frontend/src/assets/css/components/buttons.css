@@ -4,7 +4,10 @@
     color: var(--button-text);
     border-radius: 0.4em;
     text-decoration: none;
-    transition: border-color 0.25s, background-color 0.25s, color 0.25s,
+    transition:
+        border-color 0.25s,
+        background-color 0.25s,
+        color 0.25s,
         fill 0.25s;
     border: solid 1px transparent;
     max-width: fit-content;
@@ -36,4 +39,12 @@
     vertical-align: middle;
     width: 24px;
     height: 24px;
+}
+
+#previous {
+    position: absolute;
+    left: 4vw;
+    top: var(--header-height);
+
+    transition: top 0.4s ease-out;
 }

@@ -1,43 +1,110 @@
-import { useEffect, useState, Suspense, type JSX } from "react";
-import { useParams } from "react-router-dom";
-import md_converter from "../../../utils/mdconversion";
+import { useEffect, useState, Suspense, type MouseEvent } from "react";
+import { useParams, Link as RouterLink } from "react-router-dom";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSlug from "rehype-slug";
+
 import { GoBackButton } from "../../../components/buttons/return";
 
-type pageLoader = {
+import "../../../../assets/css/components/buttons.css";
+import "../../../../assets/css/components/section.css";
+
+type PageLoader = {
     page: string;
     server: string;
     type: string;
 };
 
-function Loi() {
-    const { server, type, page } = useParams() as pageLoader;
-    const [content, setContent] = useState(<></>);
+function slugPreserveAccents(value: string) {
+    return value
+        .toLowerCase()
+        .replace(/[^\w\s\-àâäéèêëîïôöùûüç]/g, "") // allow accented chars
+        .replace(/\s+/g, "-");
+}
 
-    console.log(`Loading content for ${server}/${type}/${page}`);
+function Rule() {
+    const { server, type, page } = useParams() as PageLoader;
+    const [content, setContent] = useState<string>("");
+    const [error, setError] = useState<string>("");
 
     useEffect(() => {
+        setContent("");
         fetch(`/A.I.D.E/Rules/${server}/${type}/${page}.md`)
             .then(async (response) => {
                 if (!response.ok) throw new Error("Failed to load markdown");
                 const text = await response.text();
-                setContent(md_converter(text) as JSX.Element);
+                setContent(text);
             })
-            .catch((error) => {
-                console.error(error);
-                setContent(<p>Error loading content.</p>);
+            .catch((err) => {
+                console.error(err);
+                setError("Error loading content.");
             });
     }, [server, type, page]);
 
+    const components: Components = {
+        a: ({ href, children }) => {
+            if (!href) return <span>{children}</span>;
+
+            href = decodeURIComponent(href);
+
+            if (href.startsWith("doc://")) {
+                const docName = href.replace("doc://", "");
+                return (
+                    <RouterLink to={`/documents/${docName}`}>
+                        {children}
+                    </RouterLink>
+                );
+            }
+
+            if (href.startsWith("#")) {
+                return (
+                    <a
+                        href={href}
+                        onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+                            e.preventDefault();
+                            const target = document.querySelector(href);
+                            if (target)
+                                target.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        target="_self"
+                    >
+                        {children}
+                    </a>
+                );
+            }
+
+            if (href.startsWith("http")) {
+                return (
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                        {children}
+                    </a>
+                );
+            }
+
+            return <a href={href}>{children}</a>;
+        },
+    };
+
     return (
-        <>
-            <Suspense fallback={<div>Page is Loading...</div>}>
-                <section className="text-section">
-                    <GoBackButton />
-                    {content}
-                </section>
-            </Suspense>
-        </>
+        <Suspense fallback={<div>Page is Loading...</div>}>
+            <GoBackButton />
+            <section className="text-section" style={{ paddingBottom: "10vh" }}>
+                {error ? (
+                    <p>{error}</p>
+                ) : (
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[
+                            [rehypeSlug, { slug: slugPreserveAccents }],
+                        ]}
+                        components={components}
+                    >
+                        {content || "# Loading..."}
+                    </ReactMarkdown>
+                )}
+            </section>
+        </Suspense>
     );
 }
 
-export default Loi;
+export default Rule;
