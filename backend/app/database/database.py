@@ -47,12 +47,10 @@ SQLALCHEMY_DATABASE_URL = (
     f"@{_db_params['host']}:{_db_params['port']}/{_db_params['database']}"
 )
 
-# SQLAlchemy engine and session
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Declarative base for models
 Base = declarative_base()
 
 

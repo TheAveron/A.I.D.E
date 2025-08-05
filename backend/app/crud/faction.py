@@ -42,7 +42,7 @@ def create_faction(db: Session, faction_data: FactionCreate, user_id: int) -> Fa
 
     create_default_faction_roles(db, faction.faction_id, user_id)
 
-    DOCS_DIR = Path("documentsAOS") / "AOS" / normalize(faction_data.name)
+    DOCS_DIR = Path("documents") / "AOS" / normalize(faction_data.name)
     DOCS_DIR.mkdir(exist_ok=True)
 
     return faction

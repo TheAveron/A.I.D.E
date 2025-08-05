@@ -109,7 +109,7 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
         },
         {
             "name": "Chef Adjoint",
-            "description": "Adjoint du chef, l'aide à administrer mais ne peux pas gérer la monaie",
+            "description": "Adjoint du chef, l'aide à administrer la faction",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: True,
                 FactionPermission.CREATE_OFFERS: True,

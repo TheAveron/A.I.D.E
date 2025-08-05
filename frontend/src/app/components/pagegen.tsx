@@ -38,7 +38,7 @@ function PageGenerator(page: string, render: boolean) {
             headerBlock.style.borderBottomWidth = "0";
         }
 
-        if (previousBlock) previousBlock.style.top = "2vh";
+        if (previousBlock) previousBlock.style.top = "unset";
 
         if (main) main.style.marginTop = "0";
 
