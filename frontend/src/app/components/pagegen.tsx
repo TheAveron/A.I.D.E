@@ -22,6 +22,8 @@ function PageGenerator(page: string, render: boolean) {
         const renderBlock = document.getElementById("render");
         const footerBlock = document.getElementById("footer");
         const headerBlock = document.getElementById("header");
+        const previousBlock = document.getElementById("previous");
+
         const main = document.getElementById("main");
         isColumn = !isColumn;
         toggleLayout(isColumn);
@@ -35,6 +37,9 @@ function PageGenerator(page: string, render: boolean) {
             headerBlock.style.paddingBottom = "0";
             headerBlock.style.borderBottomWidth = "0";
         }
+
+        if (previousBlock) previousBlock.style.top = "unset";
+
         if (main) main.style.marginTop = "0";
 
         return () => {
@@ -47,7 +52,9 @@ function PageGenerator(page: string, render: boolean) {
                 headerBlock.style.paddingBottom = " 2vh";
                 headerBlock.style.borderBottomWidth = "1px";
             }
-            if (main) main.style.marginTop = "calc(var(--header-height))";
+
+            if (previousBlock) previousBlock.style.top = "var(--header-height)";
+            if (main) main.style.marginTop = "var(--header-height)";
 
             isColumn = !isColumn;
             toggleLayout(isColumn);

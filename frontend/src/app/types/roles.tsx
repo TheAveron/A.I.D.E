@@ -6,6 +6,7 @@ export interface RoleType {
     manage_funds: boolean;
     handle_members: boolean;
     manage_roles: boolean;
+    manage_docs: boolean;
     view_transactions: boolean;
     role_id: number;
     faction_id: number;

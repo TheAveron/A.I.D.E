@@ -22,7 +22,7 @@ Chaque résident de l’URSA est libre de vendre les ressources qu’il souhaite
 
 Le Grand Marché (GM) est un gigantesque magasin où sont vendues toutes les ressources produites par l’URSA.
 
-----
+---
 
 A lire ensuite:
 

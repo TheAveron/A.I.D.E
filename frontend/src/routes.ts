@@ -25,9 +25,9 @@ export default [
         ...prefix("archives", [
             index("./app/pages/archives/archives.tsx"),
 
-            ...prefix("rule:rule", [
+            ...prefix("rules", [
                 index("./app/pages/archives/rules/ruleslist.tsx"),
-                route(":type/:name", "./app/pages/archives/rules/rulepage.tsx"),
+                route("/:server/:faction/:page", "./app/pages/document.tsx"),
             ]),
 
             ...prefix("maps", [

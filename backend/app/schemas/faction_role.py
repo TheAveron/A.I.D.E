@@ -12,6 +12,7 @@ class RoleBase(BaseModel):
     manage_funds: bool = False
     handle_members: bool = False
     manage_roles: bool = False
+    manage_docs: bool = False
     view_transactions: bool = False
 
 
@@ -28,6 +29,7 @@ class RoleUpdate(BaseModel):
     manage_funds: Optional[bool] = None
     handle_members: Optional[bool] = None
     manage_roles: Optional[bool] = None
+    manage_docs: Optional[bool] = None
     view_transactions: Optional[bool] = None
 
 

@@ -5,6 +5,7 @@ import axios from "axios";
 import "../../assets/css/components/offers.css";
 import "../../assets/css/components/tables.css";
 import "../../assets/css/components/snippets.css";
+import { NewOffer } from "./buttons/newoffer";
 
 function OfferList() {
     const [offers, setOffers] = useState<OfferType[] | null>(null);
@@ -26,27 +27,6 @@ function OfferList() {
         fetchOffers();
     }, []);
 
-    /*useEffect(() => {
-        if (!offers || offers.length === 0) {
-            setOffers([
-                {
-                    offer_type: "BUY",
-                    item_description: "Test offer",
-                    currency: "Diamond",
-                    price_per_unit: 0,
-                    quantity: 0,
-                    allowed_parties: [0],
-                    offer_id: 0,
-                    user_id: 0,
-                    faction_id: 0,
-                    status: "OPEN",
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
-                },
-            ]);
-        }
-    }, [offers]);*/
-
     if (loading) {
         return <p>Chargement...</p>;
     }
@@ -55,6 +35,7 @@ function OfferList() {
         <div className="snippet-container offers-container">
             <div className="offers-header">
                 <h2>Liste des offres</h2>
+                <NewOffer />
             </div>
             <table>
                 <thead>
@@ -80,8 +61,8 @@ function OfferList() {
                                     {offer.status === "OPEN"
                                         ? "Ouvert"
                                         : offer.status === "CLOSED"
-                                        ? "Complétée"
-                                        : "Annulée"}
+                                          ? "Complétée"
+                                          : "Annulée"}
                                 </td>
                                 <td>{offer.item_description}</td>
                                 <td>{offer.quantity}</td>
