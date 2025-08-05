@@ -163,7 +163,7 @@
     box-sizing: border-box;
     line-height: 1.5;
 
-    --header-height: max(calc(75px + 4vh + 0.003mm), calc(8vh + 0.003mm));
+    --header-height: max(calc(100px + 4vh + 0.003mm), calc(8vh + 0.003mm));
 }
 
 * {
@@ -172,4 +172,5 @@
 
     box-sizing: border-box;
     color: var(--text);
+    scroll-behavior: smooth;
 }

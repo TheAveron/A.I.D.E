@@ -3,13 +3,13 @@
 - [Introduction](#introduction)
 - [Le Cis](#le-cis)
 - [Citadelle de la paix](#citadelle-de-la-paix)
-  - [NTA](#nta)
-    - [Shop taille 1](#shop-taille-1)
-    - [Shop taille 2](#shop-taille-2)
-  - [Banque de ressources](#banque-de-ressources)
-    - [Niveau 1](#niveau-1)
-    - [Niveau 2](#niveau-2)
-    - [Niveau 3](#niveau-3)
+    - [NTA](#nta)
+        - [Shop taille 1](#shop-taille-1)
+        - [Shop taille 2](#shop-taille-2)
+    - [Banque de ressources](#banque-de-ressources)
+        - [Niveau 1](#niveau-1)
+        - [Niveau 2](#niveau-2)
+        - [Niveau 3](#niveau-3)
 
 ## Introduction
 

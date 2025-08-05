@@ -2,10 +2,10 @@
 
 - [I. Territoire](#i-territoire)
 - [II. Économie](#ii-économie)
-  - [Règlement du Trésor de la Paix](#règlement-du-trésor-de-la-paix)
-  - [Règlement du commerce](#règlement-du-commerce)
-  - [Règlement de la BTA](#règlement-de-la-bta)
-  - [Règlement de la NTA](#règlement-de-la-nta)
+    - [Règlement du Trésor de la Paix](#règlement-du-trésor-de-la-paix)
+    - [Règlement du commerce](#règlement-du-commerce)
+    - [Règlement de la BTA](#règlement-de-la-bta)
+    - [Règlement de la NTA](#règlement-de-la-nta)
 
 ## I. Territoire
 
@@ -77,11 +77,11 @@ L'économie du Palais de la Paix est entièrement contrôlée par le Trésor de 
 
 5. Les joueurs qui abusent du système NTA ou tentent de l'utiliser pour obtenir un avantage déloyal peuvent être bannis du système ou faire l'objet d'autres sanctions, déterminées par le Trésor.
 
-Vous pouvez trouver le contrat d'achat de slots à la NTA **[ici](../../Marches/contractNTA.md)**:
+Vous pouvez trouver le contrat d'achat de slots à la NTA **[ici](../marches/contractNTA)**:
 
 ---
 
 A lire ensuite:
 
-- [L'URSA](../ursa)
-- [Alexandrie](../alexandrie)
+- [L'URSA](ursa)
+- [Alexandrie](alexandrie)

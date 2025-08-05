@@ -22,6 +22,7 @@ function RolesList({ roles }: { roles: RoleType[] | null }) {
                 role.manage_funds,
                 role.handle_members,
                 role.manage_roles,
+                role.manage_docs,
                 role.view_transactions,
             ].filter(Boolean).length;
         return countPermissions(a) - countPermissions(b);
@@ -35,6 +36,7 @@ function RolesList({ roles }: { roles: RoleType[] | null }) {
             <td>{role.accept_offers ? "✅" : "❌"}</td>
             <td>{role.create_offers ? "✅" : "❌"}</td>
             <td>{role.manage_funds ? "✅" : "❌"}</td>
+            <td>{role.manage_docs ? "✅" : "❌"}</td>
             <td>{role.handle_members ? "✅" : "❌"}</td>
             <td>{role.manage_roles ? "✅" : "❌"}</td>
         </tr>
@@ -63,6 +65,7 @@ export default function RolesTable() {
                         <th>Accepter les Offres</th>
                         <th>Créer des Offres</th>
                         <th>Gérer la Monnaie</th>
+                        <th>Gérer les Documents</th>
                         <th>Gérer les Membres</th>
                         <th>Gérer les Roles</th>
                     </tr>

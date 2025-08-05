@@ -1,11 +1,12 @@
+from pathlib import Path
 from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from backend.app.crud.faction_role import (create_default_faction_roles,
-                                           get_roles_by_faction)
+from backend.app.crud.documents import normalize
+from backend.app.crud.faction_role import create_default_faction_roles
 
 from ..database import Faction, User
 from ..schemas import FactionCreate, FactionUpdate
@@ -40,6 +41,9 @@ def create_faction(db: Session, faction_data: FactionCreate, user_id: int) -> Fa
     db.refresh(faction)
 
     create_default_faction_roles(db, faction.faction_id, user_id)
+
+    DOCS_DIR = Path("documents") / "AOS" / normalize(faction_data.name)
+    DOCS_DIR.mkdir(exist_ok=True)
 
     return faction
 

@@ -11,6 +11,7 @@ const getLabelFromFolder = (folder: string) => {
         OStrong_world_zoom: "Strong World",
         OSurvival_islands_zoom: "Survival Islands",
         OUtopia_zoom: "Utopia",
+        AOS: "Age of Steam",
     };
 
     return mapping[folder] || folder;

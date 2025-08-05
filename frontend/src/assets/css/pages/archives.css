@@ -14,11 +14,6 @@
     flex-direction: column;
 }
 
-#map-header #previous {
-    position: absolute;
-    left: 4vw;
-}
-
 #map-header h2 {
     height: fit-content;
 }

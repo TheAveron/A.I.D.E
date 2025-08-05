@@ -5,7 +5,6 @@ from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, String, Text,
                         UniqueConstraint)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...misc import FactionPermission
 from ..database import Base
 
 
@@ -31,6 +30,7 @@ class Role(Base):
     manage_funds: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     handle_members: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     manage_roles: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    manage_docs: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     view_transactions: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False
     )

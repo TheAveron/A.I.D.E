@@ -10,10 +10,11 @@ header {
     place-items: center;
     background-color: var(--background);
     height: 4vh;
-    min-height: 75px;
+    min-height: 100px;
     border-bottom: 0.003mm solid var(--text);
     transition: all 0.4s ease-out;
     overflow: hidden;
+    z-index: 1;
 }
 
 nav {
@@ -24,13 +25,13 @@ nav {
 }
 
 header .link {
-    font-size: larger;
+    font-size: x-large;
     font-weight: 500;
 }
 
 header .title {
     font-weight: 800;
-    font-size: x-large;
+    font-size: xx-large;
 }
 
 header nav .link:hover {

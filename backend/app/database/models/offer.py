@@ -9,8 +9,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ...misc import OfferStatus, OfferType
 from ..database import Base
 
-offer_type_enum = ENUM(OfferType, name="offer_action_enum", create_type=True)
-offer_status_enum = ENUM(OfferStatus, name="offer_action_enum", create_type=True)
+offer_type_enum = ENUM(OfferType, name="offer_type_enum", create_type=True)
+offer_status_enum = ENUM(OfferStatus, name="offer_status_enum", create_type=True)
 
 
 class Offer(Base):

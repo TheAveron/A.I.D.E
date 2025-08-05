@@ -8,3 +8,9 @@
 #error .button p {
     all: unset; /* removes inherited styles */
 }
+
+#error #previous {
+    position: relative;
+    left: 0;
+    top: 0;
+}
