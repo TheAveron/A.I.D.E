@@ -148,7 +148,7 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
 
         # Check if user has permission in their faction
         role = db.query(Role).filter(Role.role_id == current_user.role_id).first()
-        if not role or role.name.lower() not in {"chief", "treasurer", "merchant"}:
+        if not role or role.name.lower() not in {"chef", "treasurer", "merchant"}:
             raise HTTPException(
                 status_code=403,
                 detail="You don't have permission to accept offers for your faction",

@@ -83,7 +83,7 @@ export function NewCurrency() {
     };
 
     return (
-        <div>
+        <div className="info-values">
             <div className="button" onClick={() => setIsOpen(true)}>
                 Créer une monnaie
             </div>

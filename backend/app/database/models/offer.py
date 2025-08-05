@@ -55,7 +55,8 @@ class Offer(Base):
     currency_name: Mapped[str] = mapped_column(
         String(50), ForeignKey("currencies.name"), nullable=False, index=True
     )
-    currency = relationship("Currency", back_populates="offers")
+    currency = relationship("Currency", back_populates="offers", passive_deletes=True)
+
     price_per_unit: Mapped[float] = mapped_column(Float, nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
 

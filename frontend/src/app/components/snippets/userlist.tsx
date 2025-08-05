@@ -22,7 +22,7 @@ function RoleElement({ role_id }: { role_id: string | undefined }) {
     return (
         <>
             <td>{role.name}</td>
-            {role.name != "Chef" ? (
+            {role.handle_members ? (
                 <td>
                     <div className="button">edit</div>
                 </td>

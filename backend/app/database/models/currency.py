@@ -15,19 +15,25 @@ class Currency(Base):
     __tablename__ = "currencies"
 
     name: Mapped[str] = mapped_column(String(50), primary_key=True, index=True)
+
     faction_id: Mapped[Optional[int]] = mapped_column(
         Integer,
-        ForeignKey("factions.faction_id"),
+        ForeignKey(
+            "factions.faction_id", ondelete="CASCADE"
+        ),  # Cascade delete at DB level
         nullable=True,
         index=True,
         unique=True,
     )
+
     faction = relationship(
         "Faction",
         back_populates="currency",
         foreign_keys=[faction_id],
         uselist=False,
+        passive_deletes=True,
     )
+
     symbol: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
 
     total_in_circulation: Mapped[int] = mapped_column(
@@ -42,12 +48,10 @@ class Currency(Base):
     )
 
     # Relationships
-    offers = relationship(
-        "Offer", back_populates="currency", cascade="all, delete-orphan"
-    )
+    offers = relationship("Offer", back_populates="currency", passive_deletes=True)
 
     def __repr__(self) -> str:
-        return f"<Currency(name='{self.name}', symbol='{self.symbol}', "
+        return f"<Currency(name='{self.name}', symbol='{self.symbol}')>"
 
     def __str__(self) -> str:
         symbol_part = f" ({self.symbol})" if self.symbol else ""

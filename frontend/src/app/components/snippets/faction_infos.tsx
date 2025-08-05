@@ -14,16 +14,18 @@ function FactionHead({
     role_id: string | undefined;
 }) {
     const { role } = useRole(role_id ?? null);
+    let editableText = "";
 
-    if (role?.name === "Chief") {
-        return (
-            <div className="info-header editable">
-                <div className="info-title">{faction_name}</div>
-                <div className="button">Edit</div>
-            </div>
-        );
+    if (role?.name === "Chef") {
+        editableText = " editable";
     }
-    return <></>;
+
+    return (
+        <div className={"info-header" + editableText}>
+            <div className="info-title">{faction_name}</div>
+            {role?.name === "Chef" ? <div className="button">Edit</div> : <></>}
+        </div>
+    );
 }
 
 export default function FactionInfo() {

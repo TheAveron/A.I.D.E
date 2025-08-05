@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from backend.app.schemas.offer import OfferUpdate
-
 from ..core import get_current_user
-from ..crud import accept_offer, get_offer, update_offer
-from ..database import OfferAction, Role, User, get_db
-from ..schemas import OfferOut, OfferStatus
+from ..crud import get_offer, update_offer
+from ..database import Role, User, get_db
+from ..schemas import OfferOut, OfferStatus, OfferUpdate
 
 router = APIRouter(prefix="/marketplace", tags=["marketplace"])
 

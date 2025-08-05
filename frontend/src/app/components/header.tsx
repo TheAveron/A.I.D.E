@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../utils/authprovider";
 
 import "../../assets/css/components/header.css";
+import "../../assets/css/components/buttons.css";
 
 function Header() {
     const { token } = useAuth() ?? {};

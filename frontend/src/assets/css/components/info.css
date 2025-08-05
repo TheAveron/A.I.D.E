@@ -22,6 +22,13 @@
 
     margin-top: auto;
     margin-bottom: auto;
+
+    place-items: center;
+    width: 100%;
+}
+
+.info-values table {
+    width: 100%;
 }
 
 .info-values a {
@@ -34,6 +41,7 @@
     justify-content: space-between;
     padding: 0.5rem 0.75rem;
     border-radius: 6px;
+    width: 100%;
 
     background-color: rgba(0, 0, 0, 0.2);
 }
