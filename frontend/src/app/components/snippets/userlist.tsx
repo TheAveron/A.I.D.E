@@ -3,8 +3,6 @@ import { useMembers } from "../hooks/factionmembers";
 import { Link } from "react-router-dom";
 import { useRole } from "../hooks/role";
 
-import PenImg from "../../../assets/images/penedit.png";
-
 import "../../../assets/css/components/tables.css";
 import "../../../assets/css/components/info.css";
 
@@ -35,13 +33,7 @@ function RoleElement({ role_id }: { role_id: string | undefined }) {
 
 function UsersTable() {
     const { factionid } = useParams();
-    const { users, loading } = useMembers(factionid ?? null);
-
-    if (!factionid) {
-        return <p>No faction id provided</p>;
-    }
-
-    if (loading) return <p>Chargement des membres...</p>;
+    const { users, loading, error } = useMembers(factionid ?? null);
 
     return (
         <div className="snippet-container users-container">
@@ -58,22 +50,38 @@ function UsersTable() {
                         </tr>
                     </thead>
                     <tbody>
-                        {users && users.length > 0 ? (
-                            users.map((user) => (
-                                <Link
-                                    style={{ display: "table-row" }}
-                                    key={user.user_id}
-                                    to={"/A.I.D.E/user/" + user.user_id}
-                                >
-                                    <td>{user.username}</td>
-                                    <RoleElement
-                                        role_id={user.role_id?.toString()}
-                                    />
-                                </Link>
-                            ))
+                        {!error ? (
+                            !loading ? (
+                                users && users.length > 0 ? (
+                                    users.map((user) => (
+                                        <Link
+                                            style={{ display: "table-row" }}
+                                            key={user.user_id}
+                                            to={"/A.I.D.E/user/" + user.user_id}
+                                        >
+                                            <td>{user.username}</td>
+                                            <RoleElement
+                                                role_id={user.role_id?.toString()}
+                                            />
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={5}>
+                                            Aucun utilisateur trouvé.
+                                        </td>
+                                    </tr>
+                                )
+                            ) : (
+                                <tr>
+                                    <td colSpan={5}>
+                                        Chargement des membres...
+                                    </td>
+                                </tr>
+                            )
                         ) : (
                             <tr>
-                                <td colSpan={5}>Aucun utilisateur trouvé.</td>
+                                <td colSpan={5}>{error}</td>
                             </tr>
                         )}
                     </tbody>

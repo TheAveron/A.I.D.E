@@ -1,17 +1,21 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useAuth } from "../../utils/authprovider";
-import { type UserType } from "../../types/users";
 
-export function useUser(user_id: string | null) {
+import { useAuth } from "../../utils/authprovider";
+
+import type { UserHook, UserType } from "../../types/users";
+
+export function useUser(user_id: string | null): UserHook {
     const { token } = useAuth();
+
     const [user, setUser] = useState<UserType | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!token || !user_id) return;
 
-        const fetchCurrency = async () => {
+        const fetchUser = async () => {
             try {
                 setLoading(true);
                 const res = await axios.get<UserType>(
@@ -19,14 +23,14 @@ export function useUser(user_id: string | null) {
                 );
                 setUser(res.data);
             } catch (error) {
-                console.error("Error fetching currency:", error);
+                setError(`Error fetching currency: ${error}`);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchCurrency();
+        fetchUser();
     }, [token, user_id]);
 
-    return { user, loading };
+    return { user, loading, error };
 }

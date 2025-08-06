@@ -1,3 +1,5 @@
+import type { HookResult } from "./hooks";
+
 export interface RoleType {
     name: string;
     description: string;
@@ -10,4 +12,12 @@ export interface RoleType {
     view_transactions: boolean;
     role_id: number;
     faction_id: number;
+}
+
+export interface RoleHook extends HookResult {
+    role: RoleType | null;
+}
+
+export interface RolesHook extends HookResult {
+    roles: RoleType[] | null;
 }

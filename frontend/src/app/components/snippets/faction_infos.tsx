@@ -31,54 +31,56 @@ function FactionHead({
 export default function FactionInfo() {
     const { user } = useMe();
     const { factionid } = useParams();
-    const { faction, loading: FactionLoading } = useFaction(factionid ?? null);
-
-    if (!factionid) {
-        return <p>No faction id provided</p>;
-    }
-
-    if (!faction?.name) {
-        return <p>No faction id provided</p>;
-    }
+    const { faction, loading, error } = useFaction(factionid ?? null);
 
     return (
         <div className="snippet-container faction-page faction-container">
-            {FactionLoading ? (
-                <p>Chargement de la faction...</p>
-            ) : (
-                <>
-                    <FactionHead
-                        faction_name={faction?.name}
-                        role_id={user?.role_id?.toString()}
-                    />
+            {!error ? (
+                !loading ? (
+                    faction ? (
+                        <>
+                            <FactionHead
+                                faction_name={faction?.name}
+                                role_id={user?.role_id?.toString()}
+                            />
 
-                    {faction ? (
-                        <div className="info-values">
-                            <div className="info-row">
-                                <span className="info-label">Description:</span>
-                                <span className="info-value-field">
-                                    {faction.description ?? "Aucun"}
-                                </span>
+                            <div className="info-values">
+                                <div className="info-row">
+                                    <span className="info-label">
+                                        Description:
+                                    </span>
+                                    <span className="info-value-field">
+                                        {faction.description ?? "Aucun"}
+                                    </span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="info-label">
+                                        Approuvée:
+                                    </span>
+                                    <span className="info-value-field">
+                                        {faction.is_approved ? "Oui" : "Non"}
+                                    </span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="info-label">
+                                        Inscription:
+                                    </span>
+                                    <span className="info-value-field">
+                                        {new Date(
+                                            faction.created_at
+                                        ).toLocaleDateString()}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="info-row">
-                                <span className="info-label">Approuvée:</span>
-                                <span className="info-value-field">
-                                    {faction.is_approved ? "Oui" : "Non"}
-                                </span>
-                            </div>
-                            <div className="info-row">
-                                <span className="info-label">Inscription:</span>
-                                <span className="info-value-field">
-                                    {new Date(
-                                        faction.created_at
-                                    ).toLocaleDateString()}
-                                </span>
-                            </div>
-                        </div>
+                        </>
                     ) : (
                         <p>No faction data</p>
-                    )}
-                </>
+                    )
+                ) : (
+                    <p>Chargement de la faction...</p>
+                )
+            ) : (
+                <p>{error}</p>
             )}
         </div>
     );

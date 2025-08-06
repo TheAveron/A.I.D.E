@@ -1,6 +1,4 @@
-import { useParams } from "react-router-dom";
-
-import { useUser } from "../components/hooks/user";
+import { useMe } from "../components/hooks/me";
 
 import Profile from "../components/profile";
 import FactionList from "../components/factionlist";
@@ -9,30 +7,29 @@ import "../../assets/css/components/container.css";
 import "../../assets/css/components/snippets.css";
 
 function UserPage() {
-    const { userid } = useParams();
-
-    if (!userid) {
-        return <p style={{ color: "red" }}>No user id found.</p>;
-    }
-
-    const { user, loading } = useUser(userid);
-
-    if (loading) {
-        return (
-            <div className="profile-container">
-                <p>Chargement...</p>
-            </div>
-        );
-    }
-
-    if (!user) {
-        return <p style={{ color: "red" }}>No user data found.</p>;
-    }
+    const { user, loading, error } = useMe();
 
     return (
         <div className="information-container">
-            <Profile value={user} />
-
+            {!error ? (
+                !loading ? (
+                    user ? (
+                        <Profile value={user} />
+                    ) : (
+                        <div className="profile-container">
+                            <p>No user Found</p>
+                        </div>
+                    )
+                ) : (
+                    <div className="profile-container">
+                        <p>{error}</p>
+                    </div>
+                )
+            ) : (
+                <div className="profile-container">
+                    <p>{error}</p>
+                </div>
+            )}
             <FactionList />
         </div>
     );

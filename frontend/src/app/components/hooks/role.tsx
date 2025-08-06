@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useAuth } from "../../utils/authprovider";
-import { type RoleType } from "../../types/roles";
 
-export function useRole(role_id: string | null) {
+import { useAuth } from "../../utils/authprovider";
+
+import type { RoleHook, RoleType } from "../../types/roles";
+
+export function useRole(role_id: string | null): RoleHook {
     const { token } = useAuth();
+
     const [role, setRole] = useState<RoleType | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!token || !role_id) return;
@@ -19,7 +23,7 @@ export function useRole(role_id: string | null) {
                 );
                 setRole(res.data);
             } catch (error) {
-                console.error("Error fetching role:", error);
+                setError(`Error fetching role: ${error}`);
             } finally {
                 setLoading(false);
             }
@@ -28,5 +32,5 @@ export function useRole(role_id: string | null) {
         fetchRole();
     }, [token, role_id]);
 
-    return { role, loading };
+    return { role, loading, error };
 }

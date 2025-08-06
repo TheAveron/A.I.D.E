@@ -40,7 +40,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> Auth:
 
 
 @router.post("/login", status_code=status.HTTP_202_ACCEPTED)
-def login(user: UserLogin, db: Session = Depends(get_db)):
+def login(user: UserLogin, db: Session = Depends(get_db)) -> Auth:
     user_login = authenticate_user(db, user.username, user.password)
     if not user_login:
         raise HTTPException(

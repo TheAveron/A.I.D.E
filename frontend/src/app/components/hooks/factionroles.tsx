@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useAuth } from "../../utils/authprovider";
-import { type RoleType } from "../../types/roles";
 
-export function useRoles(faction_id: string | null) {
+import { useAuth } from "../../utils/authprovider";
+
+import type { RolesHook, RoleType } from "../../types/roles";
+
+export function useRoles(faction_id: string | null): RolesHook {
     const { token } = useAuth();
+
     const [roles, setRoles] = useState<RoleType[] | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!token || !faction_id) return;
@@ -19,7 +23,7 @@ export function useRoles(faction_id: string | null) {
                 );
                 setRoles(res.data);
             } catch (error) {
-                console.error("Error fetching role:", error);
+                setError(`Error fetching role: ${error}`);
             } finally {
                 setLoading(false);
             }
@@ -28,5 +32,5 @@ export function useRoles(faction_id: string | null) {
         fetchRoles();
     }, [token, faction_id]);
 
-    return { roles, loading };
+    return { roles, loading, error };
 }

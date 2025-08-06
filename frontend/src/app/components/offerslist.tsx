@@ -1,35 +1,12 @@
-import { useEffect, useState } from "react";
-import type { OfferType } from "../types/offers";
-import axios from "axios";
+import { NewOffer } from "./buttons/newoffer";
+import { useOffersList } from "./hooks/offers";
 
 import "../../assets/css/components/offers.css";
 import "../../assets/css/components/tables.css";
 import "../../assets/css/components/snippets.css";
-import { NewOffer } from "./buttons/newoffer";
 
 function OfferList() {
-    const [offers, setOffers] = useState<OfferType[] | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    // Fetch offers from API
-    useEffect(() => {
-        const fetchOffers = async () => {
-            try {
-                const res = await axios.get<OfferType[]>(
-                    "http://127.0.0.1:8000/offers/list"
-                );
-                setOffers(res.data);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchOffers();
-    }, []);
-
-    if (loading) {
-        return <p>Chargement...</p>;
-    }
+    const { offers, loading, error } = useOffersList();
 
     return (
         <div className="snippet-container offers-container">
@@ -49,34 +26,48 @@ function OfferList() {
                     </tr>
                 </thead>
                 <tbody>
-                    {offers && offers.length > 0 ? (
-                        offers.map((offer) => (
-                            <tr key={offer.offer_id}>
-                                <td>
-                                    {offer.offer_type === "BUY"
-                                        ? "Achat"
-                                        : "Vente"}
-                                </td>
-                                <td>
-                                    {offer.status === "OPEN"
-                                        ? "Ouvert"
-                                        : offer.status === "CLOSED"
-                                          ? "Complétée"
-                                          : "Annulée"}
-                                </td>
-                                <td>{offer.item_description}</td>
-                                <td>{offer.quantity}</td>
-                                <td>{offer.price_per_unit}</td>
-                                <td>
-                                    {new Date(
-                                        offer.created_at
-                                    ).toLocaleDateString()}
-                                </td>
+                    {!error ? (
+                        !loading ? (
+                            offers && offers.length > 0 ? (
+                                offers.map((offer) => (
+                                    <tr key={offer.offer_id}>
+                                        <td>
+                                            {offer.offer_type === "BUY"
+                                                ? "Achat"
+                                                : "Vente"}
+                                        </td>
+                                        <td>
+                                            {offer.status === "OPEN"
+                                                ? "Ouvert"
+                                                : offer.status === "CLOSED"
+                                                  ? "Complétée"
+                                                  : "Annulée"}
+                                        </td>
+                                        <td>{offer.item_description}</td>
+                                        <td>{offer.quantity}</td>
+                                        <td>{offer.price_per_unit}</td>
+                                        <td>
+                                            {new Date(
+                                                offer.created_at
+                                            ).toLocaleDateString()}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={6}>Pas d'offre disponible.</td>
+                                </tr>
+                            )
+                        ) : (
+                            <tr>
+                                <td colSpan={6}>Chargement des offres...</td>
                             </tr>
-                        ))
+                        )
                     ) : (
                         <tr>
-                            <td colSpan={6}>Pas d'offre disponible.</td>
+                            <td colSpan={6} style={{ color: "red" }}>
+                                Erreur lors du chargement des offres.
+                            </td>
                         </tr>
                     )}
                 </tbody>

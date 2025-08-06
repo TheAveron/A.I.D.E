@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useAuth } from "../../utils/authprovider";
-import { type FactionType } from "../../types/factions";
 
-export function useFactions() {
+import { useAuth } from "../../utils/authprovider";
+
+import type { FactionsHook, FactionType } from "../../types/factions";
+
+export function useFactions(): FactionsHook {
     const { token } = useAuth();
+
     const [factions, setFactions] = useState<FactionType[] | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!token) return;
@@ -18,8 +22,9 @@ export function useFactions() {
                     "http://127.0.0.1:8000/factions/list"
                 );
                 setFactions(res.data);
-            } catch (error) {
-                console.error("Error fetching faction:", error);
+            } catch (err: any) {
+                console.error("Error fetching factions:", err);
+                setError(err.message || "Failed to fetch facions");
             } finally {
                 setLoading(false);
             }
@@ -28,5 +33,5 @@ export function useFactions() {
         fetchFactions();
     }, [token]);
 
-    return { factions, loading };
+    return { factions, loading, error };
 }

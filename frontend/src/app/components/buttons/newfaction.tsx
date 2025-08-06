@@ -1,89 +1,16 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-
-import axios from "axios";
-import * as yup from "yup";
-
-import { useAuth } from "../../utils/authprovider";
-import { useMe } from "../hooks/me";
-
-import type { FactionType, FactionFormData } from "../../types/factions";
+import { useNewFaction } from "../hooks/faction";
 
 import "../../../assets/css/components/modals.css";
 import "../../../assets/css/components/buttons.css";
 
-const factionSchema = yup.object().shape({
-    name: yup.string().required("Le nom de la faction est obligatoire"),
-    description: yup
-        .string()
-        .max(500, "La description est trop longue")
-        .nullable()
-        .default(null),
-
-    is_approved: yup.boolean().default(false),
-});
-
 export function NewFaction() {
-    const { token } = useAuth() ?? {};
-    const { user, loading: UserLoading } = useMe();
-
-    const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [message, setMessage] = useState<string>("");
+    const { form, loading, message, onSubmit, isOpen, setIsOpen } =
+        useNewFaction();
 
     const {
         register,
-        handleSubmit,
-        reset,
         formState: { errors },
-    } = useForm<FactionFormData>({
-        resolver: yupResolver(factionSchema),
-    });
-
-    const onSubmit = async (data: FactionFormData) => {
-        setLoading(true);
-        setMessage("");
-
-        try {
-            if (!token) {
-                throw new Error(
-                    "Vous devez être connecté pour créer une faction."
-                );
-            }
-
-            if (user?.faction_id) {
-                throw new Error("Vous appartenez déjà à une faction.");
-            }
-            const payload = {
-                ...data,
-                is_approved: false,
-            };
-
-            const res = await axios.post<FactionType>(
-                "http://localhost:8000/factions/create",
-                payload
-            );
-
-            setMessage(`✅ Faction "${res.data.name}" créée avec succès`);
-            reset();
-            setIsOpen(false);
-
-            window.location.reload();
-        } catch (error: any) {
-            if (error.response?.status === 409) {
-                setMessage("❌ Une faction avec ce nom existe déjà.");
-            } else {
-                setMessage("❌ Erreur lors de la création de la faction.");
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (UserLoading || user?.faction_id) {
-        return <></>;
-    }
+    } = form;
 
     return (
         <div>
@@ -98,7 +25,7 @@ export function NewFaction() {
                 >
                     <div onClick={(e) => e.stopPropagation()} className="modal">
                         <h2>Créer une faction</h2>
-                        <form onSubmit={handleSubmit(onSubmit)}>
+                        <form onSubmit={onSubmit}>
                             <div className="modal-field">
                                 <label>Nom</label>
                                 <input type="text" {...register("name")} />

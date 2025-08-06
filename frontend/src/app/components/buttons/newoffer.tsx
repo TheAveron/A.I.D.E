@@ -1,123 +1,34 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import axios from "axios";
-import * as yup from "yup";
+import { useNewOffer } from "../hooks/offers";
+import { useMe } from "../hooks/me";
+import { useRole } from "../hooks/role";
 
-import { useAuth } from "../../utils/authprovider";
 import "../../../assets/css/components/modals.css";
 import "../../../assets/css/components/buttons.css";
-import { useMe } from "../hooks/me";
-
-// Types matching OfferCreate
-interface OfferFormData {
-    offer_type: string;
-    item_description: string;
-    currency_name: string;
-    price_per_unit: number;
-    quantity: number;
-    allowed_parties: string | null;
-    user_id: number | null;
-    faction_id: number | null;
-}
-
-// Validation schema
-const offerSchema = yup.object().shape({
-    offer_type: yup.string().required("Offer type is required"),
-    item_description: yup
-        .string()
-        .required("Item description is required")
-        .max(255, "Max 255 characters"),
-    currency_name: yup.string().required("Currency name is required"),
-    price_per_unit: yup
-        .number()
-        .typeError("Price must be a number")
-        .positive("Price must be positive")
-        .required("Price per unit is required"),
-    quantity: yup
-        .number()
-        .typeError("Quantity must be a number")
-        .integer("Quantity must be an integer")
-        .positive("Quantity must be positive")
-        .required("Quantity is required"),
-    allowed_parties: yup.string().optional().nullable().default(null),
-    user_id: yup.number().optional().nullable().default(null),
-    faction_id: yup.number().optional().nullable().default(null),
-});
 
 export function NewOffer() {
-    const { token } = useAuth() ?? {};
-    const { user } = useMe() ?? {}; // expects { user_id, faction_id, ... }
+    const { user } = useMe();
+    const { role } = useRole(user?.role_id?.toString() ?? null);
 
-    const [isOpen, setIsOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
-    const [forFaction, setForFaction] = useState(false); // checkbox state
+    const {
+        form,
+        loading,
+        message,
+        onSubmit,
+        isOpen,
+        setIsOpen,
+        forFaction,
+        setForFaction,
+    } = useNewOffer();
 
     const {
         register,
-        handleSubmit,
-        reset,
         formState: { errors },
-    } = useForm<OfferFormData>({
-        resolver: yupResolver(offerSchema),
-    });
-
-    const onSubmit = async (data: OfferFormData) => {
-        setLoading(true);
-        setMessage("");
-
-        try {
-            if (!token) {
-                throw new Error("You must be logged in to create an offer.");
-            }
-            if (!user) {
-                throw new Error("Unable to get user information.");
-            }
-
-            // Convert allowed_parties string to array of ints
-            const allowedPartiesArray = data.allowed_parties
-                ? data.allowed_parties
-                      .split(",")
-                      .map((id) => parseInt(id.trim()))
-                      .filter((id) => !isNaN(id))
-                : undefined;
-
-            const payload: OfferFormData = {
-                ...data,
-                allowed_parties: null,
-                user_id: forFaction ? null : user.user_id,
-                faction_id: forFaction ? user.faction_id : null,
-            };
-
-            const res = await axios.post(
-                "http://localhost:8000/offers/create",
-                payload,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            setMessage(
-                `✅ Offer "${res.data.item_description}" created successfully`
-            );
-            reset();
-            setForFaction(false);
-            setIsOpen(false);
-            window.location.reload();
-        } catch (error: any) {
-            if (error.response?.status === 409) {
-                setMessage("❌ An offer with these details already exists.");
-            } else {
-                setMessage("❌ Error creating offer.");
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
+    } = form;
 
     return (
         <div>
             <div className="button" onClick={() => setIsOpen(true)}>
-                Create Offer
+                Créer une offre
             </div>
 
             {isOpen && (
@@ -126,14 +37,16 @@ export function NewOffer() {
                     onClick={() => setIsOpen(false)}
                 >
                     <div onClick={(e) => e.stopPropagation()} className="modal">
-                        <h2>Create a New Offer</h2>
-                        <form onSubmit={handleSubmit(onSubmit)}>
+                        <h2>Créer une offre</h2>
+                        <form onSubmit={onSubmit}>
                             <div className="modal-field">
-                                <label>Offer Type</label>
+                                <label>Type</label>
                                 <select {...register("offer_type")}>
-                                    <option value="">Select type</option>
-                                    <option value="BUY">Buy</option>
-                                    <option value="SELL">Sell</option>
+                                    <option value="">
+                                        Séléctioner un type
+                                    </option>
+                                    <option value="BUY">Acheter</option>
+                                    <option value="SELL">Vendre</option>
                                 </select>
                                 {errors.offer_type && (
                                     <p>{errors.offer_type.message}</p>
@@ -141,7 +54,7 @@ export function NewOffer() {
                             </div>
 
                             <div className="modal-field">
-                                <label>Item Description</label>
+                                <label>Description</label>
                                 <input
                                     type="text"
                                     {...register("item_description")}
@@ -152,7 +65,7 @@ export function NewOffer() {
                             </div>
 
                             <div className="modal-field">
-                                <label>Currency Name</label>
+                                <label>Monaie</label>
                                 <input
                                     type="text"
                                     {...register("currency_name")}
@@ -163,10 +76,10 @@ export function NewOffer() {
                             </div>
 
                             <div className="modal-field">
-                                <label>Price Per Unit</label>
+                                <label>Prix par unité</label>
                                 <input
                                     type="number"
-                                    step="0.01"
+                                    step="1"
                                     {...register("price_per_unit")}
                                 />
                                 {errors.price_per_unit && (
@@ -175,7 +88,7 @@ export function NewOffer() {
                             </div>
 
                             <div className="modal-field">
-                                <label>Quantity</label>
+                                <label>Quantité</label>
                                 <input
                                     type="number"
                                     {...register("quantity")}
@@ -185,18 +98,22 @@ export function NewOffer() {
                                 )}
                             </div>
 
-                            <div className="modal-field">
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={forFaction}
-                                        onChange={(e) =>
-                                            setForFaction(e.target.checked)
-                                        }
-                                    />{" "}
-                                    For Faction
-                                </label>
-                            </div>
+                            {role?.create_offers ? (
+                                <div className="modal-field">
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={forFaction}
+                                            onChange={(e) =>
+                                                setForFaction(e.target.checked)
+                                            }
+                                        />
+                                        Pour la faction
+                                    </label>
+                                </div>
+                            ) : (
+                                <></>
+                            )}
 
                             <div className="modal-buttons">
                                 <button
@@ -215,7 +132,7 @@ export function NewOffer() {
                                             : "pointer",
                                     }}
                                 >
-                                    {loading ? "Creating..." : "Create"}
+                                    {loading ? "Création..." : "Créer"}
                                 </button>
                                 <button
                                     type="button"
@@ -230,7 +147,7 @@ export function NewOffer() {
                                         cursor: "pointer",
                                     }}
                                 >
-                                    Cancel
+                                    Annuler
                                 </button>
                             </div>
                         </form>
