@@ -6,7 +6,7 @@ from ..crud import currencies as crud_currencies
 from ..database import User, get_db
 from ..schemas import CurrencyCreate, CurrencyOut, CurrencyUpdate
 
-router = APIRouter(prefix="/currencies", tags=["currencies"])
+router = APIRouter(prefix="/currencies", tags=["Currencies"])
 
 
 @router.post("/create", response_model=CurrencyOut, status_code=status.HTTP_201_CREATED)

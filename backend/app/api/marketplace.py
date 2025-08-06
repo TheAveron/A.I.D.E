@@ -6,7 +6,7 @@ from ..crud import get_offer, update_offer
 from ..database import Role, User, get_db
 from ..schemas import OfferOut, OfferStatus, OfferUpdate
 
-router = APIRouter(prefix="/marketplace", tags=["marketplace"])
+router = APIRouter(prefix="/marketplace", tags=["Marketplace"])
 
 
 @router.post("/offers/{offer_id}/decline", response_model=OfferOut, deprecated=True)

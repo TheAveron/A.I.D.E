@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import user as crud_user
 from ..database import User, get_db
-from ..schemas import UserFull
+from ..schemas import UserFull, UserOut, UserUpdate
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.get("/me", response_model=UserFull, status_code=status.HTTP_200_OK)
@@ -47,3 +47,12 @@ def read_user_by_id(user_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
     return user
+
+
+@router.patch("/update/{user_id}", response_model=UserOut)
+def update_role_faction(
+    user_id: int, update_data: UserUpdate, db: Session = Depends(get_db)
+):
+    return crud_user.update_user_faction_and_role(
+        db, user_id, update_data.faction_id, update_data.role_id
+    )

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -53,3 +54,21 @@ def get_transaction(db: Session, transaction_id: int) -> Transaction:
     if not tx:
         raise HTTPException(status_code=404, detail="Transaction not found")
     return tx
+
+
+def get_transactions(
+    db: Session, faction_id: Optional[int] = None, user_id: Optional[int] = None
+) -> list[Transaction]:
+    query = db.query(Transaction)
+
+    if faction_id is not None:
+        query = query.filter(Transaction.buyer_faction_id == faction_id)
+    if user_id is not None:
+        query = query.filter(Transaction.buyer_user_id == user_id)
+
+    transactions = query.all()
+
+    if not transactions:
+        raise HTTPException(status_code=404, detail="No transactions found")
+
+    return transactions

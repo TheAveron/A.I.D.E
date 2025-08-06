@@ -6,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
-from .api import auth, currencies, faction, marketplace, offer, role, user
+from .api import (auth, currencies, faction, marketplace, offer, offer_history,
+                  role, transactions, user)
 from .core.logger import setup_logger
 
 app = FastAPI(
@@ -14,8 +15,8 @@ app = FastAPI(
     description="API for the A.I.D.E game system",
     version="1.0.0",
     openapi_tags=[
-        {"name": "factions", "description": "Operations with factions"},
-        {"name": "offers", "description": "Market offer operations"},
+        {"name": "Factions", "description": "Operations with factions"},
+        {"name": "Offers", "description": "Market offer operations"},
     ],
 )
 
@@ -85,6 +86,8 @@ app.include_router(faction.router)
 app.include_router(role.router)
 app.include_router(currencies.router)
 app.include_router(offer.router)
+app.include_router(offer_history.router)
+app.include_router(transactions.router)
 app.include_router(marketplace.router)
 
 

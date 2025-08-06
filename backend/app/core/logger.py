@@ -6,7 +6,7 @@ from typing import Optional
 
 
 def setup_logger(
-    name: str, log_file: Optional[Path] = None, level: int = logging.INFO
+    name: str, log_file: Optional[Path] = None, level: int = logging.DEBUG
 ) -> logging.Logger:
     """Configure logger with console and file handlers."""
 

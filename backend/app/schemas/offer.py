@@ -49,7 +49,7 @@ class OfferAccept(BaseModel):
     quantity: Optional[int] = None  # if partial acceptance is allowed
 
     class Config:
-        schema_extra = {"example": {"buyer_user_id": 12, "quantity": 5}}
+        json_schema_extra = {"example": {"buyer_user_id": 12, "quantity": 5}}
 
 
 class OfferAcceptOut(BaseModel):

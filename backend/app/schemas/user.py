@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -8,8 +9,9 @@ class UserBase(BaseModel):
     password: str
 
 
-class UserUpdate(UserBase):
-    pass
+class UserUpdate(BaseModel):
+    role_id: Optional[int] = None
+    faction_id: Optional[int] = None
 
 
 class UserLogin(UserBase):

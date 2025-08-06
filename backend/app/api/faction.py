@@ -8,7 +8,7 @@ from ..schemas import FactionCreate, FactionOut, FactionUpdate
 
 router = APIRouter(
     prefix="/factions",
-    tags=["factions"],
+    tags=["Factions"],
 )
 
 

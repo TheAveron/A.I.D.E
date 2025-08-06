@@ -9,7 +9,7 @@ from ..database import get_db
 from ..misc import OfferStatus
 from ..schemas import OfferAccept, OfferCreate, OfferOut, OfferUpdate
 
-router = APIRouter(prefix="/offers", tags=["offers"])
+router = APIRouter(prefix="/offers", tags=["Offers"])
 
 
 @router.get("/list", response_model=list[OfferOut], status_code=status.HTTP_200_OK)

@@ -8,7 +8,7 @@ from ..crud import normalize
 from ..database import User
 
 DOCS_DIR = Path("documents")
-router = APIRouter(prefix="/documents", tags=["docs"])
+router = APIRouter(prefix="/documents", tags=["Documentation"])
 
 
 class DocBase(BaseModel):

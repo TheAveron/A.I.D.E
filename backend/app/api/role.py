@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from backend.app.crud.faction import get_faction_by_user_id
-
 from ..core import get_current_user
 from ..crud import faction_role as crud_role
 from ..database import User, get_db
