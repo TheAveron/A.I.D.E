@@ -3,6 +3,7 @@ import { NewFaction } from "./buttons/newfaction";
 import { useFactions } from "./hooks/factions";
 import { useCurrency } from "./hooks/factioncurrency";
 
+import { useMe } from "./hooks/me";
 import MemberCounter from "./snippets/member_count";
 
 import "../../assets/css/components/tables.css";
@@ -33,11 +34,13 @@ function CurrencyCell({ factionId }: { factionId: string }) {
 
 function FactionList() {
     const { factions, loading, error } = useFactions();
+    const { user } = useMe();
+
     return (
         <div className="snippet-container factions-container">
             <div className="factions-header">
                 <h2>Liste des factions</h2>
-                <NewFaction />
+                {!user?.faction_id ? <NewFaction /> : <></>}
             </div>
             <table>
                 <thead>

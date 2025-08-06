@@ -5,12 +5,14 @@ export interface HookResult {
     error: string | null;
 }
 
-export interface HookForm {
+export interface HookFormBase {
     form: UseFormReturn<any>;
     loading: boolean;
     message: string;
     onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
+}
 
+export interface HookForm extends HookFormBase {
     isOpen: boolean;
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }

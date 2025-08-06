@@ -4,8 +4,11 @@ import { useCurrency } from "../hooks/factioncurrency";
 import "../../../assets/css/components/info.css";
 import "../../../assets/css/components/buttons.css";
 import { NewCurrency } from "../buttons/newcurrency";
+import { useAuth } from "../../utils/authprovider";
 
 export default function CurrencyInfo() {
+    const { token } = useAuth();
+
     const { factionid } = useParams();
     const { currency, loading, error } = useCurrency(factionid ?? null);
 

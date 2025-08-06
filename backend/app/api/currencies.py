@@ -44,12 +44,6 @@ def get_currency_by_faction(
     if not currency:
         return None
 
-    if currency.faction_id != current_user.faction_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only view your own faction's currency",
-        )
-
     return currency
 
 

@@ -5,13 +5,14 @@ import "../../../assets/css/pages/archives.css";
 
 const getLabelFromFolder = (folder: string) => {
     const mapping: Record<string, string> = {
-        OCube_crusader: "Cube Crusader",
+        OCube_crusader: "Cube Crusader: The Origin",
         OLSLN: "La survie pour les nuls",
         OLSPLW_zoom: "La survie pour les Wariors",
         OStrong_world_zoom: "Strong World",
         OSurvival_islands_zoom: "Survival Islands",
         OUtopia_zoom: "Utopia",
-        AOS: "Age of Steam",
+        EUtopia_zoom: "End d'Utopia",
+        AOS: "Cube Crusader: Age of Steam",
     };
 
     return mapping[folder] || folder;

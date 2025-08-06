@@ -1,5 +1,5 @@
 import type { UseFormReturn } from "react-hook-form";
-import type { HookForm, HookResult } from "./hooks";
+import type { HookFormBase, HookResult } from "./hooks";
 
 export interface UserBase {
     username: string;
@@ -34,10 +34,10 @@ export interface UsersHook extends HookResult {
     users: UserType[] | null;
 }
 
-export interface AuthLoginHook extends HookForm {
+export interface AuthLoginHook extends HookFormBase {
     form: UseFormReturn<UserLoginForm, any, UserLoginForm>;
 }
 
-export interface AuthRegisterHook extends HookForm {
+export interface AuthRegisterHook extends HookFormBase {
     form: UseFormReturn<UserRegisterForm, any, UserRegisterForm>;
 }

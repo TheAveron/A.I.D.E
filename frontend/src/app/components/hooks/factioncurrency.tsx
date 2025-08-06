@@ -49,7 +49,12 @@ export function useCurrency(faction_id: string | null): CurrencyHook {
             try {
                 setLoading(true);
                 const res = await axios.get<CurrencyType>(
-                    `http://127.0.0.1:8000/currencies/faction/${faction_id}`
+                    `http://127.0.0.1:8000/currencies/faction/${faction_id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
                 );
                 setCurrency(res.data);
             } catch (error) {

@@ -5,9 +5,16 @@ import { useRole } from "../hooks/role";
 
 import "../../../assets/css/components/tables.css";
 import "../../../assets/css/components/info.css";
+import { useMe } from "../hooks/me";
 
-function RoleElement({ role_id }: { role_id: string | undefined }) {
-    const { role } = useRole(role_id ?? null);
+function RoleElement({
+    role_id,
+    faction_id,
+}: {
+    role_id: number | null;
+    faction_id: number | null;
+}) {
+    const { role } = useRole(role_id?.toString() ?? null);
 
     if (!role_id) {
         return <p>Pas de role renseigné</p>;
@@ -20,12 +27,10 @@ function RoleElement({ role_id }: { role_id: string | undefined }) {
     return (
         <>
             <td>{role.name}</td>
-            {role.handle_members ? (
+            {role.handle_members && role.faction_id == faction_id && (
                 <td>
                     <div className="button">edit</div>
                 </td>
-            ) : (
-                <td></td>
             )}
         </>
     );
@@ -34,6 +39,7 @@ function RoleElement({ role_id }: { role_id: string | undefined }) {
 function UsersTable() {
     const { factionid } = useParams();
     const { users, loading, error } = useMembers(factionid ?? null);
+    const { user: current_user } = useMe();
 
     return (
         <div className="snippet-container users-container">
@@ -45,8 +51,7 @@ function UsersTable() {
                     <thead>
                         <tr>
                             <th>Nom</th>
-                            <th>Role</th>
-                            <th></th>
+                            <th colSpan={2}>Role</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -61,7 +66,11 @@ function UsersTable() {
                                         >
                                             <td>{user.username}</td>
                                             <RoleElement
-                                                role_id={user.role_id?.toString()}
+                                                role_id={user.role_id}
+                                                faction_id={
+                                                    current_user?.faction_id ??
+                                                    null
+                                                }
                                             />
                                         </Link>
                                     ))

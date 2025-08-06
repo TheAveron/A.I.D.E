@@ -12,7 +12,9 @@ function Archives() {
             <h2>Règlements</h2>
             <ul>
                 <li>
-                    <Link to="/A.I.D.E/archives/rules/">CubeCrusader</Link>
+                    <Link to="/A.I.D.E/archives/rules/">
+                        Cube Crusader: The Origin
+                    </Link>
                 </li>
             </ul>
         </section>
