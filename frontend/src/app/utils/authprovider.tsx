@@ -8,6 +8,7 @@ import {
     useState,
     type ReactNode,
 } from "react";
+
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
@@ -33,7 +34,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     useEffect(() => {
-        let logoutTimer: NodeJS.Timeout;
+        let logoutTimer: number;
 
         if (token) {
             try {
@@ -55,9 +56,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
                         handleLogout(true);
                     }, timeUntilExpiry);
 
-                    axios.defaults.headers.common[
-                        "Authorization"
-                    ] = `Bearer ${token}`;
+                    axios.defaults.headers.common["Authorization"] =
+                        `Bearer ${token}`;
                     localStorage.setItem("token", token);
                 }
             } catch (error) {

@@ -1,5 +1,3 @@
-import "../../assets/css/components/section.css";
-
 function Home() {
     return (
         <div className="content">

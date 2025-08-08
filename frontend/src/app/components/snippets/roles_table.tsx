@@ -2,9 +2,6 @@ import { useParams } from "react-router-dom";
 import { type RoleType } from "../../types/roles";
 import { useRoles } from "../hooks/factionroles";
 
-import "../../../assets/css/components/tables.css";
-import "../../../assets/css/components/snippets.css";
-
 function RolesList({ roles }: { roles: RoleType[] | null }) {
     if (!roles) {
         return (
@@ -56,24 +53,26 @@ export default function RolesTable() {
     return (
         <div className="snippet-container roles-container">
             <h2>Roles</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Description</th>
-                        <th>Voir les Transactions</th>
-                        <th>Accepter les Offres</th>
-                        <th>Créer des Offres</th>
-                        <th>Gérer la Monnaie</th>
-                        <th>Gérer les Documents</th>
-                        <th>Gérer les Membres</th>
-                        <th>Gérer les Roles</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <RolesList roles={roles} />
-                </tbody>
-            </table>
+            <div className="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Voir les Transactions</th>
+                            <th>Accepter les Offres</th>
+                            <th>Créer des Offres</th>
+                            <th>Gérer la Monnaie</th>
+                            <th>Gérer les Documents</th>
+                            <th>Gérer les Membres</th>
+                            <th>Gérer les Roles</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <RolesList roles={roles} />
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

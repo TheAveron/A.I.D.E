@@ -3,6 +3,8 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from backend.app.schemas.offer import OfferAcceptOut
+
 from ..core import get_current_user
 from ..crud import offer as offer_crud
 from ..database import get_db
@@ -61,7 +63,9 @@ def remove_offer(offer_id: int, db: Session = Depends(get_db)):
 
 
 @router.post(
-    "/accept/{offer_id}", response_model=OfferOut, status_code=status.HTTP_202_ACCEPTED
+    "/accept/{offer_id}",
+    response_model=OfferAcceptOut,
+    status_code=status.HTTP_202_ACCEPTED,
 )
 def accept_offer(
     offer_id: int,

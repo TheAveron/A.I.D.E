@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
 import MapsArchives from "./maps/maplist";
 
-import "../../../assets/css/components/section.css";
-
 function Archives() {
     return (
         <section className="text-section">

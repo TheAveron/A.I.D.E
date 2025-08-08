@@ -1,8 +1,16 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (JSON, CheckConstraint, DateTime, Float, ForeignKey,
-                        Index, Integer, String)
+from sqlalchemy import (
+    JSON,
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+)
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -59,6 +67,7 @@ class Offer(Base):
 
     price_per_unit: Mapped[float] = mapped_column(Float, nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    init_quantity: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # Optional restrictions
     allowed_parties: Mapped[Optional[list[int]]] = mapped_column(

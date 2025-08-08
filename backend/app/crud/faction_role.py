@@ -69,6 +69,19 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
             },
         },
         {
+            "name": "Chef Adjoint",
+            "description": "Adjoint du chef, l'aide à administrer la faction",
+            "permissions": {
+                FactionPermission.ACCEPT_OFFERS: True,
+                FactionPermission.CREATE_OFFERS: True,
+                FactionPermission.MANAGE_FUNDS: False,
+                FactionPermission.HANDLE_MEMBERS: True,
+                FactionPermission.MANAGE_ROLES: True,
+                FactionPermission.MANAGE_DOCS: True,
+                FactionPermission.VIEW_TRANSACTIONS: True,
+            },
+        },
+        {
             "name": "Trésorier",
             "description": "Gère la monaie et les transactions.",
             "permissions": {
@@ -108,16 +121,16 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
             },
         },
         {
-            "name": "Chef Adjoint",
-            "description": "Adjoint du chef, l'aide à administrer la faction",
+            "name": "Invité",
+            "description": "Souhaite rejoindre la faction",
             "permissions": {
-                FactionPermission.ACCEPT_OFFERS: True,
-                FactionPermission.CREATE_OFFERS: True,
+                FactionPermission.ACCEPT_OFFERS: False,
+                FactionPermission.CREATE_OFFERS: False,
                 FactionPermission.MANAGE_FUNDS: False,
-                FactionPermission.HANDLE_MEMBERS: True,
-                FactionPermission.MANAGE_ROLES: True,
-                FactionPermission.MANAGE_DOCS: True,
-                FactionPermission.VIEW_TRANSACTIONS: True,
+                FactionPermission.HANDLE_MEMBERS: False,
+                FactionPermission.MANAGE_ROLES: False,
+                FactionPermission.MANAGE_DOCS: False,
+                FactionPermission.VIEW_TRANSACTIONS: False,
             },
         },
     ]

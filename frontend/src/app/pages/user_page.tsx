@@ -1,10 +1,8 @@
 import { useMe } from "../components/hooks/me";
 
 import Profile from "../components/profile";
-import FactionList from "../components/factionlist";
-
-import "../../assets/css/components/container.css";
-import "../../assets/css/components/snippets.css";
+import OfferList from "../components/offerslist";
+import TransactionsTable from "../components/snippets/transaction_table";
 
 function UserPage() {
     const { user, loading, error } = useMe();
@@ -30,7 +28,8 @@ function UserPage() {
                     <p>{error}</p>
                 </div>
             )}
-            <FactionList />
+            <TransactionsTable userId={user?.user_id.toString()} />
+            <OfferList userId={user?.user_id.toString()} />
         </div>
     );
 }

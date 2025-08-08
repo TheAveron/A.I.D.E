@@ -4,8 +4,6 @@ import { useRegister } from "../components/hooks/auth";
 
 import logo from "../../assets/images/CC_logo.png";
 
-import "../../assets/css/pages/login.css";
-
 function Register() {
     const { form, loading, message, onSubmit } = useRegister();
 

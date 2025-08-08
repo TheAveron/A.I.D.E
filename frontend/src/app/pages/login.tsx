@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 
+import { useLogin } from "../components/hooks/auth";
+
 import logo from "../../assets/images/CC_logo.png";
 
 import "../../assets/css/pages/login.css";
-import { useLogin } from "../components/hooks/auth";
 
 function Login() {
     const { form, loading, message, onSubmit } = useLogin();

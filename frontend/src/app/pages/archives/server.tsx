@@ -1,8 +1,6 @@
 import PageGenerator from "../../components/pagegen";
 import { GoBackButton } from "../../components/buttons/return";
 
-import "../../../assets/css/pages/archives.css";
-
 const getLabelFromFolder = (folder: string) => {
     const mapping: Record<string, string> = {
         OCube_crusader: "Cube Crusader: The Origin",

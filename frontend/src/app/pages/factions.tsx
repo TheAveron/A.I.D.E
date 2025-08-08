@@ -1,7 +1,5 @@
 import FactionList from "../components/factionlist";
 
-import "../../assets/css/components/factions.css";
-
 function Faction() {
     return (
         <>

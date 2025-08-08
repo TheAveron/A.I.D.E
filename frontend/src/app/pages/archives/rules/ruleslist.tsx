@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
 import { GoBackButton } from "../../../components/buttons/return";
 
-import "../../../../assets/css/components/section.css";
-
 function Rules() {
     return (
         <>

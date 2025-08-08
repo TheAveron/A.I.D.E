@@ -1,8 +1,5 @@
 import { useNewFaction } from "../hooks/faction";
 
-import "../../../assets/css/components/modals.css";
-import "../../../assets/css/components/buttons.css";
-
 export function NewFaction() {
     const { form, loading, message, onSubmit, isOpen, setIsOpen } =
         useNewFaction();

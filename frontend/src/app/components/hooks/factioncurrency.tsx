@@ -16,9 +16,6 @@ import type {
     CurrencyCreateData,
 } from "../../types/currency";
 
-import "../../../assets/css/components/modals.css";
-import "../../../assets/css/components/buttons.css";
-
 const currencySchema = yup.object().shape({
     name: yup.string().required("Le nom de la monnaie est obligatoire"),
     symbol: yup.string().optional().nullable().default(null),

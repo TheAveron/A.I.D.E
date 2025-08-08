@@ -1,0 +1,58 @@
+.information-container {
+    width: 100vw;
+    display: grid;
+    padding: 10vh 5vw;
+    padding-top: 5vh;
+    gap: min(10vh, 100px) 6vw;
+
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: max(30vh, 350px);
+}
+
+.faction-container {
+    grid-row: 1;
+    grid-column: 1 / span 2;
+}
+
+.currency-container {
+    grid-row: 1;
+    grid-column: 3 / span 2;
+}
+
+.users-container {
+    grid-row: 2;
+    grid-column: 1 / span 2;
+}
+
+.transactions-container {
+    grid-row: 2;
+    grid-column: 3 / span 2;
+}
+
+.roles-container {
+    grid-row: 5 / span 2;
+    grid-column: 1 / span 4;
+}
+
+.user-container {
+    grid-column: 1 / span 2;
+}
+
+.factions-container {
+    grid-row: 2;
+    grid-column: 1 / span 4;
+}
+
+.offers-container {
+    grid-row: 3 / span 2;
+    grid-column: 1 / span 4;
+}
+
+.user-page .offers-container {
+    grid-row: 2 / span 2;
+}
+
+.history-container {
+    grid-row: 7 / span 2;
+    grid-column: 1 / span 4;
+}

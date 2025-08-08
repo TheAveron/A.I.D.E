@@ -3,14 +3,11 @@ import { Link } from "react-router-dom";
 import { useRole } from "./hooks/role";
 import { useFaction } from "./hooks/faction";
 
-import "../../assets/css/components/info.css";
-import "../../assets/css/components/snippets.css";
-
 function Profile({ value }: { value: UserType }) {
     const profile = value;
 
     const factionId = profile.faction_id?.toString() ?? null;
-    const roleId = profile.role_id?.toString() ?? null;
+    const roleId = profile.role_id ?? null;
 
     const {
         faction,
@@ -20,11 +17,20 @@ function Profile({ value }: { value: UserType }) {
     const { role, loading: roleLoading, error: roleError } = useRole(roleId);
 
     return (
-        <div className="snippet-container">
+        <div className="snippet-container user-container">
             {!factionError ? (
                 !factionLoading ? (
                     <>
-                        <div className="info-header">
+                        <div
+                            className="info-header"
+                            style={
+                                profile.is_admin
+                                    ? {
+                                          justifyContent: "space-between",
+                                      }
+                                    : {}
+                            }
+                        >
                             <div className="info-title">{profile.username}</div>
                             {profile.is_admin && (
                                 <div className="profile-role">
@@ -51,10 +57,13 @@ function Profile({ value }: { value: UserType }) {
                             <div className="info-row">
                                 <span className="info-label">Role:</span>
                                 <span className="info-value-field">
-                                    {roleError ??
-                                        roleLoading ??
-                                        role?.name ??
-                                        "Aucun"}
+                                    {!roleError
+                                        ? !roleLoading
+                                            ? role?.name
+                                                ? role.name
+                                                : "Aucun"
+                                            : "Chargement..."
+                                        : roleError}
                                 </span>
                             </div>
                             <div className="info-row">

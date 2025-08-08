@@ -1,17 +1,13 @@
-import { useParams } from "react-router-dom";
 import { useFaction } from "../hooks/faction";
 import { useMe } from "../hooks/me";
 import { useRole } from "../hooks/role";
-
-import "../../../assets/css/components/info.css";
-import "../../../assets/css/components/buttons.css";
 
 function FactionHead({
     faction_name,
     role_id,
 }: {
     faction_name: string;
-    role_id: string | undefined;
+    role_id: number | null;
 }) {
     const { role } = useRole(role_id ?? null);
     let editableText = "";
@@ -28,10 +24,13 @@ function FactionHead({
     );
 }
 
-export default function FactionInfo() {
+export default function FactionInfo({
+    factionId,
+}: {
+    factionId: string | null;
+}) {
     const { user } = useMe();
-    const { factionid } = useParams();
-    const { faction, loading, error } = useFaction(factionid ?? null);
+    const { faction, loading, error } = useFaction(factionId ?? null);
 
     return (
         <div className="snippet-container faction-page faction-container">
@@ -41,7 +40,7 @@ export default function FactionInfo() {
                         <>
                             <FactionHead
                                 faction_name={faction?.name}
-                                role_id={user?.role_id?.toString()}
+                                role_id={user?.role_id ?? null}
                             />
 
                             <div className="info-values">

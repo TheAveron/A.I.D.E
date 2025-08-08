@@ -1,0 +1,105 @@
+.amount {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    font-weight: bold;
+    color: var(--text);
+}
+
+.status {
+    font-size: 0.9rem;
+    padding: 1.5vh 1.5vw;
+    border-radius: 8px;
+    width: fit-content;
+    margin: auto;
+    max-height: 40px;
+    place-content: center;
+    min-width: max-content;
+}
+
+.approved {
+    background-color: var(--primary-200);
+    color: var(--primary-950);
+}
+
+.not-approved {
+    background: #fbeaea;
+    color: #b91c1c;
+}
+
+.status.open {
+    background-color: var(--primary-200);
+    color: var(--primary-950);
+}
+
+.status.closed {
+    background-color: var(--background-400);
+    color: var(--text-100);
+}
+
+.status.cancelled {
+    background-color: var(--accent-100);
+    color: var(--accent-950);
+}
+
+div {
+    display: flex;
+    flex-direction: column;
+}
+
+hr {
+    width: 100%;
+    color: var(--background-300);
+}
+
+a {
+    text-decoration: underline var(--accent-600);
+    font-size: 1.2em;
+    font-weight: 400;
+    width: fit-content;
+}
+
+/* TODO: Move this in a better file */
+
+.faction-box {
+    width: 85vw;
+    margin-top: 5vh;
+    height: fit-content;
+}
+
+.factions-header {
+    max-height: 100px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    place-items: center;
+}
+
+.factions-header h2 {
+    color: var(--text);
+    font-size: 2em;
+}
+
+.faction-description {
+    font-size: 0.95rem;
+    color: var(--text-600);
+}
+
+.offer-box {
+    width: 85vw;
+    margin-top: 5vh;
+    height: fit-content;
+}
+
+.offers-header {
+    max-height: 100px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    place-items: center;
+}
+
+.offers-header h2 {
+    color: var(--text);
+    font-size: 2em;
+}

@@ -5,8 +5,6 @@ import axios from "axios";
 import * as yup from "yup";
 
 import { useAuth } from "../../utils/authprovider";
-import "../../../assets/css/components/modals.css";
-import "../../../assets/css/components/buttons.css";
 
 export type DocumentFormData = {
     title: string;

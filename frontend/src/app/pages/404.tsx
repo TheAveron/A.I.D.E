@@ -2,10 +2,6 @@ import logo from "../../assets/images/Error.png";
 
 import { GoBackButton } from "../components/buttons/return";
 
-import "../../assets/css/components/section.css";
-import "../../assets/css/pages/404.css";
-import "../../assets/css/components/buttons.css";
-
 function Error404() {
     return (
         <div className="content">

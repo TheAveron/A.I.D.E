@@ -2,12 +2,9 @@ import { useNewOffer } from "../hooks/offers";
 import { useMe } from "../hooks/me";
 import { useRole } from "../hooks/role";
 
-import "../../../assets/css/components/modals.css";
-import "../../../assets/css/components/buttons.css";
-
 export function NewOffer() {
     const { user } = useMe();
-    const { role } = useRole(user?.role_id?.toString() ?? null);
+    const { role } = useRole(user?.role_id ?? null);
 
     const {
         form,

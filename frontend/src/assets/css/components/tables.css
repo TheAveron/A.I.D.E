@@ -1,9 +1,7 @@
 table {
     background-color: var(--background-200);
-    border-radius: 10px;
     border-collapse: collapse;
-    overflow: scroll;
-    max-height: 100%;
+    width: 100%;
 }
 
 th {
@@ -12,14 +10,11 @@ th {
     border-bottom: 2px solid var(--background-300);
     background-color: var(--primary-800);
     color: var(--button-text);
-}
+    position: sticky;
+    top: 0;
 
-th:first-child {
-    border-top-left-radius: 10px;
-}
-
-th:last-child {
-    border-top-right-radius: 10px;
+    scroll-snap-stop: always;
+    scroll-snap-align: end;
 }
 
 td {
@@ -28,11 +23,14 @@ td {
     border-bottom: 1px solid var(--background-300);
     transition: background 0.5s ease;
     vertical-align: middle;
+
+    scroll-snap-stop: always;
+    scroll-snap-align: end;
 }
 
 tr:hover td,
 a:hover td {
-    background-color: var(--accent-900);
+    background-color: var(--accent-800);
     color: var(--button-text);
 }
 
@@ -45,16 +43,6 @@ a:last-child td {
     border-bottom: none;
 }
 
-tr:last-child td:first-child,
-a:last-child td:first-child {
-    border-bottom-left-radius: 10px;
-}
-
-tr:last-child td:last-child,
-a:last-child td:last-child {
-    border-bottom-right-radius: 10px;
-}
-
 table a {
     font-size: 1em;
 }
@@ -62,4 +50,29 @@ table a {
 table .button {
     max-width: none;
     place-content: center;
+}
+
+.table-container {
+    max-height: 100%;
+    overflow: scroll;
+    scrollbar-width: none;
+    border-radius: 10px;
+    scroll-snap-type: both mandatory;
+}
+
+tr:hover .amount,
+a:hover .amount {
+    color: var(--button-text);
+    background-color: var(--accent-950);
+}
+
+tr:hover td .status,
+a:hover td .status {
+    color: var(--text-900);
+}
+
+tr:hover td .not-approved,
+a:hover td .not-approved {
+    color: #fbeaea;
+    background: #b91c1c;
 }

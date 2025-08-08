@@ -39,6 +39,7 @@ def get_offers(
 def create_offer(db: Session, offer_in: OfferCreate) -> Offer:
     offer = Offer(
         **offer_in.dict(exclude_unset=True),
+        init_quantity=offer_in.quantity,
         status=OfferStatus.OPEN,
     )
     db.add(offer)
@@ -115,6 +116,7 @@ def get_offer_history(db: Session, offer_id: int):
 def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferAccept):
     # --- Fetch offer ---
     offer = db.query(Offer).filter(Offer.offer_id == offer_id).first()
+
     if not offer:
         raise HTTPException(status_code=404, detail="Offer not found")
 
@@ -122,33 +124,33 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
     if offer.status != OfferStatus.OPEN:
         raise HTTPException(status_code=400, detail="Offer is not available")
 
-    buyer = str()
+    buyer_identity = {}
+    buyer = ""
 
-    # --- Validate buy_for parameter ---
-    if request.buyer_faction_id:
-        # Prevent self-purchase
+    # --- Validate buyer_user_id ---
+    if request.buyer_user_id:
         if offer.user_id == current_user.user_id:
+            print("You can't accept your own offer")
             raise HTTPException(
                 status_code=403, detail="You can't accept your own offer"
             )
         buyer_identity = {"buyer_user_id": current_user.user_id}
-
         buyer = current_user.username
 
+    # --- Validate buyer_faction_id ---
     elif request.buyer_faction_id:
-        # User must be in a faction
         if not current_user.faction_id:
             raise HTTPException(status_code=403, detail="You don't belong to a faction")
 
-        # Prevent self-purchase for faction
         if offer.faction_id == current_user.faction_id:
+            print("You can't accept your own faction's offer")
             raise HTTPException(
                 status_code=403, detail="You can't accept your own faction's offer"
             )
 
-        # Check if user has permission in their faction
+        # Check faction permission
         role = db.query(Role).filter(Role.role_id == current_user.role_id).first()
-        if not role or role.name.lower() not in {"chef", "treasurer", "merchant"}:
+        if not role or not role.accept_offers:
             raise HTTPException(
                 status_code=403,
                 detail="You don't have permission to accept offers for your faction",
@@ -160,13 +162,14 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
         if faction:
             buyer = faction.name
         else:
-            raise Error(
-                "No faction with this ID, this souldn't happen, so contact the dev please"
+            raise RuntimeError(
+                "No faction with this ID. This shouldn't happen, contact dev."
             )
 
     else:
         raise HTTPException(
-            status_code=400, detail="buy_for must be 'user' or 'faction'"
+            status_code=400,
+            detail="One of 'buyer_user_id' or 'buyer_faction_id' must be provided",
         )
 
     # --- Handle quantity ---
@@ -188,21 +191,14 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
     )
     db.add(transaction)
 
-    # --- Update offer quantity or close offer ---
+    # --- Update offer ---
     offer.quantity -= request.quantity
     if offer.quantity <= 0:
         offer.status = OfferStatus.CLOSED
-        offer.accepted_by_user_id = (
-            buyer_identity.get("buyer_user_id")
-            if "buyer_user_id" in buyer_identity
-            else None
-        )
-        offer.accepted_by_faction_id = (
-            buyer_identity.get("buyer_faction_id")
-            if "buyer_faction_id" in buyer_identity
-            else None
-        )
+        offer.accepted_by_user_id = buyer_identity.get("buyer_user_id")
+        offer.accepted_by_faction_id = buyer_identity.get("buyer_faction_id")
 
+    # --- Log history ---
     create_offer_history(
         db,
         offer.offer_id,
@@ -211,9 +207,10 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
         notes=f"Accepted by {buyer} (quantity: {request.quantity})",
     )
 
-    db.commit()
     db.refresh(offer)
     db.refresh(transaction)
+
+    db.commit()
 
     return {
         "message": "Offer accepted successfully",

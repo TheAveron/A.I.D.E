@@ -13,6 +13,7 @@ class OfferBase(BaseModel):
     currency_name: str
     price_per_unit: float
     quantity: int
+    init_quantity: int = 0
     allowed_parties: Optional[list[int]] = None
 
 
@@ -46,7 +47,7 @@ class OfferOut(OfferBase):
 class OfferAccept(BaseModel):
     buyer_user_id: Optional[int] = None
     buyer_faction_id: Optional[int] = None
-    quantity: Optional[int] = None  # if partial acceptance is allowed
+    quantity: Optional[int] = None
 
     class Config:
         json_schema_extra = {"example": {"buyer_user_id": 12, "quantity": 5}}

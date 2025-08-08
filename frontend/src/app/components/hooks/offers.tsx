@@ -15,6 +15,7 @@ import type {
     OfferCreateData,
     OfferFormHook,
     OfferTypeLiteral,
+    OfferHook,
 } from "../../types/offers";
 
 export const offerSchema = yup.object().shape({
@@ -39,6 +40,39 @@ export const offerSchema = yup.object().shape({
         .positive("Quantity must be positive")
         .required("Quantity is required"),
 });
+
+export function useOffer(offer_id?: number): OfferHook {
+    const { token } = useAuth();
+
+    const [offer, setOffer] = useState<OfferType | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!token) return;
+
+        const fetchOffer = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const res = await axios.get<OfferType>(
+                    `http://127.0.0.1:8000/offers/detail/${offer_id}`
+                );
+
+                setOffer(res.data);
+            } catch (err: any) {
+                setError(err.message || "Failed to fetch offer");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchOffer();
+    }, [token, offer_id]);
+
+    return { offer, loading, error };
+}
 
 export function useOffersList(currency?: string, status?: string): OffersHook {
     const { token } = useAuth();

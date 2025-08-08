@@ -68,7 +68,4 @@ def get_transactions(
 
     transactions = query.all()
 
-    if not transactions:
-        raise HTTPException(status_code=404, detail="No transactions found")
-
     return transactions

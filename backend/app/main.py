@@ -6,8 +6,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
-from .api import (auth, currencies, faction, marketplace, offer, offer_history,
-                  role, transactions, user)
+from .api import (
+    auth,
+    currencies,
+    faction,
+    marketplace,
+    offer,
+    offer_history,
+    role,
+    transactions,
+    user,
+    documentation,
+)
 from .core.logger import setup_logger
 
 app = FastAPI(
@@ -55,12 +65,21 @@ app.openapi = custom_openapi
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start_time = time.time()
-    response = await call_next(request)
-    duration = time.time() - start_time
+
+    try:
+        response = await call_next(request)
+    except Exception as e:
+        logger.error(
+            f"Exception handling request {request.method} {request.url.path}: {e}"
+        )
+        raise
+
+    duration = (time.time() - start_time) * 1000  # ms
 
     logger.info(
-        f"Method: {request.method} Path: {request.url.path} "
-        f"Status: {response.status_code} Duration: {duration:.2f}s"
+        f"{request.method} {request.url.path} - "
+        f"Status: {response.status_code} - "
+        f"Duration: {duration:.2f}ms"
     )
 
     return response
@@ -89,6 +108,7 @@ app.include_router(offer.router)
 app.include_router(offer_history.router)
 app.include_router(transactions.router)
 app.include_router(marketplace.router)
+app.include_router(documentation.router)
 
 
 @app.get("/")

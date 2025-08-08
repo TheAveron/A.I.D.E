@@ -19,77 +19,45 @@
     text-decoration: none;
 }
 
-.users-container h2,
+.profile-role {
+    color: var(--text-600);
+}
+
 .roles-container h2,
 .factions-container .factions-header,
-.offers-container .offers-header {
+.offers-container .offers-header,
+.history-container h2 {
     padding-bottom: max(2vh, 50px);
     height: fit-content;
 }
 
-.users-container h2 {
-    height: fit-content;
-    padding-bottom: max(1vh, 10px);
-}
-
-.roles-container {
-    grid-row: 2 / span 3;
-    grid-column: 1 / span 3;
-    padding: 0;
-    background: none;
-}
-
-.factions-container {
-    grid-row: 2;
-    grid-column: 1 / span 3;
-    padding: 0;
-    background: none;
-}
-
+.roles-container,
+.factions-container,
+.history-container,
 .offers-container {
-    background: none;
     padding: 0;
+    background: none;
 }
 
-.users-container {
-    place-items: center;
+.users-container,
+.currency-container,
+.faction-container,
+.transactions-container {
     padding-top: 3em;
-    justify-content: start;
-    grid-row: 1;
-    grid-column: 3;
     max-height: fit-content;
+
+    text-align: center;
+
+    place-items: center;
+    place-content: center;
 }
 
-.users-container table * {
+.users-container table *,
+.transactions-container table * {
     padding: 1vh 1vw;
-}
-
-.users-container table {
     min-height: fit-content;
-    overflow: scroll;
 }
 
-.factions-container table {
-    min-height: fit-content;
-    overflow: scroll;
-    max-height: 100%;
-}
-
-.currency-container {
-    padding-top: 3em;
-    justify-content: start;
-    text-align: center;
-    place-items: center;
-}
-
-.faction-container {
-    padding-top: 3em;
-    justify-content: start;
-    text-align: center;
-    place-items: center;
-    grid-column: 1;
-}
-
-.profile-role {
-    color: var(--text-600);
+.users-container td {
+    cursor: pointer;
 }

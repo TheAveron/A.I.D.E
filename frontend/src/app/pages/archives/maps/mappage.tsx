@@ -12,7 +12,6 @@ import ServerPage from "../server";
 
 function Map() {
     const { page } = useParams();
-    console.log(page);
 
     return ServerPage(page ?? "");
 }

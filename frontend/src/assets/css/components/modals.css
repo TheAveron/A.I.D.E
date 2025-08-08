@@ -14,10 +14,10 @@
 .modal {
     background-color: var(--background);
     border: 2px solid var(--background-200);
-    padding: 6vh 4vw;
+    padding: 5vh 5vw;
     padding-bottom: 10vh;
     border-radius: 10px;
-    max-width: 50vw;
+    max-width: 60vw;
     width: 100%;
 }
 
@@ -32,7 +32,6 @@
 .modal-buttons {
     display: flex;
     gap: 10px;
-    margin-top: 5vh;
 }
 
 .modal-container form {
@@ -40,4 +39,8 @@
     width: 100%;
     padding: 0;
     align-items: normal;
+}
+
+.modal .field-head {
+    font-size: 1.5em;
 }

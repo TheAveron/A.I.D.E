@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 
-import "../../assets/css/components/section.css";
-import "../../assets/css/components/buttons.css";
-
 function toggleLayout(isColumn: boolean) {
     const mapTitle = document.getElementById("map-title");
     if (isColumn) {

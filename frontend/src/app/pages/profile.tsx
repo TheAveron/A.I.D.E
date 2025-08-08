@@ -1,10 +1,7 @@
-import Profile from "../components/profile";
-import FactionList from "../components/factionlist";
-
 import { useMe } from "../components/hooks/me";
 
-import "../../assets/css/components/container.css";
-import "../../assets/css/components/snippets.css";
+import Profile from "../components/profile";
+import OfferList from "../components/offerslist";
 
 function ProfileComponent() {
     const { user, loading, error } = useMe();
@@ -12,9 +9,9 @@ function ProfileComponent() {
     return !error ? (
         !loading ? (
             user ? (
-                <div className="information-container">
+                <div className="information-container user-page">
                     <Profile value={user} />
-                    <FactionList />{" "}
+                    <OfferList userId={user.user_id.toString()} />
                 </div>
             ) : (
                 <div

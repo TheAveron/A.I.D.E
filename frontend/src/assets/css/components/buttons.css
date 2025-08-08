@@ -28,10 +28,10 @@
 }
 
 .button p {
-    color: inherit;
     font-weight: 500;
     font-size: large;
     margin: 0;
+    color: var(--button-text);
 }
 
 .button svg {

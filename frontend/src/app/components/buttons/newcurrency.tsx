@@ -1,8 +1,5 @@
 import { useNewCurrency } from "../hooks/factioncurrency";
 
-import "../../../assets/css/components/modals.css";
-import "../../../assets/css/components/buttons.css";
-
 export function NewCurrency() {
     const { form, loading, message, onSubmit, isOpen, setIsOpen } =
         useNewCurrency();

@@ -6,9 +6,6 @@ import rehypeSlug from "rehype-slug";
 
 import { GoBackButton } from "../../../components/buttons/return";
 
-import "../../../../assets/css/components/buttons.css";
-import "../../../../assets/css/components/section.css";
-
 type PageLoader = {
     page: string;
     server: string;
