@@ -30,13 +30,11 @@ class OfferHistory(Base):
 
     history_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
-    # Related offer
     offer_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("offers.offer_id"), nullable=False, index=True
     )
     offer = relationship("Offer", back_populates="history", foreign_keys=[offer_id])
 
-    # Actor (user or faction)
     actor_user_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("users.user_id"), nullable=True, index=True
     )
@@ -47,15 +45,12 @@ class OfferHistory(Base):
     )
     actor_faction = relationship("Faction", foreign_keys=[actor_faction_id])
 
-    # Action taken
     action: Mapped[OfferAction] = mapped_column(offer_action_enum, nullable=False)
 
-    # When it happened
     timestamp: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )
 
-    # Optional notes
     notes: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     def __repr__(self) -> str:

@@ -12,11 +12,11 @@ if not SECRET_KEY:
 
 ENV = os.getenv("ENV", "development")
 
-# Example of CORS origins based on environment
-if ENV == "production":
-    ORIGINS = ["https://example.com"]  # production frontend URL
-else:
+if ENV == "developpement":
     ORIGINS = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ]
+
+else:
+    ORIGINS = []

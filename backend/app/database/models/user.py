@@ -39,17 +39,15 @@ class User(Base):
     )
     role = relationship("Role", back_populates="users")
 
-    # Offers created by this user
     offers = relationship(
         "Offer",
-        back_populates="user",  # must match Offer.user relationship name
+        back_populates="user",
         foreign_keys="[Offer.user_id]",
     )
 
-    # Offers accepted by this user
     accepted_offers = relationship(
         "Offer",
-        back_populates="accepted_by_user_obj",  # must match Offer relationship name
+        back_populates="accepted_by_user_obj",
         foreign_keys="[Offer.accepted_by_user_id]",
     )
 

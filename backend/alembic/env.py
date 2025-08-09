@@ -8,9 +8,8 @@ from alembic import context
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 
-from app.database.database import Base  # Your SQLAlchemy Base and engine
-from app.database.database import engine
-from app.database.models import *  # Import all models so Alembic can detect them
+from app.database.database import Base, engine
+from app.database.models import *
 
 config = context.config
 

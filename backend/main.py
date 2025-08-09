@@ -8,8 +8,8 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import (auth, currencies, documentation, faction, marketplace,
-                     offer, offer_history, role, transactions, user)
+from app.api import (auth, currencies, documentation, faction, offer,
+                     offer_history, role, transactions, user)
 from app.core.logger import setup_logger
 from app.core.settings import ORIGINS
 
@@ -92,7 +92,6 @@ async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
-# Include routers
 app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(faction.router)
@@ -101,7 +100,6 @@ app.include_router(currencies.router)
 app.include_router(offer.router)
 app.include_router(offer_history.router)
 app.include_router(transactions.router)
-app.include_router(marketplace.router)
 app.include_router(documentation.router)
 
 

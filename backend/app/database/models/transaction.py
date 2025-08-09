@@ -25,7 +25,6 @@ class Transaction(Base):
 
     transaction_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
-    # Related offer
     offer_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("offers.offer_id"), nullable=False, index=True
     )
@@ -33,7 +32,6 @@ class Transaction(Base):
         "Offer", back_populates="transactions", foreign_keys=[offer_id]
     )
 
-    # Buyer (user or faction)
     buyer_user_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("users.user_id"), nullable=True, index=True
     )
@@ -44,17 +42,13 @@ class Transaction(Base):
     )
     buyer_faction = relationship("Faction", foreign_keys=[buyer_faction_id])
 
-    # Transaction details
     amount: Mapped[float] = mapped_column(
         Numeric(precision=18, scale=2), nullable=False
     )
 
-    # Currency snapshot at time of transaction
     currency_name: Mapped[str] = mapped_column(
         String(50), ForeignKey("currencies.name"), nullable=False
     )
-
-    # When transaction occurred
     timestamp: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )

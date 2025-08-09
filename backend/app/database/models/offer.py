@@ -30,7 +30,6 @@ class Offer(Base):
 
     offer_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
-    # Creator (either user or faction)
     user_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("users.user_id"), nullable=True, index=True
     )
@@ -43,7 +42,6 @@ class Offer(Base):
         "Faction", back_populates="offers", foreign_keys=[faction_id]
     )
 
-    # What is being offered/requested
     offer_type: Mapped[OfferType] = mapped_column(
         offer_type_enum,
         nullable=False,
@@ -51,7 +49,6 @@ class Offer(Base):
     )
     item_description: Mapped[str] = mapped_column(String, nullable=False)
 
-    # Price
     currency_name: Mapped[str] = mapped_column(
         String(50), ForeignKey("currencies.name"), nullable=False, index=True
     )
@@ -61,12 +58,8 @@ class Offer(Base):
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     init_quantity: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    # Optional restrictions
-    allowed_parties: Mapped[Optional[list[int]]] = mapped_column(
-        JSON, nullable=True
-    )  # List of user/faction IDs
+    allowed_parties: Mapped[Optional[list[int]]] = mapped_column(JSON, nullable=True)
 
-    # State & metadata
     status: Mapped[OfferStatus] = mapped_column(
         offer_status_enum,
         default=OfferStatus.OPEN,
@@ -80,7 +73,6 @@ class Offer(Base):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
 
-    # Who accepted the offer (optional)
     accepted_by_user_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("users.user_id"), nullable=True, index=True
     )
@@ -99,7 +91,6 @@ class Offer(Base):
         foreign_keys=[accepted_by_faction_id],
     )
 
-    # Transaction
     transactions = relationship(
         "Transaction",
         back_populates="offer",
@@ -107,7 +98,6 @@ class Offer(Base):
         foreign_keys="[Transaction.offer_id]",
     )
 
-    # History
     history = relationship(
         "OfferHistory", back_populates="offer", cascade="all, delete-orphan"
     )

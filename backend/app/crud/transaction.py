@@ -25,14 +25,12 @@ def create_transaction(
     transaction = Transaction(**transaction_in.dict(), timestamp=datetime.utcnow())
     db.add(transaction)
 
-    # Close offer automatically after transaction
     offer.status = OfferStatus.CLOSED
     offer.updated_at = datetime.utcnow()
 
     db.commit()
     db.refresh(transaction)
 
-    # Log acceptance in history
     create_offer_history(
         db=db,
         offer_id=offer.offer_id,

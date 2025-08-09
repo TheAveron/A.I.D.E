@@ -39,7 +39,6 @@ def load_db_config(filename=None, section="postgresql") -> dict:
 # SQLALCHEMY SETUP (ORM)
 # ---------------------------------------------------------------------
 
-# Load config and construct connection URL
 _db_params = load_db_config()
 SQLALCHEMY_DATABASE_URL = (
     f"postgresql://{_db_params['user']}:{_db_params['password']}"

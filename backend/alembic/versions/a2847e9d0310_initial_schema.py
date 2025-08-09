@@ -14,7 +14,6 @@ from sqlalchemy.dialects import postgresql
 
 from alembic import op
 
-# revision identifiers, used by Alembic.
 revision: str = "a2847e9d0310"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
@@ -46,7 +45,6 @@ class OfferActionEnum(str, Enum):
 
 
 def upgrade():
-    # Create ENUM types
     offer_type_enum = postgresql.ENUM(
         *[e.value for e in OfferTypeEnum], name="offer_type_enum"
     )
@@ -62,7 +60,6 @@ def upgrade():
     )
     # offer_action_enum.create(op.get_bind(), checkfirst=True)
 
-    # Create factions table
     op.create_table(
         "factions",
         sa.Column("faction_id", sa.Integer, primary_key=True),
@@ -77,7 +74,6 @@ def upgrade():
         ),
     )
 
-    # Create currencies table
     op.create_table(
         "currencies",
         sa.Column("name", sa.String(length=50), primary_key=True, index=True),
@@ -99,7 +95,6 @@ def upgrade():
         ),
     )
 
-    # Create roles table
     op.create_table(
         "roles",
         sa.Column("role_id", sa.Integer, primary_key=True),
@@ -127,7 +122,6 @@ def upgrade():
         sa.UniqueConstraint("faction_id", "name", name="uq_faction_role_name"),
     )
 
-    # Create users table
     op.create_table(
         "users",
         sa.Column("user_id", sa.Integer, primary_key=True),
@@ -151,7 +145,6 @@ def upgrade():
         sa.Index("ix_users_username_email", "username", "email"),
     )
 
-    # Create offers table
     op.create_table(
         "offers",
         sa.Column("offer_id", sa.Integer, primary_key=True, index=True),
@@ -212,7 +205,6 @@ def upgrade():
         sa.Index("ix_offers_status_type", "status", "offer_type"),
     )
 
-    # Create offer_history table
     op.create_table(
         "offer_history",
         sa.Column("history_id", sa.Integer, primary_key=True, index=True),
@@ -249,7 +241,6 @@ def upgrade():
         sa.Index("ix_offer_history_offer_id_timestamp", "offer_id", "timestamp"),
     )
 
-    # Create transactions table
     op.create_table(
         "transactions",
         sa.Column("transaction_id", sa.Integer, primary_key=True, index=True),
@@ -302,7 +293,6 @@ def downgrade():
     op.drop_table("currencies")
     op.drop_table("factions")
 
-    # Drop ENUM types
     offer_action_enum = postgresql.ENUM(name="offer_action_enum")
     offer_action_enum.drop(op.get_bind(), checkfirst=True)
 

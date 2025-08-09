@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field
 from ..misc import OfferStatus, OfferType
 
 
-# ----- BASE -----
 class OfferBase(BaseModel):
     offer_type: OfferType
     item_description: str
@@ -17,13 +16,11 @@ class OfferBase(BaseModel):
     allowed_parties: Optional[list[int]] = None
 
 
-# ----- CREATE -----
 class OfferCreate(OfferBase):
     user_id: Optional[int] = None
     faction_id: Optional[int] = None
 
 
-# ----- UPDATE -----
 class OfferUpdate(BaseModel):
     status: Optional[OfferStatus] = None
     price_per_unit: Optional[float] = None
@@ -31,7 +28,6 @@ class OfferUpdate(BaseModel):
     allowed_parties: Optional[list[int]] = None
 
 
-# ----- OUTPUT -----
 class OfferOut(OfferBase):
     offer_id: int
     user_id: Optional[int]

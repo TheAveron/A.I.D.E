@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from ..misc import OfferAction
 
 
-# ----- BASE -----
 class OfferHistoryBase(BaseModel):
     offer_id: int
     actor_user_id: Optional[int] = None
@@ -15,12 +14,10 @@ class OfferHistoryBase(BaseModel):
     notes: Optional[str] = None
 
 
-# ----- CREATE -----
 class OfferHistoryCreate(OfferHistoryBase):
     pass
 
 
-# ----- OUTPUT -----
 class OfferHistoryOut(OfferHistoryBase):
     history_id: int
     timestamp: datetime

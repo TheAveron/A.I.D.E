@@ -46,7 +46,6 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> Auth:
         role_id=role_id,
     )
 
-    # Create JWT token for immediate login
     token = create_access_token(data={"sub": user.username})
 
     return Auth(

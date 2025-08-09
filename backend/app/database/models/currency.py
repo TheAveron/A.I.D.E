@@ -18,9 +18,7 @@ class Currency(Base):
 
     faction_id: Mapped[Optional[int]] = mapped_column(
         Integer,
-        ForeignKey(
-            "factions.faction_id", ondelete="CASCADE"
-        ),  # Cascade delete at DB level
+        ForeignKey("factions.faction_id", ondelete="CASCADE"),
         nullable=True,
         index=True,
         unique=True,
@@ -47,7 +45,6 @@ class Currency(Base):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
 
-    # Relationships
     offers = relationship("Offer", back_populates="currency", passive_deletes=True)
 
     def __repr__(self) -> str:

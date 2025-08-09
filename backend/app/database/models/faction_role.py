@@ -24,7 +24,6 @@ class Role(Base):
 
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    # Permission flags as booleans (default to False)
     accept_offers: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     create_offers: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     manage_funds: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

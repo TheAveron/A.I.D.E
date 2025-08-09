@@ -4,7 +4,6 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-# ----- BASE -----
 class TransactionBase(BaseModel):
     offer_id: int
     buyer_user_id: Optional[int] = None
@@ -13,12 +12,10 @@ class TransactionBase(BaseModel):
     currency_name: str
 
 
-# ----- CREATE -----
 class TransactionCreate(TransactionBase):
     pass
 
 
-# ----- OUTPUT -----
 class TransactionOut(TransactionBase):
     transaction_id: int
     timestamp: datetime

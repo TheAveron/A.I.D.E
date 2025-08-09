@@ -23,7 +23,7 @@ class Faction(Base):
     currency = relationship(
         "Currency",
         back_populates="faction",
-        foreign_keys="[Currency.faction_id]",  # <-- Explicitly specify foreign key
+        foreign_keys="[Currency.faction_id]",
         uselist=False,
         cascade="all, delete-orphan",
     )

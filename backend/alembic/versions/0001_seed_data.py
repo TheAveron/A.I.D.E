@@ -14,7 +14,6 @@ from sqlalchemy.orm import Session
 
 from alembic import op
 
-# revision identifiers, used by Alembic.
 revision: str = "0001"
 down_revision: Union[str, Sequence[str], None] = "a2847e9d0310"
 branch_labels: Union[str, Sequence[str], None] = None
@@ -27,7 +26,6 @@ def upgrade():
 
     now = datetime.utcnow()
 
-    # Permissions match your model field names
     default_roles = [
         {
             "name": "Chef",
@@ -109,7 +107,6 @@ def upgrade():
         },
     ]
 
-    # 1. Insert faction
     faction_id = session.execute(
         sa.text(
             """
@@ -127,7 +124,6 @@ def upgrade():
         },
     ).scalar()
 
-    # 2. Insert roles
     chef_role_id = None
     for role in default_roles:
         role_id = session.execute(
@@ -167,7 +163,6 @@ def upgrade():
         if role["name"] == "Chef":
             chef_role_id = role_id
 
-    # 3. Insert admin user with Chef role
     hashed_pw = "$2b$12$WnEoMQQ9GtC7nLR9FsYWYeyu7NjY3XPER4pQ4tkJWOwbLYw8Y9/12"
 
     session.execute(

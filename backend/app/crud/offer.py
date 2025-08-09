@@ -51,7 +51,6 @@ def create_offer(db: Session, offer_in: OfferCreate) -> Offer:
             detail="Invalid offer: check constraints violated.",
         )
 
-    # Log creation
     create_offer_history(
         db=db,
         offer_id=offer.offer_id,
@@ -64,7 +63,6 @@ def create_offer(db: Session, offer_in: OfferCreate) -> Offer:
     return offer
 
 
-# ----- UPDATE -----
 def update_offer(
     db: Session,
     offer_id: int,
@@ -85,7 +83,6 @@ def update_offer(
         db.commit()
         db.refresh(offer)
 
-        # Log update
         create_offer_history(
             db=db,
             offer_id=offer.offer_id,
@@ -112,20 +109,18 @@ def get_offer_history(db: Session, offer_id: int):
 
 
 def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferAccept):
-    # --- Fetch offer ---
+
     offer = db.query(Offer).filter(Offer.offer_id == offer_id).first()
 
     if not offer:
         raise HTTPException(status_code=404, detail="Offer not found")
 
-    # --- Check if offer is open ---
     if offer.status != OfferStatus.OPEN:
         raise HTTPException(status_code=400, detail="Offer is not available")
 
     buyer_identity = {}
     buyer = ""
 
-    # --- Validate buyer_user_id ---
     if request.buyer_user_id:
         if offer.user_id == current_user.user_id:
             print("You can't accept your own offer")
@@ -135,7 +130,6 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
         buyer_identity = {"buyer_user_id": current_user.user_id}
         buyer = current_user.username
 
-    # --- Validate buyer_faction_id ---
     elif request.buyer_faction_id:
         if not current_user.faction_id:
             raise HTTPException(status_code=403, detail="You don't belong to a faction")
@@ -146,7 +140,6 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
                 status_code=403, detail="You can't accept your own faction's offer"
             )
 
-        # Check faction permission
         role = db.query(Role).filter(Role.role_id == current_user.role_id).first()
         if not role or not role.accept_offers:
             raise HTTPException(
@@ -170,7 +163,6 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
             detail="One of 'buyer_user_id' or 'buyer_faction_id' must be provided",
         )
 
-    # --- Handle quantity ---
     if request.quantity is None:
         request.quantity = offer.quantity
 
@@ -179,7 +171,6 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
             status_code=400, detail="Not enough quantity available for this offer"
         )
 
-    # --- Create transaction ---
     transaction = Transaction(
         offer_id=offer.offer_id,
         amount=request.quantity * offer.price_per_unit,
@@ -189,14 +180,12 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
     )
     db.add(transaction)
 
-    # --- Update offer ---
     offer.quantity -= request.quantity
     if offer.quantity <= 0:
         offer.status = OfferStatus.CLOSED
         offer.accepted_by_user_id = buyer_identity.get("buyer_user_id")
         offer.accepted_by_faction_id = buyer_identity.get("buyer_faction_id")
 
-    # --- Log history ---
     create_offer_history(
         db,
         offer.offer_id,
