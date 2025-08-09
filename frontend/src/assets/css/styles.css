@@ -27,7 +27,5 @@
 
 /* page-specific */
 @import "./pages/login.css";
-@import "./pages/register.css";
-@import "./pages/user-page.css";
 @import "./pages/404.css";
 @import "./pages/map-page.css";

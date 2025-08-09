@@ -72,3 +72,21 @@
     --accent-100: #082a2b;
     --accent-50: #041516;
 }
+
+:root[data-theme="light"] input,
+:root[data-theme="light"] td,
+:root[data-theme="light"] select,
+:root[data-theme="light"] .user-container,
+:root[data-theme="light"] .transactions-container {
+    background-color: var(--background);
+}
+
+:root[data-theme="light"] tr:hover td,
+:root[data-theme="light"] a:hover td {
+    background-color: var(--accent-800);
+}
+
+:root[data-theme="light"] .transactions-container td,
+:root[data-theme="light"] .info-row {
+    background-color: var(--text-100);
+}

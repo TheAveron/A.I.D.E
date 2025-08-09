@@ -149,7 +149,7 @@ export default function TransactionsTable({
                                 ) : (
                                     <tr>
                                         <td colSpan={5}>
-                                            Aucune Transaction trouvé.
+                                            Aucune Transaction trouvée.
                                         </td>
                                     </tr>
                                 )

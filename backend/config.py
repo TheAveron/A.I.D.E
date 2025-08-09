@@ -1,14 +1,8 @@
-from app.database.database import Base, engine
-from app.database.models import (
-    Currency,
-    Faction,
-    Offer,
-    OfferHistory,
-    Role,
-    Transaction,
-    User,
-)
 from sqlalchemy_utils import create_database, database_exists
+
+from app.database.database import Base, engine
+from app.database.models import (Currency, Faction, Offer, OfferHistory, Role,
+                                 Transaction, User)
 
 
 def create_tables():

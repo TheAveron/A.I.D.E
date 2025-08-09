@@ -31,6 +31,13 @@ export interface OfferType extends OfferCreateData {
     created_at: string;
     updated_at: string;
 }
+export interface OfferCreate {
+    offer_type: OfferTypeLiteral;
+    item_description: string;
+    currency_name: string;
+    price_per_unit: number;
+    quantity: number;
+}
 
 export interface OfferAcceptPayload {
     buyer_user_id?: number | null;
@@ -53,7 +60,7 @@ export interface OffersHook extends HookResult {
 }
 
 export interface OfferFormHook extends HookForm {
-    form: UseFormReturn<OfferBase, any, OfferBase>;
+    form: UseFormReturn<OfferCreate, any, OfferCreate>;
     forFaction: boolean;
     setForFaction: React.Dispatch<React.SetStateAction<boolean>>;
 }

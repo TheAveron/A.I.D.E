@@ -9,7 +9,7 @@ import { useAuth } from "../../utils/authprovider";
 import { useMe } from "./me";
 
 import type {
-    OfferBase as OfferForm,
+    OfferCreate as OfferForm,
     OffersHook,
     OfferType,
     OfferCreateData,
@@ -145,6 +145,7 @@ export function useNewOffer(): OfferFormHook {
                 allowed_parties: null,
                 user_id: forFaction ? null : user.user_id,
                 faction_id: forFaction ? user.faction_id : null,
+                init_quantity: data.quantity,
             };
 
             const res = await axios.post(

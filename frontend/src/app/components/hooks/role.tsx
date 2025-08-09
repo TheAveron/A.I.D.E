@@ -41,27 +41,32 @@ interface UpdateUserPayload {
     role_id?: string | null;
 }
 
-interface UseUpdateUserRoleFactionHook {
+interface UseUpdateUserHook {
     updateUser: (
-        userId: number,
+        userId: number | null,
         data: UpdateUserPayload
     ) => Promise<UserType | null>;
     loading: boolean;
     error: string | null;
 }
 
-export function useUpdateUserRole(): UseUpdateUserRoleFactionHook {
+export function useUpdateUser(): UseUpdateUserHook {
     const { token } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const updateUser = useCallback(
         async (
-            userId: number,
+            userId: number | null,
             data: UpdateUserPayload
         ): Promise<UserType | null> => {
             if (!token) {
                 setError("No authentication token");
+                return null;
+            }
+
+            if (!userId) {
+                setError("No User Id provided");
                 return null;
             }
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { useRoles } from "../hooks/factionroles";
-import { useUpdateUserRole } from "../hooks/role";
+import { useUpdateUser } from "../hooks/role";
 
 interface UpdateRoleProps {
     userId: number;
@@ -20,7 +20,7 @@ export function UpdateRole({
         factionId?.toString() ?? null
     );
 
-    const { updateUser } = useUpdateUserRole();
+    const { updateUser } = useUpdateUser();
 
     const [isOpen, setIsOpen] = useState(false);
     const [selectedRole, setSelectedRole] = useState<string>(

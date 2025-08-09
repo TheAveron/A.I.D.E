@@ -2,6 +2,7 @@ import { useMe } from "../components/hooks/me";
 
 import Profile from "../components/profile";
 import OfferList from "../components/offerslist";
+import TransactionsTable from "../components/snippets/transaction_table";
 
 function ProfileComponent() {
     const { user, loading, error } = useMe();
@@ -11,6 +12,8 @@ function ProfileComponent() {
             user ? (
                 <div className="information-container user-page">
                     <Profile value={user} />
+
+                    <TransactionsTable userId={user?.user_id.toString()} />
                     <OfferList userId={user.user_id.toString()} />
                 </div>
             ) : (

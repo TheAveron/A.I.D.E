@@ -18,8 +18,8 @@
 }
 
 .approved {
-    background-color: var(--primary-200);
-    color: var(--primary-950);
+    color: var(--primary-50);
+    background: var(--primary-900);
 }
 
 .not-approved {

@@ -37,7 +37,7 @@ export default function FactionTable({
                         <th>Description</th>
                         <th>Nombre de membres</th>
                         <th>Monnaie</th>
-                        <th>Validation</th>
+                        <th>Satut</th>
                         {role?.name != "Chef" ? <th>Action</th> : <></>}
                     </tr>
                 </thead>
@@ -87,18 +87,23 @@ export default function FactionTable({
                                             </td>
 
                                             {role?.name != "Chef" ? (
-                                                <td>
-                                                    <div
-                                                        className="button"
-                                                        style={{
-                                                            maxWidth:
-                                                                "fit-content",
-                                                            margin: "auto",
-                                                        }}
-                                                    >
-                                                        Rejoindre
-                                                    </div>
-                                                </td>
+                                                role?.faction_id !=
+                                                faction.faction_id ? (
+                                                    <td>
+                                                        <div
+                                                            className="button"
+                                                            style={{
+                                                                maxWidth:
+                                                                    "fit-content",
+                                                                margin: "auto",
+                                                            }}
+                                                        >
+                                                            Rejoindre
+                                                        </div>
+                                                    </td>
+                                                ) : (
+                                                    <td></td>
+                                                )
                                             ) : (
                                                 <></>
                                             )}

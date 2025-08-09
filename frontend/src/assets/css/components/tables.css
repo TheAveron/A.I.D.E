@@ -76,3 +76,9 @@ a:hover td .not-approved {
     color: #fbeaea;
     background: #b91c1c;
 }
+
+tr:hover td .approved,
+a:hover td .approved {
+    background: var(--primary-200);
+    color: var(--primary-900);
+}
