@@ -1,5 +1,4 @@
 import os
-import sqlite3
 import sys
 
 import pytest
@@ -10,9 +9,9 @@ from sqlalchemy.orm import sessionmaker
 print("CWD:", os.getcwd())
 print("sys.path:", sys.path)
 
-from backend.app.database.database import Base, get_db
-from backend.app.database.models import user as user_models
-from backend.app.main import app
+from app.database.database import Base, get_db
+from app.database.models import user as user_models
+from main import app
 
 # --- Setup test database (in-memory SQLite) ---
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"

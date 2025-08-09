@@ -6,9 +6,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from backend.app.crud.faction import get_faction
-from backend.app.crud.user import get_user_by_id
-
+from ..crud import get_faction
 from ..database import Offer, OfferHistory, Role, Transaction, User
 from ..misc import OfferAction, OfferStatus
 from ..schemas import OfferAccept, OfferCreate, OfferUpdate

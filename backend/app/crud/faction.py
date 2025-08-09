@@ -5,9 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from backend.app.crud.documents import normalize
-from backend.app.crud.faction_role import create_default_faction_roles
-
+from ..crud import create_default_faction_roles, normalize
 from ..database import Faction, User
 from ..schemas import FactionCreate, FactionUpdate
 

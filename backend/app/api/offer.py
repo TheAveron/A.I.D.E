@@ -3,13 +3,12 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from backend.app.schemas.offer import OfferAcceptOut
-
 from ..core import get_current_user
 from ..crud import offer as offer_crud
 from ..database import get_db
 from ..misc import OfferStatus
-from ..schemas import OfferAccept, OfferCreate, OfferOut, OfferUpdate
+from ..schemas import (OfferAccept, OfferAcceptOut, OfferCreate, OfferOut,
+                       OfferUpdate)
 
 router = APIRouter(prefix="/offers", tags=["Offers"])
 

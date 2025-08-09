@@ -1,17 +1,21 @@
+import os
 import time
 from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
-from .api import (auth, currencies, documentation, faction, marketplace, offer,
-                  offer_history, role, transactions, user)
-from .core.logger import setup_logger
+from app.api import (auth, currencies, documentation, faction, marketplace,
+                     offer, offer_history, role, transactions, user)
+from app.core.logger import setup_logger
+from app.core.settings import ORIGINS
 
 app = FastAPI(
     title="A.I.D.E API",
+    root_path="/A.I.D.E",
     description="API for the A.I.D.E game system",
     version="1.0.0",
     openapi_tags=[
@@ -23,7 +27,7 @@ app = FastAPI(
 # CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -101,6 +105,16 @@ app.include_router(marketplace.router)
 app.include_router(documentation.router)
 
 
+frontend_dist_path = Path(__file__).parent.parent / "frontend" / "build"
+
+app.mount(
+    "/assets",
+    StaticFiles(directory=frontend_dist_path / "client" / "assets"),
+    name="assets",
+)
+
+
 @app.get("/")
-def root():
-    return {"message": "A.I.D.E backend is running"}
+async def root():
+    index_path = frontend_dist_path / "client" / "index.html"
+    return FileResponse(index_path)

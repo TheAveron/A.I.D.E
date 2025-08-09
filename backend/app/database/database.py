@@ -7,7 +7,6 @@ for ORM operations and dependency injection.
 """
 
 import configparser
-from ast import parse
 from pathlib import Path
 
 from sqlalchemy import create_engine

@@ -2,8 +2,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from backend.app.crud.user import update_user_faction_and_role
-
+from ..crud import update_user_faction_and_role
 from ..database import Role
 from ..misc import FactionPermission
 from ..schemas import RoleCreate, RoleUpdate

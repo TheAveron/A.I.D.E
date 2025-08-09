@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.database import Base, get_db
-from app.main import app
+from main import app
 
 # Use PostgreSQL for testing to match production
 POSTGRES_TEST_URL = os.getenv(
