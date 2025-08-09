@@ -1,0 +1,24 @@
+section {
+    width: 70vw;
+    min-height: calc(100vh - 2 * calc(var(--header-height) + 10vh));
+    align-content: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    row-gap: 2em;
+    margin: auto;
+    align-items: center;
+}
+
+.text-section {
+    min-height: calc(100vh - calc(var(--header-height) + 10vh));
+    max-width: 60vw;
+    align-items: start;
+}
+
+@media only screen and (max-height: 1000px) {
+    section {
+        padding: 5vh;
+        min-height: calc(100vh - calc(var(--header-height) + 20vh));
+    }
+}

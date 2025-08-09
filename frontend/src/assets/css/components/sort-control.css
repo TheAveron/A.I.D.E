@@ -1,0 +1,21 @@
+.sort-controls {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+
+.sort-controls button {
+    padding: 0.5em 1em;
+    font-size: 1em;
+    background-color: var(--secondary);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    color: var(--button-text);
+}
+
+.sort-controls button:hover {
+    background-color: var(--primary);
+    border: 1px solid var(--accent);
+}

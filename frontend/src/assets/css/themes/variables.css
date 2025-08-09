@@ -1,0 +1,16 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wdth,wght@0,75..100,100..900;1,75..100,100..900&display=swap");
+
+:root {
+    font-family: "Roboto", sans-serif;
+    color: var(--text);
+    background-color: var(--background-50);
+    text-rendering: optimizeLegibility;
+    scrollbar-width: thin;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    line-height: 1.5;
+    --header-height: max(calc(100px + 4vh + 0.003mm), calc(8vh + 0.003mm));
+
+    --masklight04: rgba(255, 255, 255, 0.4);
+    --button-text: #4d4d4d;
+}

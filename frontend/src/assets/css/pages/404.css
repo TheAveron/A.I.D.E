@@ -1,0 +1,16 @@
+#error p {
+    font-size: x-large;
+    font-weight: 700;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+}
+
+#error .button p {
+    all: unset; /* removes inherited styles */
+}
+
+#error #previous {
+    position: relative;
+    left: 0;
+    top: 0;
+}

@@ -1,0 +1,29 @@
+#login,
+#register {
+    min-height: calc(100vh - 2 * var(--header-height));
+    width: 50vw;
+    align-items: center;
+    font-size: 1em;
+}
+
+#login form,
+#register form {
+    width: 100%;
+    height: 100%;
+}
+
+#login form,
+#register form {
+    gap: 1em;
+}
+
+#login .container,
+#register .container {
+    width: 100%;
+    height: 100%;
+    gap: 1em;
+}
+
+label b {
+    font-size: 1.5em;
+}
