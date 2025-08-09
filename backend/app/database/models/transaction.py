@@ -1,8 +1,15 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (CheckConstraint, DateTime, ForeignKey, Index, Integer,
-                        Numeric, String)
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base

@@ -61,6 +61,9 @@ def remove_offer(offer_id: int, db: Session = Depends(get_db)):
     return
 
 
+@router.get("/{offer_id}/history", response_model=List[OfferHistoryOut])
+def read_offer_history(
+
 @router.post(
     "/accept/{offer_id}",
     response_model=OfferAcceptOut,

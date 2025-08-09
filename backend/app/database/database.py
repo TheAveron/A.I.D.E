@@ -9,8 +9,9 @@ for ORM operations and dependency injection.
 import configparser
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm.session import Session
 
 # ---------------------------------------------------------------------
 # CONFIGURATION
