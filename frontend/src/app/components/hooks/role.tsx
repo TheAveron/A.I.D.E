@@ -21,7 +21,7 @@ export function useRole(role_id: number | null): RoleHook {
             try {
                 setLoading(true);
                 const res = await axios.get<RoleType>(
-                    `http://127.0.0.1:8000/roles/detail/${role_id}`
+                    `../roles/detail/${role_id}`
                 );
                 setRole(res.data);
             } catch (error) {
@@ -75,7 +75,7 @@ export function useUpdateUser(): UseUpdateUserHook {
                 setError(null);
 
                 const res = await axios.patch<UserType>(
-                    `http://127.0.0.1:8000/users/update/${userId}`,
+                    `../users/update/${userId}`,
                     {
                         faction_id: data.faction_id ?? null,
                         role_id: data.role_id ?? null,

@@ -46,7 +46,7 @@ export function useOfferHistoriesByActor({
                 setLoading(true);
 
                 const res = await axios.get<OfferHistoryType[]>(
-                    `http://127.0.0.1:8000/history?${query}`
+                    `../history?${query}`
                 );
 
                 setOfferHistories(res.data);

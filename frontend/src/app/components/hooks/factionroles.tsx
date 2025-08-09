@@ -19,7 +19,7 @@ export function useRoles(faction_id: string | null): RolesHook {
             try {
                 setLoading(true);
                 const res = await axios.get<RoleType[]>(
-                    `http://127.0.0.1:8000/roles/faction/${faction_id}`
+                    `../roles/faction/${faction_id}`
                 );
                 setRoles(res.data);
             } catch (error) {

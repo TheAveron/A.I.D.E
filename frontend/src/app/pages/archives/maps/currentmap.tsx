@@ -1,7 +1,7 @@
 import ServerPage from "../server";
 
 function ActualMap() {
-    return ServerPage("OCube_crusader");
+    return ServerPage("AOS");
 }
 
 export default ActualMap;

@@ -42,7 +42,7 @@ def upgrade():
         },
         {
             "name": "Chef Adjoint",
-            "description": "Adjoint du chef, l'aide � administrer la faction",
+            "description": "Adjoint du chef, l'aide à administrer la faction",
             "permissions": {
                 "accept_offers": True,
                 "create_offers": True,
@@ -54,7 +54,7 @@ def upgrade():
             },
         },
         {
-            "name": "Tr�sorier",
+            "name": "Trésorier",
             "description": "G�re la monaie et les transactions.",
             "permissions": {
                 "accept_offers": False,
@@ -68,7 +68,7 @@ def upgrade():
         },
         {
             "name": "Marchand",
-            "description": "Peut cr�er et accepter des offres.",
+            "description": "Peut créer et accepter des offres.",
             "permissions": {
                 "accept_offers": True,
                 "create_offers": True,
@@ -93,7 +93,7 @@ def upgrade():
             },
         },
         {
-            "name": "Invit�",
+            "name": "Invité",
             "description": "Souhaite rejoindre la faction",
             "permissions": {
                 "accept_offers": False,
@@ -163,7 +163,7 @@ def upgrade():
         if role["name"] == "Chef":
             chef_role_id = role_id
 
-    hashed_pw = "$2b$12$WnEoMQQ9GtC7nLR9FsYWYeyu7NjY3XPER4pQ4tkJWOwbLYw8Y9/12"
+    hashed_pw = "$2b$12$j0sU5QXMCpzGHIiiobtIi.2KJIumjULReQK/sSYGeWXRsICZf/Vna"
 
     session.execute(
         sa.text(
@@ -190,6 +190,20 @@ def upgrade():
         },
     )
 
+    session.execute(
+        sa.text(
+            """INSERT INTO currencies (name, faction_id, symbol, total_in_circulation, created_at, updated_at) VALUES (:name, :faction_id, :symbol, :total_in_circulation, :created_at, :updated_at)"""
+        ),
+        params={
+            "name": "Diamant",
+            "faction_id": faction_id,
+            "symbol": "D",
+            "total_in_circulation": 0,
+            "created_at": now,
+            "updated_at": now,
+        },
+    )
+
     session.commit()
 
 
@@ -203,11 +217,14 @@ def downgrade():
     )
     session.execute(
         sa.text(
-            """DELETE FROM roles WHERE faction_id IN (SELECT faction_id FROM faction WHERE name = :name)"""
+            """DELETE FROM roles WHERE faction_id IN (SELECT faction_id FROM factions WHERE name = :name)"""
         ),
         {"name": "Sans Faction"},
     )
     session.execute(
         sa.text("""DELETE FROM factions WHERE name = :name"""), {"name": "Sans Faction"}
+    )
+    session.execute(
+        sa.text("""DELETE FROM currencices WHERE name = :name"""), {"name": "Diamant"}
     )
     session.commit()

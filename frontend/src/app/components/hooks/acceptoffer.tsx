@@ -25,7 +25,7 @@ export function useAcceptOffer() {
 
         try {
             const res = await axios.post<OfferResponse>(
-                `http://127.0.0.1:8000/offers/accept/${offerId}`,
+                `../offers/accept/${offerId}`,
                 payload,
                 {
                     headers: {

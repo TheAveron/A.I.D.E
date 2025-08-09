@@ -17,14 +17,11 @@ export function useMe(): UserHook {
         const fetchProfile = async () => {
             try {
                 setLoading(true);
-                const res = await axios.get<UserType>(
-                    "http://127.0.0.1:8000/users/me",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
+                const res = await axios.get<UserType>("../users/me", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
                 setUser(res.data);
             } catch (err: any) {
                 console.error("Error fetching me:", err);

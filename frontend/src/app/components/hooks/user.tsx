@@ -19,7 +19,7 @@ export function useUser(user_id: string | null): UserHook {
             try {
                 setLoading(true);
                 const res = await axios.get<UserType>(
-                    `http://127.0.0.1:8000/users/detail/${user_id}`
+                    `../users/detail/${user_id}`
                 );
                 setUser(res.data);
             } catch (error) {

@@ -8,8 +8,17 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import (auth, currencies, documentation, faction, offer,
-                     offer_history, role, transactions, user)
+from app.api import (
+    auth,
+    currencies,
+    documentation,
+    faction,
+    offer,
+    offer_history,
+    role,
+    transactions,
+    user,
+)
 from app.core.logger import setup_logger
 from app.core.settings import ORIGINS
 
@@ -111,8 +120,14 @@ app.mount(
     name="assets",
 )
 
+app.mount(
+    "/Maps",
+    StaticFiles(directory=frontend_dist_path / "client" / "Maps"),
+    name="maps",
+)
 
-@app.get("/")
+
+@app.get("/{full_path:path}")
 async def root():
     index_path = frontend_dist_path / "client" / "index.html"
     return FileResponse(index_path)

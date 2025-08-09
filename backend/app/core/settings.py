@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-env_path = Path(__file__).parent / "config" / ".env"
+env_path = Path(__file__).parent.parent / "config" / ".env"
 load_dotenv(env_path)
 
 SECRET_KEY = os.getenv("SECRET_KEY")

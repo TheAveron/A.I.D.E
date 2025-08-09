@@ -18,9 +18,7 @@ export function useFactions(): FactionsHook {
         const fetchFactions = async () => {
             try {
                 setLoading(true);
-                const res = await axios.get<FactionType[]>(
-                    "http://127.0.0.1:8000/factions/list"
-                );
+                const res = await axios.get<FactionType[]>("../factions/list");
                 setFactions(res.data);
             } catch (err: any) {
                 console.error("Error fetching factions:", err);

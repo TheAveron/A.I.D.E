@@ -27,7 +27,7 @@ export function useTransaction(transactionId: string | null): TransactionHook {
                 setLoading(true);
 
                 const res = await axios.get<TransactionType>(
-                    `http://127.0.0.1:8000/transactions/${transactionId}`
+                    `../transactions/${transactionId}`
                 );
 
                 setTransactions(res.data);
@@ -83,8 +83,9 @@ export function useTransactions({
                 setLoading(true);
 
                 const res = await axios.get<TransactionType[]>(
-                    `http://127.0.0.1:8000/transactions?${query}`
+                    `../transactions/?${query}`
                 );
+                console.log("e", transactions);
 
                 setTransactions(res.data);
             } catch (err) {

@@ -46,10 +46,7 @@ export function NewDocument() {
                     "Vous devez être connecté pour créer un document."
                 );
             }
-            const res = await axios.post(
-                "http://localhost:8000/documents/create",
-                data
-            );
+            const res = await axios.post("../documents/create", data);
 
             setMessage(`✅ Document "${res.data.title}" créé avec succès`);
             reset();

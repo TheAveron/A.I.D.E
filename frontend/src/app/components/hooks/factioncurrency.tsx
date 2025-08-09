@@ -46,7 +46,7 @@ export function useCurrency(faction_id: string | null): CurrencyHook {
             try {
                 setLoading(true);
                 const res = await axios.get<CurrencyType>(
-                    `http://127.0.0.1:8000/currencies/faction/${faction_id}`,
+                    `./currencies/faction/${faction_id}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -102,7 +102,7 @@ export function useNewCurrency(): CurrencyFormHook {
             };
 
             const res = await axios.post<CurrencyType>(
-                "http://localhost:8000/currencies/create",
+                "../currencies/create",
                 payload
             );
 

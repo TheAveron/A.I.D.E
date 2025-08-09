@@ -120,6 +120,8 @@ export default function TransactionsTable({
         offerId: offerId,
     });
 
+    console.log(transactions);
+
     return (
         <div className="snippet-container transactions-container">
             <div className="info-header">

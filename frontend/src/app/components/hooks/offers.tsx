@@ -57,7 +57,7 @@ export function useOffer(offer_id?: number): OfferHook {
 
             try {
                 const res = await axios.get<OfferType>(
-                    `http://127.0.0.1:8000/offers/detail/${offer_id}`
+                    `../offers/detail/${offer_id}`
                 );
 
                 setOffer(res.data);
@@ -97,7 +97,7 @@ export function useOffersList(currency?: string, status?: string): OffersHook {
 
             try {
                 const res = await axios.get<OfferType[]>(
-                    `http://127.0.0.1:8000/offers/list?${query}`
+                    `../offers/list?${query}`
                 );
                 setOffers(res.data);
             } catch (err: any) {
@@ -148,10 +148,7 @@ export function useNewOffer(): OfferFormHook {
                 init_quantity: data.quantity,
             };
 
-            const res = await axios.post(
-                "http://localhost:8000/offers/create",
-                payload
-            );
+            const res = await axios.post("../offers/create", payload);
 
             setMessage(
                 `✅ Offer "${res.data.item_description}" created successfully`
