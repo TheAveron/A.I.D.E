@@ -1,27 +1,28 @@
+from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class FactionBase(BaseModel):
-    name: str
+    name: str = Field(..., max_length=100)
     description: Optional[str] = None
-    currency_name: Optional[str] = None
-    currency_amount: Optional[int] = None
+    is_approved: bool = False
 
 
 class FactionCreate(FactionBase):
-    pass  # all fields optional except name which is required by base
+    pass
 
 
 class FactionOut(FactionBase):
-    id: int
-    is_validated: bool
-    created_by_user_id: int
+    faction_id: int
+    created_at: datetime
 
     class Config:
         from_attributes = True
 
 
-class FactionUpdate(FactionBase):
-    pass  # All optional for update
+class FactionUpdate(BaseModel):
+    name: Optional[str] = Field(None, max_length=100)
+    description: Optional[str] = None
+    is_approved: Optional[bool] = None

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
-from database import User
+from ..core.security import verify_password
+from ..database import User
 
 
 def get_user_by_username(db: Session, username: str):
@@ -8,7 +9,11 @@ def get_user_by_username(db: Session, username: str):
 
 
 def get_user_by_id(db: Session, user_id: int):
-    return db.query(User).filter(User.id == user_id).first()
+    return db.query(User).filter(User.user_id == user_id).first()
+
+
+def get_users_by_faction(db: Session, faction_id: int):
+    return db.query(User).filter(User.faction_id == faction_id).all()
 
 
 def create_user(
@@ -17,6 +22,7 @@ def create_user(
     hashed_password: str,
     faction_id: int | None = None,
     role_id: int | None = None,
+    admin: bool = False,
 ):
     user = User(
         username=username,
@@ -33,13 +39,13 @@ def create_user(
 def update_user_faction_and_role(
     db: Session, user_id: int, faction_id: int | None, role_id: int | None
 ):
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
         return None
     if faction_id is not None:
-        user.faction_id = faction_id  # type: ignore
+        user.faction_id = faction_id
     if role_id is not None:
-        user.role_id = role_id  # type: ignore
+        user.role_id = role_id
 
     db.commit()
     db.refresh(user)
@@ -51,7 +57,7 @@ def remove_user_faction_and_role(db: Session, user_id: int):
 
 
 def user_has_faction(db: Session, user_id: int) -> bool:
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.user_id == user_id).first()
     return bool(user and user.faction_id)
 
 
@@ -59,6 +65,6 @@ def authenticate_user(db: Session, username: str, password: str) -> User | None:
     user = db.query(User).filter(User.username == username).first()
     if not user:
         return None
-    if not verify_password(password, user.hashed_password):  # type: ignore
+    if not verify_password(password, user.hashed_password):
         return None
     return user

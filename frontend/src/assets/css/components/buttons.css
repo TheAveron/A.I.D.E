@@ -1,0 +1,50 @@
+.button {
+    padding: min(1.5vh, 10px) min(2vw, 30px);
+    background-color: var(--secondary);
+    color: var(--button-text);
+    border-radius: 0.4em;
+    text-decoration: none;
+    transition:
+        border-color 0.25s,
+        background-color 0.25s,
+        color 0.25s,
+        fill 0.25s;
+    border: solid 1px transparent;
+    max-width: fit-content;
+
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.6vw;
+    fill: var(--background);
+    margin-top: auto;
+    margin-bottom: auto;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: var(--primary);
+    border-color: var(--accent);
+    fill: var(--button-text);
+}
+
+.button p {
+    font-weight: 500;
+    font-size: large;
+    margin: 0;
+    color: var(--button-text);
+}
+
+.button svg {
+    fill: inherit;
+    vertical-align: middle;
+    width: 24px;
+    height: 24px;
+}
+
+#previous {
+    position: absolute;
+    left: 4vw;
+    top: var(--header-height);
+
+    transition: top 0.4s ease-out;
+}

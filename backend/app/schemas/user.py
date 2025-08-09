@@ -1,14 +1,17 @@
-from pydantic import BaseModel, EmailStr
+from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel
 
 
 class UserBase(BaseModel):
     username: str
-    email: EmailStr
     password: str
 
 
-class UserUpdate(UserBase):
-    pass
+class UserUpdate(BaseModel):
+    role_id: Optional[int] = None
+    faction_id: Optional[int] = None
 
 
 class UserLogin(UserBase):
@@ -20,9 +23,17 @@ class UserCreate(UserBase):
 
 
 class UserOut(BaseModel):
-    id: int
+    user_id: int
     username: str
     is_admin: bool
 
     class Config:
         from_attributes = True
+
+
+class UserFull(UserOut):
+    email: str | None
+    created_at: datetime
+
+    faction_id: int | None
+    role_id: int | None

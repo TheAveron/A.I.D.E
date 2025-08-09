@@ -1,42 +1,73 @@
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import (
-    Column,
-    DateTime,
-    Float,
-    ForeignKey,
-    Integer,
-    String,
     CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
 
 
 class Transaction(Base):
+    """
+    Represents a completed transaction resulting from an offer.
+    """
+
     __tablename__ = "transactions"
-
-    id = Column(Integer, primary_key=True, index=True)
-    offer_id = Column(Integer, ForeignKey("offers.id"), nullable=False)
-    buyer_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    buyer_faction_id = Column(Integer, ForeignKey("factions.id"), nullable=True)
-    amount = Column(Float, nullable=False)
-    currency = Column(String(50), nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow)
-
-    offer = relationship("Offer")
-    buyer = relationship("User", foreign_keys=[buyer_id])
-    buyer_faction = relationship("Faction", foreign_keys=[buyer_faction_id])
-    offer = relationship("Offer", back_populates="transactions")
-
     __table_args__ = (
         CheckConstraint(
-            "(buyer_id IS NOT NULL AND buyer_faction_id IS NULL) OR "
-            "(buyer_id IS NULL AND buyer_faction_id IS NOT NULL)",
-            name="check_one_buyer_type",
+            "(buyer_user_id IS NOT NULL AND buyer_faction_id IS NULL) OR "
+            "(buyer_user_id IS NULL AND buyer_faction_id IS NOT NULL)",
+            name="check_only_one_buyer",
         ),
+        Index("ix_transactions_offer_id_timestamp", "offer_id", "timestamp"),
     )
 
-    def __repr__(self):
-        return f"<Transaction(id={self.id}, offer_id={self.offer_id}, buyer_id={self.buyer_id}, amount={self.amount}, currency={self.currency}, timestamp={self.timestamp})>"
+    transaction_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+
+    offer_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("offers.offer_id"), nullable=False, index=True
+    )
+    offer = relationship(
+        "Offer", back_populates="transactions", foreign_keys=[offer_id]
+    )
+
+    buyer_user_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("users.user_id"), nullable=True, index=True
+    )
+    buyer_user = relationship("User", foreign_keys=[buyer_user_id])
+
+    buyer_faction_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("factions.faction_id"), nullable=True, index=True
+    )
+    buyer_faction = relationship("Faction", foreign_keys=[buyer_faction_id])
+
+    amount: Mapped[float] = mapped_column(
+        Numeric(precision=18, scale=2), nullable=False
+    )
+
+    currency_name: Mapped[str] = mapped_column(
+        String(50), ForeignKey("currencies.name"), nullable=False
+    )
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
+
+    def __repr__(self) -> str:
+        buyer = (
+            self.buyer_user.username
+            if self.buyer_user
+            else (self.buyer_faction.name if self.buyer_faction else "Unknown")
+        )
+        return (
+            f"<Transaction(id={self.transaction_id}, offer_id={self.offer_id}, "
+            f"buyer={buyer}, amount={self.amount} {self.currency_name}, "
+            f"timestamp={self.timestamp})>"
+        )

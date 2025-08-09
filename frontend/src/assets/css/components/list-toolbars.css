@@ -1,0 +1,27 @@
+/* Offers Toolbar */
+.toolbar {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+    height: fit-content;
+}
+
+.toolbar {
+    display: flex;
+    gap: 1vw;
+    margin-bottom: 2vh;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.toolbar input[type="text"] {
+    flex: 1;
+}
+
+.toolbar .button {
+    height: 100%;
+}

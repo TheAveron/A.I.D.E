@@ -1,0 +1,60 @@
+.info-header {
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    place-items: center;
+    place-content: center;
+    width: 100%;
+}
+
+.info-title {
+    font-size: 2.5em;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.info-values {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    height: fit-content;
+
+    margin-top: auto;
+    margin-bottom: auto;
+
+    place-items: center;
+    width: 100%;
+}
+
+.info-values table {
+    width: 100%;
+}
+
+.info-values a {
+    font-size: 1em;
+}
+
+.info-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 1vh 2vw;
+    border-radius: 6px;
+    width: 100%;
+
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.info-label {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.info-value-field {
+    color: var(--text-700);
+}
+
+.editable {
+    justify-content: space-between;
+}

@@ -40,20 +40,16 @@ def load_db_config(filename=None, section="postgresql") -> dict:
 # SQLALCHEMY SETUP (ORM)
 # ---------------------------------------------------------------------
 
-# Load config and construct connection URL
 _db_params = load_db_config()
 SQLALCHEMY_DATABASE_URL = (
     f"postgresql://{_db_params['user']}:{_db_params['password']}"
     f"@{_db_params['host']}:{_db_params['port']}/{_db_params['database']}"
 )
 
-# SQLAlchemy engine and session
-engine: Engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False, future=True)
-SessionLocal: sessionmaker[Session] = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine
-)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False)
 
-# Declarative base for models
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base = declarative_base()
 
 

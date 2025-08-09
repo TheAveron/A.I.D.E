@@ -1,0 +1,10 @@
+fastapi==0.116.1
+fastapi-cli==0.0.8
+fastapi-cloud-cli==0.1.5
+pydantic==2.11.7
+pydantic_core==2.33.2
+pytest==8.4.1
+SQLAlchemy==2.0.42
+SQLAlchemy-Utils==0.41.2
+PyJWT==2.10.1
+psycopg2==2.9.10
