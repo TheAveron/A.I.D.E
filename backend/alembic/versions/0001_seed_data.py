@@ -163,7 +163,7 @@ def upgrade():
         if role["name"] == "Chef":
             chef_role_id = role_id
 
-    hashed_pw = "$2b$12$j0sU5QXMCpzGHIiiobtIi.2KJIumjULReQK/sSYGeWXRsICZf/Vna"
+    hashed_pw = "$2b$12$rrvNkD76cBgK31QDWxdgguvnUf2jNExn1TGK6yR4dVKxkgltOb5mO"
 
     session.execute(
         sa.text(
