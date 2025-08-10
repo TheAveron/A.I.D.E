@@ -7,8 +7,7 @@ from ..core import get_current_user
 from ..crud import offer as offer_crud
 from ..database import get_db
 from ..misc import OfferStatus
-from ..schemas import (OfferAccept, OfferAcceptOut, OfferCreate, OfferOut,
-                       OfferUpdate)
+from ..schemas import OfferAccept, OfferAcceptOut, OfferCreate, OfferOut, OfferUpdate
 
 router = APIRouter(prefix="/offers", tags=["Offers"])
 
@@ -60,9 +59,6 @@ def remove_offer(offer_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Offer not found")
     return
 
-
-@router.get("/{offer_id}/history", response_model=List[OfferHistoryOut])
-def read_offer_history(
 
 @router.post(
     "/accept/{offer_id}",
