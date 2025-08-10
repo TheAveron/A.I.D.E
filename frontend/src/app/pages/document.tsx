@@ -44,7 +44,7 @@ export default function DocumentPage() {
 
         setContent("# Loading...");
         axios
-            .get<PageType>(`../documents/${server}/${faction}/${page}`)
+            .get<PageType>(`/documents/${server}/${faction}/${page}`)
             .then((res) => {
                 try {
                     setContent(res.data.content);

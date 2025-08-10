@@ -50,7 +50,7 @@ export function useLogin(): AuthLoginHook {
             setLoading(true);
             setMessage("");
 
-            const response = await axios.post<AuthType>("../auth/login", data);
+            const response = await axios.post<AuthType>("/auth/login", data);
 
             setToken?.(response.data.access_token);
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -105,7 +105,7 @@ export function useRegister(): AuthRegisterHook {
         };
 
         try {
-            const res = await axios.post<AuthType>("../auth/register", payload);
+            const res = await axios.post<AuthType>("/auth/register", payload);
 
             setToken?.(res.data.access_token);
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;

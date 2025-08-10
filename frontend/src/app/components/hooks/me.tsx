@@ -17,7 +17,7 @@ export function useMe(): UserHook {
         const fetchProfile = async () => {
             try {
                 setLoading(true);
-                const res = await axios.get<UserType>("../users/me", {
+                const res = await axios.get<UserType>("/users/me", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
