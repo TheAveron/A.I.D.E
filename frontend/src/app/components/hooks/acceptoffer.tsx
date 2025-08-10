@@ -25,7 +25,7 @@ export function useAcceptOffer() {
 
         try {
             const res = await axios.post<OfferResponse>(
-                `../offers/accept/${offerId}`,
+                `/offers/accept/${offerId}`,
                 payload,
                 {
                     headers: {

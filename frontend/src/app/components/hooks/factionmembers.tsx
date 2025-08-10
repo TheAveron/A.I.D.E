@@ -19,7 +19,7 @@ export function useMembers(faction_id: string | null): UsersHook {
             try {
                 setLoading(true);
                 const res = await axios.get<UserType[]>(
-                    `../users/faction/${faction_id}`
+                    `/users/faction/${faction_id}`
                 );
                 setUsers(res.data);
             } catch (error) {

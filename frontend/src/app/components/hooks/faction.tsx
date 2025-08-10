@@ -40,7 +40,7 @@ export function useFaction(faction_id: string | null): FactionHook {
             try {
                 setLoading(true);
                 const res = await axios.get<FactionType>(
-                    `../factions/detail/${faction_id}`
+                    `/factions/detail/${faction_id}`
                 );
                 setFaction(res.data);
             } catch (error) {
@@ -94,7 +94,7 @@ export function useNewFaction(): FactionFormHook {
             };
 
             const res = await axios.post<FactionType>(
-                "../factions/create",
+                "/factions/create",
                 payload
             );
 
