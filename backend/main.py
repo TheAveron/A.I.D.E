@@ -113,6 +113,7 @@ app.include_router(documentation.router)
 
 
 frontend_dist_path = Path(__file__).parent.parent / "frontend" / "build"
+maps_path = Path(__file__).parent / "Maps"
 
 app.mount(
     "/assets",
@@ -121,8 +122,8 @@ app.mount(
 )
 
 app.mount(
-    "/Maps",
-    StaticFiles(directory=frontend_dist_path / "client" / "Maps"),
+    "/maps",
+    StaticFiles(directory=maps_path),
     name="maps",
 )
 
