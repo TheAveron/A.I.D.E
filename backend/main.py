@@ -1,12 +1,14 @@
+from nis import maps
 import os
 import time
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import true
 
 from app.api import (
     auth,
@@ -109,22 +111,19 @@ app.include_router(currencies.router)
 app.include_router(offer.router)
 app.include_router(offer_history.router)
 app.include_router(transactions.router)
+
+
+maps_path = Path(__file__).parent / "documents" / "maps"
+app.mount("/maps", StaticFiles(directory=maps_path, html=True), name="maps")
+
 app.include_router(documentation.router)
 
-
 frontend_dist_path = Path(__file__).parent.parent / "frontend" / "build"
-maps_path = Path(__file__).parent / "Maps"
 
 app.mount(
     "/assets",
     StaticFiles(directory=frontend_dist_path / "client" / "assets"),
     name="assets",
-)
-
-app.mount(
-    "/maps",
-    StaticFiles(directory=maps_path),
-    name="maps",
 )
 
 
