@@ -26,7 +26,7 @@ app = FastAPI(
     title="A.I.D.E API",
     root_path="/A.I.D.E",
     description="API for the A.I.D.E game system",
-    version="1.0.1",
+    version="1.1.0",
     openapi_tags=[
         {"name": "Factions", "description": "Operations with factions"},
         {"name": "Offers", "description": "Market offer operations"},
