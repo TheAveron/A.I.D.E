@@ -75,7 +75,7 @@ function PageGenerator(page: string, render: boolean) {
             {showIframe && (
                 <iframe
                     title={`Map Viewer for ${page}`}
-                    src={`/A.I.D.E/Maps/${page}/index.html`}
+                    src={`/maps/${page}`}
                     style={{ width: "100%", height: "96vh", border: "none" }}
                 />
             )}

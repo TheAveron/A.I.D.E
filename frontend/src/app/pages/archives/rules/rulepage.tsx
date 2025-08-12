@@ -26,7 +26,7 @@ function Rule() {
 
     useEffect(() => {
         setContent("");
-        fetch(`/A.I.D.E/Rules/${server}/${type}/${page}.md`)
+        fetch(`/Rules/${server}/${type}/${page}.md`)
             .then(async (response) => {
                 if (!response.ok) throw new Error("Failed to load markdown");
                 const text = await response.text();
