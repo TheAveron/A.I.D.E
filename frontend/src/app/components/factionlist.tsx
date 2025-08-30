@@ -5,6 +5,7 @@ import { useAllMemberCounts } from "./snippets/member_count";
 import { useMe } from "./hooks/me";
 
 import FactionTable from "./snippets/factions_table";
+import { useFaction } from "./hooks/faction";
 
 type Props = {
     search: string;
@@ -49,6 +50,9 @@ function FactionToolbar({
 export default function FactionList() {
     const { factions, loading, error } = useFactions();
     const { user } = useMe();
+    const { faction: UserFaction } = useFaction(
+        user?.faction_id?.toString() ?? null
+    );
 
     const [search, setSearch] = useState("");
     const [sortKey, setSortKey] = useState("name");
@@ -61,13 +65,10 @@ export default function FactionList() {
     const filteredFactions = useMemo(() => {
         if (!factions) return [];
 
+        const term = (search ?? "").toLowerCase(); // ensures it's always a string
+
         return factions
-            .filter((f) =>
-                [f.name, f.description]
-                    .join(" ")
-                    .toLowerCase()
-                    .includes(search.toLowerCase())
-            )
+            .filter((f) => [f.name, f.description].join(" ").toLowerCase())
             .sort((a, b) => {
                 let comp = 0;
 
@@ -101,7 +102,9 @@ export default function FactionList() {
         <div className="snippet-container factions-container">
             <div className="factions-header">
                 <h2>Liste des factions</h2>
-                {!user?.faction_id && <NewFaction />}
+                {(!UserFaction || UserFaction?.name === "Sans Faction") && (
+                    <NewFaction />
+                )}
             </div>
 
             <FactionToolbar

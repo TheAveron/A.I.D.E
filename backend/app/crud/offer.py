@@ -37,7 +37,6 @@ def get_offers(
 def create_offer(db: Session, offer_in: OfferCreate) -> Offer:
     offer = Offer(
         **offer_in.dict(exclude_unset=True),
-        init_quantity=offer_in.quantity,
         status=OfferStatus.OPEN,
     )
     db.add(offer)

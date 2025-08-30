@@ -35,7 +35,7 @@ def create_faction(
         faction_crud.get_faction_by_user_id(db, user.user_id) if user else None
     )
 
-    if user_faction:
+    if user_faction and user_faction.name != "Sans Faction":
         raise HTTPException(status_code=400, detail="User already belongs to a faction")
 
     if faction_crud.get_faction_by_name(db, faction_data.name):
