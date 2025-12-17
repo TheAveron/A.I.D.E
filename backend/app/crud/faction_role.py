@@ -2,10 +2,10 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from .user import update_user_faction_and_role
 from ..database import Role
 from ..misc import FactionPermission
 from ..schemas import RoleCreate, RoleUpdate
+from .user import update_user_faction_and_role
 
 
 def create_role(db: Session, faction_id: int, role_in: RoleCreate) -> Role:
