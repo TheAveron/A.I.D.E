@@ -14,6 +14,7 @@ import type {
     FactionFormData,
 } from "../../types/factions";
 import type { FactionFormHook } from "../../types/factions";
+import { useUpdateUser } from "./role";
 
 const factionSchema = yup.object().shape({
     name: yup.string().required("Le nom de la faction est obligatoire"),
@@ -59,6 +60,11 @@ export function useFaction(faction_id: string | null): FactionHook {
 export function useNewFaction(): FactionFormHook {
     const { token } = useAuth();
     const { user, loading: userLoading, error: userError } = useMe();
+    const { faction: UserFaction } = useFaction(
+        user?.faction_id?.toString() || null
+    );
+
+    const { updateUser, loading: LoadingUpdate, error } = useUpdateUser();
 
     const [loading, setLoading] = useState<boolean>(false);
     const [message, setMessage] = useState<string>("");
@@ -80,8 +86,10 @@ export function useNewFaction(): FactionFormHook {
                 );
             }
 
-            if (user?.faction_id) {
+            if (UserFaction && UserFaction.name != "Sans Faction") {
                 throw new Error("Vous appartenez déjà à une faction.");
+            } else if (UserFaction && UserFaction.name == "Sans Faction") {
+                updateUser(user?.user_id || null, { faction_id: null });
             }
 
             if (userError) {
