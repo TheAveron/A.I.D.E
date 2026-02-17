@@ -28,7 +28,7 @@ function Header() {
                             Contribuer
                         </Link>
                         <Link className="link" to="/A.I.D.E/profile">
-                            Profile
+                            Profil
                         </Link>
                     </>
                 ) : (
@@ -41,7 +41,7 @@ function Header() {
                             id="signin"
                             to="/A.I.D.E/login"
                         >
-                            Connection
+                            Connexion
                         </Link>
                     </>
                 )}
