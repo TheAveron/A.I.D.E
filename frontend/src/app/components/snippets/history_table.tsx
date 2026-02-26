@@ -37,6 +37,8 @@ export default function HistoryTable({
         return sortedHistories.slice(start, start + HistoriesPerPage);
     }, [sortedHistories, page]);
 
+    console.log("ee", paginatedHistories);
+
     return (
         <div className="snippet-container history-container">
             <h2>Historique des offres</h2>
@@ -71,7 +73,9 @@ export default function HistoryTable({
                                                 />
                                             </td>
                                             <td>
-                                                {offer.action.toLowerCase()}
+                                                {(
+                                                    offer.action ?? ""
+                                                ).toLowerCase()}
                                             </td>
                                             <td>
                                                 {!offer.actor_faction_id ? (
@@ -103,7 +107,7 @@ export default function HistoryTable({
                                 ) : (
                                     <tr>
                                         <td colSpan={5}>
-                                            Aucun utilisateur trouvé.
+                                            Aucun historique trouvé.
                                         </td>
                                     </tr>
                                 )

@@ -7,10 +7,10 @@ function Home() {
                     Minecraft.
                 </h3>
                 <p>
-                    Vous pouvez trouver ici la plpart des informations relatives
-                    au fonctionement du serveur. Vous pouvez également vous
-                    connecter afin d'accéder à la plateforme d'échanges, la map
-                    live et la liste des factions
+                    Vous pouvez trouver ici la plupart des informations
+                    relatives au fonctionement du serveur. Vous pouvez également
+                    vous connecter afin d'accéder à la plateforme d'échanges, la
+                    map en live et la liste des factions
                 </p>
             </section>
         </div>
