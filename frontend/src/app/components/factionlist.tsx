@@ -51,7 +51,7 @@ export default function FactionList() {
     const { factions, loading, error } = useFactions();
     const { user } = useMe();
     const { faction: UserFaction } = useFaction(
-        user?.faction_id?.toString() ?? null
+        user?.faction_id?.toString() ?? null,
     );
 
     const [search, setSearch] = useState("");

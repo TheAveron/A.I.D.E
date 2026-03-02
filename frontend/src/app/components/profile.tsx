@@ -76,7 +76,7 @@ function Profile({ value }: { value: UserType }) {
                                 <span className="info-label">Inscription:</span>
                                 <span className="info-value-field">
                                     {new Date(
-                                        profile.created_at
+                                        profile.created_at,
                                     ).toLocaleDateString()}
                                 </span>
                             </div>
