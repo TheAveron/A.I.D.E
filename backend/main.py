@@ -4,7 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api import (
@@ -122,6 +122,11 @@ app.mount(
     StaticFiles(directory=frontend_dist_path / "client" / "assets"),
     name="assets",
 )
+
+
+@app.head("/{full_path:path}")
+async def head():
+    return PlainTextResponse(status_code=200)
 
 
 @app.get("/{full_path:path}")
