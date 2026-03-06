@@ -126,7 +126,7 @@ app.mount(
 
 @app.head("/{full_path:path}")
 async def head():
-    return PlainTextResponse(status_code=200)
+    return PlainTextResponse("Version 1.1.1", status_code=200)
 
 
 @app.get("/{full_path:path}")
