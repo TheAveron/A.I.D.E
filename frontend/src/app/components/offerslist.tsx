@@ -107,7 +107,7 @@ export default function OfferList({
             copy.sort(
                 (a, b) =>
                     new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime()
+                    new Date(a.created_at).getTime(),
             );
         }
         return copy;
@@ -201,7 +201,7 @@ export default function OfferList({
                                 p <
                                 Math.ceil(sortedOffers.length / offersPerPage)
                                     ? p + 1
-                                    : p
+                                    : p,
                             )
                         }
                         disabled={

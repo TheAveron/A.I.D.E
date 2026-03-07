@@ -2,16 +2,15 @@ from sqlalchemy_utils import create_database, database_exists
 
 from app.database.database import engine  # , Base
 
-"""from app.database.models import (
-    Currency,
-    Faction,
-    Offer,
-    OfferHistory,
-    Role,
-    Transaction,
-    User,
-)
-"""
+# from app.database.models import (
+# Currency,
+# Faction,
+# Offer,
+# OfferHistory,
+# Role,
+# Transaction,
+# User,
+# )
 
 
 def create_tables():

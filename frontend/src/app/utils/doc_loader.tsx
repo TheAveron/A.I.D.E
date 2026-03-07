@@ -1,15 +1,16 @@
-import { useEffect, useState, Suspense, type MouseEvent } from "react";
-import { useParams, Link as RouterLink } from "react-router-dom";
+import { Suspense, useEffect, useState, type MouseEvent } from "react";
+
 import ReactMarkdown, { type Components } from "react-markdown";
+import { GoBackButton } from "../components/buttons/return";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 
-import { GoBackButton } from "../../../components/buttons/return";
+import { Link as RouterLink } from "react-router-dom";
 
-type PageLoader = {
-    page: string;
+type DocParams = {
     server: string;
-    type: string;
+    page: string;
+    folder?: string;
 };
 
 function slugPreserveAccents(value: string) {
@@ -19,24 +20,27 @@ function slugPreserveAccents(value: string) {
         .replace(/\s+/g, "-");
 }
 
-function Rule() {
-    const { server, type, page } = useParams() as PageLoader;
+function DocuLoader({ server, page, folder }: DocParams) {
     const [content, setContent] = useState<string>("");
     const [error, setError] = useState<string>("");
 
     useEffect(() => {
         setContent("");
-        fetch(`/Rules/${server}/${type}/${page}.md`)
+        fetch(
+            folder
+                ? `/documents/${server}/faction_doc/${folder}/${page}`
+                : `/documents/${server}/doc/${page}`,
+        )
             .then(async (response) => {
                 if (!response.ok) throw new Error("Failed to load markdown");
-                const text = await response.text();
-                setContent(text);
+                const text = await response.json();
+                setContent(text.content);
             })
             .catch((err) => {
                 console.error(err);
                 setError("Error loading content.");
             });
-    }, [server, type, page]);
+    }, [server, folder, page]);
 
     const components: Components = {
         a: ({ href, children }) => {
@@ -104,4 +108,4 @@ function Rule() {
     );
 }
 
-export default Rule;
+export default DocuLoader;
