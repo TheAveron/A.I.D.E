@@ -25,8 +25,15 @@ export default [
         ...prefix("archives", [
             index("./app/pages/archives/archives.tsx"),
 
-            ...prefix("rules", [
-                index("./app/pages/archives/rules/ruleslist.tsx"),
+            ...prefix("docs", [
+                route(
+                    "CubeCrusaders",
+                    "./app/pages/archives/docs/cc_docslist.tsx",
+                ),
+                route(
+                    "AgeOfSteam",
+                    "./app/pages/archives/docs/aos_doclist.tsx",
+                ),
                 route("/:server/:faction/:page", "./app/pages/document.tsx"),
             ]),
 

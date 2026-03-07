@@ -7,11 +7,16 @@ function Archives() {
             <h1>Serveurs anterieurs</h1>
             <h2>Cartes</h2>
             <MapsArchives />
-            <h2>Règlements</h2>
+            <h2>Documentations</h2>
             <ul>
                 <li>
-                    <Link to="/A.I.D.E/archives/rules/">
+                    <Link to="docs/CubeCrusaders">
                         Cube Crusader: The Origin
+                    </Link>
+                </li>
+                <li>
+                    <Link to="docs/AgeOfSteam">
+                        Cube Crusader: Age of Steam
                     </Link>
                 </li>
             </ul>
