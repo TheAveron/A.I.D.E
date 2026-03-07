@@ -14,6 +14,9 @@ function Header() {
                 <Link className="link" to="/A.I.D.E/actual">
                     Carte
                 </Link>
+                <Link className="link" to="/A.I.D.E/documentation/AgeOfSteam">
+                    Documentation
+                </Link>
 
                 {token ? (
                     <>
@@ -23,7 +26,6 @@ function Header() {
                         <Link className="link" to="/A.I.D.E/offers">
                             Offres
                         </Link>
-
                         <Link className="link" to="/A.I.D.E/contribuer">
                             Contribuer
                         </Link>

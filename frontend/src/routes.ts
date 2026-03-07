@@ -25,7 +25,7 @@ export default [
         ...prefix("archives", [
             index("./app/pages/archives/archives.tsx"),
 
-            ...prefix("docs", [
+            ...prefix("documentation", [
                 route(
                     "CubeCrusaders",
                     "./app/pages/archives/docs/cc_docslist.tsx",
@@ -34,7 +34,15 @@ export default [
                     "AgeOfSteam",
                     "./app/pages/archives/docs/aos_doclist.tsx",
                 ),
-                route("/:server/:faction/:page", "./app/pages/document.tsx"),
+
+                route(
+                    "/:server/:page",
+                    "./app/pages/archives/docs/document.tsx",
+                ),
+                route(
+                    "/:server/:folder/:page",
+                    "./app/pages/archives/docs/faction_document.tsx",
+                ),
             ]),
 
             ...prefix("maps", [
@@ -42,6 +50,10 @@ export default [
             ]),
         ]),
         route("actual", "./app/pages/archives/maps/currentmap.tsx"),
+        route(
+            "documentation/AgeOfSteam",
+            "./app/pages/archives/docs/currentdoc.tsx",
+        ),
         route("*", "./app/pages/404.tsx"),
     ]),
 ] satisfies RouteConfig;

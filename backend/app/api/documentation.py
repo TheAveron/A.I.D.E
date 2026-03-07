@@ -57,11 +57,36 @@ def create_document(
 
 
 @router.get(
-    "/{server}/{faction}/{doc_name}",
+    "/{server}/doc/{doc_name}",
     response_model=DocBase,
     status_code=status.HTTP_200_OK,
 )
-def get_document(server: str, faction: str, doc_name: str):
+def get_document(server: str, doc_name: str):
+    file_path = DOCS_DIR / server / f"{normalize(doc_name)}.md"
+
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found",
+        )
+
+    try:
+        content = file_path.read_text(encoding="utf-8")
+    except OSError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Could not read document: {e}",
+        )
+
+    return DocBase(title=doc_name, content=content)
+
+
+@router.get(
+    "/{server}/faction_doc/{faction}/{doc_name}",
+    response_model=DocBase,
+    status_code=status.HTTP_200_OK,
+)
+def get_faction_document(server: str, faction: str, doc_name: str):
     file_path = DOCS_DIR / server / normalize(faction) / f"{normalize(doc_name)}.md"
 
     if not file_path.exists():

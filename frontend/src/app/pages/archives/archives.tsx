@@ -10,13 +10,8 @@ function Archives() {
             <h2>Documentations</h2>
             <ul>
                 <li>
-                    <Link to="docs/CubeCrusaders">
+                    <Link to="documentation/CubeCrusaders">
                         Cube Crusader: The Origin
-                    </Link>
-                </li>
-                <li>
-                    <Link to="docs/AgeOfSteam">
-                        Cube Crusader: Age of Steam
                     </Link>
                 </li>
             </ul>

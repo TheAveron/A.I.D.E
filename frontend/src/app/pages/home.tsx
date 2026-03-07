@@ -2,10 +2,10 @@ function Home() {
     return (
         <div className="content">
             <section className="text-section">
-                <h3>
+                <h2>
                     Bienvenue sur le site de CubeCrusader, notre serveur
                     Minecraft.
-                </h3>
+                </h2>
                 <p>
                     Vous pouvez trouver ici la plupart des informations
                     relatives au fonctionement du serveur. Vous pouvez également
