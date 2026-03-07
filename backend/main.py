@@ -21,11 +21,14 @@ from app.api import (
 from app.core.logger import setup_logger
 from app.core.settings import ORIGINS
 
+
+version = "1.2.0"
+
 app = FastAPI(
     title="A.I.D.E API",
     root_path="/A.I.D.E",
     description="API for the A.I.D.E game system",
-    version="1.1.1",
+    version=version,
     openapi_tags=[
         {"name": "Factions", "description": "Operations with factions"},
         {"name": "Offers", "description": "Market offer operations"},
@@ -52,7 +55,7 @@ def custom_openapi():
 
     openapi_schema = get_openapi(
         title="A.I.D.E API",
-        version="1.1.1",
+        version=version,
         description="Complete API documentation for A.I.D.E",
         routes=app.routes,
     )
@@ -126,7 +129,7 @@ app.mount(
 
 @app.head("/{full_path:path}")
 async def head():
-    return PlainTextResponse("Version 1.1.1", status_code=200)
+    return PlainTextResponse(f"Version {version}", status_code=200)
 
 
 @app.get("/{full_path:path}")
