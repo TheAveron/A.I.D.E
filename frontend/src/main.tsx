@@ -9,5 +9,5 @@ ReactDOM.hydrateRoot(
         <HashRouter>
             <HydratedRouter />
         </HashRouter>
-    </React.StrictMode>
+    </React.StrictMode>,
 );

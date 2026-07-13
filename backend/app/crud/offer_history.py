@@ -46,6 +46,7 @@ def get_offer_histories(
     skip: int = 0,
     limit: int = 50,
 ) -> list[OfferHistory]:
+
     query = db.query(OfferHistory)
 
     if actor_user_id is not None:
@@ -56,9 +57,6 @@ def get_offer_histories(
         query = query.filter(OfferHistory.offer_id == offer_id)
 
     histories = query.offset(skip).limit(limit).all()
-
-    if not histories:
-        raise HTTPException(status_code=404, detail="No offer history found")
 
     return histories
 

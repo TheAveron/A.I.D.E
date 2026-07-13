@@ -78,17 +78,20 @@ export default function OfferList({
     const normalizedFactionId = factionId?.toString();
 
     const filteredOffers = useMemo(() => {
+        const term = (search ?? "").toLowerCase();
         return (
             offers?.filter((offer) => {
                 const matchUser =
                     normalizedUserId == null ||
                     offer.user_id?.toString() === normalizedUserId;
+
                 const matchFaction =
                     normalizedFactionId == null ||
                     offer.faction_id?.toString() === normalizedFactionId;
-                const matchSearch = offer.item_description
+
+                const matchSearch = (offer.item_description ?? "")
                     .toLowerCase()
-                    .includes(search.toLowerCase());
+                    .includes(term);
 
                 return matchUser && matchFaction && matchSearch;
             }) || []
@@ -104,7 +107,7 @@ export default function OfferList({
             copy.sort(
                 (a, b) =>
                     new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime()
+                    new Date(a.created_at).getTime(),
             );
         }
         return copy;
@@ -198,7 +201,7 @@ export default function OfferList({
                                 p <
                                 Math.ceil(sortedOffers.length / offersPerPage)
                                     ? p + 1
-                                    : p
+                                    : p,
                             )
                         }
                         disabled={

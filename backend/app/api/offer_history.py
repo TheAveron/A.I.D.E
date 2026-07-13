@@ -10,7 +10,7 @@ from ..schemas import OfferHistoryOut
 router = APIRouter(prefix="/history", tags=["History"])
 
 
-@router.get("/", response_model=list[OfferHistoryOut])
+@router.get("", response_model=list[OfferHistoryOut])
 def list_offer_histories(
     actor_user_id: Optional[int] = None,
     actor_faction_id: Optional[int] = None,

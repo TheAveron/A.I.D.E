@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 const mapFolders = [
+    /*"OAOS_zoom",*/
     "OCube_crusader",
     "OLSLN",
     "OLSPLW_zoom",
@@ -8,12 +9,11 @@ const mapFolders = [
     "OSurvival_islands_zoom",
     "OUtopia_zoom",
     "EUtopia_zoom",
-    "OAOS_zoom",
 ];
 
 const getLabelFromFolder = (folder: string) => {
     const mapping: Record<string, string> = {
-        OAOS_zoom: "Cube Crusader: Age of Steam",
+        /*OAOS_zoom: "Cube Crusader: Age of Steam",*/
         OCube_crusader: "Cube Crusader: The Origin",
         OLSLN: "La survie pour les nuls",
         OLSPLW_zoom: "La survie pour les Wariors",

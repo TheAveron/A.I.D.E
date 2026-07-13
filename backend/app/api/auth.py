@@ -2,13 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from ..core import create_access_token, hash_password
-from ..crud import (
-    authenticate_user,
-    create_user,
-    get_faction_by_name,
-    get_roles_by_faction,
-    get_user_by_username,
-)
+from ..crud import (authenticate_user, create_user, get_faction_by_name,
+                    get_roles_by_faction, get_user_by_username)
 from ..database import get_db
 from ..schemas import Auth, UserCreate, UserLogin
 

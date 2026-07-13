@@ -85,7 +85,6 @@ export function useTransactions({
                 const res = await axios.get<TransactionType[]>(
                     `../transactions/?${query}`
                 );
-                console.log("e", transactions);
 
                 setTransactions(res.data);
             } catch (err) {

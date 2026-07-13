@@ -3,8 +3,10 @@ fastapi-cli==0.0.8
 fastapi-cloud-cli==0.1.5
 pydantic==2.11.7
 pydantic_core==2.33.2
-pytest==8.4.1
+pytest==9.0.3
 SQLAlchemy==2.0.42
 SQLAlchemy-Utils==0.41.2
-PyJWT==2.10.1
+PyJWT==2.13.0
 psycopg2==2.9.10
+passlib==1.7.4
+alembic==1.16.4
