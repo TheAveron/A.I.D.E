@@ -12,7 +12,7 @@ if not SECRET_KEY:
 
 ENV = os.getenv("ENV", "development")
 
-if ENV == "developpement":
+if ENV == "development":
     ORIGINS = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
