@@ -25,26 +25,32 @@ export default function DocumentPage() {
     const { server, faction, page } = useParams();
     const [content, setContent] = useState<string>("# Loading...");
     const [error, setError] = useState<string>("");
+    const [retryKey, setRetryKey] = useState(0);
 
     useEffect(() => {
+        const controller = new AbortController();
+        setError("");
+
         if (!server) {
             setError("No server name provided");
-            return;
+            return () => controller.abort();
         }
 
         if (!faction) {
             setError("No faction name provided");
-            return;
+            return () => controller.abort();
         }
 
         if (!page) {
             setError("No document name provided");
-            return;
+            return () => controller.abort();
         }
 
         setContent("# Loading...");
         axios
-            .get<PageType>(`/documents/${server}/${faction}/${page}`)
+            .get<PageType>(`/documents/${server}/${faction}/${page}`, {
+                signal: controller.signal,
+            })
             .then((res) => {
                 try {
                     setContent(res.data.content);
@@ -52,13 +58,26 @@ export default function DocumentPage() {
                     setError("Document format error");
                 }
             })
-            .catch(() => {
+            .catch((requestError) => {
+                if (axios.isCancel(requestError)) return;
                 setError("Document not found");
             });
-    }, [server, faction, page]);
+        return () => controller.abort();
+    }, [server, faction, page, retryKey]);
 
     if (error) {
-        return <div className="p-4 text-red-600 font-bold">{error}</div>;
+        return (
+            <div className="p-4 text-red-600 font-bold">
+                <p>{error}</p>
+                <button
+                    type="button"
+                    className="button"
+                    onClick={() => setRetryKey((value) => value + 1)}
+                >
+                    Réessayer
+                </button>
+            </div>
+        );
     }
 
     return (

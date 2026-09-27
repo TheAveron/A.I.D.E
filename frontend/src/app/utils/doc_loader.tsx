@@ -28,13 +28,17 @@ function slugPreserveAccents(value: string) {
 function DocuLoader({ server, page, folder }: DocParams) {
     const [content, setContent] = useState<string>("");
     const [error, setError] = useState<string>("");
+    const [retryKey, setRetryKey] = useState(0);
 
     useEffect(() => {
+        const controller = new AbortController();
         setContent("");
+        setError("");
         fetch(
             folder
                 ? `/documents/${server}/faction_doc/${folder}/${page}`
                 : `/documents/${server}/doc/${page}`,
+            { signal: controller.signal },
         )
             .then(async (response) => {
                 if (!response.ok) throw new Error("Failed to load markdown");
@@ -42,10 +46,15 @@ function DocuLoader({ server, page, folder }: DocParams) {
                 setContent(text.content);
             })
             .catch((err) => {
+                if (err instanceof DOMException && err.name === "AbortError") {
+                    return;
+                }
                 console.error(err);
                 setError("Error loading content.");
             });
-    }, [server, folder, page]);
+
+        return () => controller.abort();
+    }, [server, folder, page, retryKey]);
 
     const components: Components = {
         a: ({ href, children }) => {
@@ -103,7 +112,16 @@ function DocuLoader({ server, page, folder }: DocParams) {
             <GoBackButton />
             <section className="text-section" style={{ paddingBottom: "10vh" }}>
                 {error ? (
-                    <p>{error}</p>
+                    <div>
+                        <p>{error}</p>
+                        <button
+                            type="button"
+                            className="button"
+                            onClick={() => setRetryKey((value) => value + 1)}
+                        >
+                            Réessayer
+                        </button>
+                    </div>
                 ) : (
                     <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
