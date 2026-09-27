@@ -9,7 +9,10 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from ..database import User, get_db
+from .logger import setup_logger
 from .settings import SECRET_KEY
+
+logger = setup_logger("aide")
 
 
 def get_user_by_username(db: Session, username: str):
@@ -60,15 +63,15 @@ def get_current_user(token=Depends(oauth2_scheme), db: Session = Depends(get_db)
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
-            print("no username")
+            logger.debug("JWT valid but missing 'sub' claim")
             raise credentials_exception
 
     except jwt.PyJWTError:
-        print("token error")
+        logger.debug("JWT decoding failed")
         raise credentials_exception
 
     user = get_user_by_username(db, username)
     if user is None:
-        print("no user")
+        logger.debug("JWT valid but no matching user: %s", username)
         raise credentials_exception
     return user

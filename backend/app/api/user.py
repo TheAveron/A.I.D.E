@@ -51,8 +51,19 @@ def read_user_by_id(user_id: int, db: Session = Depends(get_db)):
 
 @router.patch("/update/{user_id}", response_model=UserOut)
 def update_role_faction(
-    user_id: int, update_data: UserUpdate, db: Session = Depends(get_db)
+    user_id: int,
+    update_data: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    # TODO: à terme, un chef de faction devrait aussi pouvoir affecter un rôle
+    # à un membre de sa propre faction. Pour l'instant on se limite au strict
+    # minimum sûr : un utilisateur ne modifie que son propre compte.
+    if current_user.user_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only update your own account",
+        )
     return crud_user.update_user_faction_and_role(
         db, user_id, update_data.faction_id, update_data.role_id
     )

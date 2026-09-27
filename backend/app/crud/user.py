@@ -29,6 +29,7 @@ def create_user(
         hashed_password=hashed_password,
         faction_id=faction_id,
         role_id=role_id,
+        is_admin=admin,
     )
     db.add(user)
     db.commit()
