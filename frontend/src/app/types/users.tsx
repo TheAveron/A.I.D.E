@@ -1,4 +1,3 @@
-import type { UseFormReturn } from "react-hook-form";
 import type { HookFormBase, HookResult } from "./hooks";
 
 export interface UserBase {
@@ -32,12 +31,9 @@ export interface UserHook extends HookResult {
 
 export interface UsersHook extends HookResult {
     users: UserType[] | null;
+    refresh: () => void;
 }
 
-export interface AuthLoginHook extends HookFormBase {
-    form: UseFormReturn<UserLoginForm, any, UserLoginForm>;
-}
+export type AuthLoginHook = HookFormBase<UserLoginForm>;
 
-export interface AuthRegisterHook extends HookFormBase {
-    form: UseFormReturn<UserRegisterForm, any, UserRegisterForm>;
-}
+export type AuthRegisterHook = HookFormBase<UserRegisterForm>;

@@ -1,17 +1,24 @@
 import { type MouseEvent } from "react";
 import { type Components } from "react-markdown";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { type ComponentProps } from "react";
+import {
+    decodeMarkdownHref,
+    getDocumentRoute,
+    isSafeExternalHref,
+    isSafeInternalHref,
+} from "../utils/safe_markdown_link";
 
 export const components: Components = {
     a: ({ href, children }: ComponentProps<"a">) => {
         if (!href) return <span>{children}</span>;
 
-        href = decodeURIComponent(href);
+        href = decodeMarkdownHref(href) ?? "";
+        if (!href) return <span>{children}</span>;
 
         if (href.startsWith("doc://")) {
             const docName = href.replace("doc://", "");
-            return <Link to={`/documents/${docName}`}>{children}</Link>;
+            return <Link to={getDocumentRoute(docName)}>{children}</Link>;
         }
 
         if (href.startsWith("#")) {
@@ -20,7 +27,7 @@ export const components: Components = {
                     href={href}
                     onClick={(e: MouseEvent<HTMLAnchorElement>) => {
                         e.preventDefault();
-                        const target = document.querySelector(href);
+                        const target = document.getElementById(href.slice(1));
                         if (target)
                             target.scrollIntoView({ behavior: "smooth" });
                     }}
@@ -31,7 +38,7 @@ export const components: Components = {
             );
         }
 
-        if (href.startsWith("http")) {
+        if (isSafeExternalHref(href)) {
             return (
                 <a href={href} target="_blank" rel="noopener noreferrer">
                     {children}
@@ -39,6 +46,10 @@ export const components: Components = {
             );
         }
 
-        return <a href={href}>{children}</a>;
+        if (isSafeInternalHref(href)) {
+            return <a href={href}>{children}</a>;
+        }
+
+        return <span>{children}</span>;
     },
 };

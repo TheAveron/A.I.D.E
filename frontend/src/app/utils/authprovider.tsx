@@ -1,37 +1,47 @@
 // AuthProvider.tsx
 import axios from "axios";
 import {
-    createContext,
-    useContext,
+    useCallback,
     useEffect,
     useMemo,
     useState,
     type ReactNode,
 } from "react";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { jwtDecode } from "jwt-decode";
+import { AuthContext } from "./authcontext";
 
 // --- Types ---
-interface AuthContextType {
-    token: string | null;
-    setToken: React.Dispatch<React.SetStateAction<string | null>>;
-}
-
 interface DecodedToken {
     exp: number;
     [key: string]: unknown;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(() => {
         if (typeof window !== "undefined") {
-            return localStorage.getItem("token");
+            return sessionStorage.getItem("token");
         }
         return null;
     });
+
+    const navigate = useNavigate();
+
+    const handleLogout = useCallback(
+        (sessionExpired = false) => {
+            setToken(null);
+            if (sessionExpired) {
+                navigate("/A.I.D.E/login", {
+                    state: { message: "Session expired, please log in again." },
+                    replace: true,
+                });
+            } else {
+                navigate("/A.I.D.E/login", { replace: true });
+            }
+        },
+        [navigate],
+    );
 
     useEffect(() => {
         let logoutTimer: number;
@@ -40,7 +50,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
                 const decoded = jwtDecode<DecodedToken>(token);
 
-                if (!decoded.exp) {
+                if (!Number.isFinite(decoded.exp) || decoded.exp <= 0) {
                     console.warn("Token does not contain an expiration claim");
                     setToken(null);
                     return;
@@ -58,7 +68,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
                     axios.defaults.headers.common["Authorization"] =
                         `Bearer ${token}`;
-                    localStorage.setItem("token", token);
+                    sessionStorage.setItem("token", token);
                 }
             } catch (error) {
                 console.error("Invalid token", error);
@@ -66,27 +76,13 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
         } else {
             delete axios.defaults.headers.common["Authorization"];
-            localStorage.removeItem("token");
+            sessionStorage.removeItem("token");
         }
 
         return () => {
             if (logoutTimer) clearTimeout(logoutTimer);
         };
-    }, [token]);
-
-    const navigate = useNavigate();
-
-    const handleLogout = (sessionExpired = false) => {
-        setToken(null);
-        if (sessionExpired) {
-            navigate("/A.I.D.E/login", {
-                state: { message: "Session expired, please log in again." },
-                replace: true,
-            });
-        } else {
-            navigate("/A.I.D.E/login", { replace: true });
-        }
-    };
+    }, [token, handleLogout]);
 
     const contextValue = useMemo(() => ({ token, setToken }), [token]);
 
@@ -95,14 +91,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             {children}
         </AuthContext.Provider>
     );
-};
-
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
-    return context;
 };
 
 export default AuthProvider;

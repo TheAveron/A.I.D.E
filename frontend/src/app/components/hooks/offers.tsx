@@ -5,7 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 import { useMe } from "./me";
 
 import type {
@@ -57,12 +57,16 @@ export function useOffer(offer_id?: number): OfferHook {
 
             try {
                 const res = await axios.get<OfferType>(
-                    `/offers/detail/${offer_id}`
+                    `/offers/detail/${offer_id}`,
                 );
 
                 setOffer(res.data);
-            } catch (err: any) {
-                setError(err.message || "Failed to fetch offer");
+            } catch (err: unknown) {
+                setError(
+                    axios.isAxiosError(err)
+                        ? err.message
+                        : "Failed to fetch offer",
+                );
             } finally {
                 setLoading(false);
             }
@@ -80,6 +84,7 @@ export function useOffersList(currency?: string, status?: string): OffersHook {
     const [offers, setOffers] = useState<OfferType[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const query = useMemo(() => {
         const params = new URLSearchParams();
@@ -97,24 +102,33 @@ export function useOffersList(currency?: string, status?: string): OffersHook {
 
             try {
                 const res = await axios.get<OfferType[]>(
-                    `/offers/list?${query}`
+                    `/offers/list?${query}`,
                 );
                 setOffers(res.data);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Error fetching offers:", err);
-                setError(err.message || "Failed to fetch offers");
+                setError(
+                    axios.isAxiosError(err)
+                        ? err.message
+                        : "Failed to fetch offers",
+                );
             } finally {
                 setLoading(false);
             }
         };
 
         fetchOffers();
-    }, [token, query]);
+    }, [token, query, refreshKey]);
 
-    return { offers, loading, error };
+    return {
+        offers,
+        loading,
+        error,
+        refresh: () => setRefreshKey((value) => value + 1),
+    };
 }
 
-export function useNewOffer(): OfferFormHook {
+export function useNewOffer(onCreated?: () => void): OfferFormHook {
     const { token } = useAuth();
     const { user, loading: userLoading, error: userError } = useMe();
 
@@ -137,7 +151,7 @@ export function useNewOffer(): OfferFormHook {
                 throw new Error("You must be logged in to create an offer.");
             if (!user)
                 throw new Error(
-                    `Unable to get user information. ${userError ?? ""}`
+                    `Unable to get user information. ${userError ?? ""}`,
                 );
 
             const payload: OfferCreateData = {
@@ -151,18 +165,24 @@ export function useNewOffer(): OfferFormHook {
             const res = await axios.post("/offers/create", payload);
 
             setMessage(
-                `✅ Offer "${res.data.item_description}" created successfully`
+                `✅ Offer "${res.data.item_description}" created successfully`,
             );
             form.reset();
             setIsOpen(false);
 
             setForFaction(false);
-            window.location.reload();
-        } catch (error: any) {
-            if (error.response?.status === 409) {
+            onCreated?.();
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Une offre identique existe déjà.");
             } else {
-                setMessage(`❌ Error creating offer: ${error.message}`);
+                setMessage(
+                    `❌ Error creating offer: ${
+                        axios.isAxiosError(error)
+                            ? error.message
+                            : "Unknown error"
+                    }`,
+                );
             }
         } finally {
             setLoading(false);

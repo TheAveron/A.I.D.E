@@ -1,5 +1,5 @@
 import type { UserType } from "../types/users";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { useRole } from "./hooks/role";
 import { useFaction } from "./hooks/faction";
 

@@ -1,9 +1,8 @@
 import { useState, useMemo } from "react";
 import { NewFaction } from "./buttons/newfaction";
 import { useFactions } from "./hooks/factions";
-import { useAllMemberCounts } from "./snippets/member_count";
+import { useAllMemberCounts } from "./hooks/all_member_counts";
 import { useMe } from "./hooks/me";
-
 import FactionTable from "./snippets/factions_table";
 import { useFaction } from "./hooks/faction";
 
@@ -48,7 +47,7 @@ function FactionToolbar({
 }
 
 export default function FactionList() {
-    const { factions, loading, error } = useFactions();
+    const { factions, loading, error, refresh } = useFactions();
     const { user } = useMe();
     const { faction: UserFaction } = useFaction(
         user?.faction_id?.toString() ?? null,
@@ -65,10 +64,13 @@ export default function FactionList() {
     const filteredFactions = useMemo(() => {
         if (!factions) return [];
 
-        const term = (search ?? "").toLowerCase(); // ensures it's always a string
-
         return factions
-            .filter((f) => [f.name, f.description].join(" ").toLowerCase())
+            .filter((f) =>
+                [f.name, f.description]
+                    .join(" ")
+                    .toLowerCase()
+                    .includes(search.toLowerCase()),
+            )
             .sort((a, b) => {
                 let comp = 0;
 
@@ -103,7 +105,7 @@ export default function FactionList() {
             <div className="factions-header">
                 <h2>Liste des factions</h2>
                 {(!UserFaction || UserFaction?.name === "Sans Faction") && (
-                    <NewFaction />
+                    <NewFaction onCreated={refresh} />
                 )}
             </div>
 
@@ -123,6 +125,7 @@ export default function FactionList() {
                 totalPages={totalPages}
                 page={page}
                 setPage={setPage}
+                onRetry={refresh}
             />
         </div>
     );

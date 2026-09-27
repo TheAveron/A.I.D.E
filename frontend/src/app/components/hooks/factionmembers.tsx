@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 import type { UsersHook, UserType } from "../../types/users";
 
@@ -11,6 +11,7 @@ export function useMembers(faction_id: string | null): UsersHook {
     const [users, setUsers] = useState<UserType[] | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         if (!token || !faction_id) return;
@@ -19,7 +20,7 @@ export function useMembers(faction_id: string | null): UsersHook {
             try {
                 setLoading(true);
                 const res = await axios.get<UserType[]>(
-                    `/users/faction/${faction_id}`
+                    `/users/faction/${faction_id}`,
                 );
                 setUsers(res.data);
             } catch (error) {
@@ -30,7 +31,12 @@ export function useMembers(faction_id: string | null): UsersHook {
         };
 
         fetchUsers();
-    }, [token, faction_id]);
+    }, [token, faction_id, refreshKey]);
 
-    return { users, loading, error };
+    return {
+        users,
+        loading,
+        error,
+        refresh: () => setRefreshKey((value) => value + 1),
+    };
 }

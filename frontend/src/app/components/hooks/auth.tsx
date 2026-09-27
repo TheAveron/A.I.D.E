@@ -1,12 +1,12 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import * as Yup from "yup";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 import type {
     UserLoginForm,
@@ -35,6 +35,29 @@ const RegisterSchema = Yup.object().shape({
         .oneOf([Yup.ref("password")], "Passwords do not match"),
 });
 
+function getSafeReturnPath(state: unknown): string {
+    if (state && typeof state === "object" && "from" in state) {
+        const from = state.from;
+
+        if (from && typeof from === "object" && "pathname" in from) {
+            const location = from as {
+                pathname?: unknown;
+                search?: unknown;
+                hash?: unknown;
+            };
+
+            if (
+                typeof location.pathname === "string" &&
+                location.pathname.startsWith("/A.I.D.E")
+            ) {
+                return `${location.pathname}${typeof location.search === "string" ? location.search : ""}${typeof location.hash === "string" ? location.hash : ""}`;
+            }
+        }
+    }
+
+    return "/A.I.D.E";
+}
+
 export function useLogin(): AuthLoginHook {
     const { token, setToken } = useAuth() ?? {};
 
@@ -52,19 +75,30 @@ export function useLogin(): AuthLoginHook {
 
             const response = await axios.post<AuthType>("/auth/login", data);
 
-            setToken?.(response.data.access_token);
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            const accessToken = response.data.access_token;
+            setToken?.(accessToken);
+            axios.defaults.headers.common["Authorization"] =
+                `Bearer ${accessToken}`;
 
             setMessage("You Are Successfully Logged In");
-        } catch (error: any) {
-            if (error.response?.status === 401) {
+        } catch (error: unknown) {
+            const status = axios.isAxiosError(error)
+                ? error.response?.status
+                : undefined;
+            if (status === 401) {
                 setMessage("❌  Mot de passe incorrect");
-            } else if (error.response?.status === 404) {
+            } else if (status === 404) {
                 setMessage(
-                    "❌ Il n'y a pas de compte avec ce nom d'utilisateur"
+                    "❌ Il n'y a pas de compte avec ce nom d'utilisateur",
                 );
             } else {
-                setMessage(`Login error: ${error.message}`);
+                setMessage(
+                    `Login error: ${
+                        axios.isAxiosError(error)
+                            ? error.message
+                            : "Unknown error"
+                    }`,
+                );
             }
         } finally {
             setLoading(false);
@@ -72,9 +106,16 @@ export function useLogin(): AuthLoginHook {
     });
 
     const navigate = useNavigate();
-    if (token) {
-        navigate("/A.I.D.E");
-    }
+    const location = useLocation();
+
+    useEffect(() => {
+        if (!token) return;
+
+        navigate(getSafeReturnPath(location.state), {
+            replace: true,
+            state: null,
+        });
+    }, [token, navigate, location.state]);
 
     return {
         form,
@@ -107,15 +148,23 @@ export function useRegister(): AuthRegisterHook {
         try {
             const res = await axios.post<AuthType>("/auth/register", payload);
 
-            setToken?.(res.data.access_token);
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            const accessToken = res.data.access_token;
+            setToken?.(accessToken);
+            axios.defaults.headers.common["Authorization"] =
+                `Bearer ${accessToken}`;
 
             setMessage("Registration successful!");
-        } catch (error: any) {
-            if (error.response?.status === 409) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Un utilisateur possède déjà ce nom");
             } else {
-                setMessage(`Registration error: ${error.message}`);
+                setMessage(
+                    `Registration error: ${
+                        axios.isAxiosError(error)
+                            ? error.message
+                            : "Unknown error"
+                    }`,
+                );
             }
         } finally {
             setLoading(false);
@@ -123,9 +172,11 @@ export function useRegister(): AuthRegisterHook {
     });
 
     const navigate = useNavigate();
-    if (token) {
-        navigate("/A.I.D.E");
-    }
+    useEffect(() => {
+        if (!token) return;
+
+        navigate("/A.I.D.E", { replace: true });
+    }, [token, navigate]);
 
     return {
         form,

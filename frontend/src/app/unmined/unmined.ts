@@ -14,10 +14,39 @@ import {
 import { MousePosition, ScaleLine } from "ol/control";
 import { Projection } from "ol/proj";
 import TileGrid from "ol/tilegrid/TileGrid";
+import Control from "ol/control/Control";
 
-// Type definitions for external libraries
-declare const Toastify: any;
-declare const ContextMenu: any;
+interface ToastifyOptions {
+    text: string;
+    duration: number;
+    gravity: string;
+    position: string;
+}
+
+interface ContextMenuEvent {
+    originalEvent: MouseEvent;
+}
+
+interface ContextMenuItem {
+    text?: string;
+    classname?: string;
+    callback: () => void;
+}
+
+type ContextMenuInstance = Control & {
+    on: (event: "open", callback: (event: ContextMenuEvent) => void) => void;
+    clear: () => void;
+    push: (item: ContextMenuItem | "-") => void;
+};
+
+declare const Toastify: (options: ToastifyOptions) => {
+    showToast: () => void;
+};
+declare const ContextMenu: new (options: {
+    width: number;
+    defaultItems: boolean;
+    items: never[];
+}) => ContextMenuInstance;
 
 interface RegionMapData {
     x: number;
@@ -26,11 +55,6 @@ interface RegionMapData {
 }
 
 interface Point2D {
-    x: number;
-    z: number;
-}
-
-interface Coordinates {
     x: number;
     z: number;
 }
@@ -105,7 +129,7 @@ class RegionMap {
         worldMinX: number,
         worldMinZ: number,
         worldWidth: number,
-        worldHeight: number
+        worldHeight: number,
     ) {
         this.regionMap = regionMap;
         this.tileSize = tileSize;
@@ -119,20 +143,20 @@ class RegionMap {
         const zoomFactor = Math.pow(2, unminedZoomLevel);
 
         const minTileX = Math.floor(
-            (this.worldMinX * zoomFactor) / this.tileSize
+            (this.worldMinX * zoomFactor) / this.tileSize,
         );
         const minTileZ = Math.floor(
-            (this.worldMinZ * zoomFactor) / this.tileSize
+            (this.worldMinZ * zoomFactor) / this.tileSize,
         );
         const maxTileX =
             Math.ceil(
                 ((this.worldMinX + this.worldWidth) * zoomFactor) /
-                    this.tileSize
+                    this.tileSize,
             ) - 1;
         const maxTileZ =
             Math.ceil(
                 ((this.worldMinZ + this.worldHeight) * zoomFactor) /
-                    this.tileSize
+                    this.tileSize,
             ) - 1;
 
         if (
@@ -171,7 +195,7 @@ class RegionMap {
                     z: Math.floor(z / 32),
                 };
                 const regionMap = this.regionMap.find(
-                    (e) => e.x === group.x && e.z === group.z
+                    (e) => e.x === group.x && e.z === group.z,
                 );
                 if (regionMap) {
                     const relX = x - group.x * 32;
@@ -198,7 +222,7 @@ class RedDotMarker {
     constructor(
         map: Map,
         dataProjection: Projection,
-        viewProjection: Projection
+        viewProjection: Projection,
     ) {
         this.map = map;
         this.dataProjection = dataProjection;
@@ -225,7 +249,7 @@ class RedDotMarker {
     }
 
     static getCoordinatesFromUrlHash(
-        hash: string
+        hash: string,
     ): [number, number] | undefined {
         if (!hash || hash.length <= 1) return undefined;
 
@@ -240,7 +264,7 @@ class RedDotMarker {
 
     static getUrlHashWithCoordinates(
         hash: string,
-        coordinates?: [number, number]
+        coordinates?: [number, number],
     ): string {
         hash = hash ?? "#";
         const q = new URLSearchParams(hash.substring(1));
@@ -259,7 +283,7 @@ class RedDotMarker {
         const url = new URL(window.location.href);
         url.hash = RedDotMarker.getUrlHashWithCoordinates(
             url.hash,
-            coordinates
+            coordinates,
         );
         window.location.replace(url);
     }
@@ -279,8 +303,8 @@ class RedDotMarker {
                 ol.proj.transform(
                     coordinates,
                     this.dataProjection!,
-                    this.viewProjection!
-                )
+                    this.viewProjection!,
+                ),
             ),
         });
 
@@ -307,7 +331,7 @@ class RedDotMarker {
                     }),
                     padding: [4, 6, 4, 6],
                 }),
-            })
+            }),
         );
 
         this.source!.addFeature(marker);
@@ -343,7 +367,7 @@ class Unmined {
     constructor(
         mapElement: HTMLElement | string,
         options: UnminedOptions,
-        regions: RegionMapData[]
+        regions: RegionMapData[],
     ) {
         const worldTileSize = 256;
 
@@ -367,7 +391,7 @@ class Unmined {
             worldMinX,
             worldMinZ,
             worldWidth,
-            worldHeight
+            worldHeight,
         );
 
         const dpiScale = window.devicePixelRatio ?? 1.0;
@@ -377,8 +401,8 @@ class Unmined {
                 Math.abs(worldMinX),
                 Math.abs(worldMinZ),
                 Math.abs(worldMinX + worldWidth),
-                Math.abs(worldMinX + worldHeight)
-            )
+                Math.abs(worldMinX + worldHeight),
+            ),
         );
 
         const mapExtent = ol.proj.transformExtent(
@@ -387,7 +411,7 @@ class Unmined {
                 [worldMinX + worldWidth, worldMinZ + worldHeight],
             ]),
             this.dataProjection!,
-            this.viewProjection!
+            this.viewProjection!,
         );
 
         const mapZoomLevels = this.options.maxZoom - this.options.minZoom;
@@ -397,7 +421,7 @@ class Unmined {
             b = ol.proj.transform(
                 [b, b],
                 this.dataProjection!,
-                this.viewProjection!
+                this.viewProjection!,
             )[0];
             resolutions[z] = b * dpiScale;
         }
@@ -455,7 +479,7 @@ class Unmined {
                 center: ol.proj.transform(
                     [this.options.centerX!, this.options.centerZ!],
                     this.dataProjection!,
-                    this.viewProjection!
+                    this.viewProjection!,
                 ),
                 extent: mapExtent,
                 projection: this.viewProjection!,
@@ -479,7 +503,7 @@ class Unmined {
             this.options.playerMarkers.length > 0
         ) {
             this.playerMarkersLayer = this.createMarkersLayer(
-                this.options.playerMarkers
+                this.options.playerMarkers,
             );
             map.addLayer(this.playerMarkersLayer);
         }
@@ -505,7 +529,7 @@ class Unmined {
         this.redDotMarker = new RedDotMarker(
             this.olMap,
             this.dataProjection!,
-            this.viewProjection!
+            this.viewProjection!,
         );
 
         this.centerOnRedDotMarker();
@@ -516,7 +540,7 @@ class Unmined {
         const v = ol.proj.transform(
             blockCoordinates,
             this.dataProjection!,
-            this.viewProjection!
+            this.viewProjection!,
         );
         view.setCenter(v);
     }
@@ -545,8 +569,8 @@ class Unmined {
                     ol.proj.transform(
                         [longitude, latitude],
                         this.dataProjection!,
-                        this.viewProjection!
-                    )
+                        this.viewProjection!,
+                    ),
                 ),
             });
 
@@ -557,7 +581,7 @@ class Unmined {
                         src: item.image,
                         anchor: item.imageAnchor,
                         scale: item.imageScale,
-                    })
+                    }),
                 );
             }
 
@@ -591,7 +615,7 @@ class Unmined {
                                   width: item.textBackgroundStrokeWidth,
                               })
                             : undefined,
-                    })
+                    }),
                 );
             }
 
@@ -669,7 +693,7 @@ class Unmined {
                 const intervalInDegrees = ol.proj.transform(
                     [intervalInBlocks, intervalInBlocks],
                     this.dataProjection!,
-                    this.viewProjection!
+                    this.viewProjection!,
                 )[0];
                 graticuleIntervals[intervalCount - 1 - z] = intervalInDegrees;
                 base *= 2;
@@ -684,7 +708,7 @@ class Unmined {
                 const intervalInDegrees = ol.proj.transform(
                     [intervalInBlocks, intervalInBlocks],
                     this.dataProjection!,
-                    this.viewProjection!
+                    this.viewProjection!,
                 )[0];
                 graticuleIntervals[intervalCount - 1 - z] = intervalInDegrees;
                 if (factorIndex % factors.length === 0) base *= 10;
@@ -727,8 +751,8 @@ class Unmined {
                           ol.proj.transform(
                               [lon, 0],
                               this.viewProjection!,
-                              this.dataProjection!
-                          )
+                              this.dataProjection!,
+                          ),
                       ).getFirstCoordinate();
                       const l = Math.round(c[0]);
                       if (l === 0) return "x = 0";
@@ -741,8 +765,8 @@ class Unmined {
                           ol.proj.transform(
                               [0, lat],
                               this.viewProjection!,
-                              this.dataProjection!
-                          )
+                              this.dataProjection!,
+                          ),
                       ).getFirstCoordinate();
                       const l = Math.round(c[1]);
                       if (l === 0) return "z = 0";
@@ -780,18 +804,18 @@ class Unmined {
         }).showToast();
     }
 
-    createContextMenu(): any {
+    createContextMenu(): ContextMenuInstance {
         const contextmenu = new ContextMenu({
             width: 220,
             defaultItems: false,
             items: [],
         });
 
-        contextmenu.on("open", (evt: any) => {
+        contextmenu.on("open", (evt: ContextMenuEvent) => {
             const coordinates = ol.proj.transform(
                 this.olMap!.getEventCoordinate(evt.originalEvent),
                 this.viewProjection!,
-                this.dataProjection!
+                this.dataProjection!,
             );
 
             coordinates[0] = Math.round(coordinates[0]);
@@ -802,7 +826,7 @@ class Unmined {
                 text: `/tp ${coordinates[0]} ~ ${coordinates[1]}`,
                 callback: () => {
                     Unmined.copyToClipboard(
-                        `/tp ${coordinates[0]} ~ ${coordinates[1]}`
+                        `/tp ${coordinates[0]} ~ ${coordinates[1]}`,
                     );
                 },
             });
@@ -1021,7 +1045,7 @@ class Unmined {
                     coordinate[0] / blocksPerDegrees,
                     -coordinate[1] / blocksPerDegrees,
                 ];
-            }
+            },
         );
     }
 }

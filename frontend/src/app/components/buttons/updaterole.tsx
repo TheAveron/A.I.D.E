@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 import { useRoles } from "../hooks/factionroles";
 import { useUpdateUser } from "../hooks/role";
@@ -7,7 +7,7 @@ interface UpdateRoleProps {
     userId: number;
     currentRoleId: number | null;
     factionId: number | null;
-    onRoleUpdated?: () => void; // optional callback
+    onRoleUpdated?: () => void;
 }
 
 export function UpdateRole({
@@ -16,40 +16,88 @@ export function UpdateRole({
     factionId,
     onRoleUpdated,
 }: UpdateRoleProps) {
-    const { roles, loading: rolesLoading } = useRoles(
-        factionId?.toString() ?? null
-    );
+    const {
+        roles,
+        loading: rolesLoading,
+        error: rolesError,
+    } = useRoles(factionId?.toString() ?? null);
 
     const { updateUser } = useUpdateUser();
 
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedRole, setSelectedRole] = useState<string>(
-        currentRoleId?.toString() ?? ""
+    const [selectedRole, setSelectedRole] = useState<number | "">(
+        currentRoleId ?? "",
     );
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
+    const titleId = useId();
+    const fieldId = useId();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const availableRoles =
+        roles?.filter(
+            (role) => role.name !== "Chef" && role.faction_id === factionId,
+        ) ?? [];
+
+    useEffect(() => {
+        setSelectedRole(currentRoleId ?? "");
+    }, [currentRoleId]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape" && !loading) setIsOpen(false);
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen, loading]);
+
+    const openModal = () => {
+        setSelectedRole(currentRoleId ?? "");
+        setMessage(null);
+        setIsOpen(true);
+    };
+
+    const closeModal = () => {
+        if (!loading) setIsOpen(false);
+    };
+
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!selectedRole) return;
+        if (selectedRole === "") {
+            setMessage("Veuillez sélectionner un rôle.");
+            return;
+        }
 
-        roles?.find((role) => role.name == selectedRole);
+        const roleExists = availableRoles.some(
+            (role) => role.role_id === selectedRole,
+        );
+        if (!roleExists) {
+            setMessage("Le rôle sélectionné n'est plus disponible.");
+            return;
+        }
 
         try {
             setLoading(true);
             setMessage(null);
 
-            const res = await updateUser(userId, { role_id: selectedRole });
-
+            const res = await updateUser(userId, {
+                role_id: selectedRole,
+            });
             if (!res) {
-                console.log(selectedRole);
+                throw new Error("La mise à jour du rôle a échoué.");
             }
 
-            setMessage("Rôle mis à jour avec succès.");
-            if (onRoleUpdated) onRoleUpdated();
             setIsOpen(false);
-        } catch (err: any) {
-            setMessage("Erreur lors de la mise à jour du rôle.");
+            onRoleUpdated?.();
+        } catch (error: unknown) {
+            console.error("Échec de la mise à jour du rôle:", error);
+            setMessage(
+                error instanceof Error
+                    ? error.message
+                    : "Erreur inattendue lors de la mise à jour du rôle.",
+            );
         } finally {
             setLoading(false);
         }
@@ -57,58 +105,63 @@ export function UpdateRole({
 
     return (
         <div>
-            <div className="button" onClick={() => setIsOpen(true)}>
+            <button type="button" className="button" onClick={openModal}>
                 edit
-            </div>
+            </button>
 
             {isOpen && (
-                <div
-                    className="modal-container"
-                    onClick={() => setIsOpen(false)}
-                >
+                <div className="modal-container" onClick={closeModal}>
                     <div
                         onClick={(e) => {
-                            e.stopPropagation(); // stops bubbling to Link
+                            e.stopPropagation();
                         }}
                         className="modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby={titleId}
                     >
-                        <h2>Changer le rôle</h2>
+                        <h2 id={titleId}>Changer le rôle</h2>
 
                         {rolesLoading ? (
                             <p>Chargement des rôles...</p>
+                        ) : rolesError ? (
+                            <p role="alert">{rolesError}</p>
                         ) : (
                             <form onSubmit={handleSubmit}>
                                 <div className="modal-field">
-                                    <label>Nouveau rôle</label>
+                                    <label htmlFor={fieldId}>
+                                        Nouveau rôle
+                                    </label>
                                     <select
+                                        id={fieldId}
                                         value={selectedRole}
+                                        disabled={loading}
                                         onChange={(e) =>
-                                            setSelectedRole(e.target.value)
+                                            setSelectedRole(
+                                                e.target.value === ""
+                                                    ? ""
+                                                    : Number(e.target.value),
+                                            )
                                         }
                                     >
                                         <option value="">
                                             Sélectionner un rôle
                                         </option>
-                                        {roles
-                                            ?.filter(
-                                                (r) =>
-                                                    r.name !== "Chef" &&
-                                                    r.faction_id === factionId
-                                            )
-                                            .map((role) => (
-                                                <option
-                                                    key={role.role_id}
-                                                    value={role.role_id}
-                                                >
-                                                    {role.name}
-                                                </option>
-                                            ))}
+                                        {availableRoles.map((role) => (
+                                            <option
+                                                key={role.role_id}
+                                                value={role.role_id}
+                                            >
+                                                {role.name}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
                                 <div className="modal-buttons">
                                     <button
                                         type="submit"
+                                        disabled={loading}
                                         style={{
                                             flex: 1,
                                             backgroundColor: loading
@@ -129,7 +182,8 @@ export function UpdateRole({
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => setIsOpen(false)}
+                                        onClick={closeModal}
+                                        disabled={loading}
                                         style={{
                                             flex: 1,
                                             backgroundColor: "#d9534f",
@@ -145,7 +199,10 @@ export function UpdateRole({
                                 </div>
 
                                 {message && (
-                                    <p style={{ marginTop: "10px" }}>
+                                    <p
+                                        role="alert"
+                                        style={{ marginTop: "10px" }}
+                                    >
                                         {message}
                                     </p>
                                 )}

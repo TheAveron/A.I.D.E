@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
 
+const allowedMapPages = new Set([
+    "OCube_crusader",
+    "OLSLN",
+    "OLSPLW_zoom",
+    "OStrong_world_zoom",
+    "OSurvival_islands_zoom",
+    "OUtopia_zoom",
+    "EUtopia_zoom",
+]);
+
 function toggleLayout(isColumn: boolean) {
     const mapTitle = document.getElementById("map-title");
     if (isColumn) {
@@ -11,8 +21,7 @@ function toggleLayout(isColumn: boolean) {
 
 function PageGenerator(page: string, render: boolean) {
     const [showIframe, setShowIframe] = useState(render);
-    let isColumn = true;
-
+    const safePage = allowedMapPages.has(page) ? page : null;
     useEffect(() => {
         if (!showIframe) return;
 
@@ -22,8 +31,7 @@ function PageGenerator(page: string, render: boolean) {
         const previousBlock = document.getElementById("previous");
 
         const main = document.getElementById("main");
-        isColumn = !isColumn;
-        toggleLayout(isColumn);
+        toggleLayout(false);
 
         if (renderBlock) renderBlock.style.display = "none";
         if (footerBlock) footerBlock.style.display = "none";
@@ -53,8 +61,7 @@ function PageGenerator(page: string, render: boolean) {
             if (previousBlock) previousBlock.style.top = "var(--header-height)";
             if (main) main.style.marginTop = "var(--header-height)";
 
-            isColumn = !isColumn;
-            toggleLayout(isColumn);
+            toggleLayout(true);
         };
     }, [showIframe]);
 
@@ -72,10 +79,11 @@ function PageGenerator(page: string, render: boolean) {
                 </section>
             )}
 
-            {showIframe && (
+            {showIframe && safePage && (
                 <iframe
-                    title={`Map Viewer for ${page}`}
-                    src={`/A.I.D.E/maps/${page}/index.html`}
+                    title={`Map Viewer for ${safePage}`}
+                    src={`/A.I.D.E/maps/${safePage}/index.html`}
+                    sandbox="allow-scripts"
                     style={{ width: "100%", height: "96vh", border: "none" }}
                 />
             )}

@@ -5,7 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import * as yup from "yup";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 import { useMe } from "./me";
 
 import type {
@@ -41,7 +41,7 @@ export function useFaction(faction_id: string | null): FactionHook {
             try {
                 setLoading(true);
                 const res = await axios.get<FactionType>(
-                    `/factions/detail/${faction_id}`
+                    `/factions/detail/${faction_id}`,
                 );
                 setFaction(res.data);
             } catch (error) {
@@ -57,14 +57,14 @@ export function useFaction(faction_id: string | null): FactionHook {
     return { faction, loading, error };
 }
 
-export function useNewFaction(): FactionFormHook {
+export function useNewFaction(onCreated?: () => void): FactionFormHook {
     const { token } = useAuth();
     const { user, loading: userLoading, error: userError } = useMe();
     const { faction: UserFaction } = useFaction(
-        user?.faction_id?.toString() || null
+        user?.faction_id?.toString() || null,
     );
 
-    const { updateUser, loading: LoadingUpdate, error } = useUpdateUser();
+    const { updateUser } = useUpdateUser();
 
     const [loading, setLoading] = useState<boolean>(false);
     const [message, setMessage] = useState<string>("");
@@ -82,7 +82,7 @@ export function useNewFaction(): FactionFormHook {
         try {
             if (!token) {
                 throw new Error(
-                    "Vous devez être connecté pour créer une faction."
+                    "Vous devez être connecté pour créer une faction.",
                 );
             }
 
@@ -103,16 +103,16 @@ export function useNewFaction(): FactionFormHook {
 
             const res = await axios.post<FactionType>(
                 "/factions/create",
-                payload
+                payload,
             );
 
             setMessage(`✅ Faction "${res.data.name}" créée avec succès`);
             form.reset();
             setIsOpen(false);
 
-            window.location.reload();
-        } catch (error: any) {
-            if (error.response?.status === 409) {
+            onCreated?.();
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Une faction avec ce nom existe déjà.");
             } else {
                 setMessage("❌ Erreur lors de la création de la faction.");

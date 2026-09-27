@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import CurrencyCell from "../snippets/currency_cell";
 import MemberCounter from "../snippets/member_count";
 import type { FactionType } from "../../types/factions";
 import { useMe } from "../hooks/me";
 import { useRole } from "../hooks/role";
+import { UpdateFactionButton } from "../buttons/joinfaction";
 
 type Props = {
     factions: FactionType[];
@@ -12,6 +13,7 @@ type Props = {
     page: number;
     totalPages: number;
     setPage: (val: number) => void;
+    onRetry: () => void;
 };
 
 export default function FactionTable({
@@ -21,6 +23,7 @@ export default function FactionTable({
     page,
     totalPages,
     setPage,
+    onRetry,
 }: Props) {
     const next = () => setPage(Math.min(page + 1, totalPages));
     const prev = () => setPage(Math.max(page - 1, 1));
@@ -86,19 +89,32 @@ export default function FactionTable({
                                                 </div>
                                             </td>
 
-                                            {role?.name != "Chef" ? (
+                                            {role?.name != "Chef" && user ? (
                                                 role?.faction_id !=
                                                 faction.faction_id ? (
                                                     <td>
                                                         <div
-                                                            className="button"
-                                                            style={{
-                                                                maxWidth:
-                                                                    "fit-content",
-                                                                margin: "auto",
+                                                            onClick={(
+                                                                event,
+                                                            ) => {
+                                                                event.preventDefault();
+                                                                event.stopPropagation();
                                                             }}
                                                         >
-                                                            Rejoindre
+                                                            <UpdateFactionButton
+                                                                userId={
+                                                                    user.user_id
+                                                                }
+                                                                currentFactionId={
+                                                                    user.faction_id
+                                                                }
+                                                                currentRoleId={
+                                                                    user.role_id
+                                                                }
+                                                                factionId={
+                                                                    faction.faction_id
+                                                                }
+                                                            />
                                                         </div>
                                                     </td>
                                                 ) : (
@@ -126,6 +142,9 @@ export default function FactionTable({
                         <tr>
                             <td colSpan={5} style={{ color: "red" }}>
                                 {error}
+                                <button type="button" onClick={onRetry}>
+                                    Réessayer
+                                </button>
                             </td>
                         </tr>
                     )}

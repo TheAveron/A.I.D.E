@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 
 import { useRole } from "../hooks/role";
 import { useMembers } from "../hooks/factionmembers";
@@ -11,10 +11,12 @@ function RoleElement({
     role_id,
     faction_id,
     user_id,
+    onRoleUpdated,
 }: {
     role_id: number | null;
     faction_id: number | null;
     user_id: number;
+    onRoleUpdated: () => void;
 }) {
     const navigate = useNavigate();
     const { role } = useRole(role_id);
@@ -59,9 +61,7 @@ function RoleElement({
                             userId={user_id}
                             currentRoleId={role_id}
                             factionId={faction_id}
-                            onRoleUpdated={() => {
-                                window.location.reload();
-                            }}
+                            onRoleUpdated={onRoleUpdated}
                         />
                     </td>
                 )}
@@ -73,7 +73,7 @@ function UsersTable({ state = false }: { state: boolean }) {
     const navigate = useNavigate();
 
     const { factionid } = useParams();
-    const { users, loading, error } = useMembers(factionid ?? null);
+    const { users, loading, error, refresh } = useMembers(factionid ?? null);
     const { user: current_user } = useMe();
 
     const style: CSSProperties = { gridColumn: "2 / span 2" };
@@ -106,7 +106,7 @@ function UsersTable({ state = false }: { state: boolean }) {
                                                 onClick={() => {
                                                     navigate(
                                                         "/A.I.D.E/user/" +
-                                                            user.user_id
+                                                            user.user_id,
                                                     );
                                                 }}
                                             >
@@ -119,6 +119,7 @@ function UsersTable({ state = false }: { state: boolean }) {
                                                     current_user?.faction_id ??
                                                     null
                                                 }
+                                                onRoleUpdated={refresh}
                                             />
                                         </tr>
                                     ))
@@ -138,7 +139,16 @@ function UsersTable({ state = false }: { state: boolean }) {
                             )
                         ) : (
                             <tr>
-                                <td colSpan={5}>{error}</td>
+                                <td colSpan={5}>
+                                    <p>{error}</p>
+                                    <button
+                                        type="button"
+                                        className="button"
+                                        onClick={refresh}
+                                    >
+                                        Réessayer
+                                    </button>
+                                </td>
                             </tr>
                         )}
                     </tbody>

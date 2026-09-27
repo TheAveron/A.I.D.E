@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 import type { OfferAcceptPayload, OfferResponse } from "../../types/offers";
 
 export function useAcceptOffer() {
@@ -12,7 +12,7 @@ export function useAcceptOffer() {
 
     const acceptOffer = async (
         offerId: number,
-        payload: OfferAcceptPayload
+        payload: OfferAcceptPayload,
     ) => {
         if (!token) {
             setError("Vous devez être connecté pour accepter une offre.");
@@ -31,14 +31,16 @@ export function useAcceptOffer() {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
-                }
+                },
             );
 
             setMessage("✅ Offre acceptée avec succès !");
             return res.data;
-        } catch (error: any) {
-            if (error.response) {
-                setError(`❌ ${error.response.data.detail}`);
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                setError(
+                    `❌ ${error.response?.data?.detail ?? "Erreur serveur"}`,
+                );
             } else {
                 setError("❌ Erreur lors de l'acceptation de l'offre.");
             }

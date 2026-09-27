@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { useLogin } from "../components/hooks/auth";
 
@@ -34,11 +34,13 @@ function Login() {
                                     />
                                 </div>
                                 <div className="container">
-                                    <label>
+                                    <label htmlFor="login-username">
                                         <b>Nom d'utilisateur</b>
                                     </label>
                                     <input
-                                        type="username"
+                                        id="login-username"
+                                        type="text"
+                                        autoComplete="username"
                                         {...register("username", {
                                             required: true,
                                         })}
@@ -49,11 +51,13 @@ function Login() {
                                             *Nom* obligatoire
                                         </span>
                                     )}
-                                    <label>
+                                    <label htmlFor="login-password">
                                         <b>Mot de passe</b>
                                     </label>
                                     <input
+                                        id="login-password"
                                         type="password"
+                                        autoComplete="current-password"
                                         {...register("password", {
                                             required: true,
                                         })}

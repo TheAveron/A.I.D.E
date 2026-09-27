@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 import type {
     TransactionHook,
@@ -14,7 +14,7 @@ export function useTransaction(transactionId: string | null): TransactionHook {
     const { token } = useAuth();
 
     const [transaction, setTransactions] = useState<TransactionType | null>(
-        null
+        null,
     );
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export function useTransaction(transactionId: string | null): TransactionHook {
                 setLoading(true);
 
                 const res = await axios.get<TransactionType>(
-                    `../transactions/${transactionId}`
+                    `../transactions/${transactionId}`,
                 );
 
                 setTransactions(res.data);
@@ -56,7 +56,7 @@ export function useTransactions({
     const { token } = useAuth();
 
     const [transactions, setTransactions] = useState<TransactionType[] | null>(
-        null
+        null,
     );
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -73,7 +73,7 @@ export function useTransactions({
             params.append("offer_id", offerId);
         }
         return params.toString();
-    }, [factionId, userId]);
+    }, [factionId, offerId, userId]);
 
     useEffect(() => {
         if (!token) return;
@@ -83,7 +83,7 @@ export function useTransactions({
                 setLoading(true);
 
                 const res = await axios.get<TransactionType[]>(
-                    `../transactions/?${query}`
+                    `../transactions/?${query}`,
                 );
 
                 setTransactions(res.data);

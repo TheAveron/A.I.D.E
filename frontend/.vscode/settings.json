@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "printf": true,
+        "npx tsc": true,
+        "true": true,
+        "npx eslint": true
+    }
+}

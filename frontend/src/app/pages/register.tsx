@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { useRegister } from "../components/hooks/auth";
 
@@ -32,11 +32,13 @@ function Register() {
                                     />
                                 </div>
                                 <div className="container">
-                                    <label>
+                                    <label htmlFor="register-username">
                                         <b>Nom d'utilisateur</b>
                                     </label>
                                     <input
-                                        type="username"
+                                        id="register-username"
+                                        type="text"
+                                        autoComplete="username"
                                         {...register("username", {
                                             required: true,
                                         })}
@@ -48,11 +50,13 @@ function Register() {
                                             {errors.username?.message}
                                         </span>
                                     )}
-                                    <label>
+                                    <label htmlFor="register-password">
                                         <b>Mot de passe</b>
                                     </label>
                                     <input
+                                        id="register-password"
                                         type="password"
+                                        autoComplete="new-password"
                                         {...register("password")}
                                         placeholder="Entrez un mot de passe"
                                     />
@@ -61,15 +65,17 @@ function Register() {
                                             {errors.password?.message}
                                         </span>
                                     )}
-                                    <label>
+                                    <label htmlFor="register-confirm-password">
                                         <b>Confirmation</b>
                                     </label>
                                     <input
+                                        id="register-confirm-password"
                                         type="password"
+                                        autoComplete="new-password"
                                         {...register("cpassword")}
                                         placeholder="Entrez votre mot de passe"
                                     />
-                                    {errors.password && (
+                                    {errors.cpassword && (
                                         <span style={{ color: "red" }}>
                                             {errors.cpassword?.message}
                                         </span>

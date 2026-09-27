@@ -1,4 +1,3 @@
-import type { UseFormReturn } from "react-hook-form";
 import type { HookForm, HookResult } from "./hooks";
 
 export interface FactionFormData {
@@ -18,8 +17,7 @@ export interface FactionHook extends HookResult {
 
 export interface FactionsHook extends HookResult {
     factions: FactionType[] | null;
+    refresh: () => void;
 }
 
-export interface FactionFormHook extends HookForm {
-    form: UseFormReturn<FactionFormData, any, FactionFormData>;
-}
+export type FactionFormHook = HookForm<FactionFormData>;

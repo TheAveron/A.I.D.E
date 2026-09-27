@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 import type { OfferHistoriesHook, OfferHistoryType } from "../../types/history";
 
@@ -36,7 +36,7 @@ export function useOfferHistoriesByActor({
             params.append("actor_user_id", offer_id);
         }
         return params.toString();
-    }, [actorFactionId, actorUserId]);
+    }, [actorFactionId, actorUserId, offer_id]);
 
     useEffect(() => {
         if (!token) return;
@@ -46,7 +46,7 @@ export function useOfferHistoriesByActor({
                 setLoading(true);
 
                 const res = await axios.get<OfferHistoryType[]>(
-                    `/history?${query}`
+                    `/history?${query}`,
                 );
 
                 setOfferHistories(res.data);

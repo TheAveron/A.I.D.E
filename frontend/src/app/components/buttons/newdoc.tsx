@@ -4,7 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import * as yup from "yup";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 export type DocumentFormData = {
     title: string;
@@ -43,7 +43,7 @@ export function NewDocument() {
         try {
             if (!token) {
                 throw new Error(
-                    "Vous devez être connecté pour créer un document."
+                    "Vous devez être connecté pour créer un document.",
                 );
             }
             const res = await axios.post("/documents/create", data);
@@ -52,8 +52,8 @@ export function NewDocument() {
             reset();
             setIsOpen(false);
             window.location.reload();
-        } catch (error: any) {
-            if (error.response?.status === 409) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Un document avec ce titre existe déjà.");
             } else {
                 setMessage("❌ Erreur lors de la création du document.");

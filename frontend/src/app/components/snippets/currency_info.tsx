@@ -1,10 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { useCurrency } from "../hooks/factioncurrency";
 import { NewCurrency } from "../buttons/newcurrency";
 
 export default function CurrencyInfo() {
     const { factionid } = useParams();
-    const { currency, loading, error } = useCurrency(factionid ?? null);
+    const { currency, loading, error, refresh } = useCurrency(
+        factionid ?? null,
+    );
 
     return (
         <div className="snippet-container faction-page currency-container">
@@ -37,7 +39,7 @@ export default function CurrencyInfo() {
                             </div>
                         </div>
                     ) : (
-                        <NewCurrency />
+                        <NewCurrency onCreated={refresh} />
                     )
                 ) : (
                     <p>Chargement de la monnaie...</p>

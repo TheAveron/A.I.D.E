@@ -1,5 +1,5 @@
 header {
-    width: 100vw;
+    width: 100%;
     padding: 2vh 4vw;
     display: flex;
     flex-direction: row;
@@ -36,6 +36,34 @@ header .title {
 
 header nav .link:hover {
     color: var(--primary-700);
+}
+
+header nav .link:focus-visible,
+header .title:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+}
+
+@media only screen and (max-width: 700px) {
+    header {
+        min-height: 72px;
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    header .title {
+        font-size: 1.35rem;
+    }
+
+    nav {
+        column-gap: 0.75rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    header .link {
+        font-size: 1rem;
+    }
 }
 
 @media only screen and (min-width: 1500px) {
