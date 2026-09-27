@@ -94,13 +94,17 @@ export default function FactionTable({
                                                 faction.faction_id ? (
                                                     <td>
                                                         <div
-                                                            onClick={(event) => {
+                                                            onClick={(
+                                                                event,
+                                                            ) => {
                                                                 event.preventDefault();
                                                                 event.stopPropagation();
                                                             }}
                                                         >
                                                             <UpdateFactionButton
-                                                                userId={user.user_id}
+                                                                userId={
+                                                                    user.user_id
+                                                                }
                                                                 currentFactionId={
                                                                     user.faction_id
                                                                 }
