@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { type ComponentProps } from "react";
 import {
     decodeMarkdownHref,
+    getDocumentRoute,
     isSafeExternalHref,
     isSafeInternalHref,
 } from "../utils/safe_markdown_link";
@@ -17,7 +18,7 @@ export const components: Components = {
 
         if (href.startsWith("doc://")) {
             const docName = href.replace("doc://", "");
-            return <Link to={`/documents/${docName}`}>{children}</Link>;
+            return <Link to={getDocumentRoute(docName)}>{children}</Link>;
         }
 
         if (href.startsWith("#")) {

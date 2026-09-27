@@ -8,6 +8,7 @@ import rehypeSlug from "rehype-slug";
 import { Link as RouterLink } from "react-router";
 import {
     decodeMarkdownHref,
+    getDocumentRoute,
     isSafeExternalHref,
     isSafeInternalHref,
 } from "./safe_markdown_link";
@@ -66,7 +67,7 @@ function DocuLoader({ server, page, folder }: DocParams) {
             if (href.startsWith("doc://")) {
                 const docName = href.replace("doc://", "");
                 return (
-                    <RouterLink to={`/documents/${docName}`}>
+                    <RouterLink to={getDocumentRoute(docName)}>
                         {children}
                     </RouterLink>
                 );

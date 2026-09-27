@@ -13,3 +13,13 @@ export function isSafeExternalHref(href: string): boolean {
 export function isSafeInternalHref(href: string): boolean {
     return href.startsWith("/") && !href.startsWith("//");
 }
+
+export function getDocumentRoute(documentName: string): string {
+    const segments = documentName
+        .split("/")
+        .filter((segment) => segment && segment !== "." && segment !== "..");
+
+    return `/A.I.D.E/archives/documentation/${segments
+        .map((segment) => encodeURIComponent(segment))
+        .join("/")}`;
+}
