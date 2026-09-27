@@ -75,15 +75,29 @@ def update_faction(
     if not faction:
         raise HTTPException(status_code=404, detail="Faction not found")
 
-    # NOTE: this reuses the MANAGE_ROLES permission (the pre-existing
-    # choice for this endpoint) - it does not gate is_approved on a
-    # separate/staff-only permission. See the accompanying summary for
-    # why that's a separate, non-quick-fix concern.
-    check_faction_permission(
-        current_user,
-        FactionPermission.MANAGE_ROLES,
-        target_faction_id=faction.faction_id,
-    )
+    # Which fields the client actually sent (as opposed to left unset) -
+    # mirrors the exclude_unset=True logic used in update_faction_validation.
+    provided_fields = faction_update.dict(exclude_unset=True)
+
+    # is_approved is the server's own "this faction is legitimate" stamp:
+    # it must only ever be set by a real admin, never by a faction's own
+    # leadership (manage_roles is a faction-internal permission, not a
+    # staff one).
+    if "is_approved" in provided_fields and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only a server admin can approve or unapprove a faction",
+        )
+
+    # Any other field (name, description, ...) still goes through the
+    # normal faction-scoped permission check.
+    other_fields = {k: v for k, v in provided_fields.items() if k != "is_approved"}
+    if other_fields:
+        check_faction_permission(
+            current_user,
+            FactionPermission.MANAGE_ROLES,
+            target_faction_id=faction.faction_id,
+        )
 
     try:
         updated_faction = faction_crud.update_faction_validation(
@@ -105,9 +119,7 @@ def delete_faction(
         raise HTTPException(status_code=404, detail="Faction not found")
 
     check_faction_permission(
-        current_user,
-        FactionPermission.MANAGE_ROLES,
-        target_faction_id=faction.faction_id,
+        current_user, FactionPermission.MANAGE_ROLES, target_faction_id=faction.faction_id
     )
 
     faction_crud.delete_faction(db, faction)
