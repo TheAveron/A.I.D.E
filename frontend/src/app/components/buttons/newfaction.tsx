@@ -1,8 +1,8 @@
 import { useNewFaction } from "../hooks/faction";
 
-export function NewFaction() {
+export function NewFaction({ onCreated }: { onCreated?: () => void }) {
     const { form, loading, message, onSubmit, isOpen, setIsOpen } =
-        useNewFaction();
+        useNewFaction(onCreated);
 
     const {
         register,

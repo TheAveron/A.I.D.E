@@ -57,7 +57,7 @@ export function useFaction(faction_id: string | null): FactionHook {
     return { faction, loading, error };
 }
 
-export function useNewFaction(): FactionFormHook {
+export function useNewFaction(onCreated?: () => void): FactionFormHook {
     const { token } = useAuth();
     const { user, loading: userLoading, error: userError } = useMe();
     const { faction: UserFaction } = useFaction(
@@ -110,7 +110,7 @@ export function useNewFaction(): FactionFormHook {
             form.reset();
             setIsOpen(false);
 
-            window.location.reload();
+            onCreated?.();
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Une faction avec ce nom existe déjà.");

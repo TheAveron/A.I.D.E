@@ -31,6 +31,7 @@ export interface UserHook extends HookResult {
 
 export interface UsersHook extends HookResult {
     users: UserType[] | null;
+    refresh: () => void;
 }
 
 export type AuthLoginHook = HookFormBase<UserLoginForm>;

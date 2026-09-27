@@ -3,7 +3,6 @@ import { NewFaction } from "./buttons/newfaction";
 import { useFactions } from "./hooks/factions";
 import { useAllMemberCounts } from "./hooks/all_member_counts";
 import { useMe } from "./hooks/me";
-
 import FactionTable from "./snippets/factions_table";
 import { useFaction } from "./hooks/faction";
 
@@ -106,7 +105,7 @@ export default function FactionList() {
             <div className="factions-header">
                 <h2>Liste des factions</h2>
                 {(!UserFaction || UserFaction?.name === "Sans Faction") && (
-                    <NewFaction />
+                    <NewFaction onCreated={refresh} />
                 )}
             </div>
 
