@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import * as Yup from "yup";
 import axios from "axios";
@@ -34,6 +34,29 @@ const RegisterSchema = Yup.object().shape({
         .max(40, "Password cannot exceed more than 12 characters")
         .oneOf([Yup.ref("password")], "Passwords do not match"),
 });
+
+function getSafeReturnPath(state: unknown): string {
+    if (state && typeof state === "object" && "from" in state) {
+        const from = state.from;
+
+        if (from && typeof from === "object" && "pathname" in from) {
+            const location = from as {
+                pathname?: unknown;
+                search?: unknown;
+                hash?: unknown;
+            };
+
+            if (
+                typeof location.pathname === "string" &&
+                location.pathname.startsWith("/A.I.D.E")
+            ) {
+                return `${location.pathname}${typeof location.search === "string" ? location.search : ""}${typeof location.hash === "string" ? location.hash : ""}`;
+            }
+        }
+    }
+
+    return "/A.I.D.E";
+}
 
 export function useLogin(): AuthLoginHook {
     const { token, setToken } = useAuth() ?? {};
@@ -83,9 +106,16 @@ export function useLogin(): AuthLoginHook {
     });
 
     const navigate = useNavigate();
-    if (token) {
-        navigate("/A.I.D.E");
-    }
+    const location = useLocation();
+
+    useEffect(() => {
+        if (!token) return;
+
+        navigate(getSafeReturnPath(location.state), {
+            replace: true,
+            state: null,
+        });
+    }, [token, navigate, location.state]);
 
     return {
         form,
@@ -142,9 +172,11 @@ export function useRegister(): AuthRegisterHook {
     });
 
     const navigate = useNavigate();
-    if (token) {
-        navigate("/A.I.D.E");
-    }
+    useEffect(() => {
+        if (!token) return;
+
+        navigate("/A.I.D.E", { replace: true });
+    }, [token, navigate]);
 
     return {
         form,

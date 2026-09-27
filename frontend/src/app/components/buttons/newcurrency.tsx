@@ -1,8 +1,8 @@
 import { useNewCurrency } from "../hooks/factioncurrency";
 
-export function NewCurrency() {
+export function NewCurrency({ onCreated }: { onCreated?: () => void }) {
     const { form, loading, message, onSubmit, isOpen, setIsOpen } =
-        useNewCurrency();
+        useNewCurrency(onCreated);
 
     const {
         register,

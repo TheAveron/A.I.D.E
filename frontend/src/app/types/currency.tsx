@@ -14,6 +14,7 @@ export interface CurrencyType extends CurrencyForm {
 
 export interface CurrencyHook extends HookResult {
     currency: CurrencyType | null;
+    refresh: () => void;
 }
 
 export type CurrencyFormHook = HookForm<CurrencyForm>;

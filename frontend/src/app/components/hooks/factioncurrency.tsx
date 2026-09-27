@@ -32,6 +32,7 @@ export function useCurrency(faction_id: string | null): CurrencyHook {
     const [currency, setCurrency] = useState<CurrencyType | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         if (!token) {
@@ -62,12 +63,17 @@ export function useCurrency(faction_id: string | null): CurrencyHook {
         };
 
         fetchCurrency();
-    }, [token, faction_id]);
+    }, [token, faction_id, refreshKey]);
 
-    return { currency, loading, error };
+    return {
+        currency,
+        loading,
+        error,
+        refresh: () => setRefreshKey((value) => value + 1),
+    };
 }
 
-export function useNewCurrency(): CurrencyFormHook {
+export function useNewCurrency(onCreated?: () => void): CurrencyFormHook {
     const { token } = useAuth() ?? {};
 
     const { user, loading: userLoading, error: userError } = useMe();
@@ -109,7 +115,7 @@ export function useNewCurrency(): CurrencyFormHook {
             setMessage(`✅ Monnaie "${res.data.name}" créée avec succès`);
             form.reset();
             setIsOpen(false);
-            window.location.reload();
+            onCreated?.();
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage(
