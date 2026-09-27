@@ -21,7 +21,7 @@ export function useRole(role_id: number | null): RoleHook {
             try {
                 setLoading(true);
                 const res = await axios.get<RoleType>(
-                    `../roles/detail/${role_id}`
+                    `../roles/detail/${role_id}`,
                 );
                 setRole(res.data);
             } catch (error) {
@@ -37,14 +37,14 @@ export function useRole(role_id: number | null): RoleHook {
     return { role, loading, error };
 }
 interface UpdateUserPayload {
-    faction_id?: string | null;
-    role_id?: string | null;
+    faction_id?: number | null;
+    role_id?: number | null;
 }
 
 interface UseUpdateUserHook {
     updateUser: (
         userId: number | null,
-        data: UpdateUserPayload
+        data: UpdateUserPayload,
     ) => Promise<UserType | null>;
     loading: boolean;
     error: string | null;
@@ -58,7 +58,7 @@ export function useUpdateUser(): UseUpdateUserHook {
     const updateUser = useCallback(
         async (
             userId: number | null,
-            data: UpdateUserPayload
+            data: UpdateUserPayload,
         ): Promise<UserType | null> => {
             if (!token) {
                 setError("No authentication token");
@@ -84,7 +84,7 @@ export function useUpdateUser(): UseUpdateUserHook {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
-                    }
+                    },
                 );
 
                 return res.data;
@@ -95,7 +95,7 @@ export function useUpdateUser(): UseUpdateUserHook {
                 setLoading(false);
             }
         },
-        [token]
+        [token],
     );
 
     return { updateUser, loading, error };

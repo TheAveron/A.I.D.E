@@ -52,8 +52,8 @@ export function NewDocument() {
             reset();
             setIsOpen(false);
             window.location.reload();
-        } catch (error: any) {
-            if (error.response?.status === 409) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Un document avec ce titre existe déjà.");
             } else {
                 setMessage("❌ Erreur lors de la création du document.");

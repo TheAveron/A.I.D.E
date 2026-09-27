@@ -38,7 +38,7 @@ export function UpdateFactionButton({
     const [message, setMessage] = useState<string | null>(null);
 
     const currentRole = currentFactionRoles?.find(
-        (r) => r.role_id === currentRoleId
+        (r) => r.role_id === currentRoleId,
     );
 
     const userHasChefRole = currentRole?.name === "Chef";
@@ -60,8 +60,8 @@ export function UpdateFactionButton({
 
         try {
             const updatedUser = await updateUser(userId, {
-                faction_id: factionId.toString(),
-                role_id: inviteRole.role_id.toString(),
+                faction_id: factionId,
+                role_id: inviteRole.role_id,
             });
 
             if (updatedUser) {
