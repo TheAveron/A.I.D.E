@@ -6,6 +6,11 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 
 import { Link as RouterLink } from "react-router";
+import {
+    decodeMarkdownHref,
+    isSafeExternalHref,
+    isSafeInternalHref,
+} from "./safe_markdown_link";
 
 type DocParams = {
     server: string;
@@ -46,7 +51,8 @@ function DocuLoader({ server, page, folder }: DocParams) {
         a: ({ href, children }) => {
             if (!href) return <span>{children}</span>;
 
-            href = decodeURIComponent(href);
+            href = decodeMarkdownHref(href) ?? "";
+            if (!href) return <span>{children}</span>;
 
             if (href.startsWith("doc://")) {
                 const docName = href.replace("doc://", "");
@@ -63,7 +69,9 @@ function DocuLoader({ server, page, folder }: DocParams) {
                         href={href}
                         onClick={(e: MouseEvent<HTMLAnchorElement>) => {
                             e.preventDefault();
-                            const target = document.querySelector(href);
+                            const target = document.getElementById(
+                                href.slice(1),
+                            );
                             if (target)
                                 target.scrollIntoView({ behavior: "smooth" });
                         }}
@@ -74,7 +82,7 @@ function DocuLoader({ server, page, folder }: DocParams) {
                 );
             }
 
-            if (href.startsWith("http")) {
+            if (isSafeExternalHref(href)) {
                 return (
                     <a href={href} target="_blank" rel="noopener noreferrer">
                         {children}
@@ -82,7 +90,11 @@ function DocuLoader({ server, page, folder }: DocParams) {
                 );
             }
 
-            return <a href={href}>{children}</a>;
+            if (isSafeInternalHref(href)) {
+                return <a href={href}>{children}</a>;
+            }
+
+            return <span>{children}</span>;
         },
     };
 

@@ -2,7 +2,7 @@ import { useNewOffer } from "../hooks/offers";
 import { useMe } from "../hooks/me";
 import { useRole } from "../hooks/role";
 
-export function NewOffer() {
+export function NewOffer({ onCreated }: { onCreated?: () => void }) {
     const { user } = useMe();
     const { role } = useRole(user?.role_id ?? null);
 
@@ -15,7 +15,7 @@ export function NewOffer() {
         setIsOpen,
         forFaction,
         setForFaction,
-    } = useNewOffer();
+    } = useNewOffer(onCreated);
 
     const {
         register,

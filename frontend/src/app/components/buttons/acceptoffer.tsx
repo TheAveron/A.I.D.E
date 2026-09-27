@@ -64,10 +64,12 @@ export function AcceptOfferButton({
                 buyFor === "faction" ? user?.faction_id : undefined,
         };
 
-        await acceptOffer(offerId, payload);
+        const acceptedOffer = await acceptOffer(offerId, payload);
 
-        if (!error && onAccepted) onAccepted();
-        if (!error) setIsOpen(false);
+        if (acceptedOffer) {
+            onAccepted?.();
+            setIsOpen(false);
+        }
     };
 
     return (
@@ -97,8 +99,8 @@ export function AcceptOfferButton({
                                         setQuantity(
                                             Math.min(
                                                 Number(e.target.value || 0),
-                                                offerQuantity
-                                            )
+                                                offerQuantity,
+                                            ),
                                         )
                                     }
                                 />

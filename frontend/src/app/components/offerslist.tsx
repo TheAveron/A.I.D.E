@@ -50,7 +50,7 @@ function OfferRow({ offer }: { offer: OfferType }) {
                         offerQuantity={offer.quantity}
                         offerUserId={offer.user_id}
                         offerFactionId={offer.faction_id}
-                        onAccepted={() => window.location.reload()}
+                        onAccepted={refresh}
                     />
                 ) : (
                     <></>
@@ -69,7 +69,7 @@ export default function OfferList({
     factionId?: string | null;
     offersPerPage?: number;
 }) {
-    const { offers, loading, error } = useOffersList();
+    const { offers, loading, error, refresh } = useOffersList();
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState<"price" | "date" | null>(null);
     const [page, setPage] = useState(1);
@@ -122,7 +122,7 @@ export default function OfferList({
         <div className="snippet-container offers-container">
             <div className="offers-header">
                 <h2>Liste des offres</h2>
-                <NewOffer />
+                <NewOffer onCreated={refresh} />
             </div>
 
             <div className="toolbar">

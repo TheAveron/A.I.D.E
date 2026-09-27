@@ -57,6 +57,7 @@ export interface OfferHook extends HookResult {
 
 export interface OffersHook extends HookResult {
     offers: OfferType[] | null;
+    refresh: () => void;
 }
 
 export interface OfferFormHook extends HookForm {

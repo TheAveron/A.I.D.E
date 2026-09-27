@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
 
+const allowedMapPages = new Set([
+    "OCube_crusader",
+    "OLSLN",
+    "OLSPLW_zoom",
+    "OStrong_world_zoom",
+    "OSurvival_islands_zoom",
+    "OUtopia_zoom",
+    "EUtopia_zoom",
+]);
+
 function toggleLayout(isColumn: boolean) {
     const mapTitle = document.getElementById("map-title");
     if (isColumn) {
@@ -11,6 +21,7 @@ function toggleLayout(isColumn: boolean) {
 
 function PageGenerator(page: string, render: boolean) {
     const [showIframe, setShowIframe] = useState(render);
+    const safePage = allowedMapPages.has(page) ? page : null;
     let isColumn = true;
 
     useEffect(() => {
@@ -72,10 +83,11 @@ function PageGenerator(page: string, render: boolean) {
                 </section>
             )}
 
-            {showIframe && (
+            {showIframe && safePage && (
                 <iframe
-                    title={`Map Viewer for ${page}`}
-                    src={`/A.I.D.E/maps/${page}/index.html`}
+                    title={`Map Viewer for ${safePage}`}
+                    src={`/A.I.D.E/maps/${safePage}/index.html`}
+                    sandbox="allow-scripts"
                     style={{ width: "100%", height: "96vh", border: "none" }}
                 />
             )}

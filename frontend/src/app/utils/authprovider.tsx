@@ -28,7 +28,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(() => {
         if (typeof window !== "undefined") {
-            return localStorage.getItem("token");
+            return sessionStorage.getItem("token");
         }
         return null;
     });
@@ -40,7 +40,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
                 const decoded = jwtDecode<DecodedToken>(token);
 
-                if (!decoded.exp) {
+                if (!Number.isFinite(decoded.exp) || decoded.exp <= 0) {
                     console.warn("Token does not contain an expiration claim");
                     setToken(null);
                     return;
@@ -58,7 +58,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
                     axios.defaults.headers.common["Authorization"] =
                         `Bearer ${token}`;
-                    localStorage.setItem("token", token);
+                    sessionStorage.setItem("token", token);
                 }
             } catch (error) {
                 console.error("Invalid token", error);
@@ -66,7 +66,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
         } else {
             delete axios.defaults.headers.common["Authorization"];
-            localStorage.removeItem("token");
+            sessionStorage.removeItem("token");
         }
 
         return () => {

@@ -52,8 +52,10 @@ export function useLogin(): AuthLoginHook {
 
             const response = await axios.post<AuthType>("/auth/login", data);
 
-            setToken?.(response.data.access_token);
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            const accessToken = response.data.access_token;
+            setToken?.(accessToken);
+            axios.defaults.headers.common["Authorization"] =
+                `Bearer ${accessToken}`;
 
             setMessage("You Are Successfully Logged In");
         } catch (error: any) {
@@ -107,8 +109,10 @@ export function useRegister(): AuthRegisterHook {
         try {
             const res = await axios.post<AuthType>("/auth/register", payload);
 
-            setToken?.(res.data.access_token);
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            const accessToken = res.data.access_token;
+            setToken?.(accessToken);
+            axios.defaults.headers.common["Authorization"] =
+                `Bearer ${accessToken}`;
 
             setMessage("Registration successful!");
         } catch (error: any) {

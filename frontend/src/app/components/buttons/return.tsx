@@ -12,7 +12,12 @@ export function GoBackButton({ label = "Retour" }: GoBackButtonProps) {
     }
 
     return (
-        <div id="previous" onClick={handleGoBack} className="button">
+        <button
+            id="previous"
+            type="button"
+            onClick={handleGoBack}
+            className="button"
+        >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
@@ -29,6 +34,6 @@ export function GoBackButton({ label = "Retour" }: GoBackButtonProps) {
                 />
             </svg>
             <p>{label}</p>
-        </div>
+        </button>
     );
 }
