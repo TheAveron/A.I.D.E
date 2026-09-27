@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { useCurrency } from "../hooks/factioncurrency";
 import { NewCurrency } from "../buttons/newcurrency";
 

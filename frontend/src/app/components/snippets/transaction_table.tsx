@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useTransactions } from "../hooks/transactions";
 import { useOffer } from "../hooks/offers";
 import type { TransactionType } from "../../types/transactions";
@@ -59,7 +59,7 @@ export function OfferRow({
                         <td
                             onClick={() => {
                                 navigate(
-                                    `/A.I.D.E/user/${transaction.offer_id}`
+                                    `/A.I.D.E/user/${transaction.offer_id}`,
                                 );
                             }}
                             style={{ cursor: "pointer" }}
@@ -84,11 +84,11 @@ export function OfferRow({
                         </td>
                         <td>
                             {new Date(
-                                transaction.timestamp
+                                transaction.timestamp,
                             ).toLocaleDateString() +
                                 ", " +
                                 new Date(
-                                    transaction.timestamp
+                                    transaction.timestamp,
                                 ).toLocaleTimeString()}
                         </td>
                     </>

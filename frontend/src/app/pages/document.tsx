@@ -2,7 +2,7 @@ import axios from "axios";
 import { components } from "../components/markdownlink";
 
 import { useEffect, useState, Suspense } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";

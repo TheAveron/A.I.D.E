@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { type RoleType } from "../../types/roles";
 import { useRoles } from "../hooks/factionroles";
 

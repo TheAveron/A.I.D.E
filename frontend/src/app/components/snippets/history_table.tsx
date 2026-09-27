@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useOfferHistoriesByActor } from "../hooks/offer_history";
 import Username from "./username";
 import Factionname from "./factionname";
@@ -26,7 +26,7 @@ export default function HistoryTable({
         copy.sort(
             (a, b) =>
                 new Date(b.timestamp).getTime() -
-                new Date(a.timestamp).getTime()
+                new Date(a.timestamp).getTime(),
         );
 
         return copy;
@@ -64,7 +64,7 @@ export default function HistoryTable({
                                                 onClick={() => {
                                                     navigate(
                                                         "/A.I.D.E/user/" +
-                                                            offer.offer_id
+                                                            offer.offer_id,
                                                     );
                                                 }}
                                             >
@@ -95,11 +95,11 @@ export default function HistoryTable({
                                             <td>{offer.notes}</td>
                                             <td>
                                                 {new Date(
-                                                    offer.timestamp
+                                                    offer.timestamp,
                                                 ).toLocaleDateString() +
                                                     ", " +
                                                     new Date(
-                                                        offer.timestamp
+                                                        offer.timestamp,
                                                     ).toLocaleTimeString()}
                                             </td>
                                         </tr>
@@ -144,10 +144,10 @@ export default function HistoryTable({
                             setPage((p) =>
                                 p <
                                 Math.ceil(
-                                    sortedHistories.length / HistoriesPerPage
+                                    sortedHistories.length / HistoriesPerPage,
                                 )
                                     ? p + 1
-                                    : p
+                                    : p,
                             )
                         }
                         disabled={

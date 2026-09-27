@@ -1,6 +1,6 @@
 import { type MouseEvent } from "react";
 import { type Components } from "react-markdown";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { type ComponentProps } from "react";
 
 export const components: Components = {

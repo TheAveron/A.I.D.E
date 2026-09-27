@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
@@ -61,7 +61,7 @@ export function useLogin(): AuthLoginHook {
                 setMessage("❌  Mot de passe incorrect");
             } else if (error.response?.status === 404) {
                 setMessage(
-                    "❌ Il n'y a pas de compte avec ce nom d'utilisateur"
+                    "❌ Il n'y a pas de compte avec ce nom d'utilisateur",
                 );
             } else {
                 setMessage(`Login error: ${error.message}`);

@@ -4,7 +4,7 @@ import RolesTable from "../components/snippets/roles_table";
 import UsersTable from "../components/snippets/userlist";
 
 import TransactionsTable from "../components/snippets/transaction_table";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { useMe } from "../components/hooks/me";
 import { useRole } from "../components/hooks/role";
 import HistoryTable from "../components/snippets/history_table";

@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 
 import { useRole } from "../hooks/role";
 import { useMembers } from "../hooks/factionmembers";
@@ -106,7 +106,7 @@ function UsersTable({ state = false }: { state: boolean }) {
                                                 onClick={() => {
                                                     navigate(
                                                         "/A.I.D.E/user/" +
-                                                            user.user_id
+                                                            user.user_id,
                                                     );
                                                 }}
                                             >

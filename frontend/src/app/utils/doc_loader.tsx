@@ -5,7 +5,7 @@ import { GoBackButton } from "../components/buttons/return";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router";
 
 type DocParams = {
     server: string;

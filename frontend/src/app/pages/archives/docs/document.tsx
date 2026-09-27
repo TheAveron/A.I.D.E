@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import DocuLoader from "../../../utils/doc_loader";
 
 type DocumentLoader = {

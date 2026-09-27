@@ -43,7 +43,7 @@ export function NewDocument() {
         try {
             if (!token) {
                 throw new Error(
-                    "Vous devez être connecté pour créer un document."
+                    "Vous devez être connecté pour créer un document.",
                 );
             }
             const res = await axios.post("/documents/create", data);

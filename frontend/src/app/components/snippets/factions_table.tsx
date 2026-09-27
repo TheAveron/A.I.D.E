@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import CurrencyCell from "../snippets/currency_cell";
 import MemberCounter from "../snippets/member_count";
 import type { FactionType } from "../../types/factions";
