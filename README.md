@@ -1,5 +1,7 @@
 # A.I.D.E
 
+[![CodeQL](https://github.com/TheAveron/A.I.D.E/actions/workflows/codeql.yml/badge.svg)](https://github.com/TheAveron/A.I.D.E/actions/workflows/codeql.yml)
+
 (Assistant Intelligent Dédié à l'Economie)
 
 Ce dépot regroupe les maps des différents realms, le bot qui gère les Friendship crédits, ainsi que les différents règlements du realm;
