@@ -21,12 +21,11 @@ from app.api import (
 from app.core.logger import setup_logger
 from app.core.settings import ORIGINS
 
-
 version = "1.2.0"
 
 app = FastAPI(
     title="A.I.D.E API",
-    root_path="/A.I.D.E",
+    root_path="",
     description="API for the A.I.D.E game system",
     version=version,
     openapi_tags=[

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 const allowedMapPages = new Set([
+    "OAOS_zoom",
     "OCube_crusader",
     "OLSLN",
     "OLSPLW_zoom",
@@ -51,7 +52,7 @@ function PageGenerator(page: string, render: boolean) {
             if (renderBlock) renderBlock.style.display = "";
             if (footerBlock) footerBlock.style.display = "";
             if (headerBlock) {
-                headerBlock.style.display = "4vh";
+                headerBlock.style.height = "4vh";
                 headerBlock.style.minHeight = "75px";
                 headerBlock.style.paddingTop = " 2vh";
                 headerBlock.style.paddingBottom = " 2vh";
@@ -64,6 +65,8 @@ function PageGenerator(page: string, render: boolean) {
             toggleLayout(true);
         };
     }, [showIframe]);
+
+    console.log(safePage);
 
     return (
         <>
@@ -82,7 +85,7 @@ function PageGenerator(page: string, render: boolean) {
             {showIframe && safePage && (
                 <iframe
                     title={`Map Viewer for ${safePage}`}
-                    src={`/A.I.D.E/maps/${safePage}/index.html`}
+                    src={`/maps/${safePage}/index.html`}
                     sandbox="allow-scripts"
                     style={{ width: "100%", height: "96vh", border: "none" }}
                 />

@@ -58,9 +58,7 @@ export function OfferRow({
                     <>
                         <td
                             onClick={() => {
-                                navigate(
-                                    `/A.I.D.E/user/${transaction.offer_id}`,
-                                );
+                                navigate(`/user/${transaction.offer_id}`);
                             }}
                             style={{ cursor: "pointer" }}
                         >
