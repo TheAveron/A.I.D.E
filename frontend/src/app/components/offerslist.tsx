@@ -50,7 +50,9 @@ function OfferRow({
             </td>
             <td style={{ maxWidth: "fit-content" }}>
                 {offer.status === "OPEN" &&
-                (offer.user_id != user?.user_id || user?.faction_id) ? (
+                offer.user_id !== user?.user_id &&
+                (offer.faction_id == null ||
+                    offer.faction_id !== user?.faction_id) ? (
                     <AcceptOfferButton
                         offerId={offer.offer_id}
                         offerQuantity={offer.quantity}

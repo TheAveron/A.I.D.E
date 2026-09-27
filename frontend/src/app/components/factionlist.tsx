@@ -48,7 +48,7 @@ function FactionToolbar({
 }
 
 export default function FactionList() {
-    const { factions, loading, error } = useFactions();
+    const { factions, loading, error, refresh } = useFactions();
     const { user } = useMe();
     const { faction: UserFaction } = useFaction(
         user?.faction_id?.toString() ?? null,
@@ -126,6 +126,7 @@ export default function FactionList() {
                 totalPages={totalPages}
                 page={page}
                 setPage={setPage}
+                onRetry={refresh}
             />
         </div>
     );

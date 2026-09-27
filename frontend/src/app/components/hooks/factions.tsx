@@ -11,6 +11,7 @@ export function useFactions(): FactionsHook {
     const [factions, setFactions] = useState<FactionType[] | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         if (!token) return;
@@ -18,6 +19,7 @@ export function useFactions(): FactionsHook {
         const fetchFactions = async () => {
             try {
                 setLoading(true);
+                setError(null);
                 const res = await axios.get<FactionType[]>("/factions/list");
                 setFactions(res.data);
             } catch (err: unknown) {
@@ -33,7 +35,12 @@ export function useFactions(): FactionsHook {
         };
 
         fetchFactions();
-    }, [token]);
+    }, [token, refreshKey]);
 
-    return { factions, loading, error };
+    return {
+        factions,
+        loading,
+        error,
+        refresh: () => setRefreshKey((value) => value + 1),
+    };
 }

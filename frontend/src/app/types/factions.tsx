@@ -17,6 +17,7 @@ export interface FactionHook extends HookResult {
 
 export interface FactionsHook extends HookResult {
     factions: FactionType[] | null;
+    refresh: () => void;
 }
 
 export type FactionFormHook = HookForm<FactionFormData>;
