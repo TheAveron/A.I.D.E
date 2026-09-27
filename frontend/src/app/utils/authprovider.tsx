@@ -1,8 +1,7 @@
 // AuthProvider.tsx
 import axios from "axios";
 import {
-    createContext,
-    useContext,
+    useCallback,
     useEffect,
     useMemo,
     useState,
@@ -11,19 +10,13 @@ import {
 
 import { useNavigate } from "react-router";
 import { jwtDecode } from "jwt-decode";
+import { AuthContext } from "./authcontext";
 
 // --- Types ---
-interface AuthContextType {
-    token: string | null;
-    setToken: React.Dispatch<React.SetStateAction<string | null>>;
-}
-
 interface DecodedToken {
     exp: number;
     [key: string]: unknown;
 }
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(() => {
@@ -32,6 +25,23 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         return null;
     });
+
+    const navigate = useNavigate();
+
+    const handleLogout = useCallback(
+        (sessionExpired = false) => {
+            setToken(null);
+            if (sessionExpired) {
+                navigate("/A.I.D.E/login", {
+                    state: { message: "Session expired, please log in again." },
+                    replace: true,
+                });
+            } else {
+                navigate("/A.I.D.E/login", { replace: true });
+            }
+        },
+        [navigate],
+    );
 
     useEffect(() => {
         let logoutTimer: number;
@@ -72,21 +82,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => {
             if (logoutTimer) clearTimeout(logoutTimer);
         };
-    }, [token]);
-
-    const navigate = useNavigate();
-
-    const handleLogout = (sessionExpired = false) => {
-        setToken(null);
-        if (sessionExpired) {
-            navigate("/A.I.D.E/login", {
-                state: { message: "Session expired, please log in again." },
-                replace: true,
-            });
-        } else {
-            navigate("/A.I.D.E/login", { replace: true });
-        }
-    };
+    }, [token, handleLogout]);
 
     const contextValue = useMemo(() => ({ token, setToken }), [token]);
 
@@ -95,14 +91,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             {children}
         </AuthContext.Provider>
     );
-};
-
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
-    return context;
 };
 
 export default AuthProvider;

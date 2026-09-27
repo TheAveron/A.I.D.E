@@ -6,7 +6,7 @@ import { useState } from "react";
 import * as Yup from "yup";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 import type {
     UserLoginForm,
@@ -58,15 +58,24 @@ export function useLogin(): AuthLoginHook {
                 `Bearer ${accessToken}`;
 
             setMessage("You Are Successfully Logged In");
-        } catch (error: any) {
-            if (error.response?.status === 401) {
+        } catch (error: unknown) {
+            const status = axios.isAxiosError(error)
+                ? error.response?.status
+                : undefined;
+            if (status === 401) {
                 setMessage("❌  Mot de passe incorrect");
-            } else if (error.response?.status === 404) {
+            } else if (status === 404) {
                 setMessage(
                     "❌ Il n'y a pas de compte avec ce nom d'utilisateur",
                 );
             } else {
-                setMessage(`Login error: ${error.message}`);
+                setMessage(
+                    `Login error: ${
+                        axios.isAxiosError(error)
+                            ? error.message
+                            : "Unknown error"
+                    }`,
+                );
             }
         } finally {
             setLoading(false);
@@ -115,11 +124,17 @@ export function useRegister(): AuthRegisterHook {
                 `Bearer ${accessToken}`;
 
             setMessage("Registration successful!");
-        } catch (error: any) {
-            if (error.response?.status === 409) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Un utilisateur possède déjà ce nom");
             } else {
-                setMessage(`Registration error: ${error.message}`);
+                setMessage(
+                    `Registration error: ${
+                        axios.isAxiosError(error)
+                            ? error.message
+                            : "Unknown error"
+                    }`,
+                );
             }
         } finally {
             setLoading(false);

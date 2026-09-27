@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 import type { FactionsHook, FactionType } from "../../types/factions";
 
@@ -20,9 +20,13 @@ export function useFactions(): FactionsHook {
                 setLoading(true);
                 const res = await axios.get<FactionType[]>("/factions/list");
                 setFactions(res.data);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Error fetching factions:", err);
-                setError(err.message || "Failed to fetch facions");
+                setError(
+                    axios.isAxiosError(err)
+                        ? err.message
+                        : "Failed to fetch factions",
+                );
             } finally {
                 setLoading(false);
             }

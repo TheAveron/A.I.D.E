@@ -4,7 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import * as yup from "yup";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 export type DocumentFormData = {
     title: string;

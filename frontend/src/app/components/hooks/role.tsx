@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 import type { RoleHook, RoleType } from "../../types/roles";
 

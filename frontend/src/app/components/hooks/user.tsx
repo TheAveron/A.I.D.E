@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 import type { UserHook, UserType } from "../../types/users";
 
@@ -19,7 +19,7 @@ export function useUser(user_id: string | null): UserHook {
             try {
                 setLoading(true);
                 const res = await axios.get<UserType>(
-                    `../users/detail/${user_id}`
+                    `../users/detail/${user_id}`,
                 );
                 setUser(res.data);
             } catch (error) {

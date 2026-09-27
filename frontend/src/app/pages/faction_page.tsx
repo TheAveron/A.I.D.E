@@ -9,7 +9,6 @@ import { useMe } from "../components/hooks/me";
 import { useRole } from "../components/hooks/role";
 import HistoryTable from "../components/snippets/history_table";
 import OfferList from "../components/offerslist";
-import { useEffect, useState } from "react";
 import { useRoles } from "../components/hooks/factionroles";
 
 export default function FactionDashboard() {
@@ -19,9 +18,7 @@ export default function FactionDashboard() {
     const { role } = useRole(user?.role_id ?? null);
     const { roles } = useRoles(factionid ?? null);
 
-    const [active, setActive] = useState(false);
-
-    useEffect(() => setActive(role?.view_transactions ?? false));
+    const active = role?.view_transactions ?? false;
 
     return (
         <div className="information-container">

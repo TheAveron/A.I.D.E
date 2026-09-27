@@ -22,8 +22,6 @@ function toggleLayout(isColumn: boolean) {
 function PageGenerator(page: string, render: boolean) {
     const [showIframe, setShowIframe] = useState(render);
     const safePage = allowedMapPages.has(page) ? page : null;
-    let isColumn = true;
-
     useEffect(() => {
         if (!showIframe) return;
 
@@ -33,8 +31,7 @@ function PageGenerator(page: string, render: boolean) {
         const previousBlock = document.getElementById("previous");
 
         const main = document.getElementById("main");
-        isColumn = !isColumn;
-        toggleLayout(isColumn);
+        toggleLayout(false);
 
         if (renderBlock) renderBlock.style.display = "none";
         if (footerBlock) footerBlock.style.display = "none";
@@ -64,8 +61,7 @@ function PageGenerator(page: string, render: boolean) {
             if (previousBlock) previousBlock.style.top = "var(--header-height)";
             if (main) main.style.marginTop = "var(--header-height)";
 
-            isColumn = !isColumn;
-            toggleLayout(isColumn);
+            toggleLayout(true);
         };
     }, [showIframe]);
 

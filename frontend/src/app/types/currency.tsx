@@ -1,4 +1,3 @@
-import type { UseFormReturn } from "react-hook-form";
 import type { HookForm, HookResult } from "./hooks";
 
 export interface CurrencyForm {
@@ -17,9 +16,7 @@ export interface CurrencyHook extends HookResult {
     currency: CurrencyType | null;
 }
 
-export interface CurrencyFormHook extends HookForm {
-    form: UseFormReturn<CurrencyForm, any, CurrencyForm>;
-}
+export type CurrencyFormHook = HookForm<CurrencyForm>;
 
 export interface CurrencyCreateData extends CurrencyForm {
     faction_id: number | null;

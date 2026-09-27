@@ -1,4 +1,3 @@
-import type { UseFormReturn } from "react-hook-form";
 import type { HookForm, HookResult } from "./hooks";
 
 export type OfferTypeLiteral = "BUY" | "SELL";
@@ -60,8 +59,7 @@ export interface OffersHook extends HookResult {
     refresh: () => void;
 }
 
-export interface OfferFormHook extends HookForm {
-    form: UseFormReturn<OfferCreate, any, OfferCreate>;
+export interface OfferFormHook extends HookForm<OfferCreate> {
     forFaction: boolean;
     setForFaction: React.Dispatch<React.SetStateAction<boolean>>;
 }

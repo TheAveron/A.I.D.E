@@ -5,7 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 import { useMe } from "./me";
 
 import type {
@@ -61,8 +61,12 @@ export function useOffer(offer_id?: number): OfferHook {
                 );
 
                 setOffer(res.data);
-            } catch (err: any) {
-                setError(err.message || "Failed to fetch offer");
+            } catch (err: unknown) {
+                setError(
+                    axios.isAxiosError(err)
+                        ? err.message
+                        : "Failed to fetch offer",
+                );
             } finally {
                 setLoading(false);
             }
@@ -101,9 +105,13 @@ export function useOffersList(currency?: string, status?: string): OffersHook {
                     `/offers/list?${query}`,
                 );
                 setOffers(res.data);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Error fetching offers:", err);
-                setError(err.message || "Failed to fetch offers");
+                setError(
+                    axios.isAxiosError(err)
+                        ? err.message
+                        : "Failed to fetch offers",
+                );
             } finally {
                 setLoading(false);
             }
@@ -164,11 +172,17 @@ export function useNewOffer(onCreated?: () => void): OfferFormHook {
 
             setForFaction(false);
             onCreated?.();
-        } catch (error: any) {
-            if (error.response?.status === 409) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Une offre identique existe déjà.");
             } else {
-                setMessage(`❌ Error creating offer: ${error.message}`);
+                setMessage(
+                    `❌ Error creating offer: ${
+                        axios.isAxiosError(error)
+                            ? error.message
+                            : "Unknown error"
+                    }`,
+                );
             }
         } finally {
             setLoading(false);

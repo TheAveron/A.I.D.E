@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 import type { UserHook, UserType } from "../../types/users";
 
@@ -23,9 +23,13 @@ export function useMe(): UserHook {
                     },
                 });
                 setUser(res.data);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Error fetching me:", err);
-                setError(err.message || "Failed to fetch me");
+                setError(
+                    axios.isAxiosError(err)
+                        ? err.message
+                        : "Failed to fetch me",
+                );
             } finally {
                 setLoading(false);
             }

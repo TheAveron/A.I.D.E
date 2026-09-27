@@ -35,7 +35,7 @@ export default function HistoryTable({
     const paginatedHistories = useMemo(() => {
         const start = (page - 1) * HistoriesPerPage;
         return sortedHistories.slice(start, start + HistoriesPerPage);
-    }, [sortedHistories, page]);
+    }, [sortedHistories, page, HistoriesPerPage]);
 
     console.log("ee", paginatedHistories);
 

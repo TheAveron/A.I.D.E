@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { NewFaction } from "./buttons/newfaction";
 import { useFactions } from "./hooks/factions";
-import { useAllMemberCounts } from "./snippets/member_count";
+import { useAllMemberCounts } from "./hooks/all_member_counts";
 import { useMe } from "./hooks/me";
 
 import FactionTable from "./snippets/factions_table";
@@ -65,10 +65,13 @@ export default function FactionList() {
     const filteredFactions = useMemo(() => {
         if (!factions) return [];
 
-        const term = (search ?? "").toLowerCase(); // ensures it's always a string
-
         return factions
-            .filter((f) => [f.name, f.description].join(" ").toLowerCase())
+            .filter((f) =>
+                [f.name, f.description]
+                    .join(" ")
+                    .toLowerCase()
+                    .includes(search.toLowerCase()),
+            )
             .sort((a, b) => {
                 let comp = 0;
 

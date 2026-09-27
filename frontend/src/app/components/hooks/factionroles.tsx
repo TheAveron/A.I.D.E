@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 
 import type { RolesHook, RoleType } from "../../types/roles";
 
@@ -19,7 +19,7 @@ export function useRoles(faction_id: string | null): RolesHook {
             try {
                 setLoading(true);
                 const res = await axios.get<RoleType[]>(
-                    `/roles/faction/${faction_id}`
+                    `/roles/faction/${faction_id}`,
                 );
                 setRoles(res.data);
             } catch (error) {

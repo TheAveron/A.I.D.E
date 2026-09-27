@@ -19,7 +19,13 @@ const STATUS_CLASSES: Record<string, string> = {
     CANCELLED: "status cancelled",
 };
 
-function OfferRow({ offer }: { offer: OfferType }) {
+function OfferRow({
+    offer,
+    onAccepted,
+}: {
+    offer: OfferType;
+    onAccepted: () => void;
+}) {
     const { user } = useMe();
 
     return (
@@ -50,7 +56,7 @@ function OfferRow({ offer }: { offer: OfferType }) {
                         offerQuantity={offer.quantity}
                         offerUserId={offer.user_id}
                         offerFactionId={offer.faction_id}
-                        onAccepted={refresh}
+                        onAccepted={onAccepted}
                     />
                 ) : (
                     <></>
@@ -116,7 +122,7 @@ export default function OfferList({
     const paginatedOffers = useMemo(() => {
         const start = (page - 1) * offersPerPage;
         return sortedOffers.slice(start, start + offersPerPage);
-    }, [sortedOffers, page]);
+    }, [sortedOffers, page, offersPerPage]);
 
     return (
         <div className="snippet-container offers-container">
@@ -171,7 +177,11 @@ export default function OfferList({
                             </tr>
                         ) : paginatedOffers.length > 0 ? (
                             paginatedOffers.map((offer) => (
-                                <OfferRow key={offer.offer_id} offer={offer} />
+                                <OfferRow
+                                    key={offer.offer_id}
+                                    offer={offer}
+                                    onAccepted={refresh}
+                                />
                             ))
                         ) : (
                             <tr className="empty-state">

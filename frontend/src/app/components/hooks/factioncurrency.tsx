@@ -5,7 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import axios from "axios";
 
-import { useAuth } from "../../utils/authprovider";
+import { useAuth } from "../../utils/authcontext";
 import { useMe } from "../hooks/me";
 
 import type {
@@ -51,7 +51,7 @@ export function useCurrency(faction_id: string | null): CurrencyHook {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
-                    }
+                    },
                 );
                 setCurrency(res.data);
             } catch (error) {
@@ -88,12 +88,12 @@ export function useNewCurrency(): CurrencyFormHook {
         try {
             if (!token) {
                 throw new Error(
-                    "Vous devez être connecté pour créer une monnaie."
+                    "Vous devez être connecté pour créer une monnaie.",
                 );
             }
             if (!user)
                 throw new Error(
-                    `Unable to get user information. ${userError ?? ""}`
+                    `Unable to get user information. ${userError ?? ""}`,
                 );
 
             const payload: CurrencyCreateData = {
@@ -103,17 +103,17 @@ export function useNewCurrency(): CurrencyFormHook {
 
             const res = await axios.post<CurrencyType>(
                 "/currencies/create",
-                payload
+                payload,
             );
 
             setMessage(`✅ Monnaie "${res.data.name}" créée avec succès`);
             form.reset();
             setIsOpen(false);
             window.location.reload();
-        } catch (error: any) {
-            if (error.response?.status === 409) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage(
-                    "❌ Une monnaie avec ce nom ou symbole existe déjà."
+                    "❌ Une monnaie avec ce nom ou symbole existe déjà.",
                 );
             } else {
                 setMessage("❌ Erreur lors de la création de la monnaie.");

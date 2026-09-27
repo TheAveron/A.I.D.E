@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 
-import { useAuth } from "../utils/authprovider";
+import { useAuth } from "../utils/authcontext";
 
 function Header() {
     const { token } = useAuth() ?? {};
