@@ -63,7 +63,7 @@ export default function HistoryTable({
                                             <td
                                                 onClick={() => {
                                                     navigate(
-                                                        "/A.I.D.E/user/" +
+                                                        "/user/" +
                                                             offer.offer_id,
                                                     );
                                                 }}

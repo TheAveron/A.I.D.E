@@ -42,7 +42,7 @@ function Profile({ value }: { value: UserType }) {
                             <Link
                                 to={
                                     faction
-                                        ? `/A.I.D.E/faction/${faction.faction_id}`
+                                        ? `/faction/${faction.faction_id}`
                                         : "#"
                                 }
                                 style={{ width: "100%" }}

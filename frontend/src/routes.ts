@@ -6,54 +6,48 @@ import {
     layout,
 } from "@react-router/dev/routes";
 
-export default [
-    // * matches all URLs, the ? makes it optional so it will match / as well
-    route("/A.I.D.E", "./app/App.tsx", [
-        index("./app/pages/home.tsx"),
-        route("login", "./app/pages/login.tsx"),
-        route("register", "./app/pages/register.tsx"),
+const aideRoutes = [
+    index("./app/pages/home.tsx"),
 
-        layout("./app/utils/requireauth.tsx", [
-            route("contribuer", "./app/pages/contribution.tsx"),
-            route("factions", "./app/pages/factions.tsx"),
-            route("profile", "./app/pages/profile.tsx"),
-            route("offers", "./app/pages/offers.tsx"),
-            route("faction/:factionid", "./app/pages/faction_page.tsx"),
-            route("user/:userid", "./app/pages/user_page.tsx"),
-        ]),
+    route("login", "./app/pages/login.tsx"),
+    route("register", "./app/pages/register.tsx"),
 
-        ...prefix("archives", [
-            index("./app/pages/archives/archives.tsx"),
+    layout("./app/utils/requireauth.tsx", [
+        route("contribuer", "./app/pages/contribution.tsx"),
+        route("factions", "./app/pages/factions.tsx"),
+        route("profile", "./app/pages/profile.tsx"),
+        route("offers", "./app/pages/offers.tsx"),
 
-            ...prefix("documentation", [
-                route(
-                    "CubeCrusaders",
-                    "./app/pages/archives/docs/cc_docslist.tsx",
-                ),
-                route(
-                    "AgeOfSteam",
-                    "./app/pages/archives/docs/aos_doclist.tsx",
-                ),
-
-                route(
-                    "/:server/:page",
-                    "./app/pages/archives/docs/document.tsx",
-                ),
-                route(
-                    "/:server/:folder/:page",
-                    "./app/pages/archives/docs/faction_document.tsx",
-                ),
-            ]),
-
-            ...prefix("maps", [
-                route(":page", "./app/pages/archives/maps/mappage.tsx"),
-            ]),
-        ]),
-        route("actual", "./app/pages/archives/maps/currentmap.tsx"),
-        route(
-            "documentation/AgeOfSteam",
-            "./app/pages/archives/docs/currentdoc.tsx",
-        ),
-        route("*", "./app/pages/404.tsx"),
+        route("faction/:factionid", "./app/pages/faction_page.tsx"),
+        route("user/:userid", "./app/pages/user_page.tsx"),
     ]),
-] satisfies RouteConfig;
+
+    ...prefix("archives", [
+        index("./app/pages/archives/archives.tsx"),
+
+        ...prefix("documentation", [
+            route("CubeCrusaders", "./app/pages/archives/docs/cc_docslist.tsx"),
+            route("AgeOfSteam", "./app/pages/archives/docs/aos_doclist.tsx"),
+            route("/:server/:page", "./app/pages/archives/docs/document.tsx"),
+            route(
+                "/:server/:folder/:page",
+                "./app/pages/archives/docs/faction_document.tsx",
+            ),
+        ]),
+
+        ...prefix("maps", [
+            route(":page", "./app/pages/archives/maps/mappage.tsx"),
+        ]),
+    ]),
+
+    route("actual", "./app/pages/archives/maps/currentmap.tsx"),
+
+    route(
+        "documentation/AgeOfSteam",
+        "./app/pages/archives/docs/currentdoc.tsx",
+    ),
+
+    route("*", "./app/pages/404.tsx"),
+];
+
+export default [route("/", "./app/App.tsx", aideRoutes)] satisfies RouteConfig;
