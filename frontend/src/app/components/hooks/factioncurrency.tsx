@@ -36,11 +36,13 @@ export function useCurrency(faction_id: string | null): CurrencyHook {
 
     useEffect(() => {
         if (!token) {
-            throw new Error("Vous devez être connecté pour créer une faction.");
+            setError("Vous devez être connecté pour consulter la monnaie.");
+            return;
         }
 
         if (!faction_id) {
-            throw new Error("Aucune faction n'a été renseignée");
+            setError("Aucune faction n'a été renseignée.");
+            return;
         }
 
         const fetchCurrency = async () => {

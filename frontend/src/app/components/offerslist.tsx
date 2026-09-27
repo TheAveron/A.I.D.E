@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import { NewOffer } from "./buttons/newoffer";
 import { useOffersList } from "./hooks/offers";
@@ -77,10 +77,26 @@ export default function OfferList({
     factionId?: string | null;
     offersPerPage?: number;
 }) {
-    const { offers, loading, error, refresh } = useOffersList();
     const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [currencyFilter, setCurrencyFilter] = useState("");
+    const [knownCurrencies, setKnownCurrencies] = useState<string[]>([]);
     const [sortBy, setSortBy] = useState<"price" | "date" | null>(null);
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
     const [page, setPage] = useState(1);
+
+    const { offers, loading, error, refresh } = useOffersList(
+        currencyFilter || undefined,
+        statusFilter || undefined,
+    );
+
+    useEffect(() => {
+        setKnownCurrencies((current) => {
+            const currencies = new Set(current);
+            offers?.forEach((offer) => currencies.add(offer.currency_name));
+            return [...currencies].sort((a, b) => a.localeCompare(b));
+        });
+    }, [offers]);
 
     const normalizedUserId = userId?.toString();
     const normalizedFactionId = factionId?.toString();
@@ -118,8 +134,28 @@ export default function OfferList({
                     new Date(a.created_at).getTime(),
             );
         }
-        return copy;
-    }, [filteredOffers, sortBy]);
+        return sortDirection === "asc" ? copy : copy.reverse();
+    }, [filteredOffers, sortBy, sortDirection]);
+
+    const selectSort = (nextSort: "price" | "date") => {
+        if (sortBy === nextSort) {
+            setSortDirection((direction) =>
+                direction === "asc" ? "desc" : "asc",
+            );
+        } else {
+            setSortBy(nextSort);
+            setSortDirection("asc");
+        }
+        setPage(1);
+    };
+
+    const totalPages = Math.ceil(sortedOffers.length / offersPerPage);
+
+    useEffect(() => {
+        setPage((currentPage) =>
+            Math.min(Math.max(currentPage, 1), totalPages || 1),
+        );
+    }, [totalPages]);
 
     const paginatedOffers = useMemo(() => {
         const start = (page - 1) * offersPerPage;
@@ -143,13 +179,55 @@ export default function OfferList({
                         setPage(1);
                     }}
                 />
+                <select
+                    aria-label="Filtrer par statut"
+                    value={statusFilter}
+                    onChange={(event) => {
+                        setStatusFilter(event.target.value);
+                        setPage(1);
+                    }}
+                >
+                    <option value="">Tous les statuts</option>
+                    <option value="OPEN">Ouvertes</option>
+                    <option value="CLOSED">Complétées</option>
+                    <option value="CANCELLED">Annulées</option>
+                </select>
+                <select
+                    aria-label="Filtrer par monnaie"
+                    value={currencyFilter}
+                    onChange={(event) => {
+                        setCurrencyFilter(event.target.value);
+                        setPage(1);
+                    }}
+                >
+                    <option value="">Toutes les monnaies</option>
+                    {knownCurrencies.map((currency) => (
+                        <option key={currency} value={currency}>
+                            {currency}
+                        </option>
+                    ))}
+                </select>
                 <div className="sort-controls">
-                    <div className="button" onClick={() => setSortBy("price")}>
-                        Trier par prix
-                    </div>
-                    <div className="button" onClick={() => setSortBy("date")}>
-                        Trier par date
-                    </div>
+                    <button
+                        type="button"
+                        className="button"
+                        aria-pressed={sortBy === "price"}
+                        onClick={() => selectSort("price")}
+                    >
+                        Prix{" "}
+                        {sortBy === "price" &&
+                            (sortDirection === "asc" ? "↑" : "↓")}
+                    </button>
+                    <button
+                        type="button"
+                        className="button"
+                        aria-pressed={sortBy === "date"}
+                        onClick={() => selectSort("date")}
+                    >
+                        Date{" "}
+                        {sortBy === "date" &&
+                            (sortDirection === "asc" ? "↑" : "↓")}
+                    </button>
                 </div>
             </div>
 
@@ -171,6 +249,13 @@ export default function OfferList({
                             <tr>
                                 <td colSpan={7} style={{ color: "red" }}>
                                     Erreur lors du chargement des offres.
+                                    <button
+                                        type="button"
+                                        className="button"
+                                        onClick={refresh}
+                                    >
+                                        Réessayer
+                                    </button>
                                 </td>
                             </tr>
                         ) : loading ? (
@@ -194,7 +279,7 @@ export default function OfferList({
                 </table>
             </div>
 
-            {sortedOffers.length > offersPerPage && (
+            {totalPages > 1 && (
                 <div className="pagination-controls">
                     <button
                         onClick={() => setPage((p) => Math.max(p - 1, 1))}
@@ -209,17 +294,9 @@ export default function OfferList({
                     </span>
                     <button
                         onClick={() =>
-                            setPage((p) =>
-                                p <
-                                Math.ceil(sortedOffers.length / offersPerPage)
-                                    ? p + 1
-                                    : p,
-                            )
+                            setPage((p) => (p < totalPages ? p + 1 : p))
                         }
-                        disabled={
-                            page >=
-                            Math.ceil(sortedOffers.length / offersPerPage)
-                        }
+                        disabled={page >= totalPages}
                     >
                         Suivant
                     </button>
