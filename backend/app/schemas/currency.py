@@ -18,7 +18,7 @@ class CurrencyCreate(CurrencyBase):
 
 
 class CurrencyUpdate(BaseModel):
-    name: str = Field(..., max_length=50)
+    name: Optional[str] = Field(None, max_length=50)
     symbol: Optional[str] = Field(None, max_length=10)
     total_in_circulation: Optional[int] = Field(
         None, ge=0, description="Updated total in circulation"

@@ -41,7 +41,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> Auth:
         db=db,
         username=user.username,
         hashed_password=hashed_password,
-        admin=user.is_admin,
+        admin=False,
         faction_id=faction_id,
         role_id=role_id,
     )

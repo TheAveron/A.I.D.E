@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import faction as faction_crud
 from ..database import User, get_db
+from ..misc import FactionPermission, check_faction_permission
 from ..schemas import FactionCreate, FactionOut, FactionUpdate
 
 router = APIRouter(
@@ -68,17 +69,21 @@ def update_faction(
     faction_id: int,
     faction_update: FactionUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    if not (current_user.role and current_user.role.manage_roles):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You lack permission to update faction information",
-        )
-
     faction = faction_crud.get_faction(db, faction_id)
     if not faction:
         raise HTTPException(status_code=404, detail="Faction not found")
+
+    # NOTE: this reuses the MANAGE_ROLES permission (the pre-existing
+    # choice for this endpoint) - it does not gate is_approved on a
+    # separate/staff-only permission. See the accompanying summary for
+    # why that's a separate, non-quick-fix concern.
+    check_faction_permission(
+        current_user,
+        FactionPermission.MANAGE_ROLES,
+        target_faction_id=faction.faction_id,
+    )
 
     try:
         updated_faction = faction_crud.update_faction_validation(
@@ -93,17 +98,17 @@ def update_faction(
 def delete_faction(
     faction_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    if not (current_user.role and current_user.role.manage_roles):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You lack permission to delete faction",
-        )
-
     faction = faction_crud.get_faction(db, faction_id)
     if not faction:
         raise HTTPException(status_code=404, detail="Faction not found")
+
+    check_faction_permission(
+        current_user,
+        FactionPermission.MANAGE_ROLES,
+        target_faction_id=faction.faction_id,
+    )
 
     faction_crud.delete_faction(db, faction)
     return None

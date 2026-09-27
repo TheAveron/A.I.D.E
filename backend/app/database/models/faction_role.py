@@ -49,6 +49,15 @@ class Role(Base):
     faction = relationship("Faction", back_populates="roles")
     users = relationship("User", back_populates="role", passive_deletes=True)
 
+    def has_permission(self, permission: str) -> bool:
+        """Whether this role grants the given permission.
+
+        `permission` is expected to be one of the FactionPermission enum
+        values (e.g. "manage_roles"), which map 1:1 to this model's
+        boolean permission columns.
+        """
+        return bool(getattr(self, permission, False))
+
     def __repr__(self) -> str:
         return f"<Role(id={self.role_id}, name={self.name}, faction={self.faction_id})>"
 

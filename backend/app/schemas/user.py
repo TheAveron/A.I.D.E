@@ -19,7 +19,7 @@ class UserLogin(UserBase):
 
 
 class UserCreate(UserBase):
-    is_admin: bool = False
+    pass
 
 
 class UserOut(BaseModel):

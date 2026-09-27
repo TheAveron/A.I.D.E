@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import faction_role as crud_role
 from ..database import User, get_db
+from ..misc import (FactionPermission, check_faction_permission,
+                    require_faction_permission)
 from ..schemas import RoleCreate, RoleOut, RoleUpdate
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
@@ -26,20 +28,11 @@ def create_role(
     faction_id: int,
     role_in: RoleCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(
+        require_faction_permission(FactionPermission.MANAGE_ROLES)
+    ),
 ):
-    if not (current_user.role and current_user.role.manage_roles):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You lack permission to create faction role",
-        )
-
     return crud_role.create_role(db, faction_id, role_in)
-
-
-@router.get("/faction/{faction_id}", response_model=list[RoleOut])
-def get_roles_by_faction(faction_id: int, db: Session = Depends(get_db)):
-    return crud_role.get_roles_by_faction(db, faction_id)
 
 
 @router.get("/detail/{role_id}", response_model=RoleOut)
@@ -61,11 +54,13 @@ def update_role(
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
 
-    if not (current_user.role and current_user.role.manage_roles):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You lack permission to update faction roles",
-        )
+    # The target faction can only be known once the role has been
+    # fetched (a role_id alone doesn't reveal its faction), so this
+    # can't use the require_faction_permission(...) dependency and is
+    # checked explicitly instead.
+    check_faction_permission(
+        current_user, FactionPermission.MANAGE_ROLES, target_faction_id=role.faction_id
+    )
 
     return crud_role.update_role(db, role, role_update)
 
@@ -80,10 +75,8 @@ def delete_role(
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
 
-    if not (current_user.role and current_user.role.manage_roles):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You lack permission to delete faction role",
-        )
+    check_faction_permission(
+        current_user, FactionPermission.MANAGE_ROLES, target_faction_id=role.faction_id
+    )
 
     crud_role.delete_role(db, role)

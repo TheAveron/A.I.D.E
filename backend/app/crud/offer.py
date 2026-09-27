@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Optional
-from uu import Error
 
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -122,7 +121,6 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
 
     if request.buyer_user_id:
         if offer.user_id == current_user.user_id:
-            print("You can't accept your own offer")
             raise HTTPException(
                 status_code=403, detail="You can't accept your own offer"
             )
@@ -134,7 +132,6 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
             raise HTTPException(status_code=403, detail="You don't belong to a faction")
 
         if offer.faction_id == current_user.faction_id:
-            print("You can't accept your own faction's offer")
             raise HTTPException(
                 status_code=403, detail="You can't accept your own faction's offer"
             )
