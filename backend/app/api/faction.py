@@ -119,7 +119,9 @@ def delete_faction(
         raise HTTPException(status_code=404, detail="Faction not found")
 
     check_faction_permission(
-        current_user, FactionPermission.MANAGE_ROLES, target_faction_id=faction.faction_id
+        current_user,
+        FactionPermission.MANAGE_ROLES,
+        target_faction_id=faction.faction_id,
     )
 
     faction_crud.delete_faction(db, faction)
