@@ -47,6 +47,13 @@ class Currency(Base):
 
     offers = relationship("Offer", back_populates="currency", passive_deletes=True)
 
+    history = relationship(
+        "CurrencyHistory",
+        back_populates="currency",
+        cascade="all, delete-orphan",
+        foreign_keys="[CurrencyHistory.currency_name]",
+    )
+
     def __repr__(self) -> str:
         return f"<Currency(name='{self.name}', symbol='{self.symbol}')>"
 

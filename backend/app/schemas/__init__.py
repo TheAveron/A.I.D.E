@@ -1,5 +1,6 @@
 from .auth import Auth
 from .currency import CurrencyBase, CurrencyCreate, CurrencyOut, CurrencyUpdate
+from .currency_history import CurrencyHistoryBase, CurrencyHistoryOut
 from .faction_member import (FactionMemberBase, FactionMemberCreate,
                              FactionMemberOut)
 from .faction_role import RoleBase, RoleCreate, RoleOut, RoleUpdate

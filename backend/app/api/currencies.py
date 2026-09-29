@@ -3,9 +3,11 @@ from sqlalchemy.orm import Session
 
 from ..core import get_current_user
 from ..crud import currencies as crud_currencies
+from ..crud import currency_history as crud_currency_history
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
-from ..schemas import CurrencyCreate, CurrencyOut, CurrencyUpdate
+from ..schemas import (CurrencyCreate, CurrencyHistoryOut, CurrencyOut,
+                       CurrencyUpdate)
 
 router = APIRouter(prefix="/currencies", tags=["Currencies"])
 
@@ -27,7 +29,9 @@ def create_currency(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Currency already exists"
         )
 
-    return crud_currencies.create_currency(db, currency_in)
+    return crud_currencies.create_currency(
+        db, currency_in, actor_user_id=current_user.user_id
+    )
 
 
 @router.get(
@@ -85,6 +89,40 @@ def get_currency_by_name(
     return currency
 
 
+@router.get(
+    "/history/{currency_name}",
+    response_model=list[CurrencyHistoryOut],
+    status_code=status.HTTP_200_OK,
+)
+def get_currency_history(
+    currency_name: str,
+    skip: int = 0,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Audit trail of changes to a currency's declared total in circulation.
+
+    Same access rules as viewing the currency's detail: the caller must
+    belong to the currency's faction and hold manage_funds there.
+    """
+    currency = crud_currencies.get_currency(db, currency_name)
+    if not currency:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Currency not found"
+        )
+
+    check_faction_permission(
+        current_user,
+        FactionPermission.MANAGE_FUNDS,
+        target_faction_id=currency.faction_id,
+    )
+
+    return crud_currency_history.get_currency_histories(
+        db, currency_name, skip=skip, limit=limit
+    )
+
+
 @router.put(
     "/update/{currency_name}",
     response_model=CurrencyOut,
@@ -107,7 +145,9 @@ def update_currency(
         FactionPermission.MANAGE_FUNDS,
         target_faction_id=currency.faction_id,
     )
-    return crud_currencies.update_currency(db, currency_name, currency_in)
+    return crud_currencies.update_currency(
+        db, currency_name, currency_in, actor_user_id=current_user.user_id
+    )
 
 
 @router.delete("/delete/{currency_name}", status_code=status.HTTP_204_NO_CONTENT)
