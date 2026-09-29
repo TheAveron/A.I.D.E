@@ -69,6 +69,15 @@ def check_faction_permission(
             detail="You have no role in your faction",
         )
 
+    # A role only counts inside its own faction: a role_id pointing at
+    # another faction's role (left over from older, unchecked updates) must
+    # never grant anything here.
+    if role.faction_id != user.faction_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your role does not belong to your faction",
+        )
+
     if not role.has_permission(permission.value):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

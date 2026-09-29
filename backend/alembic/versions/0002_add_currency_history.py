@@ -1,6 +1,6 @@
 """add currency_history
 
-Revision ID: c7d4e91b2a55
+Revision ID: 0002
 Revises: 0001
 Create Date: 2026-09-28 12:00:00.000000
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "c7d4e91b2a55"
+revision: str = "0002"
 down_revision: Union[str, Sequence[str], None] = "0001"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

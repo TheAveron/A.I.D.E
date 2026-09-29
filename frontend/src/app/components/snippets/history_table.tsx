@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router";
 import { useOfferHistoriesByActor } from "../hooks/offer_history";
 import Username from "./username";
 import Factionname from "./factionname";
@@ -12,8 +11,6 @@ export default function HistoryTable({
     factionId?: string;
     HistoriesPerPage?: number;
 }) {
-    const navigate = useNavigate();
-
     const [page, setPage] = useState(1);
 
     const { offerHistories, loading, error } = useOfferHistoriesByActor({
@@ -37,8 +34,6 @@ export default function HistoryTable({
         return sortedHistories.slice(start, start + HistoriesPerPage);
     }, [sortedHistories, page, HistoriesPerPage]);
 
-    console.log("ee", paginatedHistories);
-
     return (
         <div className="snippet-container history-container">
             <h2>Historique des offres</h2>
@@ -59,15 +54,8 @@ export default function HistoryTable({
                                 paginatedHistories &&
                                 paginatedHistories.length > 0 ? (
                                     paginatedHistories.map((offer) => (
-                                        <tr key={offer.offer_id}>
-                                            <td
-                                                onClick={() => {
-                                                    navigate(
-                                                        "/A.I.D.E/user/" +
-                                                            offer.offer_id,
-                                                    );
-                                                }}
-                                            >
+                                        <tr key={offer.history_id}>
+                                            <td>
                                                 <Offername
                                                     offerId={offer.offer_id}
                                                 />
@@ -114,7 +102,7 @@ export default function HistoryTable({
                             ) : (
                                 <tr>
                                     <td colSpan={5}>
-                                        Chargement des membres...
+                                        Chargement de l'historique...
                                     </td>
                                 </tr>
                             )

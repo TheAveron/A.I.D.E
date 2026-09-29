@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from ..core import get_current_user
 from ..crud import faction as faction_crud
+from ..crud import normalize
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
 from ..schemas import FactionCreate, FactionOut, FactionUpdate
@@ -11,6 +12,20 @@ router = APIRouter(
     prefix="/factions",
     tags=["Factions"],
 )
+
+
+def _check_name_usable(
+    db: Session, name: str, exclude_faction_id: int | None = None
+) -> None:
+    """Reject names that can't get their own documents folder."""
+    if not normalize(name):
+        raise HTTPException(
+            status_code=400, detail="Faction name must contain at least one letter"
+        )
+    if faction_crud.normalized_name_taken(db, name, exclude_faction_id):
+        raise HTTPException(
+            status_code=400, detail="A faction with a similar name already exists"
+        )
 
 
 @router.post("/create", response_model=FactionOut, status_code=status.HTTP_201_CREATED)
@@ -41,6 +56,8 @@ def create_faction(
 
     if faction_crud.get_faction_by_name(db, faction_data.name):
         raise HTTPException(status_code=400, detail="Faction name already exists")
+
+    _check_name_usable(db, faction_data.name)
 
     return faction_crud.create_faction(db, faction_data, user.user_id)
 
@@ -98,6 +115,10 @@ def update_faction(
             FactionPermission.MANAGE_ROLES,
             target_faction_id=faction.faction_id,
         )
+
+    new_name = provided_fields.get("name")
+    if new_name is not None and new_name != faction.name:
+        _check_name_usable(db, new_name, exclude_faction_id=faction.faction_id)
 
     try:
         updated_faction = faction_crud.update_faction_validation(

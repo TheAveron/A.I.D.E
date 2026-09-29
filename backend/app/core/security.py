@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timedelta
 
@@ -9,10 +10,10 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from ..database import User, get_db
-from .logger import setup_logger
 from .settings import SECRET_KEY
 
-logger = setup_logger("aide")
+# Same logger as main.py: it is configured there, so don't add handlers again
+logger = logging.getLogger("aide")
 
 
 def get_user_by_username(db: Session, username: str):

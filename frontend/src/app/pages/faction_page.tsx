@@ -33,7 +33,11 @@ export default function FactionDashboard() {
                 <></>
             )}
             <OfferList factionId={factionid} offersPerPage={7} />
-            {role?.view_transactions ? <TransactionsTable /> : <></>}
+            {role?.view_transactions ? (
+                <TransactionsTable factionId={factionid} />
+            ) : (
+                <></>
+            )}
             {role &&
             roles?.map((r) => r.role_id).includes(role.role_id) &&
             ["Chef", "Chef Adjoint"].includes(role?.name ?? "") ? (

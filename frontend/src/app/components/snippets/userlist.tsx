@@ -11,11 +11,15 @@ function RoleElement({
     role_id,
     faction_id,
     user_id,
+    canManage,
     onRoleUpdated,
 }: {
     role_id: number | null;
     faction_id: number | null;
     user_id: number;
+    // Whether the *viewer* may change this member's role (not a property of
+    // the member's own role).
+    canManage: boolean;
     onRoleUpdated: () => void;
 }) {
     const navigate = useNavigate();
@@ -48,7 +52,7 @@ function RoleElement({
             >
                 {role.name}
             </td>
-            {role.handle_members &&
+            {canManage &&
                 role.faction_id === faction_id &&
                 role.name != "Chef" && (
                     <td
@@ -75,6 +79,15 @@ function UsersTable({ state = false }: { state: boolean }) {
     const { factionid } = useParams();
     const { users, loading, error, refresh } = useMembers(factionid ?? null);
     const { user: current_user } = useMe();
+    const { role: myRole } = useRole(current_user?.role_id ?? null);
+
+    // The viewer can manage members of the faction being displayed only if
+    // they belong to it and their role has handle_members.
+    const viewerCanManage =
+        !!current_user &&
+        !!myRole?.handle_members &&
+        myRole.faction_id === current_user.faction_id &&
+        current_user.faction_id?.toString() === factionid;
 
     const style: CSSProperties = { gridColumn: "2 / span 2" };
     const nostyle: CSSProperties = { gridColumn: "1 / span 2" };
@@ -118,6 +131,11 @@ function UsersTable({ state = false }: { state: boolean }) {
                                                 faction_id={
                                                     current_user?.faction_id ??
                                                     null
+                                                }
+                                                canManage={
+                                                    viewerCanManage &&
+                                                    user.user_id !==
+                                                        current_user?.user_id
                                                 }
                                                 onRoleUpdated={refresh}
                                             />
