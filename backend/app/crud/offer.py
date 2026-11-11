@@ -26,7 +26,10 @@ def get_offers(
     limit: int = 50,
     status: Optional[OfferStatus] = None,
     currency: Optional[str] = None,
+    user_id: Optional[int] = None,
+    faction_id: Optional[int] = None,
 ) -> list[Offer]:
+    """Offers, newest first (offer_id breaks ties so pages never overlap)."""
     query = db.query(Offer)
     if status:
         query = query.filter(Offer.status == status)
@@ -34,7 +37,18 @@ def get_offers(
     if currency:
         query = query.filter(Offer.currency_name == currency)
 
-    return query.offset(skip).limit(limit).all()
+    if user_id is not None:
+        query = query.filter(Offer.user_id == user_id)
+
+    if faction_id is not None:
+        query = query.filter(Offer.faction_id == faction_id)
+
+    return (
+        query.order_by(Offer.created_at.desc(), Offer.offer_id.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_offer(db: Session, offer_in: OfferCreate) -> Offer:

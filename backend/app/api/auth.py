@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..core import create_access_token, hash_password
@@ -15,10 +16,11 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> Auth:
     """
     Register a new user account and return a JWT token with user info.
     """
+    username_taken = HTTPException(
+        status_code=status.HTTP_409_CONFLICT, detail="Username already taken"
+    )
     if get_user_by_username(db, user.username):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Username already taken"
-        )
+        raise username_taken
 
     hashed_password = hash_password(user.password)
 
@@ -37,14 +39,19 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> Auth:
                 role_id = role.role_id
                 break
 
-    user_register = create_user(
-        db=db,
-        username=user.username,
-        hashed_password=hashed_password,
-        admin=False,
-        faction_id=faction_id,
-        role_id=role_id,
-    )
+    try:
+        user_register = create_user(
+            db=db,
+            username=user.username,
+            hashed_password=hashed_password,
+            admin=False,
+            faction_id=faction_id,
+            role_id=role_id,
+        )
+    except IntegrityError:
+        # Two registrations for the same name raced past the check above.
+        db.rollback()
+        raise username_taken
 
     token = create_access_token(data={"sub": user.username})
 

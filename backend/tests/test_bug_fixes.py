@@ -388,7 +388,7 @@ class TestFactions:
         assert env.client.post("/factions/create", json={"name": "Team 1"},
                                headers=env.h("newbie")).status_code == 201
         r = env.client.post("/factions/create", json={"name": "Team 2"}, headers=env.h("newbie2"))
-        assert r.status_code == 400 and "similar" in r.json()["detail"]
+        assert r.status_code == 409 and "similar" in r.json()["detail"]
 
     def test_names_without_letters_are_refused(self, env):
         r = env.client.post("/factions/create", json={"name": "1234"}, headers=env.h("newbie"))
@@ -396,7 +396,7 @@ class TestFactions:
 
     def test_rename_cannot_collide_either(self, env):
         r = env.client.put("/factions/update/1", json={"name": "beta 7"}, headers=env.h("alice"))
-        assert r.status_code == 400
+        assert r.status_code == 409
         assert env.client.put("/factions/update/1", json={"name": "Alpha Prime"},
                               headers=env.h("alice")).status_code == 202
 

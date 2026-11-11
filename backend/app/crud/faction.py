@@ -50,15 +50,29 @@ def list_factions(db: Session, skip: int = 0, limit: int = 100) -> list[Faction]
 
 
 def create_faction(db: Session, faction_data: FactionCreate, user_id: int) -> Faction:
+    """Create a faction, its default roles and make `user_id` its leader.
+
+    All of it is one transaction: either the faction exists with its roles and
+    its leader, or nothing was created.
+    """
     faction = Faction(
         name=faction_data.name,
         description=faction_data.description,
     )
     db.add(faction)
-    db.commit()
-    db.refresh(faction)
+    try:
+        db.flush()  # assigns faction_id and checks the unique name
+        create_default_faction_roles(db, faction.faction_id, user_id, commit=False)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Faction name already exists")
+    except SQLAlchemyError:
+        db.rollback()
+        logger.exception("Database error while creating faction %s", faction_data.name)
+        raise HTTPException(status_code=500, detail="Database error occurred")
 
-    create_default_faction_roles(db, faction.faction_id, user_id)
+    db.refresh(faction)
 
     # The documents folder is created on the first document write
     # (api/documentation.py), so nothing to do on disk here.

@@ -75,8 +75,14 @@ def create_document(
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        file_path.write_text(
-            f"# {doc_info.title}\n\n{doc_info.content}", encoding="utf-8"
+        # Mode "x" creates the file or fails: the check and the write are one
+        # atomic step, so two requests can't both think they created it.
+        with file_path.open("x", encoding="utf-8") as f:
+            f.write(f"# {doc_info.title}\n\n{doc_info.content}")
+    except FileExistsError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A document with this title already exists",
         )
     except OSError as e:
         raise HTTPException(

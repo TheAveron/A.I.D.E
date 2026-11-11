@@ -10,6 +10,7 @@ import configparser
 from pathlib import Path
 
 from sqlalchemy import Engine, create_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.orm.session import Session
 
@@ -40,13 +41,29 @@ def load_db_config(filename=None, section="postgresql") -> dict:
 # SQLALCHEMY SETUP (ORM)
 # ---------------------------------------------------------------------
 
-_db_params = load_db_config()
-SQLALCHEMY_DATABASE_URL = (
-    f"postgresql://{_db_params['user']}:{_db_params['password']}"
-    f"@{_db_params['host']}:{_db_params['port']}/{_db_params['database']}"
-)
+def build_database_url(params: dict) -> URL:
+    """Database URL from the .ini parameters.
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False)
+    Built with URL.create so that characters such as "@", ":" or "/" in the
+    user name or password are escaped instead of breaking the URL.
+    """
+    return URL.create(
+        "postgresql",
+        username=params["user"],
+        password=params["password"],
+        host=params["host"],
+        port=int(params["port"]),
+        database=params["database"],
+    )
+
+
+_db_params = load_db_config()
+SQLALCHEMY_DATABASE_URL = build_database_url(_db_params)
+
+# pool_pre_ping: test a pooled connection before using it, so a connection the
+# database server closed meanwhile (restart, idle timeout) is replaced instead
+# of failing the request.
+engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

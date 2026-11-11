@@ -39,12 +39,21 @@ def _offer_manager(current_user: User, offer: Offer) -> dict:
 def list_offers(
     status: Optional[OfferStatus] = Query(None),
     currency: Optional[str] = Query(None),
-    skip: int = 0,
-    limit: int = 50,
+    user_id: Optional[int] = Query(None, description="Only this user's own offers"),
+    faction_id: Optional[int] = Query(None, description="Only this faction's offers"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
 ):
+    """Offers, newest first. Paginate with `skip`/`limit` (at most 200 per page)."""
     return offer_crud.get_offers(
-        db, status=status, skip=skip, limit=limit, currency=currency
+        db,
+        status=status,
+        skip=skip,
+        limit=limit,
+        currency=currency,
+        user_id=user_id,
+        faction_id=faction_id,
     )
 
 

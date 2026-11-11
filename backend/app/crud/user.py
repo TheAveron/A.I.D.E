@@ -53,10 +53,6 @@ def update_user_faction_and_role(
     return user
 
 
-def remove_user_faction_and_role(db: Session, user_id: int):
-    return update_user_faction_and_role(db, user_id, None, None)
-
-
 def user_has_faction(db: Session, user_id: int) -> bool:
     user = db.query(User).filter(User.user_id == user_id).first()
     return bool(user and user.faction_id)

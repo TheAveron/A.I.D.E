@@ -23,7 +23,8 @@ target_metadata = Base.metadata
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode."""
-    url = str(engine.url)
+    # str(url) would mask the password as "***"
+    url = engine.url.render_as_string(hide_password=False)
     context.configure(
         url=url,
         target_metadata=target_metadata,

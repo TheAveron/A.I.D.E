@@ -7,7 +7,7 @@ from ..crud import faction_role as crud_role
 from ..crud import user as crud_user
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
-from ..schemas import UserFull, UserOut, UserUpdate
+from ..schemas import UserFull, UserOut, UserPublic, UserUpdate
 
 NO_FACTION_NAME = "Sans Faction"
 GUEST_ROLE_NAME = "Invité"
@@ -21,7 +21,7 @@ def read_current_user(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-@router.get("/faction/{faction_id}", response_model=list[UserFull])
+@router.get("/faction/{faction_id}", response_model=list[UserPublic])
 def get_users_by_faction(faction_id: int, db: Session = Depends(get_db)):
     users = crud_user.get_users_by_faction(db, faction_id)
     if not users:
@@ -33,7 +33,7 @@ def get_users_by_faction(faction_id: int, db: Session = Depends(get_db)):
 
 
 @router.get(
-    "/from_name/{username}", response_model=UserFull, status_code=status.HTTP_200_OK
+    "/from_name/{username}", response_model=UserPublic, status_code=status.HTTP_200_OK
 )
 def read_user_by_name(username: str, db: Session = Depends(get_db)):
     user = crud_user.get_user_by_username(db, username)
@@ -45,7 +45,7 @@ def read_user_by_name(username: str, db: Session = Depends(get_db)):
 
 
 @router.get(
-    "/detail/{user_id}", response_model=UserFull, status_code=status.HTTP_200_OK
+    "/detail/{user_id}", response_model=UserPublic, status_code=status.HTTP_200_OK
 )
 def read_user_by_id(user_id: int, db: Session = Depends(get_db)):
     user = crud_user.get_user_by_id(db, user_id)

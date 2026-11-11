@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from ..database import Role, User
 from ..misc import FactionPermission
 from ..schemas import RoleCreate, RoleUpdate
-from .user import update_user_faction_and_role
 
 
 def create_role(db: Session, faction_id: int, role_in: RoleCreate) -> Role:
@@ -72,9 +71,15 @@ def delete_role(db: Session, role: Role) -> None:
     db.commit()
 
 
-def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
+def create_default_faction_roles(
+    db: Session, faction_id: int, user_id: int, commit: bool = True
+):
     """
     Create a set of default roles for a newly created faction with predefined permissions.
+
+    The user `user_id` becomes the faction's leader (role "Chef"). With
+    `commit=False` nothing is committed, so the caller can make this part of a
+    larger transaction.
     """
 
     default_roles = [
@@ -174,7 +179,13 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
             ],
         )
         db.add(db_role)
-        db.commit()
+        db.flush()  # assigns role_id
 
         if db_role.name == "Chef":
-            update_user_faction_and_role(db, user_id, faction_id, db_role.role_id)
+            leader = db.query(User).filter(User.user_id == user_id).first()
+            if leader:
+                leader.faction_id = faction_id
+                leader.role_id = db_role.role_id
+
+    if commit:
+        db.commit()

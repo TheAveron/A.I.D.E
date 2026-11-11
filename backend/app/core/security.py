@@ -35,7 +35,11 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(plain_password: str, hashed: str) -> bool:
-    return pwd_context.verify(plain_password, hashed)
+    try:
+        return pwd_context.verify(plain_password, hashed)
+    except ValueError:
+        # bcrypt refuses passwords over 72 bytes: no such password can match.
+        return False
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):

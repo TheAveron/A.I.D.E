@@ -24,7 +24,7 @@ def _check_name_usable(
         )
     if faction_crud.normalized_name_taken(db, name, exclude_faction_id):
         raise HTTPException(
-            status_code=400, detail="A faction with a similar name already exists"
+            status_code=409, detail="A faction with a similar name already exists"
         )
 
 
@@ -44,7 +44,7 @@ def create_faction(
     - FactionOut: Created faction data
 
     Raises:
-    - 400: Faction already exists
+    - 409: Faction already exists
     - 422: Invalid faction data
     """
     user_faction = (
@@ -55,7 +55,7 @@ def create_faction(
         raise HTTPException(status_code=400, detail="User already belongs to a faction")
 
     if faction_crud.get_faction_by_name(db, faction_data.name):
-        raise HTTPException(status_code=400, detail="Faction name already exists")
+        raise HTTPException(status_code=409, detail="Faction name already exists")
 
     _check_name_usable(db, faction_data.name)
 

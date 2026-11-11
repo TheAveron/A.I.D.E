@@ -14,5 +14,5 @@ from .offer import (accept_offer, create_offer, get_offer, get_offer_history,
 from .offer_history import create_offer_history, get_offer_history
 from .transaction import create_transaction, get_transaction
 from .user import (authenticate_user, create_user, get_user_by_id,
-                   get_user_by_username, remove_user_faction_and_role,
-                   update_user_faction_and_role, user_has_faction)
+                   get_user_by_username, update_user_faction_and_role,
+                   user_has_faction)
