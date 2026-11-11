@@ -12,15 +12,15 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.engine import make_url
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.api import auth, documentation, faction, offer, user
 from app.core.security import create_access_token, hash_password
 from app.crud import faction as faction_crud
-from app.database import (Base, Currency, Faction, Offer, Role, User, get_db)
+from app.database import Base, Currency, Faction, Offer, Role, User, get_db
 from app.database.database import build_database_url
 from app.misc import OfferStatus, OfferType
 
@@ -36,25 +36,51 @@ def env():
     Session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
     s = Session()
-    s.add_all([
-        Faction(faction_id=1, name="Alpha", is_approved=True),
-        Faction(faction_id=3, name="Sans Faction", is_approved=True),
-    ])
+    s.add_all(
+        [
+            Faction(faction_id=1, name="Alpha", is_approved=True),
+            Faction(faction_id=3, name="Sans Faction", is_approved=True),
+        ]
+    )
     s.commit()
-    s.add_all([
-        Role(role_id=1, name="Chef", faction_id=1, accept_offers=True,
-             create_offers=True, manage_funds=True, handle_members=True,
-             manage_roles=True, manage_docs=True, view_transactions=True),
-        Role(role_id=20, name="Membre", faction_id=3, view_transactions=True),
-        Role(role_id=21, name="Invité", faction_id=3),
-    ])
+    s.add_all(
+        [
+            Role(
+                role_id=1,
+                name="Chef",
+                faction_id=1,
+                accept_offers=True,
+                create_offers=True,
+                manage_funds=True,
+                handle_members=True,
+                manage_roles=True,
+                manage_docs=True,
+                view_transactions=True,
+            ),
+            Role(role_id=20, name="Membre", faction_id=3, view_transactions=True),
+            Role(role_id=21, name="Invité", faction_id=3),
+        ]
+    )
     s.commit()
-    s.add_all([
-        User(user_id=1, username="alice", hashed_password=PW_HASH, faction_id=1,
-             role_id=1, email="alice@example.com"),
-        User(user_id=2, username="newbie", hashed_password=PW_HASH, faction_id=3,
-             role_id=20),
-    ])
+    s.add_all(
+        [
+            User(
+                user_id=1,
+                username="alice",
+                hashed_password=PW_HASH,
+                faction_id=1,
+                role_id=1,
+                email="alice@example.com",
+            ),
+            User(
+                user_id=2,
+                username="newbie",
+                hashed_password=PW_HASH,
+                faction_id=3,
+                role_id=20,
+            ),
+        ]
+    )
     s.add(Currency(name="Diamant", faction_id=1, total_in_circulation=0))
     s.commit()
     s.close()
@@ -82,7 +108,7 @@ def env():
     return e
 
 
-# ------------------------------------------------------------ registration
+# registration
 class TestRegistration:
     def register(self, env, username="fresh", password="pw12345"):
         return env.client.post(
@@ -134,7 +160,7 @@ class TestRegistration:
         assert r.status_code == 202
 
 
-# -------------------------------------------------------- public user data
+# public user data
 class TestUsersDoNotLeakEmails:
     def test_lookups_by_id_name_and_faction_hide_the_email(self, env):
         by_id = env.client.get("/users/detail/1").json()
@@ -146,15 +172,21 @@ class TestUsersDoNotLeakEmails:
 
     def test_the_public_view_keeps_what_the_frontend_uses(self, env):
         payload = env.client.get("/users/detail/1").json()
-        assert {"user_id", "username", "is_admin", "created_at", "faction_id",
-                "role_id"} <= set(payload)
+        assert {
+            "user_id",
+            "username",
+            "is_admin",
+            "created_at",
+            "faction_id",
+            "role_id",
+        } <= set(payload)
 
     def test_me_still_shows_your_own_email(self, env):
         r = env.client.get("/users/me", headers=env.h("alice"))
         assert r.json()["email"] == "alice@example.com"
 
 
-# ------------------------------------------------------ faction creation
+# faction creation
 class TestFactionCreation:
     def counts(self, env):
         s = env.Session()
@@ -163,16 +195,23 @@ class TestFactionCreation:
         return out
 
     def test_creation_gives_roles_and_makes_the_creator_leader(self, env):
-        r = env.client.post("/factions/create", json={"name": "Gamma"},
-                            headers=env.h("newbie"))
+        r = env.client.post(
+            "/factions/create", json={"name": "Gamma"}, headers=env.h("newbie")
+        )
         assert r.status_code == 201, r.text
         s = env.Session()
         newbie = s.get(User, 2)
         assert newbie.faction_id == r.json()["faction_id"]
         assert newbie.role.name == "Chef"
         names = {x.name for x in s.query(Role).filter_by(faction_id=newbie.faction_id)}
-        assert names == {"Chef", "Chef Adjoint", "Trésorier", "Marchand", "Membre",
-                         "Invité"}
+        assert names == {
+            "Chef",
+            "Chef Adjoint",
+            "Trésorier",
+            "Marchand",
+            "Membre",
+            "Invité",
+        }
         s.close()
 
     def test_a_failure_while_creating_roles_leaves_nothing_behind(
@@ -184,11 +223,13 @@ class TestFactionCreation:
             real(db, faction_id, user_id, commit=False)
             raise SQLAlchemyError("boom")
 
-        monkeypatch.setattr(faction_crud, "create_default_faction_roles",
-                            roles_then_crash)
+        monkeypatch.setattr(
+            faction_crud, "create_default_faction_roles", roles_then_crash
+        )
         before = self.counts(env)
-        r = env.client.post("/factions/create", json={"name": "Gamma"},
-                            headers=env.h("newbie"))
+        r = env.client.post(
+            "/factions/create", json={"name": "Gamma"}, headers=env.h("newbie")
+        )
         assert r.status_code == 500
         assert self.counts(env) == before
         s = env.Session()
@@ -197,30 +238,38 @@ class TestFactionCreation:
         s.close()
 
     def test_a_duplicate_name_is_a_409(self, env):
-        r = env.client.post("/factions/create", json={"name": "Alpha"},
-                            headers=env.h("newbie"))
+        r = env.client.post(
+            "/factions/create", json={"name": "Alpha"}, headers=env.h("newbie")
+        )
         assert r.status_code == 409
 
     def test_two_creations_racing_for_one_name_give_409(self, env, monkeypatch):
         # The pre-checks see no clash (both requests passed them); the unique
         # constraint catches the second one.
         monkeypatch.setattr(faction_crud, "get_faction_by_name", lambda db, n: None)
-        monkeypatch.setattr(faction_crud, "normalized_name_taken",
-                            lambda db, n, exclude=None: False)
+        monkeypatch.setattr(
+            faction_crud, "normalized_name_taken", lambda db, n, exclude=None: False
+        )
         before = self.counts(env)
-        r = env.client.post("/factions/create", json={"name": "Alpha"},
-                            headers=env.h("newbie"))
+        r = env.client.post(
+            "/factions/create", json={"name": "Alpha"}, headers=env.h("newbie")
+        )
         assert r.status_code == 409
         assert self.counts(env) == before
 
 
-# ---------------------------------------------------------------- documents
+# documents
 class TestDocumentCreation:
-    def test_an_existing_document_is_never_overwritten(self, env, monkeypatch, tmp_path):
+    def test_an_existing_document_is_never_overwritten(
+        self, env, monkeypatch, tmp_path
+    ):
         monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
         h = env.h("alice")
         first = {"title": "Reglement", "content": "original"}
-        assert env.client.post("/documents/create", json=first, headers=h).status_code == 201
+        assert (
+            env.client.post("/documents/create", json=first, headers=h).status_code
+            == 201
+        )
 
         second = {"title": "Reglement", "content": "replacement"}
         r = env.client.post("/documents/create", json=second, headers=h)
@@ -235,32 +284,46 @@ class TestDocumentCreation:
     ):
         monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
         h = env.h("alice")
-        assert env.client.post("/documents/create", json={"title": "Règlement", "content": "a"},
-                               headers=h).status_code == 201
-        assert env.client.post("/documents/create", json={"title": "reglement 2", "content": "b"},
-                               headers=h).status_code == 409
+        assert (
+            env.client.post(
+                "/documents/create",
+                json={"title": "Règlement", "content": "a"},
+                headers=h,
+            ).status_code
+            == 201
+        )
+        assert (
+            env.client.post(
+                "/documents/create",
+                json={"title": "reglement 2", "content": "b"},
+                headers=h,
+            ).status_code
+            == 409
+        )
 
 
-# ------------------------------------------------------------------- offers
+# offers
 class TestOfferListing:
     @pytest.fixture
     def offers(self, env):
         s = env.Session()
         base = datetime(2026, 1, 1)
         for i in range(1, 6):
-            s.add(Offer(
-                offer_id=i,
-                user_id=1 if i % 2 else None,
-                faction_id=None if i % 2 else 1,
-                offer_type=OfferType.SELL,
-                item_description=f"item {i}",
-                currency_name="Diamant",
-                price_per_unit=1.0,
-                quantity=1,
-                init_quantity=1,
-                status=OfferStatus.OPEN,
-                created_at=base + timedelta(days=i),
-            ))
+            s.add(
+                Offer(
+                    offer_id=i,
+                    user_id=1 if i % 2 else None,
+                    faction_id=None if i % 2 else 1,
+                    offer_type=OfferType.SELL,
+                    item_description=f"item {i}",
+                    currency_name="Diamant",
+                    price_per_unit=1.0,
+                    quantity=1,
+                    init_quantity=1,
+                    status=OfferStatus.OPEN,
+                    created_at=base + timedelta(days=i),
+                )
+            )
         s.commit()
         s.close()
         return env
@@ -282,10 +345,20 @@ class TestOfferListing:
         s = env.Session()
         same = datetime(2026, 1, 1)
         for i in (1, 2, 3):
-            s.add(Offer(offer_id=i, user_id=1, offer_type=OfferType.SELL,
-                        item_description="x", currency_name="Diamant",
-                        price_per_unit=1.0, quantity=1, init_quantity=1,
-                        status=OfferStatus.OPEN, created_at=same))
+            s.add(
+                Offer(
+                    offer_id=i,
+                    user_id=1,
+                    offer_type=OfferType.SELL,
+                    item_description="x",
+                    currency_name="Diamant",
+                    price_per_unit=1.0,
+                    quantity=1,
+                    init_quantity=1,
+                    status=OfferStatus.OPEN,
+                    created_at=same,
+                )
+            )
         s.commit()
         s.close()
         assert self.ids(env) == [3, 2, 1]
@@ -303,11 +376,16 @@ class TestOfferListing:
         assert offers.client.get("/offers/list?limit=200").status_code == 200
 
 
-# --------------------------------------------------------------- database
+# database
 class TestDatabaseUrl:
     def test_special_characters_in_credentials_are_escaped(self):
-        params = {"user": "u@ser", "password": "p@ss:w/rd#?%", "host": "db.local",
-                  "port": "5433", "database": "aide"}
+        params = {
+            "user": "u@ser",
+            "password": "p@ss:w/rd#?%",
+            "host": "db.local",
+            "port": "5433",
+            "database": "aide",
+        }
         url = build_database_url(params)
         rendered = url.render_as_string(hide_password=False)
         assert rendered.startswith("postgresql://u%40ser:")

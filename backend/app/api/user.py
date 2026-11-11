@@ -204,7 +204,9 @@ def update_role_faction(
         raise HTTPException(status_code=404, detail="User not found")
 
     if user_id == current_user.user_id:
-        return _join_faction(db, current_user, update_data.faction_id, update_data.role_id)
+        return _join_faction(
+            db, current_user, update_data.faction_id, update_data.role_id
+        )
 
     return _assign_role(
         db, current_user, target, update_data.faction_id, update_data.role_id

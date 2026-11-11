@@ -108,13 +108,11 @@ def upgrade():
     ]
 
     faction_id = session.execute(
-        sa.text(
-            """
+        sa.text("""
             INSERT INTO factions (name, description, is_approved, created_at, updated_at)
             VALUES (:name, :description, :is_approved, :created_at, :updated_at)
             RETURNING faction_id
-        """
-        ),
+        """),
         {
             "name": "Sans Faction",
             "description": "",
@@ -127,8 +125,7 @@ def upgrade():
     chef_role_id = None
     for role in default_roles:
         role_id = session.execute(
-            sa.text(
-                """
+            sa.text("""
                 INSERT INTO roles (
                     name, description,
                     accept_offers, create_offers, manage_funds,
@@ -142,8 +139,7 @@ def upgrade():
                     :faction_id, :created_at, :updated_at
                 )
                 RETURNING role_id
-            """
-            ),
+            """),
             {
                 "name": role["name"],
                 "description": role["description"],
@@ -166,8 +162,7 @@ def upgrade():
     hashed_pw = "$2b$12$rrvNkD76cBgK31QDWxdgguvnUf2jNExn1TGK6yR4dVKxkgltOb5mO"
 
     session.execute(
-        sa.text(
-            """
+        sa.text("""
             INSERT INTO "users" (
                 is_admin, username, email, hashed_password,
                 created_at, updated_at, faction_id, role_id
@@ -176,8 +171,7 @@ def upgrade():
                 :is_admin, :username, :email, :hashed_password,
                 :created_at, :updated_at, :faction_id, :role_id
             )
-        """
-        ),
+        """),
         {
             "is_admin": True,
             "username": "ADmin_oP",

@@ -30,7 +30,9 @@ def _offer_manager(current_user: User, offer: Offer) -> dict:
         return {"actor_user_id": current_user.user_id}
 
     check_faction_permission(
-        current_user, FactionPermission.CREATE_OFFERS, target_faction_id=offer.faction_id
+        current_user,
+        FactionPermission.CREATE_OFFERS,
+        target_faction_id=offer.faction_id,
     )
     return {"actor_faction_id": offer.faction_id}
 

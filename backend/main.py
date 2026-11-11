@@ -7,17 +7,8 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import (
-    auth,
-    currencies,
-    documentation,
-    faction,
-    offer,
-    offer_history,
-    role,
-    transactions,
-    user,
-)
+from app.api import (auth, currencies, documentation, faction, offer,
+                     offer_history, role, transactions, user)
 from app.core.logger import setup_logger
 from app.core.settings import ORIGINS
 

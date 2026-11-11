@@ -2,9 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from .base import UTCDatetime
-
 from ..misc import OfferAction
+from .base import UTCDatetime
 
 
 class OfferHistoryBase(BaseModel):

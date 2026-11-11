@@ -14,9 +14,7 @@ from sqlalchemy.engine import URL
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.orm.session import Session
 
-# ---------------------------------------------------------------------
 # CONFIGURATION
-# ---------------------------------------------------------------------
 
 
 def load_db_config(filename=None, section="postgresql") -> dict:
@@ -37,9 +35,8 @@ def load_db_config(filename=None, section="postgresql") -> dict:
     return {param[0]: param[1] for param in parser.items(section)}
 
 
-# ---------------------------------------------------------------------
 # SQLALCHEMY SETUP (ORM)
-# ---------------------------------------------------------------------
+
 
 def build_database_url(params: dict) -> URL:
     """Database URL from the .ini parameters.
@@ -70,9 +67,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
-# ---------------------------------------------------------------------
 # FASTAPI DEPENDENCY
-# ---------------------------------------------------------------------
 
 
 def get_db():

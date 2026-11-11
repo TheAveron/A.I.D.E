@@ -2,6 +2,7 @@ from sqlalchemy_utils import create_database, database_exists
 
 from app.database.database import engine
 
+
 def create_tables():
     """Create the database if it doesn't exist yet.
 

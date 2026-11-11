@@ -7,8 +7,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ..crud import get_faction
-from ..database import (Currency, Offer, OfferHistory, Role, Transaction,
-                        User)
+from ..database import Currency, Offer, OfferHistory, Role, Transaction, User
 from ..misc import OfferAction, OfferStatus
 from ..schemas import OfferAccept, OfferCreate, OfferUpdate
 from .offer_history import create_offer_history
@@ -161,9 +160,7 @@ def get_offer_history(db: Session, offer_id: int):
 def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferAccept):
     # Row lock: two simultaneous buyers must not both pass the quantity check
     # below and oversell the offer (no-op on SQLite, real on PostgreSQL).
-    offer = (
-        db.query(Offer).filter(Offer.offer_id == offer_id).with_for_update().first()
-    )
+    offer = db.query(Offer).filter(Offer.offer_id == offer_id).with_for_update().first()
 
     if not offer:
         raise HTTPException(status_code=404, detail="Offer not found")

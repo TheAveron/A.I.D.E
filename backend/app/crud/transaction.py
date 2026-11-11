@@ -69,9 +69,7 @@ def get_transactions(
     involving their faction. The optional filters match either side of the
     trade (buyer or offer creator) and only narrow that scope.
     """
-    query = db.query(Transaction).join(
-        Offer, Transaction.offer_id == Offer.offer_id
-    )
+    query = db.query(Transaction).join(Offer, Transaction.offer_id == Offer.offer_id)
 
     scope = [
         Transaction.buyer_user_id == viewer.user_id,

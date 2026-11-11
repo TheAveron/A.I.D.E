@@ -69,9 +69,7 @@ def test_offer_creation_and_user_relationships(session):
     session.add_all([creator, accepter, Currency(name="Gold")])
     session.commit()
 
-    session.add(
-        _offer(user_id=creator.user_id, accepted_by_user_id=accepter.user_id)
-    )
+    session.add(_offer(user_id=creator.user_id, accepted_by_user_id=accepter.user_id))
     session.commit()
 
     result = session.query(Offer).first()
