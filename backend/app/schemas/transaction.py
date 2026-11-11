@@ -1,7 +1,8 @@
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
+
+from .base import UTCDatetime
 
 
 class TransactionBase(BaseModel):
@@ -18,7 +19,7 @@ class TransactionCreate(TransactionBase):
 
 class TransactionOut(TransactionBase):
     transaction_id: int
-    timestamp: datetime
+    timestamp: UTCDatetime
 
     class Config:
         from_attributes = True

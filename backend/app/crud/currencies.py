@@ -1,9 +1,10 @@
 from typing import Optional
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..database import Currency
+from ..database import Currency, Offer, Transaction
 from ..schemas import CurrencyCreate, CurrencyUpdate
 from .currency_history import create_currency_history
 
@@ -16,6 +17,20 @@ def get_currency_by_faction(db: Session, faction_id: int) -> Optional[Currency]:
     return db.query(Currency).filter(Currency.faction_id == faction_id).first()
 
 
+def is_currency_referenced(db: Session, currency_name: str) -> bool:
+    """Whether offers or transactions still point at this currency."""
+    return bool(
+        db.query(Offer.offer_id).filter(Offer.currency_name == currency_name).first()
+        or db.query(Transaction.transaction_id)
+        .filter(Transaction.currency_name == currency_name)
+        .first()
+    )
+
+
+def _conflict(detail: str) -> HTTPException:
+    return HTTPException(status_code=status.HTTP_409_CONFLICT, detail=detail)
+
+
 def get_currencies(db: Session, skip: int = 0, limit: int = 100) -> list[Currency]:
     return db.query(Currency).offset(skip).limit(limit).all()
 
@@ -23,6 +38,11 @@ def get_currencies(db: Session, skip: int = 0, limit: int = 100) -> list[Currenc
 def create_currency(
     db: Session, currency_in: CurrencyCreate, actor_user_id: Optional[int] = None
 ) -> Currency:
+    if get_currency(db, currency_in.name):
+        raise _conflict("Currency already exists")
+    if get_currency_by_faction(db, currency_in.faction_id):
+        raise _conflict("This faction already has a currency")
+
     db_currency = Currency(
         name=currency_in.name,
         symbol=currency_in.symbol,
@@ -44,7 +64,12 @@ def create_currency(
             commit=False,
         )
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Lost a race against another request creating the same currency.
+        db.rollback()
+        raise _conflict("Currency already exists or the faction already has one")
     db.refresh(db_currency)
     return db_currency
 
@@ -65,8 +90,18 @@ def update_currency(
         db_currency.symbol = currency_in.symbol
     if currency_in.total_in_circulation is not None:
         db_currency.total_in_circulation = currency_in.total_in_circulation
-    if currency_in.name is not None:
+    if currency_in.name is not None and currency_in.name != db_currency.name:
+        # The name is the primary key that offers, transactions and the audit
+        # trail point at: renaming it under them would break (or orphan) them.
+        if is_currency_referenced(db, db_currency.name) or db_currency.history:
+            raise _conflict(
+                "This currency is already used (offers, transactions or history) "
+                "and can't be renamed"
+            )
+        if get_currency(db, currency_in.name):
+            raise _conflict("Currency already exists")
         db_currency.name = currency_in.name
+        db.flush()
 
     # Only log real changes: resubmitting the same figure isn't an event
     # worth an audit entry. Written in the same transaction as the update
@@ -93,5 +128,9 @@ def delete_currency(db: Session, currency_name: str) -> None:
     db_currency = get_currency(db, currency_name)
     if not db_currency:
         raise HTTPException(status_code=404, detail="Currency not found")
+    if is_currency_referenced(db, currency_name):
+        raise _conflict(
+            "This currency is still used by offers or transactions and can't be deleted"
+        )
     db.delete(db_currency)
     db.commit()

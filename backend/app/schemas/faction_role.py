@@ -2,9 +2,11 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from .base import PartialUpdate
+
 
 class RoleBase(BaseModel):
-    name: str = Field(..., max_length=50)
+    name: str = Field(..., min_length=1, max_length=50)
     description: Optional[str] = None
 
     accept_offers: bool = False
@@ -20,8 +22,19 @@ class RoleCreate(RoleBase):
     faction_id: int
 
 
-class RoleUpdate(BaseModel):
-    name: Optional[str] = None
+class RoleUpdate(PartialUpdate):
+    non_nullable = (
+        "name",
+        "accept_offers",
+        "create_offers",
+        "manage_funds",
+        "handle_members",
+        "manage_roles",
+        "manage_docs",
+        "view_transactions",
+    )
+
+    name: Optional[str] = Field(None, min_length=1, max_length=50)
     description: Optional[str] = None
 
     accept_offers: Optional[bool] = None

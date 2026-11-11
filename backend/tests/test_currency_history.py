@@ -3,7 +3,8 @@ from fastapi import HTTPException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.database import (Base, Currency, CurrencyHistory, Faction, Role, User)
+from app.database import (Base, Currency, CurrencyHistory, Faction, Offer,
+                          OfferHistory, Role, Transaction, User)
 from app.database.models import (currency, currency_history, faction,
                                  faction_role, user)
 from app.crud import currencies as crud
@@ -12,7 +13,8 @@ from app.schemas import CurrencyCreate, CurrencyUpdate
 from app.api import currencies as api
 
 TABLES = [Faction.__table__, Role.__table__, User.__table__,
-          Currency.__table__, CurrencyHistory.__table__]
+          Currency.__table__, CurrencyHistory.__table__, Offer.__table__,
+          OfferHistory.__table__, Transaction.__table__]
 
 
 @pytest.fixture

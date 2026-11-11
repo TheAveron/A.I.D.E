@@ -1,7 +1,8 @@
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
+
+from .base import UTCDatetime
 
 from ..misc import OfferAction
 
@@ -20,7 +21,7 @@ class OfferHistoryCreate(OfferHistoryBase):
 
 class OfferHistoryOut(OfferHistoryBase):
     history_id: int
-    timestamp: datetime
+    timestamp: UTCDatetime
 
     class Config:
         from_attributes = True

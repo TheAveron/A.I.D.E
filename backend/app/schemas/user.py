@@ -1,7 +1,8 @@
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
+
+from .base import UTCDatetime
 
 
 class UserBase(BaseModel):
@@ -33,7 +34,7 @@ class UserOut(BaseModel):
 
 class UserFull(UserOut):
     email: str | None
-    created_at: datetime
+    created_at: UTCDatetime
 
     faction_id: int | None
     role_id: int | None

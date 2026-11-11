@@ -1,9 +1,9 @@
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
 from ..misc import OfferStatus, OfferType
+from .base import PartialUpdate, UTCDatetime
 
 
 class OfferBase(BaseModel):
@@ -26,7 +26,9 @@ class OfferCreate(OfferBase):
     faction_id: Optional[int] = None
 
 
-class OfferUpdate(BaseModel):
+class OfferUpdate(PartialUpdate):
+    non_nullable = ("status", "price_per_unit", "quantity")
+
     status: Optional[OfferStatus] = None
     price_per_unit: Optional[float] = Field(None, gt=0)
     quantity: Optional[int] = Field(None, gt=0)
@@ -38,8 +40,8 @@ class OfferOut(OfferBase):
     user_id: Optional[int]
     faction_id: Optional[int]
     status: OfferStatus
-    created_at: datetime
-    updated_at: datetime
+    created_at: UTCDatetime
+    updated_at: UTCDatetime
 
     class Config:
         from_attributes = True

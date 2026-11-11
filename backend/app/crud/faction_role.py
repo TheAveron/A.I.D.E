@@ -1,8 +1,10 @@
 from typing import Optional
 
+from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..database import Role
+from ..database import Role, User
 from ..misc import FactionPermission
 from ..schemas import RoleCreate, RoleUpdate
 from .user import update_user_faction_and_role
@@ -18,12 +20,25 @@ def create_role(db: Session, faction_id: int, role_in: RoleCreate) -> Role:
         manage_funds=role_in.manage_funds,
         handle_members=role_in.handle_members,
         manage_roles=role_in.manage_roles,
+        manage_docs=role_in.manage_docs,
         view_transactions=role_in.view_transactions,
     )
     db.add(role)
-    db.commit()
+    _commit_unique_role(db)
     db.refresh(role)
     return role
+
+
+def _commit_unique_role(db: Session) -> None:
+    """Commit, turning a (faction, name) clash into a 409 instead of a 500."""
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A role with this name already exists in this faction",
+        )
 
 
 def get_roles_by_faction(db: Session, faction_id: int) -> list[Role]:
@@ -35,15 +50,24 @@ def get_role_by_id(db: Session, role_id: int) -> Optional[Role]:
 
 
 def update_role(db: Session, role: Role, role_update: RoleUpdate) -> Role:
-    for field, value in role_update.dict(exclude_unset=True).items():
+    for field, value in role_update.model_dump(exclude_unset=True).items():
         setattr(role, field, value)
 
-    db.commit()
+    _commit_unique_role(db)
     db.refresh(role)
     return role
 
 
+def count_role_members(db: Session, role_id: int) -> int:
+    return db.query(User).filter(User.role_id == role_id).count()
+
+
 def delete_role(db: Session, role: Role) -> None:
+    if count_role_members(db, role.role_id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This role is still assigned to members",
+        )
     db.delete(role)
     db.commit()
 
