@@ -10,6 +10,7 @@ import {
 
 import { useNavigate } from "react-router";
 import { jwtDecode } from "jwt-decode";
+import { applyAuthHeader } from "./authheader";
 import { AuthContext } from "./authcontext";
 
 // --- Types ---
@@ -20,10 +21,14 @@ interface DecodedToken {
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(() => {
-        if (typeof window !== "undefined") {
-            return sessionStorage.getItem("token");
-        }
-        return null;
+        if (typeof window === "undefined") return null;
+
+        const stored = sessionStorage.getItem("token");
+        // Set the header now, during the first render: the effect below runs
+        // after the children's effects, which would already have fetched
+        // without it (see applyAuthHeader).
+        applyAuthHeader(stored);
+        return stored;
     });
 
     const navigate = useNavigate();
