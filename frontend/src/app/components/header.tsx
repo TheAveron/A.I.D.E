@@ -7,42 +7,38 @@ function Header() {
 
     return (
         <header id="header">
-            <Link to="/A.I.D.E" className="title link">
+            <Link to="" className="title link">
                 Cube Crusader
             </Link>
             <nav>
-                <Link className="link" to="/A.I.D.E/actual">
+                <Link className="link" to="/actual">
                     Carte
                 </Link>
-                <Link className="link" to="/A.I.D.E/documentation/AgeOfSteam">
+                <Link className="link" to="/documentation/AgeOfSteam">
                     Documentation
                 </Link>
 
                 {token ? (
                     <>
-                        <Link className="link" to="/A.I.D.E/factions">
+                        <Link className="link" to="/factions">
                             Factions
                         </Link>
-                        <Link className="link" to="/A.I.D.E/offers">
+                        <Link className="link" to="/offers">
                             Offres
                         </Link>
-                        <Link className="link" to="/A.I.D.E/contribuer">
+                        <Link className="link" to="/contribuer">
                             Contribuer
                         </Link>
-                        <Link className="link" to="/A.I.D.E/profile">
+                        <Link className="link" to="/profile">
                             Profil
                         </Link>
                     </>
                 ) : (
                     <>
-                        <Link className="link" to="/A.I.D.E/archives">
+                        <Link className="link" to="/archives">
                             Archives
                         </Link>
-                        <Link
-                            className="button"
-                            id="signin"
-                            to="/A.I.D.E/login"
-                        >
+                        <Link className="button" id="signin" to="/login">
                             Connexion
                         </Link>
                     </>

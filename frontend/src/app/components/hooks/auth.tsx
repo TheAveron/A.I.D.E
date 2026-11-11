@@ -48,14 +48,14 @@ function getSafeReturnPath(state: unknown): string {
 
             if (
                 typeof location.pathname === "string" &&
-                location.pathname.startsWith("/A.I.D.E")
+                location.pathname.startsWith("")
             ) {
                 return `${location.pathname}${typeof location.search === "string" ? location.search : ""}${typeof location.hash === "string" ? location.hash : ""}`;
             }
         }
     }
 
-    return "/A.I.D.E";
+    return "";
 }
 
 export function useLogin(): AuthLoginHook {
@@ -175,7 +175,7 @@ export function useRegister(): AuthRegisterHook {
     useEffect(() => {
         if (!token) return;
 
-        navigate("/A.I.D.E", { replace: true });
+        navigate("", { replace: true });
     }, [token, navigate]);
 
     return {

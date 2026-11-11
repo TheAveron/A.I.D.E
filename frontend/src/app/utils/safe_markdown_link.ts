@@ -19,7 +19,7 @@ export function getDocumentRoute(documentName: string): string {
         .split("/")
         .filter((segment) => segment && segment !== "." && segment !== "..");
 
-    return `/A.I.D.E/archives/documentation/${segments
+    return `/archives/documentation/${segments
         .map((segment) => encodeURIComponent(segment))
         .join("/")}`;
 }

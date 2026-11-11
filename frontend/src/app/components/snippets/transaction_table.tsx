@@ -35,7 +35,12 @@ export function OfferRow({ transaction }: { transaction: TransactionType }) {
             {!error ? (
                 !loading ? (
                     <>
-                        <td>
+                        <td
+                            onClick={() => {
+                                navigate(`/user/${transaction.offer_id}`);
+                            }}
+                            style={{ cursor: "pointer" }}
+                        >
                             {offer ? offer.item_description : "Chargement..."}
                         </td>
                         <td>

@@ -32,12 +32,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         (sessionExpired = false) => {
             setToken(null);
             if (sessionExpired) {
-                navigate("/A.I.D.E/login", {
+                navigate("/login", {
                     state: { message: "Session expired, please log in again." },
                     replace: true,
                 });
             } else {
-                navigate("/A.I.D.E/login", { replace: true });
+                navigate("/login", { replace: true });
             }
         },
         [navigate],

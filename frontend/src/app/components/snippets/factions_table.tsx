@@ -54,7 +54,7 @@ export default function FactionTable({
                                             key={faction.faction_id}
                                             to={
                                                 faction.name != "Sans Faction"
-                                                    ? `/A.I.D.E/faction/${faction.faction_id}`
+                                                    ? `/faction/${faction.faction_id}`
                                                     : ""
                                             }
                                             style={{ display: "table-row" }}

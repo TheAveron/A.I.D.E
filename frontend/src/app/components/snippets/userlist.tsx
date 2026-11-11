@@ -47,7 +47,7 @@ function RoleElement({
         <>
             <td
                 onClick={() => {
-                    navigate("/A.I.D.E/user/" + user_id);
+                    navigate("/user/" + user_id);
                 }}
             >
                 {role.name}
@@ -118,8 +118,7 @@ function UsersTable({ state = false }: { state: boolean }) {
                                             <td
                                                 onClick={() => {
                                                     navigate(
-                                                        "/A.I.D.E/user/" +
-                                                            user.user_id,
+                                                        "/user/" + user.user_id,
                                                     );
                                                 }}
                                             >
