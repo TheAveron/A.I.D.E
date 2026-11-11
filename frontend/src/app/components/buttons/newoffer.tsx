@@ -62,7 +62,7 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
                             </div>
 
                             <div className="modal-field">
-                                <label>Monaie</label>
+                                <label>Monnaie</label>
                                 <input
                                     type="text"
                                     {...register("currency_name")}

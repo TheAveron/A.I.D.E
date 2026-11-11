@@ -33,7 +33,7 @@ export function useOfferHistoriesByActor({
             params.append("actor_user_id", actorUserId);
         }
         if (offer_id !== null && offer_id !== undefined) {
-            params.append("actor_user_id", offer_id);
+            params.append("offer_id", offer_id);
         }
         return params.toString();
     }, [actorFactionId, actorUserId, offer_id]);

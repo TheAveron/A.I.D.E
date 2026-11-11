@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from ..core import get_current_user
 from ..crud import faction as faction_crud
+from ..crud import normalize
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
 from ..schemas import FactionCreate, FactionOut, FactionUpdate
@@ -11,6 +12,20 @@ router = APIRouter(
     prefix="/factions",
     tags=["Factions"],
 )
+
+
+def _check_name_usable(
+    db: Session, name: str, exclude_faction_id: int | None = None
+) -> None:
+    """Reject names that can't get their own documents folder."""
+    if not normalize(name):
+        raise HTTPException(
+            status_code=400, detail="Faction name must contain at least one letter"
+        )
+    if faction_crud.normalized_name_taken(db, name, exclude_faction_id):
+        raise HTTPException(
+            status_code=400, detail="A faction with a similar name already exists"
+        )
 
 
 @router.post("/create", response_model=FactionOut, status_code=status.HTTP_201_CREATED)
@@ -41,6 +56,8 @@ def create_faction(
 
     if faction_crud.get_faction_by_name(db, faction_data.name):
         raise HTTPException(status_code=400, detail="Faction name already exists")
+
+    _check_name_usable(db, faction_data.name)
 
     return faction_crud.create_faction(db, faction_data, user.user_id)
 
@@ -75,15 +92,33 @@ def update_faction(
     if not faction:
         raise HTTPException(status_code=404, detail="Faction not found")
 
-    # NOTE: this reuses the MANAGE_ROLES permission (the pre-existing
-    # choice for this endpoint) - it does not gate is_approved on a
-    # separate/staff-only permission. See the accompanying summary for
-    # why that's a separate, non-quick-fix concern.
-    check_faction_permission(
-        current_user,
-        FactionPermission.MANAGE_ROLES,
-        target_faction_id=faction.faction_id,
-    )
+    # Which fields the client actually sent (as opposed to left unset) -
+    # mirrors the exclude_unset=True logic used in update_faction_validation.
+    provided_fields = faction_update.dict(exclude_unset=True)
+
+    # is_approved is the server's own "this faction is legitimate" stamp:
+    # it must only ever be set by a real admin, never by a faction's own
+    # leadership (manage_roles is a faction-internal permission, not a
+    # staff one).
+    if "is_approved" in provided_fields and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only a server admin can approve or unapprove a faction",
+        )
+
+    # Any other field (name, description, ...) still goes through the
+    # normal faction-scoped permission check.
+    other_fields = {k: v for k, v in provided_fields.items() if k != "is_approved"}
+    if other_fields:
+        check_faction_permission(
+            current_user,
+            FactionPermission.MANAGE_ROLES,
+            target_faction_id=faction.faction_id,
+        )
+
+    new_name = provided_fields.get("name")
+    if new_name is not None and new_name != faction.name:
+        _check_name_usable(db, new_name, exclude_faction_id=faction.faction_id)
 
     try:
         updated_faction = faction_crud.update_faction_validation(

@@ -2,9 +2,10 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import HTTPException, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from ..database import Offer, Transaction
+from ..database import Offer, Transaction, User
 from ..misc import OfferAction, OfferStatus
 from ..schemas import TransactionCreate
 from .offer_history import create_offer_history
@@ -55,15 +56,48 @@ def get_transaction(db: Session, transaction_id: int) -> Transaction:
 
 
 def get_transactions(
-    db: Session, faction_id: Optional[int] = None, user_id: Optional[int] = None
+    db: Session,
+    viewer: User,
+    faction_id: Optional[int] = None,
+    user_id: Optional[int] = None,
+    offer_id: Optional[int] = None,
 ) -> list[Transaction]:
-    query = db.query(Transaction)
+    """Transactions the viewer is allowed to see, newest first.
+
+    Visible: those where the viewer bought, or sold through an offer they
+    created, plus - for members whose role has `view_transactions` - those
+    involving their faction. The optional filters match either side of the
+    trade (buyer or offer creator) and only narrow that scope.
+    """
+    query = db.query(Transaction).join(
+        Offer, Transaction.offer_id == Offer.offer_id
+    )
+
+    scope = [
+        Transaction.buyer_user_id == viewer.user_id,
+        Offer.user_id == viewer.user_id,
+    ]
+    if viewer.faction_id and viewer.role and viewer.role.view_transactions:
+        scope += [
+            Transaction.buyer_faction_id == viewer.faction_id,
+            Offer.faction_id == viewer.faction_id,
+        ]
+    query = query.filter(or_(*scope))
 
     if faction_id is not None:
-        query = query.filter(Transaction.buyer_faction_id == faction_id)
+        query = query.filter(
+            or_(
+                Transaction.buyer_faction_id == faction_id,
+                Offer.faction_id == faction_id,
+            )
+        )
     if user_id is not None:
-        query = query.filter(Transaction.buyer_user_id == user_id)
+        query = query.filter(
+            or_(Transaction.buyer_user_id == user_id, Offer.user_id == user_id)
+        )
+    if offer_id is not None:
+        query = query.filter(Transaction.offer_id == offer_id)
 
-    transactions = query.all()
-
-    return transactions
+    return query.order_by(
+        Transaction.timestamp.desc(), Transaction.transaction_id.desc()
+    ).all()

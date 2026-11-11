@@ -43,7 +43,7 @@ export function UpdateFactionButton({
 
     const userHasChefRole = currentRole?.name === "Chef";
 
-    const inviteRole = newFactionRoles?.find((r) => r.name === "Invit�");
+    const inviteRole = newFactionRoles?.find((r) => r.name === "Invité");
 
     const handleClick = async () => {
         setMessage(null);

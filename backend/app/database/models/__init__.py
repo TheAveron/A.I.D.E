@@ -1,4 +1,5 @@
 from .currency import Currency
+from .currency_history import CurrencyHistory
 from .faction import Faction
 from .faction_role import Role
 from .offer import Offer, OfferStatus, OfferType

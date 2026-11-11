@@ -55,7 +55,7 @@ def upgrade():
         },
         {
             "name": "Trésorier",
-            "description": "G�re la monaie et les transactions.",
+            "description": "Gère la monnaie et les transactions.",
             "permissions": {
                 "accept_offers": False,
                 "create_offers": False,

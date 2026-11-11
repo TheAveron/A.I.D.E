@@ -1,19 +1,10 @@
-import { useNavigate } from "react-router";
 import { useTransactions } from "../hooks/transactions";
 import { useOffer } from "../hooks/offers";
 import type { TransactionType } from "../../types/transactions";
 import { useUser } from "../hooks/user";
 import { useFaction } from "../hooks/faction";
 
-export function OfferRow({
-    transaction,
-    factionId,
-    userId,
-}: {
-    transaction: TransactionType;
-    factionId?: string | null;
-    userId?: string | null;
-}) {
+export function OfferRow({ transaction }: { transaction: TransactionType }) {
     const { offer, loading, error } = useOffer(transaction.offer_id);
     const {
         user: creatorUser,
@@ -39,20 +30,8 @@ export function OfferRow({
         error: factionError,
     } = useFaction(transaction.buyer_faction_id?.toString() ?? null);
 
-    const navigate = useNavigate();
-
-    if (
-        faction?.faction_id.toString() != factionId &&
-        creatorFaction?.faction_id.toString() != factionId &&
-        user?.user_id.toString() != userId &&
-        creatorUser?.user_id.toString() != userId &&
-        (factionId || userId)
-    ) {
-        return;
-    }
-
     return (
-        <tr key={transaction.offer_id}>
+        <tr>
             {!error ? (
                 !loading ? (
                     <>
@@ -112,10 +91,11 @@ export default function TransactionsTable({
     userId?: string | null;
     offerId?: string | null;
 }) {
+    // The server only returns what the viewer may see and applies the filters.
     const { transactions, loading, error } = useTransactions({
-        factionId: null,
-        userId: null,
-        offerId: offerId,
+        factionId,
+        userId,
+        offerId,
     });
     return (
         <div className="snippet-container transactions-container">
@@ -138,8 +118,7 @@ export default function TransactionsTable({
                                 transactions && transactions.length > 0 ? (
                                     transactions.map((transaction) => (
                                         <OfferRow
-                                            factionId={factionId}
-                                            userId={userId}
+                                            key={transaction.transaction_id}
                                             transaction={transaction}
                                         />
                                     ))

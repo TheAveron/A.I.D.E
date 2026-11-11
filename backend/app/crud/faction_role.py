@@ -82,7 +82,7 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
         },
         {
             "name": "Trésorier",
-            "description": "Gère la monaie et les transactions.",
+            "description": "Gère la monnaie et les transactions.",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: False,
                 FactionPermission.CREATE_OFFERS: False,

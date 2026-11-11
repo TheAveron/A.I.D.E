@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router";
 import { useOfferHistoriesByActor } from "../hooks/offer_history";
 import Username from "./username";
 import Factionname from "./factionname";
@@ -12,8 +11,6 @@ export default function HistoryTable({
     factionId?: string;
     HistoriesPerPage?: number;
 }) {
-    const navigate = useNavigate();
-
     const [page, setPage] = useState(1);
 
     const { offerHistories, loading, error } = useOfferHistoriesByActor({
@@ -36,8 +33,6 @@ export default function HistoryTable({
         const start = (page - 1) * HistoriesPerPage;
         return sortedHistories.slice(start, start + HistoriesPerPage);
     }, [sortedHistories, page, HistoriesPerPage]);
-
-    console.log("ee", paginatedHistories);
 
     return (
         <div className="snippet-container history-container">
@@ -114,7 +109,7 @@ export default function HistoryTable({
                             ) : (
                                 <tr>
                                     <td colSpan={5}>
-                                        Chargement des membres...
+                                        Chargement de l'historique...
                                     </td>
                                 </tr>
                             )
