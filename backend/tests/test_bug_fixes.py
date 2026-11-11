@@ -16,20 +16,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.api import documentation, faction, offer, offer_history, transactions, user
+from app.api import (documentation, faction, offer, offer_history,
+                     transactions, user)
 from app.core.security import create_access_token, hash_password
 from app.crud import faction as faction_crud
-from app.database import (
-    Base,
-    Currency,
-    Faction,
-    Offer,
-    OfferHistory,
-    Role,
-    Transaction,
-    User,
-    get_db,
-)
+from app.database import (Base, Currency, Faction, Offer, OfferHistory, Role,
+                          Transaction, User, get_db)
 from app.misc import FactionPermission, check_faction_permission
 
 PW_HASH = hash_password("pw")  # bcrypt is slow: hash once, not once per user per test
