@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import axios from "axios";
 
 import { useAuth } from "../../utils/authcontext";
+import { getErrorMessage } from "../../utils/apierror";
 import { useApiGet } from "../../utils/useapiget";
 
 import type { RoleHook, RoleType } from "../../types/roles";
@@ -56,21 +57,16 @@ export function useUpdateUser(): UseUpdateUserHook {
                 setError(null);
 
                 const res = await axios.patch<UserType>(
-                    `../users/update/${userId}`,
+                    `/users/update/${userId}`,
                     {
                         faction_id: data.faction_id ?? null,
                         role_id: data.role_id ?? null,
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
                     },
                 );
 
                 return res.data;
             } catch (err) {
-                setError(`Error updating user: ${err}`);
+                setError(`Error updating user: ${getErrorMessage(err)}`);
                 return null;
             } finally {
                 setLoading(false);

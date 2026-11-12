@@ -6,6 +6,7 @@ import axios from "axios";
 import * as yup from "yup";
 
 import { useAuth } from "../../utils/authcontext";
+import { getErrorMessage } from "../../utils/apierror";
 import { useApiGet } from "../../utils/useapiget";
 import { useMe } from "./me";
 
@@ -97,7 +98,9 @@ export function useNewFaction(onCreated?: () => void): FactionFormHook {
             if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Une faction avec ce nom existe déjà.");
             } else {
-                setMessage("❌ Erreur lors de la création de la faction.");
+                setMessage(
+                    `❌ Erreur lors de la création de la faction : ${getErrorMessage(error)}`,
+                );
             }
         } finally {
             setLoading(false);

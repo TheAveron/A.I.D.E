@@ -26,6 +26,11 @@ export function AcceptOfferButton({
     const [quantity, setQuantity] = useState<number>(offerQuantity);
     const [buyFor, setBuyFor] = useState<"self" | "faction">("self");
 
+    const quantityValid =
+        Number.isInteger(quantity) &&
+        quantity >= 1 &&
+        quantity <= offerQuantity;
+
     const cantBuySelf = offerUserId === user?.user_id;
 
     const cantBuyFaction =
@@ -56,6 +61,7 @@ export function AcceptOfferButton({
         // Guard (shouldn't happen since UI prevents choosing a forbidden option)
         if (buyFor === "faction" && !user?.faction_id) return;
         if (buyFor === "self" && cantBuySelf) return;
+        if (!quantityValid) return;
 
         const payload = {
             quantity,
@@ -156,7 +162,7 @@ export function AcceptOfferButton({
                             <div className="modal-buttons">
                                 <button
                                     type="submit"
-                                    disabled={loading}
+                                    disabled={loading || !quantityValid}
                                     style={{
                                         flex: 1,
                                         backgroundColor: loading

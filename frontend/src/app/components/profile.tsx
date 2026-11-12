@@ -66,12 +66,15 @@ function Profile({ value }: { value: UserType }) {
                                         : roleError}
                                 </span>
                             </div>
-                            <div className="info-row">
-                                <span className="info-label">Email:</span>
-                                <span className="info-value-field">
-                                    {profile.email ?? "Non"}
-                                </span>
-                            </div>
+                            {/* Only the account holder's own profile has the email (the server hides it from everyone else) */}
+                            {profile.email !== undefined && (
+                                <div className="info-row">
+                                    <span className="info-label">Email:</span>
+                                    <span className="info-value-field">
+                                        {profile.email ?? "Non"}
+                                    </span>
+                                </div>
+                            )}
                             <div className="info-row">
                                 <span className="info-label">Inscription:</span>
                                 <span className="info-value-field">

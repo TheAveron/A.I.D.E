@@ -6,6 +6,7 @@ import * as yup from "yup";
 import axios from "axios";
 
 import { useAuth } from "../../utils/authcontext";
+import { getErrorMessage } from "../../utils/apierror";
 import { useApiGet } from "../../utils/useapiget";
 import { useMe } from "../hooks/me";
 
@@ -88,7 +89,9 @@ export function useNewCurrency(onCreated?: () => void): CurrencyFormHook {
                     "❌ Une monnaie avec ce nom ou symbole existe déjà.",
                 );
             } else {
-                setMessage("❌ Erreur lors de la création de la monnaie.");
+                setMessage(
+                    `❌ Erreur lors de la création de la monnaie : ${getErrorMessage(error)}`,
+                );
             }
         } finally {
             setLoading(false);

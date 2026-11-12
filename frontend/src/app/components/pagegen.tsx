@@ -66,8 +66,6 @@ function PageGenerator(page: string, render: boolean) {
         };
     }, [showIframe]);
 
-    console.log(safePage);
-
     return (
         <>
             {!showIframe && (

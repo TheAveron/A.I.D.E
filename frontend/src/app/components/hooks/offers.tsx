@@ -6,6 +6,7 @@ import * as yup from "yup";
 import axios from "axios";
 
 import { useAuth } from "../../utils/authcontext";
+import { getErrorMessage } from "../../utils/apierror";
 import { useApiGet } from "../../utils/useapiget";
 import { useMe } from "./me";
 
@@ -127,11 +128,7 @@ export function useNewOffer(onCreated?: () => void): OfferFormHook {
                 setMessage("❌ Une offre identique existe déjà.");
             } else {
                 setMessage(
-                    `❌ Error creating offer: ${
-                        axios.isAxiosError(error)
-                            ? error.message
-                            : "Unknown error"
-                    }`,
+                    `❌ Error creating offer: ${getErrorMessage(error)}`,
                 );
             }
         } finally {

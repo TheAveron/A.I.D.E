@@ -7,7 +7,8 @@ export interface UserBase {
 export interface UserType extends UserBase {
     user_id: number;
     is_admin: boolean;
-    email: string | null;
+    // Only present on your own profile (/users/me)
+    email?: string | null;
     created_at: string;
     faction_id: number | null;
     role_id: number | null;
