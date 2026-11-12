@@ -2,13 +2,19 @@ import { useNavigate } from "react-router";
 
 type GoBackButtonProps = {
     label?: string;
+    /** Go to this path instead of one step back in the history. */
+    to?: string;
 };
 
-export function GoBackButton({ label = "Retour" }: GoBackButtonProps) {
+export function GoBackButton({ label = "Retour", to }: GoBackButtonProps) {
     const navigate = useNavigate();
 
     function handleGoBack() {
-        navigate(-1); // Go back one step in history
+        if (to !== undefined) {
+            navigate(to);
+        } else {
+            navigate(-1); // Go back one step in history
+        }
     }
 
     return (

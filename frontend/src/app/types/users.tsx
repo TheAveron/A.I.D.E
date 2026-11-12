@@ -21,9 +21,9 @@ export interface UserRegisterForm extends UserLoginForm {
     cpassword: string;
 }
 
-export interface UserRegisterData extends UserLoginForm {
-    is_admin: boolean;
-}
+// What /auth/register accepts: nothing more than the credentials (admins are
+// created on the server, never through the API).
+export type UserRegisterData = UserLoginForm;
 
 export interface UserHook extends HookResult {
     user: UserType | null;

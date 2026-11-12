@@ -7,6 +7,9 @@ import * as Yup from "yup";
 import axios from "axios";
 
 import { useAuth } from "../../utils/authcontext";
+import { applyAuthHeader } from "../../utils/authheader";
+import { getErrorMessage } from "../../utils/apierror";
+import { getSafeReturnPath } from "../../utils/returnpath";
 
 import type {
     UserLoginForm,
@@ -17,42 +20,51 @@ import type {
 } from "../../types/users";
 import type { AuthType } from "../../types/hooks";
 
+// The server's limits: 50 characters for a name, 72 bytes for a password.
+const USERNAME_MAX = 50;
+const PASSWORD_MIN = 4;
+const PASSWORD_MAX = 40;
+
 const LoginSchema = Yup.object().shape({
     username: Yup.string().required("Username is required"),
     password: Yup.string().required("Password is required"),
 });
 
 const RegisterSchema = Yup.object().shape({
-    username: Yup.string().required("Username is required"),
+    username: Yup.string()
+        .required("Username is required")
+        .max(
+            USERNAME_MAX,
+            `Username cannot exceed more than ${USERNAME_MAX} characters`,
+        ),
     password: Yup.string()
         .required("Password is required")
-        .min(4, "Password length should be at least 4 characters")
-        .max(40, "Password cannot exceed more than 12 characters"),
+        .min(
+            PASSWORD_MIN,
+            `Password length should be at least ${PASSWORD_MIN} characters`,
+        )
+        .max(
+            PASSWORD_MAX,
+            `Password cannot exceed more than ${PASSWORD_MAX} characters`,
+        ),
     cpassword: Yup.string()
         .required("Confirm Password is required")
-        .min(4, "Password length should be at least 4 characters")
-        .max(40, "Password cannot exceed more than 12 characters")
+        .min(
+            PASSWORD_MIN,
+            `Password length should be at least ${PASSWORD_MIN} characters`,
+        )
+        .max(
+            PASSWORD_MAX,
+            `Password cannot exceed more than ${PASSWORD_MAX} characters`,
+        )
         .oneOf([Yup.ref("password")], "Passwords do not match"),
 });
 
-function getSafeReturnPath(state: unknown): string {
-    if (state && typeof state === "object" && "from" in state) {
-        const from = state.from;
-
-        if (from && typeof from === "object" && "pathname" in from) {
-            const location = from as {
-                pathname?: unknown;
-                search?: unknown;
-                hash?: unknown;
-            };
-
-            if (
-                typeof location.pathname === "string" &&
-                location.pathname.startsWith("")
-            ) {
-                return `${location.pathname}${typeof location.search === "string" ? location.search : ""}${typeof location.hash === "string" ? location.hash : ""}`;
-            }
-        }
+/** The notice RequireAuth/AuthProvider attach to the navigation to /login. */
+function getNotice(state: unknown): string {
+    if (state && typeof state === "object" && "message" in state) {
+        const { message } = state;
+        if (typeof message === "string") return message;
     }
 
     return "";
@@ -60,9 +72,12 @@ function getSafeReturnPath(state: unknown): string {
 
 export function useLogin(): AuthLoginHook {
     const { token, setToken } = useAuth() ?? {};
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
+    // Starts with the reason the user was sent here (e.g. session expired).
+    const [message, setMessage] = useState(() => getNotice(location.state));
 
     const form = useForm<UserLoginForm>({
         resolver: yupResolver(LoginSchema),
@@ -76,37 +91,28 @@ export function useLogin(): AuthLoginHook {
             const response = await axios.post<AuthType>("/auth/login", data);
 
             const accessToken = response.data.access_token;
+            applyAuthHeader(accessToken);
             setToken?.(accessToken);
-            axios.defaults.headers.common["Authorization"] =
-                `Bearer ${accessToken}`;
-
-            setMessage("You Are Successfully Logged In");
+            // The effect below takes the user away from this page.
         } catch (error: unknown) {
             const status = axios.isAxiosError(error)
                 ? error.response?.status
                 : undefined;
+
             if (status === 401) {
-                setMessage("❌  Mot de passe incorrect");
-            } else if (status === 404) {
+                // The server doesn't say which of the two was wrong.
+                setMessage("❌ Nom d'utilisateur ou mot de passe incorrect");
+            } else if (status === 429) {
                 setMessage(
-                    "❌ Il n'y a pas de compte avec ce nom d'utilisateur",
+                    "❌ Trop de tentatives échouées, réessayez dans quelques minutes",
                 );
             } else {
-                setMessage(
-                    `Login error: ${
-                        axios.isAxiosError(error)
-                            ? error.message
-                            : "Unknown error"
-                    }`,
-                );
+                setMessage(`❌ ${getErrorMessage(error)}`);
             }
         } finally {
             setLoading(false);
         }
     });
-
-    const navigate = useNavigate();
-    const location = useLocation();
 
     useEffect(() => {
         if (!token) return;
@@ -127,6 +133,7 @@ export function useLogin(): AuthLoginHook {
 
 export function useRegister(): AuthRegisterHook {
     const { token, setToken } = useAuth() ?? {};
+    const navigate = useNavigate();
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -142,40 +149,30 @@ export function useRegister(): AuthRegisterHook {
         const payload: UserRegisterData = {
             username: data.username,
             password: data.password,
-            is_admin: false,
         };
 
         try {
             const res = await axios.post<AuthType>("/auth/register", payload);
 
             const accessToken = res.data.access_token;
+            applyAuthHeader(accessToken);
             setToken?.(accessToken);
-            axios.defaults.headers.common["Authorization"] =
-                `Bearer ${accessToken}`;
-
-            setMessage("Registration successful!");
+            // The effect below takes the user away from this page.
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Un utilisateur possède déjà ce nom");
             } else {
-                setMessage(
-                    `Registration error: ${
-                        axios.isAxiosError(error)
-                            ? error.message
-                            : "Unknown error"
-                    }`,
-                );
+                setMessage(`❌ ${getErrorMessage(error)}`);
             }
         } finally {
             setLoading(false);
         }
     });
 
-    const navigate = useNavigate();
     useEffect(() => {
         if (!token) return;
 
-        navigate("", { replace: true });
+        navigate("/", { replace: true });
     }, [token, navigate]);
 
     return {

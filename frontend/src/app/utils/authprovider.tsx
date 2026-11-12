@@ -38,7 +38,9 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             setToken(null);
             if (sessionExpired) {
                 navigate("/login", {
-                    state: { message: "Session expired, please log in again." },
+                    state: {
+                        message: "Session expirée, veuillez vous reconnecter.",
+                    },
                     replace: true,
                 });
             } else {
@@ -65,7 +67,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
                 const timeUntilExpiry = expiryTime - Date.now() - 5000; // 5s safety margin
 
                 if (timeUntilExpiry <= 0) {
-                    handleLogout();
+                    handleLogout(true);
                 } else {
                     logoutTimer = setTimeout(() => {
                         handleLogout(true);
