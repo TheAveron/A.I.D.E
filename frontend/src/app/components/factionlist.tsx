@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { NewFaction } from "./buttons/newfaction";
 import { useFactions } from "./hooks/factions";
-import { useAllMemberCounts } from "./hooks/all_member_counts";
+import { useMemberCounts } from "./hooks/member_counts";
 import { useMe } from "./hooks/me";
 import FactionTable from "./snippets/factions_table";
 import { useFaction } from "./hooks/faction";
@@ -59,7 +59,7 @@ export default function FactionList() {
     const [page, setPage] = useState(1);
     const pageSize = 10;
 
-    const { counts: memberCounts } = useAllMemberCounts(factions);
+    const { counts: memberCounts } = useMemberCounts();
 
     const filteredFactions = useMemo(() => {
         if (!factions) return [];
@@ -93,12 +93,14 @@ export default function FactionList() {
             });
     }, [factions, search, sortKey, sortAsc, memberCounts]);
 
-    const paginated = useMemo(() => {
-        const start = (page - 1) * pageSize;
-        return filteredFactions.slice(start, start + pageSize);
-    }, [filteredFactions, page]);
-
     const totalPages = Math.ceil(filteredFactions.length / pageSize);
+    // The list can shrink under the current page (search, new data).
+    const currentPage = Math.min(page, Math.max(totalPages, 1));
+
+    const paginated = useMemo(() => {
+        const start = (currentPage - 1) * pageSize;
+        return filteredFactions.slice(start, start + pageSize);
+    }, [filteredFactions, currentPage]);
 
     return (
         <div className="snippet-container factions-container">
@@ -111,7 +113,10 @@ export default function FactionList() {
 
             <FactionToolbar
                 search={search}
-                setSearch={setSearch}
+                setSearch={(value) => {
+                    setSearch(value);
+                    setPage(1);
+                }}
                 sortKey={sortKey}
                 setSortKey={setSortKey}
                 sortAsc={sortAsc}
@@ -120,10 +125,11 @@ export default function FactionList() {
 
             <FactionTable
                 factions={paginated}
+                memberCounts={memberCounts}
                 loading={loading}
                 error={error}
                 totalPages={totalPages}
-                page={page}
+                page={currentPage}
                 setPage={setPage}
                 onRetry={refresh}
             />
