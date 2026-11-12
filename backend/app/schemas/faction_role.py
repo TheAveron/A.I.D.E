@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from .base import PartialUpdate
+from .base import MAX_DESCRIPTION_LENGTH, PartialUpdate
 
 
 class RoleBase(BaseModel):
@@ -19,6 +19,7 @@ class RoleBase(BaseModel):
 
 
 class RoleCreate(RoleBase):
+    description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
     faction_id: int
 
 
@@ -35,7 +36,7 @@ class RoleUpdate(PartialUpdate):
     )
 
     name: Optional[str] = Field(None, min_length=1, max_length=50)
-    description: Optional[str] = None
+    description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
 
     accept_offers: Optional[bool] = None
     create_offers: Optional[bool] = None

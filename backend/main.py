@@ -1,16 +1,16 @@
 import time
 from pathlib import Path
 
+from app.api import (auth, currencies, documentation, faction, offer,
+                     offer_history, role, transactions, user)
+from app.core.errors import register_error_handlers
+from app.core.logger import setup_logger
+from app.core.settings import ORIGINS
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
-
-from app.api import (auth, currencies, documentation, faction, offer,
-                     offer_history, role, transactions, user)
-from app.core.logger import setup_logger
-from app.core.settings import ORIGINS
 
 version = "1.2.0"
 
@@ -78,6 +78,9 @@ async def log_requests(request: Request, call_next):
     )
 
     return response
+
+
+register_error_handlers(app)
 
 
 @app.exception_handler(Exception)

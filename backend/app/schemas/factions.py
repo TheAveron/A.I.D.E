@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from .base import PartialUpdate, UTCDatetime
+from .base import MAX_DESCRIPTION_LENGTH, PartialUpdate, UTCDatetime
 
 
 class FactionBase(BaseModel):
@@ -11,7 +11,7 @@ class FactionBase(BaseModel):
 
 
 class FactionCreate(FactionBase):
-    pass
+    description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
 
 
 class FactionOut(FactionBase):
@@ -27,5 +27,5 @@ class FactionUpdate(PartialUpdate):
     non_nullable = ("name", "is_approved")
 
     name: Optional[str] = Field(None, min_length=1, max_length=100)
-    description: Optional[str] = None
+    description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
     is_approved: Optional[bool] = None

@@ -9,6 +9,14 @@ with only the routers under test, real JWTs.
 from datetime import datetime, timedelta
 
 import pytest
+from app.api import (auth, currencies, documentation, faction, offer,
+                     offer_history, role, user)
+from app.core.errors import register_error_handlers
+from app.core.security import create_access_token, hash_password
+from app.crud import faction as faction_crud
+from app.database import Base, Currency, Faction, Offer, Role, User, get_db
+from app.database.database import build_database_url
+from app.misc import OfferStatus, OfferType
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -16,13 +24,6 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-
-from app.api import auth, documentation, faction, offer, user
-from app.core.security import create_access_token, hash_password
-from app.crud import faction as faction_crud
-from app.database import Base, Currency, Faction, Offer, Role, User, get_db
-from app.database.database import build_database_url
-from app.misc import OfferStatus, OfferType
 
 PW_HASH = hash_password("pw")
 
@@ -86,7 +87,17 @@ def env():
     s.close()
 
     app = FastAPI()
-    for module in (auth, user, faction, offer, documentation):
+    register_error_handlers(app)
+    for module in (
+        auth,
+        user,
+        faction,
+        role,
+        currencies,
+        offer,
+        offer_history,
+        documentation,
+    ):
         app.include_router(module.router)
 
     def override():
@@ -145,6 +156,15 @@ class TestRegistration:
         assert self.register(env, "p73", "a" * 73).status_code == 422
         # 40 two-byte characters = 80 bytes, only 40 characters
         assert self.register(env, "pmb", "é" * 40).status_code == 422
+
+    def test_a_validation_error_does_not_echo_the_password(self, env):
+        secret = "s3cret-" + "a" * 80
+        r = self.register(env, "toolong", secret)
+        assert r.status_code == 422
+        assert secret not in r.text
+        detail = r.json()["detail"]
+        assert detail[0]["loc"][-1] == "password" and "msg" in detail[0]
+        assert all("input" not in e and "ctx" not in e for e in detail)
 
     def test_empty_password_is_a_422(self, env):
         assert self.register(env, "nopw", "").status_code == 422

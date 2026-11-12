@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from .base import PartialUpdate, UTCDatetime
+from .base import INT32_MAX, PartialUpdate, UTCDatetime
 
 
 class CurrencyBase(BaseModel):
@@ -10,7 +10,10 @@ class CurrencyBase(BaseModel):
     symbol: Optional[str] = Field(None, max_length=10)
     faction_id: int
     total_in_circulation: int = Field(
-        0, ge=0, description="Total amount of currency currently in circulation"
+        0,
+        ge=0,
+        le=INT32_MAX,
+        description="Total amount of currency currently in circulation",
     )
 
 
@@ -24,7 +27,7 @@ class CurrencyUpdate(PartialUpdate):
     name: Optional[str] = Field(None, min_length=1, max_length=50)
     symbol: Optional[str] = Field(None, max_length=10)
     total_in_circulation: Optional[int] = Field(
-        None, ge=0, description="Updated total in circulation"
+        None, ge=0, le=INT32_MAX, description="Updated total in circulation"
     )
 
 
