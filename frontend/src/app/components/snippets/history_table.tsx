@@ -54,15 +54,8 @@ export default function HistoryTable({
                                 paginatedHistories &&
                                 paginatedHistories.length > 0 ? (
                                     paginatedHistories.map((offer) => (
-                                        <tr key={offer.offer_id}>
-                                            <td
-                                                onClick={() => {
-                                                    navigate(
-                                                        "/user/" +
-                                                            offer.offer_id,
-                                                    );
-                                                }}
-                                            >
+                                        <tr key={offer.history_id}>
+                                            <td>
                                                 <Offername
                                                     offerId={offer.offer_id}
                                                 />
@@ -149,6 +142,7 @@ export default function HistoryTable({
                             page >=
                             Math.ceil(sortedHistories.length / HistoriesPerPage)
                         }
+                        className="button"
                     >
                         Suivant
                     </button>

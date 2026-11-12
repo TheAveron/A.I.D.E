@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -6,6 +6,7 @@ import * as yup from "yup";
 import axios from "axios";
 
 import { useAuth } from "../../utils/authcontext";
+import { useApiGet } from "../../utils/useapiget";
 import { useMe } from "./me";
 
 import type {
@@ -42,90 +43,39 @@ export const offerSchema = yup.object().shape({
 });
 
 export function useOffer(offer_id?: number): OfferHook {
-    const { token } = useAuth();
+    const { data, loading, error } = useApiGet<OfferType>(
+        offer_id != null ? `/offers/detail/${offer_id}` : null,
+        "Failed to fetch offer",
+    );
 
-    const [offer, setOffer] = useState<OfferType | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!token) return;
-
-        const fetchOffer = async () => {
-            setLoading(true);
-            setError(null);
-
-            try {
-                const res = await axios.get<OfferType>(
-                    `/offers/detail/${offer_id}`,
-                );
-
-                setOffer(res.data);
-            } catch (err: unknown) {
-                setError(
-                    axios.isAxiosError(err)
-                        ? err.message
-                        : "Failed to fetch offer",
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchOffer();
-    }, [token, offer_id]);
-
-    return { offer, loading, error };
+    return { offer: data, loading, error };
 }
 
-export function useOffersList(currency?: string, status?: string): OffersHook {
-    const { token } = useAuth();
+// The server returns 50 offers unless asked for more (up to 200), newest first.
+const MAX_OFFERS = "200";
 
-    const [offers, setOffers] = useState<OfferType[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [refreshKey, setRefreshKey] = useState(0);
-
+export function useOffersList(
+    currency?: string,
+    status?: string,
+    userId?: string | null,
+    factionId?: string | null,
+): OffersHook {
     const query = useMemo(() => {
-        const params = new URLSearchParams();
+        const params = new URLSearchParams({ limit: MAX_OFFERS });
         if (status) params.append("status", status);
         if (currency) params.append("currency", currency);
+        // Filtered by the server: filtering the 200 newest offers here would hide the older offers of a user or of a faction.
+        if (userId) params.append("user_id", userId);
+        if (factionId) params.append("faction_id", factionId);
         return params.toString();
-    }, [status, currency]);
+    }, [status, currency, userId, factionId]);
 
-    useEffect(() => {
-        if (!token) return;
+    const { data, loading, error, refresh } = useApiGet<OfferType[]>(
+        `/offers/list?${query}`,
+        "Failed to fetch offers",
+    );
 
-        const fetchOffers = async () => {
-            setLoading(true);
-            setError(null);
-
-            try {
-                const res = await axios.get<OfferType[]>(
-                    `/offers/list?${query}`,
-                );
-                setOffers(res.data);
-            } catch (err: unknown) {
-                console.error("Error fetching offers:", err);
-                setError(
-                    axios.isAxiosError(err)
-                        ? err.message
-                        : "Failed to fetch offers",
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchOffers();
-    }, [token, query, refreshKey]);
-
-    return {
-        offers,
-        loading,
-        error,
-        refresh: () => setRefreshKey((value) => value + 1),
-    };
+    return { offers: data ?? [], loading, error, refresh };
 }
 
 export function useNewOffer(onCreated?: () => void): OfferFormHook {

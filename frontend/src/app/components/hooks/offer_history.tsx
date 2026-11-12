@@ -1,10 +1,11 @@
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 
-import axios from "axios";
-
-import { useAuth } from "../../utils/authcontext";
+import { useApiGet } from "../../utils/useapiget";
 
 import type { OfferHistoriesHook, OfferHistoryType } from "../../types/history";
+
+// The server returns 50 entries unless asked for more (up to 500); the table paginates what it receives, so ask for as many as possible.
+const MAX_ENTRIES = "500";
 
 export function useOfferHistoriesByActor({
     actorFactionId = null,
@@ -15,50 +16,20 @@ export function useOfferHistoriesByActor({
     actorUserId?: string | null;
     offer_id?: string | null;
 }): OfferHistoriesHook {
-    const { token } = useAuth();
-
-    const [offerHistories, setOfferHistories] = useState<
-        OfferHistoryType[] | null
-    >(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    // Build query string with URLSearchParams & useMemo
     const query = useMemo(() => {
-        const params = new URLSearchParams();
-        if (actorFactionId !== null && actorFactionId !== undefined) {
+        const params = new URLSearchParams({ limit: MAX_ENTRIES });
+        if (actorFactionId !== null) {
             params.append("actor_faction_id", actorFactionId);
         }
-        if (actorUserId !== null && actorUserId !== undefined) {
-            params.append("actor_user_id", actorUserId);
-        }
-        if (offer_id !== null && offer_id !== undefined) {
-            params.append("offer_id", offer_id);
-        }
+        if (actorUserId !== null) params.append("actor_user_id", actorUserId);
+        if (offer_id !== null) params.append("offer_id", offer_id);
         return params.toString();
     }, [actorFactionId, actorUserId, offer_id]);
 
-    useEffect(() => {
-        if (!token) return;
+    const { data, loading, error } = useApiGet<OfferHistoryType[]>(
+        `/history?${query}`,
+        "Error fetching offer histories",
+    );
 
-        const fetchOfferHistories = async () => {
-            try {
-                setLoading(true);
-
-                const res = await axios.get<OfferHistoryType[]>(
-                    `/history?${query}`,
-                );
-
-                setOfferHistories(res.data);
-            } catch (err) {
-                setError(`Error fetching offer histories: ${err}`);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchOfferHistories();
-    }, [token, query]);
-
-    return { offerHistories, loading, error };
+    return { offerHistories: data, loading, error };
 }

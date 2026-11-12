@@ -1,46 +1,15 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-
-import { useAuth } from "../../utils/authcontext";
+import { useApiGet } from "../../utils/useapiget";
 
 import type { FactionsHook, FactionType } from "../../types/factions";
 
+// The server returns at most 100 factions unless asked for more (up to 500).
+const FACTIONS_URL = "/factions/list?limit=500";
+
 export function useFactions(): FactionsHook {
-    const { token } = useAuth();
+    const { data, loading, error, refresh } = useApiGet<FactionType[]>(
+        FACTIONS_URL,
+        "Failed to fetch factions",
+    );
 
-    const [factions, setFactions] = useState<FactionType[] | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [refreshKey, setRefreshKey] = useState(0);
-
-    useEffect(() => {
-        if (!token) return;
-
-        const fetchFactions = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const res = await axios.get<FactionType[]>("/factions/list");
-                setFactions(res.data);
-            } catch (err: unknown) {
-                console.error("Error fetching factions:", err);
-                setError(
-                    axios.isAxiosError(err)
-                        ? err.message
-                        : "Failed to fetch factions",
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchFactions();
-    }, [token, refreshKey]);
-
-    return {
-        factions,
-        loading,
-        error,
-        refresh: () => setRefreshKey((value) => value + 1),
-    };
+    return { factions: data, loading, error, refresh };
 }

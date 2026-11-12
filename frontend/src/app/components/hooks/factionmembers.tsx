@@ -1,42 +1,12 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-
-import { useAuth } from "../../utils/authcontext";
+import { useApiGet } from "../../utils/useapiget";
 
 import type { UsersHook, UserType } from "../../types/users";
 
 export function useMembers(faction_id: string | null): UsersHook {
-    const { token } = useAuth();
+    const { data, loading, error, refresh } = useApiGet<UserType[]>(
+        faction_id ? `/users/faction/${encodeURIComponent(faction_id)}` : null,
+        "Error fetching faction members",
+    );
 
-    const [users, setUsers] = useState<UserType[] | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [refreshKey, setRefreshKey] = useState(0);
-
-    useEffect(() => {
-        if (!token || !faction_id) return;
-
-        const fetchUsers = async () => {
-            try {
-                setLoading(true);
-                const res = await axios.get<UserType[]>(
-                    `/users/faction/${faction_id}`,
-                );
-                setUsers(res.data);
-            } catch (error) {
-                setError(`Error fetching faction members: ${error}`);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUsers();
-    }, [token, faction_id, refreshKey]);
-
-    return {
-        users,
-        loading,
-        error,
-        refresh: () => setRefreshKey((value) => value + 1),
-    };
+    return { users: data, loading, error, refresh };
 }

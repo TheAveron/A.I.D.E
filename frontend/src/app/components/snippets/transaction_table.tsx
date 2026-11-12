@@ -1,82 +1,56 @@
 import { useTransactions } from "../hooks/transactions";
 import { useOffer } from "../hooks/offers";
 import type { TransactionType } from "../../types/transactions";
-import { useUser } from "../hooks/user";
-import { useFaction } from "../hooks/faction";
+import Username from "./username";
+import Factionname from "./factionname";
+
+function Actor({
+    userId,
+    factionId,
+}: {
+    userId?: number | null;
+    factionId?: number | null;
+}) {
+    if (factionId) return <Factionname factionId={factionId.toString()} />;
+    if (userId) return <Username userId={userId.toString()} />;
+    return <>-</>;
+}
 
 export function OfferRow({ transaction }: { transaction: TransactionType }) {
     const { offer, loading, error } = useOffer(transaction.offer_id);
-    const {
-        user: creatorUser,
-        loading: creatorUserLoading,
-        error: creatorUserError,
-    } = useUser(offer?.user_id?.toString() ?? null);
-
-    const {
-        faction: creatorFaction,
-        loading: creatorFactionLoading,
-        error: creatorFactionError,
-    } = useFaction(offer?.faction_id?.toString() ?? null);
-
-    const {
-        user,
-        loading: userLoading,
-        error: userError,
-    } = useUser(transaction.buyer_user_id?.toString() ?? null);
-
-    const {
-        faction,
-        loading: factionLoading,
-        error: factionError,
-    } = useFaction(transaction.buyer_faction_id?.toString() ?? null);
 
     return (
         <tr>
-            {!error ? (
-                !loading ? (
-                    <>
-                        <td
-                            onClick={() => {
-                                navigate(`/user/${transaction.offer_id}`);
-                            }}
-                            style={{ cursor: "pointer" }}
-                        >
-                            {offer ? offer.item_description : "Chargement..."}
-                        </td>
-                        <td>
-                            {!creatorUserLoading || !creatorFactionLoading
-                                ? (creatorUserError ??
-                                  creatorFactionError ??
-                                  creatorUser?.username ??
-                                  creatorFaction?.name)
-                                : "Chargement..."}
-                        </td>
-                        <td>
-                            {!userLoading || !factionLoading
-                                ? (userError ??
-                                  factionError ??
-                                  user?.username ??
-                                  faction?.name)
-                                : "Chargement..."}
-                        </td>
-                        <td>
-                            {new Date(
-                                transaction.timestamp,
-                            ).toLocaleDateString() +
-                                ", " +
-                                new Date(
-                                    transaction.timestamp,
-                                ).toLocaleTimeString()}
-                        </td>
-                    </>
-                ) : (
-                    <td colSpan={4}>Chargement de la transaction...</td>
-                )
-            ) : (
+            {error ? (
                 <td colSpan={4}>
                     Erreur lors du chargement de la transaction{" "}
                     {transaction.transaction_id}: {error}
                 </td>
+            ) : loading || !offer ? (
+                <td colSpan={4}>Chargement de la transaction...</td>
+            ) : (
+                <>
+                    <td>{offer.item_description}</td>
+                    <td>
+                        <Actor
+                            userId={offer.user_id}
+                            factionId={offer.faction_id}
+                        />
+                    </td>
+                    <td>
+                        <Actor
+                            userId={transaction.buyer_user_id}
+                            factionId={transaction.buyer_faction_id}
+                        />
+                    </td>
+                    <td>
+                        {new Date(transaction.timestamp).toLocaleDateString() +
+                            ", " +
+                            new Date(
+                                transaction.timestamp,
+                            ).toLocaleTimeString()}
+                    </td>
+                </>
             )}
         </tr>
     );
@@ -124,21 +98,21 @@ export default function TransactionsTable({
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5}>
+                                        <td colSpan={4}>
                                             Aucune Transaction trouvée.
                                         </td>
                                     </tr>
                                 )
                             ) : (
                                 <tr>
-                                    <td colSpan={5}>
+                                    <td colSpan={4}>
                                         Chargement des transactions...
                                     </td>
                                 </tr>
                             )
                         ) : (
                             <tr>
-                                <td colSpan={5}>{error}</td>
+                                <td colSpan={4}>{error}</td>
                             </tr>
                         )}
                     </tbody>

@@ -1,41 +1,22 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import axios from "axios";
 
 import { useAuth } from "../../utils/authcontext";
+import { useApiGet } from "../../utils/useapiget";
 
 import type { RoleHook, RoleType } from "../../types/roles";
 
 import type { UserType } from "../../types/users";
 
 export function useRole(role_id: number | null): RoleHook {
-    const { token } = useAuth();
+    const { data, loading, error } = useApiGet<RoleType>(
+        role_id ? `/roles/detail/${role_id}` : null,
+        "Error fetching role",
+    );
 
-    const [role, setRole] = useState<RoleType | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!token || !role_id) return;
-
-        const fetchRole = async () => {
-            try {
-                setLoading(true);
-                const res = await axios.get<RoleType>(
-                    `../roles/detail/${role_id}`,
-                );
-                setRole(res.data);
-            } catch (error) {
-                setError(`Error fetching role: ${error}`);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchRole();
-    }, [token, role_id]);
-
-    return { role, loading, error };
+    return { role: data, loading, error };
 }
+
 interface UpdateUserPayload {
     faction_id?: number | null;
     role_id?: number | null;

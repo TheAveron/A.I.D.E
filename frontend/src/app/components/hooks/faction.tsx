@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -6,6 +6,7 @@ import axios from "axios";
 import * as yup from "yup";
 
 import { useAuth } from "../../utils/authcontext";
+import { useApiGet } from "../../utils/useapiget";
 import { useMe } from "./me";
 
 import type {
@@ -28,33 +29,14 @@ const factionSchema = yup.object().shape({
 });
 
 export function useFaction(faction_id: string | null): FactionHook {
-    const { token } = useAuth();
+    const { data, loading, error } = useApiGet<FactionType>(
+        faction_id
+            ? `/factions/detail/${encodeURIComponent(faction_id)}`
+            : null,
+        "Error fetching faction",
+    );
 
-    const [faction, setFaction] = useState<FactionType | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!token || !faction_id) return;
-
-        const fetchFaction = async () => {
-            try {
-                setLoading(true);
-                const res = await axios.get<FactionType>(
-                    `/factions/detail/${faction_id}`,
-                );
-                setFaction(res.data);
-            } catch (error) {
-                setError(`Error fetching faction: ${error}`);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchFaction();
-    }, [token, faction_id]);
-
-    return { faction, loading, error };
+    return { faction: data, loading, error };
 }
 
 export function useNewFaction(onCreated?: () => void): FactionFormHook {
