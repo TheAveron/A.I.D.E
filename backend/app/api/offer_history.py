@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
@@ -16,8 +16,8 @@ def list_offer_histories(
     actor_user_id: Optional[int] = None,
     actor_faction_id: Optional[int] = None,
     offer_id: Optional[int] = None,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=500),
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=500)] = 50,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

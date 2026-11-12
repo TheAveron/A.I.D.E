@@ -4,7 +4,7 @@ from pathlib import Path
 from app.api import (auth, currencies, documentation, faction, offer,
                      offer_history, role, transactions, user)
 from app.core.errors import register_error_handlers
-from app.core.logger import setup_logger
+from app.core.logger import log_safe, setup_logger
 from app.core.settings import ORIGINS
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -65,14 +65,15 @@ async def log_requests(request: Request, call_next):
         response = await call_next(request)
     except Exception as e:
         logger.error(
-            f"Exception handling request {request.method} {request.url.path}: {e}"
+            f"Exception handling request {request.method} "
+            f"{log_safe(request.url.path)}: {e}"
         )
         raise
 
     duration = (time.time() - start_time) * 1000  # ms
 
     logger.info(
-        f"{request.method} {request.url.path} - "
+        f"{request.method} {log_safe(request.url.path)} - "
         f"Status: {response.status_code} - "
         f"Duration: {duration:.2f}ms"
     )
@@ -89,7 +90,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         f"Unhandled exception: {str(exc)}",
         exc_info=True,
         extra={
-            "path": request.url.path,
+            "path": log_safe(request.url.path),
             "method": request.method,
         },
     )

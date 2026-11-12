@@ -144,6 +144,19 @@ class TestOtherBounds:
         )
         assert r.status_code == 201
 
+    def test_currency_history_pagination_is_validated(self, env):
+        h = env.h("alice")
+        for query in ("?limit=0", "?limit=501", "?skip=-1"):
+            r = env.client.get("/currencies/history/Diamant" + query, headers=h)
+            assert r.status_code == 422, query
+        r = env.client.get("/currencies/history/Diamant?limit=500", headers=h)
+        assert r.status_code == 200
+
+    def test_faction_list_pagination_is_validated(self, env):
+        for query in ("?limit=0", "?limit=501", "?skip=-1"):
+            assert env.client.get("/factions/list" + query).status_code == 422, query
+        assert env.client.get("/factions/list?limit=500").status_code == 200
+
     def test_history_pagination_is_validated(self, env):  # noqa: F811
         h = env.h("alice")
         for query in ("?limit=0", "?limit=501", "?skip=-1"):

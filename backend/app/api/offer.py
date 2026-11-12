@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -43,8 +43,8 @@ def list_offers(
     currency: Optional[str] = Query(None),
     user_id: Optional[int] = Query(None, description="Only this user's own offers"),
     faction_id: Optional[int] = Query(None, description="Only this faction's offers"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=200),
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
     db: Session = Depends(get_db),
 ):
     """Offers, newest first. Paginate with `skip`/`limit` (at most 200 per page)."""

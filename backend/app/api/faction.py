@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from ..core import get_current_user
@@ -63,7 +65,11 @@ def create_faction(
 
 
 @router.get("/list", response_model=list[FactionOut], status_code=status.HTTP_200_OK)
-def list_factions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def list_factions(
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+    db: Session = Depends(get_db),
+):
     return faction_crud.list_factions(db, skip=skip, limit=limit)
 
 

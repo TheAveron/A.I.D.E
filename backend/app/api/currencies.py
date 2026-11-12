@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from ..core import get_current_user
@@ -94,8 +96,8 @@ def get_currency_by_name(
 )
 def get_currency_history(
     currency_name: str,
-    skip: int = 0,
-    limit: int = 50,
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=500)] = 50,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
