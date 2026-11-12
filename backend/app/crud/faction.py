@@ -2,6 +2,7 @@ import logging
 from typing import Optional
 
 from fastapi import HTTPException
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -47,6 +48,17 @@ def normalized_name_taken(
 
 def list_factions(db: Session, skip: int = 0, limit: int = 100) -> list[Faction]:
     return db.query(Faction).offset(skip).limit(limit).all()
+
+
+def count_members(db: Session) -> dict[int, int]:
+    """Number of users of every faction (0 for the ones nobody belongs to)."""
+    rows = (
+        db.query(Faction.faction_id, func.count(User.user_id))
+        .outerjoin(User, User.faction_id == Faction.faction_id)
+        .group_by(Faction.faction_id)
+        .all()
+    )
+    return {faction_id: count for faction_id, count in rows}
 
 
 def create_faction(db: Session, faction_data: FactionCreate, user_id: int) -> Faction:

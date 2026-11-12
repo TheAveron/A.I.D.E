@@ -73,6 +73,12 @@ def list_factions(
     return faction_crud.list_factions(db, skip=skip, limit=limit)
 
 
+@router.get("/member_counts", response_model=dict[int, int])
+def member_counts(db: Session = Depends(get_db)) -> dict[int, int]:
+    """Members per faction, in one query (the list page used one request each)."""
+    return faction_crud.count_members(db)
+
+
 @router.get(
     "/detail/{faction_id}", response_model=FactionOut, status_code=status.HTTP_200_OK
 )
