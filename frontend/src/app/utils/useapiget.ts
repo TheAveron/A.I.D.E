@@ -18,9 +18,7 @@ export interface ApiGetResult<T> {
     refresh: () => void;
 }
 
-// GETs for the same URL that are in flight at the same moment share one
-// request: a table of 20 rows that each ask for the same user sent 20 of them.
-// Nothing is kept once the answer has arrived, so data is never stale.
+// GETs for the same URL that are in flight at the same moment share one request: a table of 20 rows that each ask for the same user sent 20 of them. Nothing is kept once the answer has arrived, so data is never stale.
 const inFlight = new Map<string, Promise<unknown>>();
 
 function sharedGet<T>(key: string, url: string): Promise<T> {
