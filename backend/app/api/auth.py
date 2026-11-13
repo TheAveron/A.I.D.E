@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..core import create_access_token, hash_password
 from ..core.ratelimit import LoginLimiter
 from ..crud import (authenticate_user, create_user, get_faction_by_name,
-                    get_roles_by_faction, get_user_by_username)
+                    get_roles_by_faction, username_taken)
 from ..database import get_db
 from ..schemas import Auth, UserCreate, UserLogin
 
@@ -25,11 +25,11 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> Auth:
     """
     Register a new user account and return a JWT token with user info.
     """
-    username_taken = HTTPException(
+    name_in_use = HTTPException(
         status_code=status.HTTP_409_CONFLICT, detail="Username already taken"
     )
-    if get_user_by_username(db, user.username):
-        raise username_taken
+    if username_taken(db, user.username):
+        raise name_in_use
 
     hashed_password = hash_password(user.password)
 
@@ -60,7 +60,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> Auth:
     except IntegrityError:
         # Two registrations for the same name raced past the check above.
         db.rollback()
-        raise username_taken
+        raise name_in_use
 
     token = create_access_token(data={"sub": user.username})
 

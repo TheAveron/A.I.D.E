@@ -7,12 +7,13 @@ Uses the `env` fixture of test_hardening.py (SQLite in memory, a few routers).
 import json
 
 import pytest
+from fastapi import HTTPException
+from test_hardening import env  # noqa: F401  (pytest fixture)
+
 from app.api import documentation
 from app.api.auth import login_limiter
 from app.core.ratelimit import LoginLimiter
 from app.schemas.base import INT32_MAX, MAX_DESCRIPTION_LENGTH, MAX_PRICE
-from fastapi import HTTPException
-from test_hardening import env  # noqa: F401  (pytest fixture)
 
 OFFER = {
     "offer_type": "SELL",

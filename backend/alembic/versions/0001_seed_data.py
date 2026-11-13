@@ -209,6 +209,10 @@ def downgrade():
         sa.text("""DELETE FROM "users" WHERE username = :username"""),
         {"username": "ADmin_oP"},
     )
+    # Before the factions: a currency belongs to one.
+    session.execute(
+        sa.text("""DELETE FROM currencies WHERE name = :name"""), {"name": "Diamant"}
+    )
     session.execute(
         sa.text(
             """DELETE FROM roles WHERE faction_id IN (SELECT faction_id FROM factions WHERE name = :name)"""
@@ -217,8 +221,5 @@ def downgrade():
     )
     session.execute(
         sa.text("""DELETE FROM factions WHERE name = :name"""), {"name": "Sans Faction"}
-    )
-    session.execute(
-        sa.text("""DELETE FROM currencices WHERE name = :name"""), {"name": "Diamant"}
     )
     session.commit()

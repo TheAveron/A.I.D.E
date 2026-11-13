@@ -15,4 +15,4 @@ from .offer_history import create_offer_history, get_offer_history
 from .transaction import get_transactions
 from .user import (authenticate_user, create_user, get_user_by_id,
                    get_user_by_username, update_user_faction_and_role,
-                   user_has_faction)
+                   user_has_faction, username_taken)

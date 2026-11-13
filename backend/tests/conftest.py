@@ -5,10 +5,11 @@ needed to run the test suite.
 """
 
 import pytest
-from app.api.auth import login_limiter
-from app.database import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from app.api.auth import login_limiter
+from app.database import Base
 
 
 @pytest.fixture(autouse=True)

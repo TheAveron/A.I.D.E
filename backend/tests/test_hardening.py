@@ -9,6 +9,14 @@ with only the routers under test, real JWTs.
 from datetime import datetime, timedelta
 
 import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+
 from app.api import (auth, currencies, documentation, faction, offer,
                      offer_history, role, user)
 from app.core.errors import register_error_handlers
@@ -17,13 +25,6 @@ from app.crud import faction as faction_crud
 from app.database import Base, Currency, Faction, Offer, Role, User, get_db
 from app.database.database import build_database_url
 from app.misc import OfferStatus, OfferType
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.engine import make_url
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 PW_HASH = hash_password("pw")
 
@@ -139,7 +140,7 @@ class TestRegistration:
     ):
         # Both requests passed the "is it taken?" check before either inserted:
         # simulate it by making the check blind to the existing account.
-        monkeypatch.setattr(auth, "get_user_by_username", lambda db, name: None)
+        monkeypatch.setattr(auth, "username_taken", lambda db, name: False)
         r = self.register(env, "alice")
         assert r.status_code == 409 and "taken" in r.json()["detail"]
 

@@ -23,6 +23,7 @@ _SAFE_FOLDER = re.compile(r"^[\w-]+$")
 MAX_TITLE_LENGTH = 200
 MAX_CONTENT_LENGTH = 100_000
 MAX_FILENAME_BYTES = 200  # most file systems refuse names over 255 bytes
+MAX_DOCUMENTS_PER_FACTION = 200
 
 logger = logging.getLogger("aide")
 
@@ -100,6 +101,14 @@ def create_document(
         )
 
     file_path = DOCS_DIR / "AOS" / faction_name / f"{doc_name}.md"
+
+    if file_path.parent.is_dir():
+        existing = sum(1 for _ in file_path.parent.glob("*.md"))
+        if existing >= MAX_DOCUMENTS_PER_FACTION:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"A faction can have at most {MAX_DOCUMENTS_PER_FACTION} documents",
+            )
 
     try:
         file_path.parent.mkdir(parents=True, exist_ok=True)

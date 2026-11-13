@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..core.security import verify_password
@@ -6,6 +7,16 @@ from ..database import User
 
 def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
+
+
+def username_taken(db: Session, username: str) -> bool:
+    """Whether a name is in use, ignoring case ("Bob" can't pose as "bob")."""
+    return (
+        db.query(User.user_id)
+        .filter(func.lower(User.username) == username.lower())
+        .first()
+        is not None
+    )
 
 
 def get_user_by_id(db: Session, user_id: int):

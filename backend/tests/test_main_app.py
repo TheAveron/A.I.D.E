@@ -12,9 +12,10 @@ import logging
 import sys
 
 import pytest
-from app.core.logger import log_safe
 from fastapi.testclient import TestClient
 from starlette.staticfiles import StaticFiles
+
+from app.core.logger import log_safe
 
 
 @pytest.fixture
