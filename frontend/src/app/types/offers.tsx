@@ -3,11 +3,7 @@ import type { HookForm, HookResult } from "./hooks";
 export type OfferTypeLiteral = "BUY" | "SELL";
 export type OfferStatusLiteral = "OPEN" | "CANCELLED" | "CLOSED";
 export type OfferActionLitteral =
-    | "CREATED"
-    | "UPDATED"
-    | "DELETED"
-    | "ACCEPTED"
-    | "DECLINED";
+    "CREATED" | "UPDATED" | "DELETED" | "ACCEPTED" | "DECLINED";
 
 export interface OfferBase {
     offer_type: OfferTypeLiteral;
@@ -19,7 +15,7 @@ export interface OfferBase {
 }
 
 export interface OfferCreateData extends OfferBase {
-    allowed_parties: string | null;
+    allowed_parties: number[] | null;
     user_id: number | null;
     faction_id: number | null;
 }
@@ -45,9 +41,9 @@ export interface OfferAcceptPayload {
 }
 
 export interface OfferResponse {
-    offer_id: 0;
-    transaction_id: 0;
-    status: "string";
+    offer_id: number;
+    transaction_id: number;
+    status: string;
 }
 
 export interface OfferHook extends HookResult {

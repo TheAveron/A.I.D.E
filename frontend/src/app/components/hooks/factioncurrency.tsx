@@ -71,6 +71,7 @@ export function useNewCurrency(onCreated?: () => void): CurrencyFormHook {
 
             const payload: CurrencyCreateData = {
                 ...data,
+                symbol: data.symbol?.trim() || null,
                 faction_id: user?.faction_id,
             };
 

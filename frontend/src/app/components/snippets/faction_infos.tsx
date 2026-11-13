@@ -4,22 +4,23 @@ import { useRole } from "../hooks/role";
 
 function FactionHead({
     faction_name,
+    faction_id,
+    user_faction_id,
     role_id,
 }: {
     faction_name: string;
+    faction_id: number;
+    user_faction_id: number | null;
     role_id: number | null;
 }) {
     const { role } = useRole(role_id ?? null);
-    let editableText = "";
-
-    if (role?.name === "Chef") {
-        editableText = " editable";
-    }
+    // Being "Chef" of another faction gives no right on this one.
+    const canEdit = role?.name === "Chef" && user_faction_id === faction_id;
 
     return (
-        <div className={"info-header" + editableText}>
+        <div className={"info-header" + (canEdit ? " editable" : "")}>
             <div className="info-title">{faction_name}</div>
-            {role?.name === "Chef" ? <div className="button">Edit</div> : <></>}
+            {canEdit && <div className="button">Edit</div>}
         </div>
     );
 }
@@ -39,7 +40,9 @@ export default function FactionInfo({
                     faction ? (
                         <>
                             <FactionHead
-                                faction_name={faction?.name}
+                                faction_name={faction.name}
+                                faction_id={faction.faction_id}
+                                user_faction_id={user?.faction_id ?? null}
                                 role_id={user?.role_id ?? null}
                             />
 
@@ -66,7 +69,7 @@ export default function FactionInfo({
                                     </span>
                                     <span className="info-value-field">
                                         {new Date(
-                                            faction.created_at
+                                            faction.created_at,
                                         ).toLocaleDateString()}
                                     </span>
                                 </div>
