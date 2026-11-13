@@ -4,11 +4,12 @@ import { useApiGet } from "../../utils/useapiget";
 export function useMemberCounts(): {
     counts: Record<string, number>;
     loading: boolean;
+    refresh: () => void;
 } {
-    const { data, loading } = useApiGet<Record<string, number>>(
+    const { data, loading, refresh } = useApiGet<Record<string, number>>(
         "/factions/member_counts",
         "Error fetching member counts",
     );
 
-    return { counts: data ?? {}, loading };
+    return { counts: data ?? {}, loading, refresh };
 }

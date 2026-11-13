@@ -59,7 +59,7 @@ export default function FactionList() {
     const [page, setPage] = useState(1);
     const pageSize = 10;
 
-    const { counts: memberCounts } = useMemberCounts();
+    const { counts: memberCounts, refresh: refreshCounts } = useMemberCounts();
 
     const filteredFactions = useMemo(() => {
         if (!factions) return [];
@@ -126,6 +126,7 @@ export default function FactionList() {
             <FactionTable
                 factions={paginated}
                 memberCounts={memberCounts}
+                onJoined={refreshCounts}
                 loading={loading}
                 error={error}
                 totalPages={totalPages}

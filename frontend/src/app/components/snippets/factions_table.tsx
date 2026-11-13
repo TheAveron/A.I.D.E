@@ -10,6 +10,8 @@ const NO_FACTION = "Sans Faction";
 type Props = {
     factions: FactionType[];
     memberCounts: Record<string, number>;
+    // Called once the user has joined a faction
+    onJoined: () => void;
     loading: boolean;
     error: string | null;
     page: number;
@@ -21,6 +23,7 @@ type Props = {
 export default function FactionTable({
     factions,
     memberCounts,
+    onJoined,
     loading,
     error,
     page,
@@ -31,7 +34,7 @@ export default function FactionTable({
     const next = () => setPage(Math.min(page + 1, totalPages));
     const prev = () => setPage(Math.max(page - 1, 1));
 
-    const { user } = useMe();
+    const { user, refresh: refreshMe } = useMe();
     const { role } = useRole(user?.role_id ?? null);
 
     const showActions = role?.name != "Chef";
@@ -130,6 +133,10 @@ export default function FactionTable({
                                                         factionId={
                                                             faction.faction_id
                                                         }
+                                                        onUpdate={() => {
+                                                            refreshMe();
+                                                            onJoined();
+                                                        }}
                                                     />
                                                 )}
                                         </td>

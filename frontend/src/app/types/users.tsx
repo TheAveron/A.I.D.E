@@ -28,6 +28,7 @@ export type UserRegisterData = UserLoginForm;
 
 export interface UserHook extends HookResult {
     user: UserType | null;
+    refresh: () => void;
 }
 
 export interface UsersHook extends HookResult {

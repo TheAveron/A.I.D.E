@@ -21,6 +21,9 @@ export interface ApiGetResult<T> {
 // GETs for the same URL that are in flight at the same moment share one request: a table of 20 rows that each ask for the same user sent 20 of them. Nothing is kept once the answer has arrived, so data is never stale.
 const inFlight = new Map<string, Promise<unknown>>();
 
+// Components showing the same data (the same URL, for the same user) reload together: after joining a faction, every part of the page using /users/me must see it, not only the one that asked.
+const reloaders = new Map<string, Set<() => void>>();
+
 function sharedGet<T>(key: string, url: string): Promise<T> {
     const running = inFlight.get(key);
     if (running) return running as Promise<T>;
@@ -91,7 +94,24 @@ export function useApiGet<T>(
         };
     }, [key, url, refreshKey, errorLabel]);
 
-    const refresh = useCallback(() => setRefreshKey((n) => n + 1), []);
+    useEffect(() => {
+        if (key === null) return;
+
+        const reload = () => setRefreshKey((n) => n + 1);
+        const group = reloaders.get(key) ?? new Set<() => void>();
+        group.add(reload);
+        reloaders.set(key, group);
+
+        return () => {
+            group.delete(reload);
+            if (group.size === 0) reloaders.delete(key);
+        };
+    }, [key]);
+
+    const refresh = useCallback(() => {
+        if (key === null) return;
+        reloaders.get(key)?.forEach((reload) => reload());
+    }, [key]);
 
     const current = result !== null && result.key === key ? result : null;
     const loading =
