@@ -107,7 +107,12 @@ export default function FactionList() {
             <div className="factions-header">
                 <h2>Liste des factions</h2>
                 {(!UserFaction || UserFaction?.name === "Sans Faction") && (
-                    <NewFaction onCreated={refresh} />
+                    <NewFaction
+                        onCreated={() => {
+                            refresh();
+                            refreshCounts();
+                        }}
+                    />
                 )}
             </div>
 

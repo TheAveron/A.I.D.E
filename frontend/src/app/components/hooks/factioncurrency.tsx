@@ -41,7 +41,7 @@ export function useCurrency(faction_id: string | null): CurrencyHook {
 }
 
 export function useNewCurrency(onCreated?: () => void): CurrencyFormHook {
-    const { token } = useAuth() ?? {};
+    const { token } = useAuth();
 
     const { user, loading: userLoading, error: userError } = useMe();
 

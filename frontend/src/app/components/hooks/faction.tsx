@@ -16,7 +16,6 @@ import type {
     FactionFormData,
 } from "../../types/factions";
 import type { FactionFormHook } from "../../types/factions";
-import { useUpdateUser } from "./role";
 
 const factionSchema = yup.object().shape({
     name: yup.string().required("Le nom de la faction est obligatoire"),
@@ -42,12 +41,15 @@ export function useFaction(faction_id: string | null): FactionHook {
 
 export function useNewFaction(onCreated?: () => void): FactionFormHook {
     const { token } = useAuth();
-    const { user, loading: userLoading, error: userError } = useMe();
+    const {
+        user,
+        loading: userLoading,
+        error: userError,
+        refresh: refreshMe,
+    } = useMe();
     const { faction: UserFaction } = useFaction(
         user?.faction_id?.toString() || null,
     );
-
-    const { updateUser } = useUpdateUser();
 
     const [loading, setLoading] = useState<boolean>(false);
     const [message, setMessage] = useState<string>("");
@@ -69,10 +71,9 @@ export function useNewFaction(onCreated?: () => void): FactionFormHook {
                 );
             }
 
+            // "Sans Faction" is where new accounts start: creating a faction moves the user out of it (the server does it).
             if (UserFaction && UserFaction.name != "Sans Faction") {
                 throw new Error("Vous appartenez déjà à une faction.");
-            } else if (UserFaction && UserFaction.name == "Sans Faction") {
-                updateUser(user?.user_id || null, { faction_id: null });
             }
 
             if (userError) {
@@ -93,6 +94,8 @@ export function useNewFaction(onCreated?: () => void): FactionFormHook {
             form.reset();
             setIsOpen(false);
 
+            // The user is now the leader of the new faction
+            refreshMe();
             onCreated?.();
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 409) {
