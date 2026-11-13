@@ -4,6 +4,7 @@ import {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
     useState,
     type ReactNode,
 } from "react";
@@ -90,6 +91,30 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (logoutTimer) clearTimeout(logoutTimer);
         };
     }, [token, handleLogout]);
+
+    const currentToken = useRef(token);
+    useEffect(() => {
+        currentToken.current = token;
+    }, [token]);
+
+    useEffect(() => {
+        const id = axios.interceptors.response.use(
+            (response) => response,
+            (error: unknown) => {
+                if (
+                    axios.isAxiosError(error) &&
+                    error.response?.status === 401 &&
+                    currentToken.current &&
+                    error.config?.headers?.Authorization ===
+                        `Bearer ${currentToken.current}`
+                ) {
+                    handleLogout(true);
+                }
+                return Promise.reject(error);
+            },
+        );
+        return () => axios.interceptors.response.eject(id);
+    }, [handleLogout]);
 
     const contextValue = useMemo(() => ({ token, setToken }), [token]);
 
