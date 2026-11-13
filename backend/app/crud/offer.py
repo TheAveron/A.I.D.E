@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..crud import get_faction
 from ..database import Currency, Offer, OfferHistory, Role, Transaction, User
+from ..database.clock import utcnow
 from ..misc import OfferAction, OfferStatus
 from ..schemas import OfferAccept, OfferCreate, OfferUpdate
 from .offer_history import create_offer_history
@@ -114,7 +115,7 @@ def update_offer(
             status_code=400, detail="Only open offers can be modified or cancelled"
         )
 
-    changes = offer_update.dict(exclude_unset=True)
+    changes = offer_update.model_dump(exclude_unset=True)
 
     new_status = changes.get("status")
     if new_status is not None and new_status != OfferStatus.CANCELLED:
@@ -125,7 +126,7 @@ def update_offer(
     try:
         for field, value in changes.items():
             setattr(offer, field, value)
-        offer.updated_at = datetime.utcnow()
+        offer.updated_at = utcnow()
 
         cancelled = new_status == OfferStatus.CANCELLED
         who = f" by {actor_name}" if actor_name else ""
@@ -230,7 +231,7 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
         offer_id=offer.offer_id,
         amount=quantity * offer.price_per_unit,
         currency_name=offer.currency_name,
-        timestamp=datetime.utcnow(),
+        timestamp=utcnow(),
         **buyer_identity,
     )
     db.add(transaction)

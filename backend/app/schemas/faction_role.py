@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .base import MAX_DESCRIPTION_LENGTH, PartialUpdate
 
@@ -51,5 +51,4 @@ class RoleOut(RoleBase):
     role_id: int
     faction_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

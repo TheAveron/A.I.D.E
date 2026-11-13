@@ -5,6 +5,7 @@ from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, String, Text,
                         UniqueConstraint)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from ..clock import utcnow
 from ..database import Base
 
 
@@ -39,11 +40,11 @@ class Role(Base):
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, nullable=False
     )
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
     )
 
     faction = relationship("Faction", back_populates="roles")

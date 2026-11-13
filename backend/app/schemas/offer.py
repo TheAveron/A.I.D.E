@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..misc import OfferStatus, OfferType
 from .base import INT32_MAX, MAX_PRICE, PartialUpdate, UTCDatetime
@@ -45,8 +45,7 @@ class OfferOut(OfferBase):
     created_at: UTCDatetime
     updated_at: UTCDatetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class OfferAccept(BaseModel):
@@ -54,8 +53,9 @@ class OfferAccept(BaseModel):
     buyer_faction_id: Optional[int] = None
     quantity: Optional[int] = Field(None, gt=0, le=INT32_MAX)
 
-    class Config:
-        json_schema_extra = {"example": {"buyer_user_id": 12, "quantity": 5}}
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"buyer_user_id": 12, "quantity": 5}}
+    )
 
 
 class OfferAcceptOut(BaseModel):

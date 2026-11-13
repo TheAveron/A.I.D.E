@@ -8,6 +8,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...misc import OfferAction
+from ..clock import utcnow
 from ..database import Base
 
 offer_action_enum = ENUM(OfferAction, name="offer_action_enum", create_type=True)
@@ -48,7 +49,7 @@ class OfferHistory(Base):
     action: Mapped[OfferAction] = mapped_column(offer_action_enum, nullable=False)
 
     timestamp: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, nullable=False
     )
 
     notes: Mapped[Optional[str]] = mapped_column(String, nullable=True)

@@ -106,7 +106,7 @@ def update_faction(
 
     # Which fields the client actually sent (as opposed to left unset) -
     # mirrors the exclude_unset=True logic used in update_faction_validation.
-    provided_fields = faction_update.dict(exclude_unset=True)
+    provided_fields = faction_update.model_dump(exclude_unset=True)
 
     # is_approved is the server's own "this faction is legitimate" stamp:
     # it must only ever be set by a real admin, never by a faction's own

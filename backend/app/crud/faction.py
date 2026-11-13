@@ -95,7 +95,7 @@ def update_faction_validation(
     db: Session, faction: Faction, faction_update: FactionUpdate
 ):
     try:
-        for key, value in faction_update.dict(exclude_unset=True).items():
+        for key, value in faction_update.model_dump(exclude_unset=True).items():
             setattr(faction, key, value)
         db.commit()
         db.refresh(faction)

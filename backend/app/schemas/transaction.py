@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from .base import UTCDatetime
 
@@ -21,5 +21,4 @@ class TransactionOut(TransactionBase):
     transaction_id: int
     timestamp: UTCDatetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...misc import OfferStatus, OfferType
+from ..clock import utcnow
 from ..database import Base
 
 offer_type_enum = ENUM(OfferType, name="offer_type_enum", create_type=True)
@@ -67,10 +68,10 @@ class Offer(Base):
         index=True,
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
     )
 
     accepted_by_user_id: Mapped[Optional[int]] = mapped_column(

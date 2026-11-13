@@ -5,6 +5,7 @@ from sqlalchemy import (CheckConstraint, DateTime, ForeignKey, Index, Integer,
                         Numeric, String)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from ..clock import utcnow
 from ..database import Base
 
 
@@ -50,7 +51,7 @@ class Transaction(Base):
         String(50), ForeignKey("currencies.name"), nullable=False
     )
     timestamp: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, nullable=False
     )
 
     def __repr__(self) -> str:
