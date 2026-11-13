@@ -1,16 +1,17 @@
 import time
 from pathlib import Path
 
-from app.api import (auth, currencies, documentation, faction, offer,
-                     offer_history, role, transactions, user)
-from app.core.errors import register_error_handlers
-from app.core.logger import log_safe, setup_logger
-from app.core.settings import ORIGINS
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
+
+from app.api import (auth, currencies, documentation, faction, offer,
+                     offer_history, role, transactions, user)
+from app.core.errors import register_error_handlers
+from app.core.logger import log_safe, setup_logger
+from app.core.settings import ORIGINS
 
 version = "1.2.0"
 
@@ -126,7 +127,26 @@ async def head():
     return PlainTextResponse(f"Version {version}", status_code=200)
 
 
+def _built_file(relative_path: str) -> Path | None:
+    """A file of the frontend build (images/, scripts/, favicon...), or None.
+
+    `public/` is copied to the root of the build; only /assets is mounted, so
+    without this every such file would be answered with index.html.
+    """
+    root = (frontend_dist_path / "client").resolve()
+    if not relative_path:
+        return None
+    candidate = (root / relative_path).resolve()
+    if candidate.is_file() and candidate.is_relative_to(root):
+        return candidate
+    return None
+
+
 @app.get("/{full_path:path}")
-async def root():
+async def root(full_path: str):
+    built_file = _built_file(full_path)
+    if built_file is not None:
+        return FileResponse(built_file)
+
     index_path = frontend_dist_path / "client" / "index.html"
     return FileResponse(index_path)

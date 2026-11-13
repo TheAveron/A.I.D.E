@@ -108,3 +108,28 @@ def test_control_characters_in_a_path_are_not_written_to_the_log(main_app, caplo
 def test_log_safe_makes_control_characters_visible():
     assert log_safe("a\nb\rc\td\x00e") == "a\\x0ab\\x0dc\\x09d\\x00e"
     assert log_safe("/plain/path-é") == "/plain/path-é"
+
+
+def test_files_of_the_frontend_build_are_served_not_index_html(
+    main_app, monkeypatch, tmp_path
+):
+    import main
+
+    client_dir = tmp_path / "build" / "client"
+    (client_dir / "images").mkdir(parents=True)
+    (client_dir / "images" / "formula.png").write_bytes(b"PNGDATA")
+    (client_dir / "index.html").write_text("<html>spa</html>")
+    (tmp_path / "secret.txt").write_text("not in the build")
+    monkeypatch.setattr(main, "frontend_dist_path", tmp_path / "build")
+
+    client = TestClient(main_app, raise_server_exceptions=False)
+
+    assert client.get("/images/formula.png").content == b"PNGDATA"
+    # Client-side routes and unknown paths still get the SPA
+    assert client.get("/factions").text == "<html>spa</html>"
+    assert client.get("/images/missing.png").text == "<html>spa</html>"
+    # Nothing outside the build is reachable
+    assert client.get("/%2e%2e/%2e%2e/secret.txt").text == "<html>spa</html>"
+    assert client.get("/images/%2e%2e/%2e%2e/%2e%2e/secret.txt").text.startswith(
+        "<html>"
+    )
