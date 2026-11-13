@@ -1,7 +1,8 @@
 import ServerPage from "../server";
+import { CURRENT_MAP_FOLDER } from "../../../utils/maps";
 
 function ActualMap() {
-    return ServerPage("OAOS_zoom");
+    return ServerPage(CURRENT_MAP_FOLDER);
 }
 
 export default ActualMap;

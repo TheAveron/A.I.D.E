@@ -24,19 +24,15 @@ function Contribution() {
             </p>
             <p>
                 Vous devez ensuite vous rendre dans le fichier{" "}
-                <code>src/app/pages/mapslist.tsx</code> et ajouter un nouvel
-                objet dans les variables suivantes :
+                <code>src/app/utils/maps.ts</code> et ajouter le nom du dossier
+                dans l'objet suivant :
             </p>
             <ul>
                 <li>
-                    mapFolders : un tableau contenant les noms des dossiers des
-                    cartes (doit correspondre exactement au nom donné au dossier
-                    que vous avez créé dans <code>backend/documents/maps</code>)
-                </li>
-                <li>
-                    getLabelFromFolder : une fonction prenant en entrée le nom
-                    d'un dossier et retournant le label à afficher pour ce
-                    dossier.
+                    MAP_LABELS : associe le nom du dossier de la carte (il doit
+                    correspondre exactement au nom donné au dossier créé dans{" "}
+                    <code>backend/documents/maps</code>) au label affiché pour
+                    cette carte.
                 </li>
             </ul>
 
