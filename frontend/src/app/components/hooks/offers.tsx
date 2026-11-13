@@ -34,12 +34,15 @@ export const offerSchema = yup.object().shape({
         .number()
         .typeError("Price must be a number")
         .positive("Price must be positive")
+
+        .max(1e12, "Price is too high")
         .required("Price per unit is required"),
     quantity: yup
         .number()
         .typeError("Quantity must be a number")
         .integer("Quantity must be an integer")
         .positive("Quantity must be positive")
+        .max(2147483647, "Quantity is too high")
         .required("Quantity is required"),
 });
 

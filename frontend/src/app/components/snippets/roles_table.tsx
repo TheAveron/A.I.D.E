@@ -6,7 +6,7 @@ function RolesList({ roles }: { roles: RoleType[] | null }) {
     if (!roles) {
         return (
             <tr>
-                <td colSpan={8}>Aucun Role trouvé.</td>
+                <td colSpan={9}>Aucun Role trouvé.</td>
             </tr>
         );
     }
@@ -42,13 +42,14 @@ function RolesList({ roles }: { roles: RoleType[] | null }) {
 
 export default function RolesTable() {
     const { factionid } = useParams();
-    const { roles, loading } = useRoles(factionid ?? null);
+    const { roles, loading, error } = useRoles(factionid ?? null);
 
     if (!factionid) {
         return <p>No faction id provided</p>;
     }
 
     if (loading) return <p>Chargement des roles...</p>;
+    if (error) return <p role="alert">{error}</p>;
 
     return (
         <div className="snippet-container roles-container">

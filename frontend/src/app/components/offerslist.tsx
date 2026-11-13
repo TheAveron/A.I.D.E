@@ -4,6 +4,7 @@ import { NewOffer } from "./buttons/newoffer";
 import { useOffersList } from "./hooks/offers";
 
 import type { OfferType } from "../types/offers";
+import type { UserType } from "../types/users";
 import { AcceptOfferButton } from "./buttons/acceptoffer";
 import { useMe } from "./hooks/me";
 
@@ -19,15 +20,17 @@ const STATUS_CLASSES: Record<string, string> = {
     CANCELLED: "status cancelled",
 };
 
+const SERVER_OFFER_LIMIT = 200;
+
 function OfferRow({
     offer,
+    user,
     onAccepted,
 }: {
     offer: OfferType;
+    user: UserType | null;
     onAccepted: () => void;
 }) {
-    const { user } = useMe();
-
     return (
         <tr>
             <td>{offer.offer_type === "BUY" ? "Achat" : "Vente"}</td>
@@ -85,9 +88,13 @@ export default function OfferList({
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
     const [page, setPage] = useState(1);
 
+    const { user } = useMe();
+
     const { offers, loading, error, refresh } = useOffersList(
         currencyFilter || undefined,
         statusFilter || undefined,
+        userId,
+        factionId,
     );
 
     useEffect(() => {
@@ -98,29 +105,14 @@ export default function OfferList({
         });
     }, [offers]);
 
-    const normalizedUserId = userId?.toString();
-    const normalizedFactionId = factionId?.toString();
-
     const filteredOffers = useMemo(() => {
         const term = (search ?? "").toLowerCase();
         return (
-            offers?.filter((offer) => {
-                const matchUser =
-                    normalizedUserId == null ||
-                    offer.user_id?.toString() === normalizedUserId;
-
-                const matchFaction =
-                    normalizedFactionId == null ||
-                    offer.faction_id?.toString() === normalizedFactionId;
-
-                const matchSearch = (offer.item_description ?? "")
-                    .toLowerCase()
-                    .includes(term);
-
-                return matchUser && matchFaction && matchSearch;
-            }) || []
+            (offers ?? []).filter((offer) =>
+                (offer.item_description ?? "").toLowerCase().includes(term),
+            ) || []
         );
-    }, [offers, normalizedUserId, normalizedFactionId, search]);
+    }, [offers, search]);
 
     const sortedOffers = useMemo(() => {
         const copy = [...filteredOffers];
@@ -130,8 +122,8 @@ export default function OfferList({
         } else if (sortBy === "date") {
             copy.sort(
                 (a, b) =>
-                    new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime(),
+                    new Date(a.created_at).getTime() -
+                    new Date(b.created_at).getTime(),
             );
         }
         return sortDirection === "asc" ? copy : copy.reverse();
@@ -144,23 +136,19 @@ export default function OfferList({
             );
         } else {
             setSortBy(nextSort);
-            setSortDirection("asc");
+            setSortDirection(nextSort === "date" ? "desc" : "asc");
         }
         setPage(1);
     };
 
     const totalPages = Math.ceil(sortedOffers.length / offersPerPage);
 
-    useEffect(() => {
-        setPage((currentPage) =>
-            Math.min(Math.max(currentPage, 1), totalPages || 1),
-        );
-    }, [totalPages]);
+    const currentPage = Math.min(page, Math.max(totalPages, 1));
 
     const paginatedOffers = useMemo(() => {
-        const start = (page - 1) * offersPerPage;
+        const start = (currentPage - 1) * offersPerPage;
         return sortedOffers.slice(start, start + offersPerPage);
-    }, [sortedOffers, page, offersPerPage]);
+    }, [sortedOffers, currentPage, offersPerPage]);
 
     return (
         <div className="snippet-container offers-container">
@@ -267,6 +255,7 @@ export default function OfferList({
                                 <OfferRow
                                     key={offer.offer_id}
                                     offer={offer}
+                                    user={user}
                                     onAccepted={refresh}
                                 />
                             ))
@@ -279,24 +268,31 @@ export default function OfferList({
                 </table>
             </div>
 
+            {(offers?.length ?? 0) >= SERVER_OFFER_LIMIT && (
+                <p className="empty-state">
+                    Seules les {SERVER_OFFER_LIMIT} offres les plus récentes
+                    sont affichées : affinez avec les filtres.
+                </p>
+            )}
+
             {totalPages > 1 && (
                 <div className="pagination-controls">
                     <button
-                        onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                        disabled={page === 1}
+                        onClick={() => setPage(Math.max(currentPage - 1, 1))}
+                        disabled={currentPage === 1}
                         className="button"
                     >
                         Précédent
                     </button>
                     <span>
-                        Page {page} /{" "}
-                        {Math.ceil(sortedOffers.length / offersPerPage)}
+                        Page {currentPage} / {totalPages}
                     </span>
                     <button
                         onClick={() =>
-                            setPage((p) => (p < totalPages ? p + 1 : p))
+                            setPage(Math.min(currentPage + 1, totalPages))
                         }
-                        disabled={page >= totalPages}
+                        disabled={currentPage >= totalPages}
+                        className="button"
                     >
                         Suivant
                     </button>

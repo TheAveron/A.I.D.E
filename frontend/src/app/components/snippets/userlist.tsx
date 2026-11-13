@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 
 import { useRole } from "../hooks/role";
 import { useMembers } from "../hooks/factionmembers";
@@ -22,7 +22,6 @@ function RoleElement({
     canManage: boolean;
     onRoleUpdated: () => void;
 }) {
-    const navigate = useNavigate();
     const { role } = useRole(role_id);
 
     if (!role_id) {
@@ -45,22 +44,11 @@ function RoleElement({
 
     return (
         <>
-            <td
-                onClick={() => {
-                    navigate("/user/" + user_id);
-                }}
-            >
-                {role.name}
-            </td>
+            <td>{role.name}</td>
             {canManage &&
                 role.faction_id === faction_id &&
                 role.name != "Chef" && (
-                    <td
-                        onClick={(e) => {
-                            e.preventDefault(); // prevents navigation
-                            e.stopPropagation(); // stops bubbling to Link
-                        }}
-                    >
+                    <td>
                         <UpdateRole
                             userId={user_id}
                             currentRoleId={role_id}
@@ -74,8 +62,6 @@ function RoleElement({
 }
 
 function UsersTable({ state = false }: { state: boolean }) {
-    const navigate = useNavigate();
-
     const { factionid } = useParams();
     const { users, loading, error, refresh } = useMembers(factionid ?? null);
     const { user: current_user } = useMe();
@@ -115,14 +101,12 @@ function UsersTable({ state = false }: { state: boolean }) {
                                 users && users.length > 0 ? (
                                     users.map((user) => (
                                         <tr key={user.user_id}>
-                                            <td
-                                                onClick={() => {
-                                                    navigate(
-                                                        "/user/" + user.user_id,
-                                                    );
-                                                }}
-                                            >
-                                                {user.username}
+                                            <td>
+                                                <Link
+                                                    to={`/user/${user.user_id}`}
+                                                >
+                                                    {user.username}
+                                                </Link>
                                             </td>
                                             <RoleElement
                                                 user_id={user.user_id}
@@ -142,21 +126,21 @@ function UsersTable({ state = false }: { state: boolean }) {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5}>
+                                        <td colSpan={3}>
                                             Aucun utilisateur trouvé.
                                         </td>
                                     </tr>
                                 )
                             ) : (
                                 <tr>
-                                    <td colSpan={5}>
+                                    <td colSpan={3}>
                                         Chargement des membres...
                                     </td>
                                 </tr>
                             )
                         ) : (
                             <tr>
-                                <td colSpan={5}>
+                                <td colSpan={3}>
                                     <p>{error}</p>
                                     <button
                                         type="button"
