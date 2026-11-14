@@ -5,6 +5,7 @@ import axios from "axios";
 import * as yup from "yup";
 
 import { useAuth } from "../../utils/authcontext";
+import { getErrorMessage } from "../../utils/apierror";
 
 export type DocumentFormData = {
     title: string;
@@ -15,12 +16,16 @@ const documentSchema = yup.object().shape({
     title: yup
         .string()
         .required("Le titre du document est obligatoire")
-        .max(30, "Le titre ne peut pas dépasser 30 caractères")
+        .max(200, "Le titre ne peut pas dépasser 200 caractères")
         .min(5, "Le titre ne peut pas faire moins de 5 caractères"),
-    content: yup.string().required("Le contenu du document est obligatoire"),
+    content: yup
+        .string()
+        .required("Le contenu du document est obligatoire")
+        .max(100000, "Le contenu est trop long"),
 });
 
-export function NewDocument() {
+/** `onCreated` is called once the document exists, to reload the lists. */
+export function NewDocument({ onCreated }: { onCreated?: () => void }) {
     const { token } = useAuth() ?? {};
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -51,12 +56,12 @@ export function NewDocument() {
             setMessage(`✅ Document "${res.data.title}" créé avec succès`);
             reset();
             setIsOpen(false);
-            window.location.reload();
+            onCreated?.();
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Un document avec ce titre existe déjà.");
             } else {
-                setMessage("❌ Erreur lors de la création du document.");
+                setMessage(`❌ ${getErrorMessage(error)}`);
             }
         } finally {
             setLoading(false);

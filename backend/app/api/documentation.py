@@ -4,10 +4,12 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from ..core import get_current_user
+from ..crud import faction as faction_crud
 from ..crud import normalize
-from ..database import User
+from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
 
 # Anchored on this file rather than on the current working directory, so the
@@ -25,6 +27,9 @@ MAX_CONTENT_LENGTH = 100_000
 MAX_FILENAME_BYTES = 200  # most file systems refuse names over 255 bytes
 MAX_DOCUMENTS_PER_FACTION = 200
 
+# Faction documents are written under this server's folder.
+FACTION_DOCS_SERVER = "AOS"
+
 logger = logging.getLogger("aide")
 
 router = APIRouter(prefix="/documents", tags=["Documentation"])
@@ -33,6 +38,15 @@ router = APIRouter(prefix="/documents", tags=["Documentation"])
 class DocBase(BaseModel):
     title: str
     content: str
+
+
+class DocSummary(BaseModel):
+    """A faction document in a listing: where to open it, and its title."""
+
+    server: str
+    folder: str
+    doc_name: str
+    title: str
 
 
 class DocCreate(DocBase):
@@ -100,7 +114,7 @@ def create_document(
             detail="This faction's name can't be used as a folder name",
         )
 
-    file_path = DOCS_DIR / "AOS" / faction_name / f"{doc_name}.md"
+    file_path = DOCS_DIR / FACTION_DOCS_SERVER / faction_name / f"{doc_name}.md"
 
     if file_path.parent.is_dir():
         existing = sum(1 for _ in file_path.parent.glob("*.md"))
@@ -130,6 +144,51 @@ def create_document(
         )
 
     return doc_info
+
+
+def _title_of(path: Path) -> str:
+    """Title of a document: its first "# " heading, else its file name."""
+    try:
+        with path.open(encoding="utf-8") as f:
+            first_line = f.readline().strip()
+    except (OSError, UnicodeDecodeError):
+        first_line = ""
+    if first_line.startswith("# ") and first_line[2:].strip():
+        return first_line[2:].strip()
+    return path.stem
+
+
+@router.get(
+    "/faction/{faction_id}",
+    response_model=list[DocSummary],
+    status_code=status.HTTP_200_OK,
+)
+def list_faction_documents(faction_id: int, db: Session = Depends(get_db)):
+    """The documents a faction has written, by file name."""
+    faction = faction_crud.get_faction(db, faction_id)
+    if not faction:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Faction not found"
+        )
+
+    folder = normalize(faction.name)
+    if not folder or not _SAFE_FOLDER.fullmatch(folder):
+        return []
+    directory = (DOCS_DIR / FACTION_DOCS_SERVER / folder).resolve()
+    if not directory.is_relative_to(DOCS_DIR.resolve()) or not directory.is_dir():
+        return []
+
+    files = sorted(directory.glob("*.md"))[:MAX_DOCUMENTS_PER_FACTION]
+    return [
+        DocSummary(
+            server=FACTION_DOCS_SERVER,
+            folder=folder,
+            doc_name=path.stem,
+            title=_title_of(path),
+        )
+        for path in files
+        if path.is_file()
+    ]
 
 
 @router.get(

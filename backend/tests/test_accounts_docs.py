@@ -38,3 +38,31 @@ def test_a_faction_can_only_hold_so_many_documents(
     assert "at most 2" in r.json()["detail"]
     # Existing documents stay readable and nothing was written for the refused one
     assert not (tmp_path / "documents" / "AOS" / "alpha" / "gamma.md").exists()
+
+
+def test_a_faction_lists_its_documents(env, monkeypatch, tmp_path):  # noqa: F811
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    h = env.h("alice")
+    faction_id = env.client.get("/users/me", headers=h).json()["faction_id"]
+
+    assert env.client.get(f"/documents/faction/{faction_id}").json() == []
+
+    for title in ("Règles du jeu", "alpha"):
+        r = env.client.post(
+            "/documents/create", json={"title": title, "content": "x"}, headers=h
+        )
+        assert r.status_code == 201
+
+    docs = env.client.get(f"/documents/faction/{faction_id}").json()
+    assert [d["title"] for d in docs] == ["alpha", "Règles du jeu"]
+    first = docs[0]
+    # The listing gives what the document routes need
+    r = env.client.get(
+        f"/documents/{first['server']}/faction_doc/{first['folder']}/{first['doc_name']}"
+    )
+    assert r.status_code == 200
+    assert r.json()["content"].startswith("# alpha")
+
+
+def test_listing_the_documents_of_an_unknown_faction_is_a_404(env):  # noqa: F811
+    assert env.client.get("/documents/faction/99999").status_code == 404

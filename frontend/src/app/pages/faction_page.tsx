@@ -10,6 +10,7 @@ import { useRole } from "../components/hooks/role";
 import HistoryTable from "../components/snippets/history_table";
 import OfferList from "../components/offerslist";
 import { useRoles } from "../components/hooks/factionroles";
+import FactionDocuments from "../components/snippets/faction_documents";
 import JoinRequestsPanel from "../components/snippets/join_requests_panel";
 
 export default function FactionDashboard() {
@@ -38,6 +39,7 @@ export default function FactionDashboard() {
                 <></>
             )}
             {canHandleRequests && <JoinRequestsPanel factionId={factionid} />}
+            {factionid && <FactionDocuments factionId={factionid} />}
             <OfferList factionId={factionid} offersPerPage={7} />
             {role?.view_transactions ? (
                 <TransactionsTable factionId={factionid} />
