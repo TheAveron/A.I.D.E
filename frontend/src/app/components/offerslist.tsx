@@ -7,6 +7,8 @@ import type { OfferType } from "../types/offers";
 import type { UserType } from "../types/users";
 import { AcceptOfferButton } from "./buttons/acceptoffer";
 import { useMe } from "./hooks/me";
+import { useRole } from "./hooks/role";
+import { ManageOfferButtons } from "./buttons/manageoffer";
 
 const STATUS_LABELS: Record<string, string> = {
     OPEN: "Ouvert",
@@ -25,11 +27,16 @@ const SERVER_OFFER_LIMIT = 200;
 function OfferRow({
     offer,
     user,
+    canManage,
     onAccepted,
+    onChanged,
 }: {
     offer: OfferType;
     user: UserType | null;
+    // Whether the viewer may change or cancel this offer
+    canManage: boolean;
     onAccepted: () => void;
+    onChanged: () => void;
 }) {
     return (
         <tr>
@@ -66,6 +73,13 @@ function OfferRow({
                 ) : (
                     <></>
                 )}
+                {offer.status === "OPEN" && canManage && (
+                    <ManageOfferButtons
+                        key={`${offer.price_per_unit}/${offer.quantity}`}
+                        offer={offer}
+                        onChanged={onChanged}
+                    />
+                )}
             </td>
         </tr>
     );
@@ -89,6 +103,15 @@ export default function OfferList({
     const [page, setPage] = useState(1);
 
     const { user } = useMe();
+    const { role } = useRole(user?.role_id ?? null);
+    // Same rule as the API: one's own offers, or one's faction's with create_offers
+    const canManageOffer = (offer: OfferType) =>
+        !!user &&
+        (offer.user_id === user.user_id ||
+            (offer.faction_id != null &&
+                offer.faction_id === user.faction_id &&
+                !!role?.create_offers &&
+                role.faction_id === user.faction_id));
 
     const { offers, loading, error, refresh } = useOffersList(
         currencyFilter || undefined,
@@ -256,7 +279,9 @@ export default function OfferList({
                                     key={offer.offer_id}
                                     offer={offer}
                                     user={user}
+                                    canManage={canManageOffer(offer)}
                                     onAccepted={refresh}
+                                    onChanged={refresh}
                                 />
                             ))
                         ) : (
