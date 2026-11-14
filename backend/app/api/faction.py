@@ -9,6 +9,7 @@ from ..crud import normalize
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
 from ..schemas import FactionCreate, FactionOut, FactionUpdate
+from .documentation import move_faction_folder
 
 router = APIRouter(
     prefix="/factions",
@@ -132,12 +133,24 @@ def update_faction(
     if new_name is not None and new_name != faction.name:
         _check_name_usable(db, new_name, exclude_faction_id=faction.faction_id)
 
+    old_name = faction.name
+    # The documents folder is named after the faction: it moves with it, and
+    # goes back if the database refuses the rename.
+    moved = (
+        new_name is not None
+        and new_name != old_name
+        and move_faction_folder(old_name, new_name)
+    )
     try:
         updated_faction = faction_crud.update_faction_validation(
             db, faction, faction_update
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        if moved:
+            move_faction_folder(new_name, old_name)
+        if isinstance(e, ValueError):
+            raise HTTPException(status_code=400, detail=str(e))
+        raise
     return updated_faction
 
 

@@ -66,3 +66,74 @@ def test_a_faction_lists_its_documents(env, monkeypatch, tmp_path):  # noqa: F81
 
 def test_listing_the_documents_of_an_unknown_faction_is_a_404(env):  # noqa: F811
     assert env.client.get("/documents/faction/99999").status_code == 404
+
+
+def test_renaming_a_faction_moves_its_documents(
+    env, monkeypatch, tmp_path
+):  # noqa: F811
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    h = env.h("alice")
+    r = env.client.post(
+        "/documents/create", json={"title": "Règles", "content": "x"}, headers=h
+    )
+    assert r.status_code == 201
+    old = tmp_path / "documents" / "AOS" / "alpha"
+    assert (old / "regles.md").is_file()
+
+    r = env.client.put("/factions/update/1", json={"name": "Omega"}, headers=h)
+    assert r.status_code == 202
+    assert not old.exists()
+    assert (tmp_path / "documents" / "AOS" / "omega" / "regles.md").is_file()
+    docs = env.client.get("/documents/faction/1").json()
+    assert [d["doc_name"] for d in docs] == ["regles"]
+
+
+def test_a_rename_that_keeps_the_folder_name_moves_nothing(
+    env, monkeypatch, tmp_path  # noqa: F811
+):
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    h = env.h("alice")
+    env.client.post(
+        "/documents/create", json={"title": "Règles", "content": "x"}, headers=h
+    )
+    r = env.client.put("/factions/update/1", json={"name": "ALPHA!"}, headers=h)
+    assert r.status_code == 202
+    assert (tmp_path / "documents" / "AOS" / "alpha" / "regles.md").is_file()
+
+
+def test_a_rename_onto_an_existing_folder_is_refused(
+    env, monkeypatch, tmp_path  # noqa: F811
+):
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    h = env.h("alice")
+    env.client.post(
+        "/documents/create", json={"title": "Règles", "content": "x"}, headers=h
+    )
+    leftover = tmp_path / "documents" / "AOS" / "omega"
+    leftover.mkdir(parents=True)
+    r = env.client.put("/factions/update/1", json={"name": "Omega"}, headers=h)
+    assert r.status_code == 409
+    # Nothing moved, and the name did not change
+    assert (tmp_path / "documents" / "AOS" / "alpha" / "regles.md").is_file()
+    assert env.client.get("/factions/detail/1").json()["name"] == "Alpha"
+
+
+def test_a_failed_rename_in_the_database_puts_the_folder_back(
+    env, monkeypatch, tmp_path  # noqa: F811
+):
+    from app.api import faction as faction_api
+
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    h = env.h("alice")
+    env.client.post(
+        "/documents/create", json={"title": "Règles", "content": "x"}, headers=h
+    )
+
+    def boom(*args, **kwargs):
+        raise ValueError("refused")
+
+    monkeypatch.setattr(faction_api.faction_crud, "update_faction_validation", boom)
+    r = env.client.put("/factions/update/1", json={"name": "Omega"}, headers=h)
+    assert r.status_code == 400
+    assert (tmp_path / "documents" / "AOS" / "alpha" / "regles.md").is_file()
+    assert not (tmp_path / "documents" / "AOS" / "omega").exists()

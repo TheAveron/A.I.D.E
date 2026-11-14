@@ -56,6 +56,45 @@ class DocCreate(DocBase):
     content: str = Field(..., max_length=MAX_CONTENT_LENGTH)
 
 
+def move_faction_folder(old_name: str, new_name: str) -> bool:
+    """Move a faction's documents folder after the faction was renamed.
+
+    The folder is named after `normalize(name)`, so a rename that changes it
+    would otherwise leave the documents behind. Returns whether a folder was
+    moved; raises 409 when the new name's folder is already taken (documents
+    of a deleted faction, say) rather than mixing the two.
+    """
+    old_folder, new_folder = normalize(old_name), normalize(new_name)
+    if old_folder == new_folder:
+        return False
+
+    root = DOCS_DIR.resolve() / FACTION_DOCS_SERVER
+    source = root / old_folder
+    target = root / new_folder
+    if (
+        not old_folder
+        or not new_folder
+        or not _SAFE_FOLDER.fullmatch(old_folder)
+        or not _SAFE_FOLDER.fullmatch(new_folder)
+        or not source.is_dir()
+    ):
+        return False
+    if target.exists():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A documents folder already exists for this name",
+        )
+    try:
+        source.rename(target)
+    except OSError:
+        logger.exception("Could not move documents %s -> %s", source, target)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not move the faction's documents",
+        )
+    return True
+
+
 def _document_path(*folders: str, doc_name: str) -> Path:
     """Path of a markdown document under DOCS_DIR, or 404.
 
