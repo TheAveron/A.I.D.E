@@ -38,5 +38,49 @@ export function useUpdateCurrency() {
         [],
     );
 
-    return { updateTotal, loading, error };
+    /** Change the name and/or symbol (a used currency can't be renamed). */
+    const updateInfo = useCallback(
+        async (
+            currencyName: string,
+            changes: { name?: string; symbol?: string },
+        ): Promise<CurrencyType | null> => {
+            setLoading(true);
+            setError(null);
+            try {
+                const res = await axios.put<CurrencyType>(
+                    `/currencies/update/${encodeURIComponent(currencyName)}`,
+                    changes,
+                );
+                return res.data;
+            } catch (err) {
+                setError(getErrorMessage(err));
+                return null;
+            } finally {
+                setLoading(false);
+            }
+        },
+        [],
+    );
+
+    /** Delete a currency nothing refers to (offers, transactions) any more. */
+    const remove = useCallback(
+        async (currencyName: string): Promise<boolean> => {
+            setLoading(true);
+            setError(null);
+            try {
+                await axios.delete(
+                    `/currencies/delete/${encodeURIComponent(currencyName)}`,
+                );
+                return true;
+            } catch (err) {
+                setError(getErrorMessage(err));
+                return false;
+            } finally {
+                setLoading(false);
+            }
+        },
+        [],
+    );
+
+    return { updateTotal, updateInfo, remove, loading, error };
 }

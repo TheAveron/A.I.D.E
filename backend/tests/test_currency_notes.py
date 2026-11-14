@@ -40,3 +40,15 @@ def test_a_note_alone_creates_no_entry(env):  # noqa: F811
 
 def test_an_overlong_note_is_a_422(env):  # noqa: F811
     assert update(env, total_in_circulation=5, notes="x" * 501).status_code == 422
+
+
+def test_a_currency_with_history_can_be_deleted(env):  # noqa: F811
+    h = env.h("alice")
+    r = env.client.put(
+        "/currencies/update/Diamant",
+        json={"total_in_circulation": 5, "notes": "first"},
+        headers=h,
+    )
+    assert r.status_code == 202
+    assert env.client.delete("/currencies/delete/Diamant", headers=h).status_code == 204
+    assert env.client.get("/currencies/faction/1", headers=h).json() is None

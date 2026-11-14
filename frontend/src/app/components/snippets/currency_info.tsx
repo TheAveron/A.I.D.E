@@ -2,6 +2,7 @@ import { useParams } from "react-router";
 import { useCurrency } from "../hooks/factioncurrency";
 import { NewCurrency } from "../buttons/newcurrency";
 import { UpdateCurrencyTotal } from "../buttons/updatecurrency";
+import { CurrencySettings } from "../buttons/currencysettings";
 import { useMe } from "../hooks/me";
 import { useRole } from "../hooks/role";
 import CurrencyHistoryTable from "./currency_history_table";
@@ -60,6 +61,15 @@ export default function CurrencyInfo() {
                                             currency.total_in_circulation
                                         }
                                         onUpdated={refresh}
+                                    />
+                                )}
+                                {canManage && (
+                                    <CurrencySettings
+                                        key={`${currency.name}/${currency.symbol}`}
+                                        name={currency.name}
+                                        symbol={currency.symbol}
+                                        onChanged={refresh}
+                                        onDeleted={refresh}
                                     />
                                 )}
                             </div>
