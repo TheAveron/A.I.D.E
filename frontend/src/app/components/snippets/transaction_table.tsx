@@ -66,11 +66,13 @@ export default function TransactionsTable({
     userId = null,
     offerId = null,
     perPage = 10,
+    title = "Transactions",
 }: {
     factionId?: string | null;
     userId?: string | null;
     offerId?: string | null;
     perPage?: number;
+    title?: string;
 }) {
     // The server only returns what the viewer may see and applies the filters.
     const { transactions, loading, error } = useTransactions({
@@ -86,7 +88,7 @@ export default function TransactionsTable({
     return (
         <div className="snippet-container transactions-container">
             <div className="info-header">
-                <div className="info-title">Transactions</div>
+                <div className="info-title">{title}</div>
             </div>
             <div className="info-values table-container">
                 <table>
@@ -111,21 +113,21 @@ export default function TransactionsTable({
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={4}>
+                                        <td colSpan={5}>
                                             Aucune Transaction trouvée.
                                         </td>
                                     </tr>
                                 )
                             ) : (
                                 <tr>
-                                    <td colSpan={4}>
+                                    <td colSpan={5}>
                                         Chargement des transactions...
                                     </td>
                                 </tr>
                             )
                         ) : (
                             <tr>
-                                <td colSpan={4}>{error}</td>
+                                <td colSpan={5}>{error}</td>
                             </tr>
                         )}
                     </tbody>
