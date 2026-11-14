@@ -23,4 +23,12 @@ from .offer import (
 )
 from .offer_history import OfferHistoryCreate, OfferHistoryOut
 from .transaction import TransactionCreate, TransactionOut
-from .user import UserCreate, UserFull, UserLogin, UserOut, UserPublic, UserUpdate
+from .user import (
+    PasswordChange,
+    UserCreate,
+    UserFull,
+    UserLogin,
+    UserOut,
+    UserPublic,
+    UserUpdate,
+)

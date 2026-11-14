@@ -42,6 +42,22 @@ class UserCreate(BaseModel):
         return value
 
 
+class PasswordChange(BaseModel):
+    """Body of POST /auth/change-password."""
+
+    current_password: str
+    new_password: str = Field(..., min_length=1)
+
+    @field_validator("new_password")
+    @classmethod
+    def _password_fits_bcrypt(cls, value: str) -> str:
+        if len(value.encode("utf-8")) > PASSWORD_MAX_BYTES:
+            raise ValueError(
+                f"Password is too long (at most {PASSWORD_MAX_BYTES} bytes)"
+            )
+        return value
+
+
 class UserUpdate(BaseModel):
     role_id: Optional[int] = None
     faction_id: Optional[int] = None

@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..core import create_access_token, hash_password
+from ..core import create_access_token, get_current_user, hash_password
 from ..core.ratelimit import LoginLimiter
+from ..core.security import verify_password
 from ..crud import (
     authenticate_user,
     create_user,
@@ -11,8 +12,8 @@ from ..crud import (
     get_roles_by_faction,
     username_taken,
 )
-from ..database import get_db
-from ..schemas import Auth, UserCreate, UserLogin
+from ..database import User, get_db
+from ..schemas import Auth, PasswordChange, UserCreate, UserLogin
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -107,4 +108,50 @@ def login(user: UserLogin, request: Request, db: Session = Depends(get_db)) -> A
         token_type="bearer",
         user_id=user_login.user_id,
         username=user_login.username,
+    )
+
+
+@router.post("/change-password", status_code=status.HTTP_200_OK)
+def change_password(
+    body: PasswordChange,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Auth:
+    """Change the logged-in user's password; the answer holds a fresh token.
+
+    The current password is asked again, so that a stolen session alone can't
+    take the account over, and wrong guesses are limited like login attempts.
+    """
+    key = f"password|{current_user.user_id}"
+    wait = login_limiter.retry_after(key)
+    if wait:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed attempts, try again later",
+            headers={"Retry-After": str(wait)},
+        )
+
+    if not verify_password(body.current_password, current_user.hashed_password):
+        login_limiter.record_failure(key)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The current password is incorrect",
+        )
+    login_limiter.reset(key)
+
+    if body.new_password == body.current_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The new password must differ from the current one",
+        )
+
+    current_user.hashed_password = hash_password(body.new_password)
+    db.commit()
+
+    token = create_access_token(data={"sub": current_user.username})
+    return Auth(
+        access_token=token,
+        token_type="bearer",
+        user_id=current_user.user_id,
+        username=current_user.username,
     )
