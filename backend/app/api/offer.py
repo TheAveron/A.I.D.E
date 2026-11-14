@@ -3,7 +3,7 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from ..core import get_current_user
+from ..core import get_current_user, get_optional_user
 from ..crud import offer as offer_crud
 from ..database import Offer, User, get_db
 from ..misc import FactionPermission, OfferStatus, check_faction_permission
@@ -45,8 +45,12 @@ def list_offers(
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     db: Session = Depends(get_db),
+    viewer: Optional[User] = Depends(get_optional_user),
 ):
-    """Offers, newest first. Paginate with `skip`/`limit` (at most 200 per page)."""
+    """Offers, newest first. Paginate with `skip`/`limit` (at most 200 per page).
+
+    Private offers only appear for the people they are addressed to.
+    """
     return offer_crud.get_offers(
         db,
         status=status,
@@ -55,6 +59,7 @@ def list_offers(
         currency=currency,
         user_id=user_id,
         faction_id=faction_id,
+        viewer=viewer,
     )
 
 
@@ -86,9 +91,13 @@ def create_offer(
 
 
 @router.get("/detail/{offer_id}", response_model=OfferOut)
-def get_offer(offer_id: int, db: Session = Depends(get_db)):
+def get_offer(
+    offer_id: int,
+    db: Session = Depends(get_db),
+    viewer: Optional[User] = Depends(get_optional_user),
+):
     offer = offer_crud.get_offer(db, offer_id)
-    if not offer:
+    if not offer or not offer_crud.can_view_offer(offer, viewer):
         raise HTTPException(status_code=404, detail="Offer not found")
     return offer
 

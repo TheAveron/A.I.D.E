@@ -15,6 +15,10 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
         setIsOpen,
         forFaction,
         setForFaction,
+        audienceUsers,
+        setAudienceUsers,
+        audienceFactions,
+        setAudienceFactions,
     } = useNewOffer(onCreated);
 
     const {
@@ -118,6 +122,36 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
                             ) : (
                                 <></>
                             )}
+
+                            <div className="modal-field">
+                                <label>
+                                    Réservée aux utilisateurs (noms séparés par
+                                    des virgules)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={audienceUsers}
+                                    onChange={(e) =>
+                                        setAudienceUsers(e.target.value)
+                                    }
+                                />
+                            </div>
+                            <div className="modal-field">
+                                <label>
+                                    Réservée aux membres des factions (noms
+                                    séparés par des virgules)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={audienceFactions}
+                                    onChange={(e) =>
+                                        setAudienceFactions(e.target.value)
+                                    }
+                                />
+                                <small>
+                                    Vide : l'offre est visible par tous.
+                                </small>
+                            </div>
 
                             <div className="modal-buttons">
                                 <button

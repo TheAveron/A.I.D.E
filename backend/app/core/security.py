@@ -30,6 +30,10 @@ oauth2_scheme = OAuth2PasswordBearer(
 )  # tokenUrl must match your login route
 
 
+# Same login route, but a missing token is not an error (see get_optional_user).
+oauth2_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
+
+
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -80,3 +84,16 @@ def get_current_user(token=Depends(oauth2_scheme), db: Session = Depends(get_db)
         logger.debug("JWT valid but no matching user: %s", username)
         raise credentials_exception
     return user
+
+
+def get_optional_user(
+    token=Depends(oauth2_optional), db: Session = Depends(get_db)
+) -> User | None:
+    """The logged-in user, or None when no token was sent.
+
+    For routes that anybody may call but whose answer depends on who asks. A
+    token that was sent must still be valid: a bad one is a 401, as anywhere.
+    """
+    if token is None:
+        return None
+    return get_current_user(token, db)

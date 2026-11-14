@@ -15,13 +15,16 @@ export interface OfferBase {
 }
 
 export interface OfferCreateData extends OfferBase {
-    allowed_parties: number[] | null;
+    // A private offer is addressed to these users and these factions' members
+    allowed_user_ids: number[] | null;
+    allowed_faction_ids: number[] | null;
     user_id: number | null;
     faction_id: number | null;
 }
 
 export interface OfferType extends OfferCreateData {
     offer_id: number;
+    is_private: boolean;
     status: OfferStatusLiteral;
     created_at: string;
     updated_at: string;
@@ -58,4 +61,9 @@ export interface OffersHook extends HookResult {
 export interface OfferFormHook extends HookForm<OfferCreate> {
     forFaction: boolean;
     setForFaction: React.Dispatch<React.SetStateAction<boolean>>;
+    // Names separated by commas; empty means a public offer
+    audienceUsers: string;
+    setAudienceUsers: React.Dispatch<React.SetStateAction<string>>;
+    audienceFactions: string;
+    setAudienceFactions: React.Dispatch<React.SetStateAction<string>>;
 }

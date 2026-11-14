@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 
 from ..misc import OfferStatus, OfferType
 from .base import INT32_MAX, MAX_PRICE, PartialUpdate, UTCDatetime
@@ -13,7 +13,8 @@ class OfferBase(BaseModel):
     price_per_unit: float
     quantity: int
     init_quantity: int = 0
-    allowed_parties: Optional[list[int]] = Field(None, max_length=1000)
+    allowed_user_ids: Optional[list[PositiveInt]] = Field(None, max_length=200)
+    allowed_faction_ids: Optional[list[PositiveInt]] = Field(None, max_length=200)
 
 
 class OfferCreate(OfferBase):
@@ -34,13 +35,15 @@ class OfferUpdate(PartialUpdate):
         None, gt=0, le=MAX_PRICE, allow_inf_nan=False
     )
     quantity: Optional[int] = Field(None, gt=0, le=INT32_MAX)
-    allowed_parties: Optional[list[int]] = Field(None, max_length=1000)
+    allowed_user_ids: Optional[list[PositiveInt]] = Field(None, max_length=200)
+    allowed_faction_ids: Optional[list[PositiveInt]] = Field(None, max_length=200)
 
 
 class OfferOut(OfferBase):
     offer_id: int
     user_id: Optional[int]
     faction_id: Optional[int]
+    is_private: bool = False
     status: OfferStatus
     created_at: UTCDatetime
     updated_at: UTCDatetime

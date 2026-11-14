@@ -91,9 +91,9 @@ class TestOfferBounds:
         r = env.client.put(url, json={"quantity": INT32_MAX}, headers=h)
         assert r.status_code == 202
 
-    def test_allowed_parties_is_capped(self, env):  # noqa: F811
-        assert post_offer(env, allowed_parties=list(range(1000))).status_code == 201
-        assert post_offer(env, allowed_parties=list(range(1001))).status_code == 422
+    def test_allowed_lists_are_capped(self, env):  # noqa: F811
+        assert post_offer(env, allowed_user_ids=[1] * 200).status_code == 201
+        assert post_offer(env, allowed_user_ids=[1] * 201).status_code == 422
 
 
 # ---------------------------------------------------------------- other input

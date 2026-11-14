@@ -3,11 +3,12 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import HTTPException, status
+from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ..crud import get_faction
-from ..database import Currency, Offer, OfferHistory, Role, Transaction, User
+from ..database import Currency, Faction, Offer, OfferHistory, Role, Transaction, User
 from ..database.clock import utcnow
 from ..misc import OfferAction, OfferStatus
 from ..schemas import OfferAccept, OfferCreate, OfferUpdate
@@ -20,6 +21,63 @@ def get_offer(db: Session, offer_id: int) -> Optional[Offer]:
     return db.query(Offer).filter(Offer.offer_id == offer_id).first()
 
 
+def _clean_ids(ids: Optional[list[int]]) -> Optional[list[int]]:
+    """The ids once each, in order; an empty list means "nobody listed"."""
+    if not ids:
+        return None
+    return list(dict.fromkeys(ids))
+
+
+def check_allowed_parties(
+    db: Session, users: Optional[list[int]], factions: Optional[list[int]]
+):
+    """Refuse ids that belong to nobody (a typo would make a ghost offer)."""
+    if users:
+        known = {u for (u,) in db.query(User.user_id).filter(User.user_id.in_(users))}
+        missing = sorted(set(users) - known)
+        if missing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unknown user id: {missing[0]}",
+            )
+    if factions:
+        known = {
+            f
+            for (f,) in db.query(Faction.faction_id).filter(
+                Faction.faction_id.in_(factions)
+            )
+        }
+        missing = sorted(set(factions) - known)
+        if missing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unknown faction id: {missing[0]}",
+            )
+
+
+def can_view_offer(offer: Offer, viewer: Optional[User]) -> bool:
+    """Whether `viewer` (None: not logged in) may see and accept `offer`.
+
+    A public offer is for everybody. A private one is for its owner (or, for
+    a faction's offer, the faction's members), the listed users and the
+    members of the listed factions - and for admins.
+    """
+    if not offer.is_private:
+        return True
+    if viewer is None:
+        return False
+    if viewer.is_admin:
+        return True
+    if offer.user_id is not None and offer.user_id == viewer.user_id:
+        return True
+    if viewer.faction_id is not None and viewer.faction_id in (
+        offer.faction_id,
+        *(offer.allowed_faction_ids or ()),
+    ):
+        return True
+    return viewer.user_id in (offer.allowed_user_ids or ())
+
+
 def get_offers(
     db: Session,
     skip: int = 0,
@@ -28,9 +86,21 @@ def get_offers(
     currency: Optional[str] = None,
     user_id: Optional[int] = None,
     faction_id: Optional[int] = None,
+    viewer: Optional[User] = None,
 ) -> list[Offer]:
-    """Offers, newest first (offer_id breaks ties so pages never overlap)."""
+    """Offers `viewer` may see, newest first (offer_id breaks ties)."""
     query = db.query(Offer)
+    if viewer is None or not viewer.is_admin:
+        # Private offers are few: the ones this viewer may see are picked in
+        # Python, the rest of the filtering and the paging stay in SQL.
+        visible_private = [
+            o.offer_id
+            for o in db.query(Offer).filter(Offer.is_private.is_(True))
+            if can_view_offer(o, viewer)
+        ]
+        query = query.filter(
+            or_(Offer.is_private.is_(False), Offer.offer_id.in_(visible_private))
+        )
     if status:
         query = query.filter(Offer.status == status)
 
@@ -66,6 +136,10 @@ def create_offer(db: Session, offer_in: OfferCreate) -> Offer:
 
     data = offer_in.model_dump()
     data["init_quantity"] = offer_in.quantity
+    data["allowed_user_ids"] = _clean_ids(offer_in.allowed_user_ids)
+    data["allowed_faction_ids"] = _clean_ids(offer_in.allowed_faction_ids)
+    check_allowed_parties(db, data["allowed_user_ids"], data["allowed_faction_ids"])
+    data["is_private"] = bool(data["allowed_user_ids"] or data["allowed_faction_ids"])
 
     offer = Offer(**data, status=OfferStatus.OPEN)
     db.add(offer)
@@ -123,9 +197,20 @@ def update_offer(
             status_code=400, detail="An offer can only be moved to CANCELLED"
         )
 
+    for field in ("allowed_user_ids", "allowed_faction_ids"):
+        if field in changes:
+            changes[field] = _clean_ids(changes[field])
+    if "allowed_user_ids" in changes or "allowed_faction_ids" in changes:
+        check_allowed_parties(
+            db,
+            changes.get("allowed_user_ids"),
+            changes.get("allowed_faction_ids"),
+        )
+
     try:
         for field, value in changes.items():
             setattr(offer, field, value)
+        offer.is_private = bool(offer.allowed_user_ids or offer.allowed_faction_ids)
         offer.updated_at = utcnow()
 
         cancelled = new_status == OfferStatus.CANCELLED
@@ -163,7 +248,8 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
     # below and oversell the offer (no-op on SQLite, real on PostgreSQL).
     offer = db.query(Offer).filter(Offer.offer_id == offer_id).with_for_update().first()
 
-    if not offer:
+    # A private offer doesn't exist for those it isn't addressed to.
+    if not offer or not can_view_offer(offer, current_user):
         raise HTTPException(status_code=404, detail="Offer not found")
 
     if offer.status != OfferStatus.OPEN:

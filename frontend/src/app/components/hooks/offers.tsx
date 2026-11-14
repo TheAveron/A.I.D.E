@@ -9,6 +9,7 @@ import { useAuth } from "../../utils/authcontext";
 import { getErrorMessage } from "../../utils/apierror";
 import { useApiGet } from "../../utils/useapiget";
 import { useMe } from "./me";
+import { useFactions } from "./factions";
 
 import type {
     OfferCreate as OfferForm,
@@ -82,9 +83,20 @@ export function useOffersList(
     return { offers: data ?? [], loading, error, refresh };
 }
 
+/** The comma-separated names typed in a form, trimmed, without blanks. */
+function splitNames(text: string): string[] {
+    return text
+        .split(",")
+        .map((name) => name.trim())
+        .filter(Boolean);
+}
+
 export function useNewOffer(onCreated?: () => void): OfferFormHook {
     const { token } = useAuth();
     const { user, loading: userLoading, error: userError } = useMe();
+    const { factions } = useFactions();
+    const [audienceUsers, setAudienceUsers] = useState("");
+    const [audienceFactions, setAudienceFactions] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -108,9 +120,41 @@ export function useNewOffer(onCreated?: () => void): OfferFormHook {
                     `Unable to get user information. ${userError ?? ""}`,
                 );
 
+            const userNames = splitNames(audienceUsers);
+            const factionNames = splitNames(audienceFactions);
+
+            // Names are what people know: the API wants ids.
+            const allowedUserIds: number[] = [];
+            for (const name of userNames) {
+                try {
+                    const res = await axios.get<{ user_id: number }>(
+                        `/users/from_name/${encodeURIComponent(name)}`,
+                    );
+                    allowedUserIds.push(res.data.user_id);
+                } catch (error: unknown) {
+                    if (
+                        axios.isAxiosError(error) &&
+                        error.response?.status === 404
+                    ) {
+                        throw new Error(`Utilisateur inconnu : ${name}`);
+                    }
+                    throw error;
+                }
+            }
+            const allowedFactionIds = factionNames.map((name) => {
+                const found = factions?.find(
+                    (f) => f.name.toLowerCase() === name.toLowerCase(),
+                );
+                if (!found) throw new Error(`Faction inconnue : ${name}`);
+                return found.faction_id;
+            });
+
             const payload: OfferCreateData = {
                 ...data,
-                allowed_parties: null,
+                allowed_user_ids: allowedUserIds.length ? allowedUserIds : null,
+                allowed_faction_ids: allowedFactionIds.length
+                    ? allowedFactionIds
+                    : null,
                 user_id: forFaction ? null : user.user_id,
                 faction_id: forFaction ? user.faction_id : null,
                 init_quantity: data.quantity,
@@ -125,6 +169,8 @@ export function useNewOffer(onCreated?: () => void): OfferFormHook {
             setIsOpen(false);
 
             setForFaction(false);
+            setAudienceUsers("");
+            setAudienceFactions("");
             onCreated?.();
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 409) {
@@ -148,5 +194,9 @@ export function useNewOffer(onCreated?: () => void): OfferFormHook {
         setIsOpen,
         forFaction,
         setForFaction,
+        audienceUsers,
+        setAudienceUsers,
+        audienceFactions,
+        setAudienceFactions,
     };
 }

@@ -3,6 +3,7 @@ from typing import Optional
 
 from sqlalchemy import (
     JSON,
+    Boolean,
     CheckConstraint,
     DateTime,
     Float,
@@ -10,6 +11,7 @@ from sqlalchemy import (
     Index,
     Integer,
     String,
+    false,
 )
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -67,7 +69,16 @@ class Offer(Base):
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     init_quantity: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    allowed_parties: Mapped[Optional[list[int]]] = mapped_column(JSON, nullable=True)
+    # A private offer lists who may see and accept it (besides its owner):
+    # these users, and the members of these factions. `is_private` mirrors
+    # "either list is not empty" so that listings can filter in SQL.
+    allowed_user_ids: Mapped[Optional[list[int]]] = mapped_column(JSON, nullable=True)
+    allowed_faction_ids: Mapped[Optional[list[int]]] = mapped_column(
+        JSON, nullable=True
+    )
+    is_private: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default=false(), index=True
+    )
 
     status: Mapped[OfferStatus] = mapped_column(
         offer_status_enum,
