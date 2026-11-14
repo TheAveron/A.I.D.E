@@ -3,6 +3,7 @@ from typing import Optional
 
 from sqlalchemy import Boolean, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import expression
 
 from ..clock import utcnow
 from ..database import Base
@@ -30,6 +31,12 @@ class Faction(Base):
     )
     is_approved: Mapped[bool] = mapped_column(Boolean, default=False)
 
+    # False: anybody may join (as a guest). True: only through a join request
+    # that a member with handle_members accepts.
+    requires_approval: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=expression.false(), nullable=False
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, nullable=False
     )
@@ -46,6 +53,10 @@ class Faction(Base):
     )
 
     users = relationship("User", back_populates="faction", passive_deletes=True)
+
+    join_requests = relationship(
+        "JoinRequest", back_populates="faction", passive_deletes=True
+    )
 
     offers = relationship(
         "Offer",

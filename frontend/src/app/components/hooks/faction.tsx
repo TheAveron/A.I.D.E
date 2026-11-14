@@ -29,14 +29,14 @@ const factionSchema = yup.object().shape({
 });
 
 export function useFaction(faction_id: string | null): FactionHook {
-    const { data, loading, error } = useApiGet<FactionType>(
+    const { data, loading, error, refresh } = useApiGet<FactionType>(
         faction_id
             ? `/factions/detail/${encodeURIComponent(faction_id)}`
             : null,
         "Error fetching faction",
     );
 
-    return { faction: data, loading, error };
+    return { faction: data, loading, error, refresh };
 }
 
 export function useNewFaction(onCreated?: () => void): FactionFormHook {

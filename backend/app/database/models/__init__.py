@@ -2,6 +2,7 @@ from .currency import Currency
 from .currency_history import CurrencyHistory
 from .faction import Faction
 from .faction_role import Role
+from .join_request import JoinRequest
 from .offer import Offer, OfferStatus, OfferType
 from .offer_history import OfferAction, OfferHistory
 from .transaction import Transaction

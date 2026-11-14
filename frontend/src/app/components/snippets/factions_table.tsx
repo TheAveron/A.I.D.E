@@ -4,6 +4,7 @@ import type { FactionType } from "../../types/factions";
 import { useMe } from "../hooks/me";
 import { useRole } from "../hooks/role";
 import { UpdateFactionButton } from "../buttons/joinfaction";
+import { RequestJoinButton } from "../buttons/requestjoin";
 
 const NO_FACTION = "Sans Faction";
 
@@ -121,7 +122,14 @@ export default function FactionTable({
                                             {user &&
                                                 !isNoFaction &&
                                                 user.faction_id !=
-                                                    faction.faction_id && (
+                                                    faction.faction_id &&
+                                                (faction.requires_approval ? (
+                                                    <RequestJoinButton
+                                                        factionId={
+                                                            faction.faction_id
+                                                        }
+                                                    />
+                                                ) : (
                                                     <UpdateFactionButton
                                                         userId={user.user_id}
                                                         currentFactionId={
@@ -138,7 +146,7 @@ export default function FactionTable({
                                                             onJoined();
                                                         }}
                                                     />
-                                                )}
+                                                ))}
                                         </td>
                                     )}
                                 </tr>

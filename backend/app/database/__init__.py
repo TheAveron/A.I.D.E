@@ -3,6 +3,7 @@ from .models import (
     Currency,
     CurrencyHistory,
     Faction,
+    JoinRequest,
     Offer,
     OfferAction,
     OfferHistory,

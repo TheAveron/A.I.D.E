@@ -89,6 +89,12 @@ def _join_faction(
             detail="You already belong to this faction",
         )
 
+    if faction.requires_approval:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This faction only takes members through a join request",
+        )
+
     current_faction_name = user.faction.name if user.faction else None
     if (
         user.role

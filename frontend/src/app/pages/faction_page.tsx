@@ -10,6 +10,7 @@ import { useRole } from "../components/hooks/role";
 import HistoryTable from "../components/snippets/history_table";
 import OfferList from "../components/offerslist";
 import { useRoles } from "../components/hooks/factionroles";
+import JoinRequestsPanel from "../components/snippets/join_requests_panel";
 
 export default function FactionDashboard() {
     const { factionid } = useParams();
@@ -19,6 +20,10 @@ export default function FactionDashboard() {
     const { roles } = useRoles(factionid ?? null);
 
     const active = role?.view_transactions ?? false;
+    const canHandleRequests =
+        !!factionid &&
+        !!role?.handle_members &&
+        role.faction_id === Number(factionid);
 
     return (
         <div className="information-container">
@@ -32,6 +37,7 @@ export default function FactionDashboard() {
             ) : (
                 <></>
             )}
+            {canHandleRequests && <JoinRequestsPanel factionId={factionid} />}
             <OfferList factionId={factionid} offersPerPage={7} />
             {role?.view_transactions ? (
                 <TransactionsTable factionId={factionid} />

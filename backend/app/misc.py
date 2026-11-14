@@ -30,6 +30,15 @@ class OfferAction(str, Enum):
     CANCELLED = "CANCELLED"
 
 
+class JoinRequestStatus(str, Enum):
+    """Life of a request to join a faction."""
+
+    PENDING = "PENDING"
+    ACCEPTED = "ACCEPTED"
+    REFUSED = "REFUSED"
+    CANCELLED = "CANCELLED"  # withdrawn by the applicant, or no longer possible
+
+
 class FactionPermission(str, Enum):
     """Possible permissions for faction members"""
 

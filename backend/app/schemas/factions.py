@@ -18,13 +18,15 @@ class FactionOut(FactionBase):
     faction_id: int
     created_at: UTCDatetime
     is_approved: bool
+    requires_approval: bool
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class FactionUpdate(PartialUpdate):
-    non_nullable = ("name", "is_approved")
+    non_nullable = ("name", "is_approved", "requires_approval")
 
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
     is_approved: Optional[bool] = None
+    requires_approval: Optional[bool] = None
