@@ -3,6 +3,8 @@ import { useOffer } from "../hooks/offers";
 import type { TransactionType } from "../../types/transactions";
 import Username from "./username";
 import Factionname from "./factionname";
+import { Pagination } from "./pagination";
+import { usePagination } from "../hooks/pagination";
 
 function Actor({
     userId,
@@ -22,7 +24,7 @@ export function OfferRow({ transaction }: { transaction: TransactionType }) {
     return (
         <tr>
             {error ? (
-                <td colSpan={4}>
+                <td colSpan={5}>
                     Erreur lors du chargement de la transaction{" "}
                     {transaction.transaction_id}: {error}
                 </td>
@@ -44,6 +46,9 @@ export function OfferRow({ transaction }: { transaction: TransactionType }) {
                         />
                     </td>
                     <td>
+                        {transaction.amount} {transaction.currency_name}
+                    </td>
+                    <td>
                         {new Date(transaction.timestamp).toLocaleDateString() +
                             ", " +
                             new Date(
@@ -60,10 +65,12 @@ export default function TransactionsTable({
     factionId = null,
     userId = null,
     offerId = null,
+    perPage = 10,
 }: {
     factionId?: string | null;
     userId?: string | null;
     offerId?: string | null;
+    perPage?: number;
 }) {
     // The server only returns what the viewer may see and applies the filters.
     const { transactions, loading, error } = useTransactions({
@@ -71,6 +78,11 @@ export default function TransactionsTable({
         userId,
         offerId,
     });
+    const { pageItems, page, totalPages, setPage } = usePagination(
+        transactions ?? [],
+        perPage,
+    );
+
     return (
         <div className="snippet-container transactions-container">
             <div className="info-header">
@@ -83,14 +95,15 @@ export default function TransactionsTable({
                             <th>Offre</th>
                             <th>Créateur</th>
                             <th>Acceptant</th>
+                            <th>Montant</th>
                             <th>Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         {!error ? (
                             !loading ? (
-                                transactions && transactions.length > 0 ? (
-                                    transactions.map((transaction) => (
+                                pageItems.length > 0 ? (
+                                    pageItems.map((transaction) => (
                                         <OfferRow
                                             key={transaction.transaction_id}
                                             transaction={transaction}
@@ -118,6 +131,7 @@ export default function TransactionsTable({
                     </tbody>
                 </table>
             </div>
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </div>
     );
 }

@@ -8,6 +8,10 @@ import type {
     TransactionType,
 } from "../../types/transactions";
 
+// The server returns 100 transactions unless asked for more (up to 500); the
+// table paginates what it receives.
+const MAX_TRANSACTIONS = "500";
+
 export function useTransaction(transactionId: string | null): TransactionHook {
     const { data, loading, error } = useApiGet<TransactionType>(
         transactionId
@@ -29,7 +33,7 @@ export function useTransactions({
     offerId: string | null;
 }): TransactionsHook {
     const query = useMemo(() => {
-        const params = new URLSearchParams();
+        const params = new URLSearchParams({ limit: MAX_TRANSACTIONS });
         if (factionId !== null) params.append("faction_id", factionId);
         if (userId !== null) params.append("user_id", userId);
         if (offerId !== null) params.append("offer_id", offerId);

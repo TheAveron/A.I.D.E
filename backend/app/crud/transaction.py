@@ -61,6 +61,8 @@ def get_transactions(
     faction_id: Optional[int] = None,
     user_id: Optional[int] = None,
     offer_id: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 100,
 ) -> list[Transaction]:
     """Transactions the viewer is allowed to see, newest first.
 
@@ -96,6 +98,9 @@ def get_transactions(
     if offer_id is not None:
         query = query.filter(Transaction.offer_id == offer_id)
 
-    return query.order_by(
-        Transaction.timestamp.desc(), Transaction.transaction_id.desc()
-    ).all()
+    return (
+        query.order_by(Transaction.timestamp.desc(), Transaction.transaction_id.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )

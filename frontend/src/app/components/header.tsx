@@ -26,6 +26,9 @@ function Header() {
                         <Link className="link" to="/offers">
                             Offres
                         </Link>
+                        <Link className="link" to="/transactions">
+                            Transactions
+                        </Link>
                         <Link className="link" to="/contribuer">
                             Contribuer
                         </Link>

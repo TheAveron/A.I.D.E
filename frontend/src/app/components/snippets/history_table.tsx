@@ -2,19 +2,22 @@ import { useOfferHistoriesByActor } from "../hooks/offer_history";
 import Username from "./username";
 import Factionname from "./factionname";
 import { Offername } from "./offername";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { Pagination } from "./pagination";
+import { usePagination } from "../hooks/pagination";
 
 export default function HistoryTable({
     factionId,
+    userId,
     HistoriesPerPage = 10,
 }: {
     factionId?: string;
+    userId?: string;
     HistoriesPerPage?: number;
 }) {
-    const [page, setPage] = useState(1);
-
     const { offerHistories, loading, error } = useOfferHistoriesByActor({
         actorFactionId: factionId ?? null,
+        actorUserId: userId ?? null,
     });
 
     const sortedHistories = useMemo(() => {
@@ -29,10 +32,12 @@ export default function HistoryTable({
         return copy;
     }, [offerHistories]);
 
-    const paginatedHistories = useMemo(() => {
-        const start = (page - 1) * HistoriesPerPage;
-        return sortedHistories.slice(start, start + HistoriesPerPage);
-    }, [sortedHistories, page, HistoriesPerPage]);
+    const {
+        pageItems: paginatedHistories,
+        page,
+        totalPages,
+        setPage,
+    } = usePagination(sortedHistories, HistoriesPerPage);
 
     return (
         <div className="snippet-container history-container">
@@ -114,40 +119,7 @@ export default function HistoryTable({
                     </tbody>
                 </table>
             </div>
-            {sortedHistories.length > HistoriesPerPage && (
-                <div className="pagination-controls">
-                    <button
-                        onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                        disabled={page === 1}
-                        className="button"
-                    >
-                        Précédent
-                    </button>
-                    <span>
-                        Page {page} /{" "}
-                        {Math.ceil(sortedHistories.length / HistoriesPerPage)}
-                    </span>
-                    <button
-                        onClick={() =>
-                            setPage((p) =>
-                                p <
-                                Math.ceil(
-                                    sortedHistories.length / HistoriesPerPage,
-                                )
-                                    ? p + 1
-                                    : p,
-                            )
-                        }
-                        disabled={
-                            page >=
-                            Math.ceil(sortedHistories.length / HistoriesPerPage)
-                        }
-                        className="button"
-                    >
-                        Suivant
-                    </button>
-                </div>
-            )}
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </div>
     );
 }
