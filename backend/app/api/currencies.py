@@ -8,8 +8,13 @@ from ..crud import currencies as crud_currencies
 from ..crud import currency_history as crud_currency_history
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
-from ..schemas import (CurrencyCreate, CurrencyHistoryOut, CurrencyOut,
-                       CurrencyPublic, CurrencyUpdate)
+from ..schemas import (
+    CurrencyCreate,
+    CurrencyHistoryOut,
+    CurrencyOut,
+    CurrencyPublic,
+    CurrencyUpdate,
+)
 
 router = APIRouter(prefix="/currencies", tags=["Currencies"])
 

@@ -29,6 +29,10 @@ class CurrencyUpdate(PartialUpdate):
     total_in_circulation: Optional[int] = Field(
         None, ge=0, le=INT32_MAX, description="Updated total in circulation"
     )
+    # Not stored on the currency: kept in the audit entry of the change.
+    notes: Optional[str] = Field(
+        None, max_length=500, description="Why the total changed"
+    )
 
 
 class CurrencyPublic(BaseModel):

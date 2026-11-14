@@ -116,6 +116,7 @@ def update_currency(
             old_total_in_circulation=old_total,
             new_total_in_circulation=currency_in.total_in_circulation,
             actor_user_id=actor_user_id,
+            notes=(currency_in.notes or "").strip() or None,
             commit=False,
         )
 

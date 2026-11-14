@@ -4,8 +4,13 @@ from sqlalchemy.orm import Session
 
 from ..core import create_access_token, hash_password
 from ..core.ratelimit import LoginLimiter
-from ..crud import (authenticate_user, create_user, get_faction_by_name,
-                    get_roles_by_faction, username_taken)
+from ..crud import (
+    authenticate_user,
+    create_user,
+    get_faction_by_name,
+    get_roles_by_faction,
+    username_taken,
+)
 from ..database import get_db
 from ..schemas import Auth, UserCreate, UserLogin
 

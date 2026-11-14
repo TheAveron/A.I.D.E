@@ -22,3 +22,18 @@ export type CurrencyFormHook = HookForm<CurrencyForm>;
 export interface CurrencyCreateData extends CurrencyForm {
     faction_id: number | null;
 }
+
+export interface CurrencyHistoryType {
+    history_id: number;
+    currency_name: string;
+    actor_user_id: number | null;
+    old_total_in_circulation: number;
+    new_total_in_circulation: number;
+    notes: string | null;
+    timestamp: string;
+}
+
+export interface CurrencyHistoryHook extends HookResult {
+    histories: CurrencyHistoryType[] | null;
+    refresh: () => void;
+}
