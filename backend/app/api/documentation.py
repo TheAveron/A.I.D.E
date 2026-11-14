@@ -230,6 +230,146 @@ def list_faction_documents(faction_id: int, db: Session = Depends(get_db)):
     ]
 
 
+def _faction_folder(db: Session, faction_id: int) -> Path:
+    """The folder of a faction's documents, or 404 for an unknown faction."""
+    faction = faction_crud.get_faction(db, faction_id)
+    if not faction:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Faction not found"
+        )
+    folder = normalize(faction.name)
+    if not folder or not _SAFE_FOLDER.fullmatch(folder):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
+        )
+    return DOCS_DIR.resolve() / FACTION_DOCS_SERVER / folder
+
+
+def _split_title(text: str, fallback: str) -> tuple[str, str]:
+    """A stored document as (title, body): the "# " first line is the title."""
+    first, _, rest = text.partition("\n")
+    if first.startswith("# ") and first[2:].strip():
+        return first[2:].strip(), rest.lstrip("\n")
+    return fallback, text
+
+
+@router.get(
+    "/faction/{faction_id}/{doc_name}",
+    response_model=DocBase,
+    status_code=status.HTTP_200_OK,
+)
+def get_faction_document_for_edit(
+    faction_id: int, doc_name: str, db: Session = Depends(get_db)
+):
+    """A faction document split into its title and body (for an editor)."""
+    folder = _faction_folder(db, faction_id)
+    path = _document_path(FACTION_DOCS_SERVER, folder.name, doc_name=doc_name)
+    if not path.is_file():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
+        )
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        logger.exception("Could not read document %s", path)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not read the document",
+        )
+    title, body = _split_title(text, path.stem)
+    return DocBase(title=title, content=body)
+
+
+@router.put(
+    "/faction/{faction_id}/{doc_name}",
+    response_model=DocBase,
+    status_code=status.HTTP_200_OK,
+)
+def update_document(
+    faction_id: int,
+    doc_name: str,
+    doc_info: DocCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Rewrite a document of one's faction; a new title renames its file."""
+    check_faction_permission(
+        current_user, FactionPermission.MANAGE_DOCS, target_faction_id=faction_id
+    )
+    folder = _faction_folder(db, faction_id)
+    path = _document_path(FACTION_DOCS_SERVER, folder.name, doc_name=doc_name)
+    if not path.is_file():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
+        )
+
+    new_name = normalize(doc_info.title)
+    if not new_name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The title must contain at least one letter",
+        )
+    if len(new_name.encode("utf-8")) > MAX_FILENAME_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="The title is too long"
+        )
+
+    target = path.with_name(f"{new_name}.md")
+    text = f"# {doc_info.title}\n\n{doc_info.content}"
+    try:
+        if target == path:
+            # Replace atomically: a crash must not leave half a document.
+            tmp = path.with_name(f".{path.name}.tmp")
+            tmp.write_text(text, encoding="utf-8")
+            tmp.replace(path)
+        else:
+            with target.open("x", encoding="utf-8") as f:
+                f.write(text)
+            path.unlink()
+    except FileExistsError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A document with this title already exists",
+        )
+    except OSError:
+        logger.exception("Could not save document %s", path)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not save the document",
+        )
+    return doc_info
+
+
+@router.delete(
+    "/faction/{faction_id}/{doc_name}", status_code=status.HTTP_204_NO_CONTENT
+)
+def delete_document(
+    faction_id: int,
+    doc_name: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete a document of one's faction."""
+    check_faction_permission(
+        current_user, FactionPermission.MANAGE_DOCS, target_faction_id=faction_id
+    )
+    folder = _faction_folder(db, faction_id)
+    path = _document_path(FACTION_DOCS_SERVER, folder.name, doc_name=doc_name)
+    try:
+        path.unlink()
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
+        )
+    except OSError:
+        logger.exception("Could not delete document %s", path)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not delete the document",
+        )
+    return None
+
+
 @router.get(
     "/{server}/doc/{doc_name}",
     response_model=DocBase,

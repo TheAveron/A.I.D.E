@@ -137,3 +137,99 @@ def test_a_failed_rename_in_the_database_puts_the_folder_back(
     assert r.status_code == 400
     assert (tmp_path / "documents" / "AOS" / "alpha" / "regles.md").is_file()
     assert not (tmp_path / "documents" / "AOS" / "omega").exists()
+
+
+def _create(env, title, content="x"):  # noqa: F811
+    return env.client.post(
+        "/documents/create",
+        json={"title": title, "content": content},
+        headers=env.h("alice"),
+    )
+
+
+def test_a_document_is_read_back_for_editing(env, monkeypatch, tmp_path):  # noqa: F811
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    _create(env, "Règles du jeu", "Ligne 1\n\nLigne 2")
+    r = env.client.get("/documents/faction/1/regles_du_jeu")
+    assert r.status_code == 200
+    assert r.json() == {"title": "Règles du jeu", "content": "Ligne 1\n\nLigne 2"}
+    assert env.client.get("/documents/faction/1/absent").status_code == 404
+
+
+def test_a_document_can_be_rewritten(env, monkeypatch, tmp_path):  # noqa: F811
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    _create(env, "Règles")
+    r = env.client.put(
+        "/documents/faction/1/regles",
+        json={"title": "Règles", "content": "nouveau"},
+        headers=env.h("alice"),
+    )
+    assert r.status_code == 200
+    assert env.client.get("/documents/faction/1/regles").json()["content"] == "nouveau"
+    folder = tmp_path / "documents" / "AOS" / "alpha"
+    assert [p.name for p in folder.iterdir()] == ["regles.md"]  # no temp file left
+
+
+def test_a_new_title_renames_the_document(env, monkeypatch, tmp_path):  # noqa: F811
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    _create(env, "Règles")
+    _create(env, "Autre")
+    h = env.h("alice")
+    r = env.client.put(
+        "/documents/faction/1/regles",
+        json={"title": "Lois", "content": "x"},
+        headers=h,
+    )
+    assert r.status_code == 200
+    docs = env.client.get("/documents/faction/1").json()
+    assert sorted(d["doc_name"] for d in docs) == ["autre", "lois"]
+    # Taking a name that is used is refused, and nothing is lost
+    r = env.client.put(
+        "/documents/faction/1/lois",
+        json={"title": "Autre", "content": "y"},
+        headers=h,
+    )
+    assert r.status_code == 409
+    assert env.client.get("/documents/faction/1/lois").status_code == 200
+
+
+def test_a_document_can_be_deleted(env, monkeypatch, tmp_path):  # noqa: F811
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    _create(env, "Règles")
+    r = env.client.delete("/documents/faction/1/regles", headers=env.h("alice"))
+    assert r.status_code == 204
+    assert env.client.get("/documents/faction/1").json() == []
+    r = env.client.delete("/documents/faction/1/regles", headers=env.h("alice"))
+    assert r.status_code == 404
+
+
+def test_only_members_with_manage_docs_edit_documents(
+    env, monkeypatch, tmp_path  # noqa: F811
+):
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    _create(env, "Règles")
+    body = {"title": "Règles", "content": "hacked"}
+    # Not in the faction at all, and not logged in
+    r = env.client.put(
+        "/documents/faction/1/regles", json=body, headers=env.h("newbie")
+    )
+    assert r.status_code == 403
+    r = env.client.delete("/documents/faction/1/regles", headers=env.h("newbie"))
+    assert r.status_code == 403
+    assert env.client.put("/documents/faction/1/regles", json=body).status_code == 401
+    assert env.client.get("/documents/faction/1/regles").json()["content"] == "x"
+
+
+def test_a_path_in_the_name_reaches_nothing_outside(
+    env, monkeypatch, tmp_path  # noqa: F811
+):
+    monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")
+    (tmp_path / "secret.md").write_text("secret")
+    h = env.h("alice")
+    for name in ("..%2F..%2Fsecret", "..%2F..%2F..%2Fsecret"):
+        assert env.client.get(f"/documents/faction/1/{name}").status_code == 404
+        assert (
+            env.client.delete(f"/documents/faction/1/{name}", headers=h).status_code
+            == 404
+        )
+    assert (tmp_path / "secret.md").read_text() == "secret"

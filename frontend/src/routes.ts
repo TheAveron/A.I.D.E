@@ -20,6 +20,16 @@ const aideRoutes = [
         route("transactions", "./app/pages/transactions.tsx"),
 
         route("faction/:factionid", "./app/pages/faction_page.tsx"),
+        route(
+            "faction/:factionid/documents/new",
+            "./app/pages/document_editor.tsx",
+            { id: "document-new" },
+        ),
+        route(
+            "faction/:factionid/documents/:docname/edit",
+            "./app/pages/document_editor.tsx",
+            { id: "document-edit" },
+        ),
         route("user/:userid", "./app/pages/user_page.tsx"),
     ]),
 
