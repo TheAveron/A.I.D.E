@@ -11,6 +11,7 @@ from ..schemas import UserFull, UserOut, UserPublic, UserUpdate
 
 NO_FACTION_NAME = "Sans Faction"
 GUEST_ROLE_NAME = "Invité"
+MEMBER_ROLE_NAME = "Membre"
 LEADER_ROLE_NAME = "Chef"
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -217,3 +218,100 @@ def update_role_faction(
     return _assign_role(
         db, current_user, target, update_data.faction_id, update_data.role_id
     )
+
+
+def _send_to_no_faction(db: Session, user: User) -> User:
+    """Put a user back in "Sans Faction", with the role new accounts get."""
+    no_faction = crud_faction.get_faction_by_name(db, NO_FACTION_NAME)
+    role = None
+    if no_faction:
+        role = next(
+            (
+                r
+                for r in crud_role.get_roles_by_faction(db, no_faction.faction_id)
+                if r.name == MEMBER_ROLE_NAME
+            ),
+            None,
+        )
+    if not no_faction or not role:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f'The "{NO_FACTION_NAME}" faction is not set up',
+        )
+    return crud_user.update_user_faction_and_role(
+        db, user.user_id, no_faction.faction_id, role.role_id
+    )
+
+
+def _in_a_real_faction(user: User) -> bool:
+    return bool(user.faction and user.faction.name != NO_FACTION_NAME)
+
+
+@router.post("/leave", response_model=UserOut)
+def leave_faction(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    """Leave one's faction and go back to "Sans Faction"; a leader can't."""
+    if not _in_a_real_faction(current_user):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You don't belong to a faction",
+        )
+    if current_user.role and current_user.role.name == LEADER_ROLE_NAME:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="A faction leader can't leave their faction",
+        )
+    return _send_to_no_faction(db, current_user)
+
+
+@router.post("/{user_id}/kick", response_model=UserOut)
+def kick_member(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Remove a member from one's faction (needs `handle_members`).
+
+    The leader can't be removed, and nobody removes a member who holds
+    powers they don't hold themselves (the rule that also limits role
+    assignment).
+    """
+    check_faction_permission(current_user, FactionPermission.HANDLE_MEMBERS)
+
+    if user_id == current_user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Use /users/leave to leave your own faction",
+        )
+
+    target = crud_user.get_user_by_id(db, user_id)
+    if not target or target.faction_id != current_user.faction_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Member not found in your faction",
+        )
+
+    if not _in_a_real_faction(target):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This user doesn't belong to a faction",
+        )
+
+    if target.role and target.role.name == LEADER_ROLE_NAME:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The faction leader can't be removed",
+        )
+
+    if target.role:
+        for permission in FactionPermission:
+            if target.role.has_permission(
+                permission.value
+            ) and not current_user.role.has_permission(permission.value):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You can't remove a member with permissions you don't have",
+                )
+
+    return _send_to_no_faction(db, target)

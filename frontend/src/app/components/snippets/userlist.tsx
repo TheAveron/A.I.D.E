@@ -4,6 +4,7 @@ import { useRole } from "../hooks/role";
 import { useMembers } from "../hooks/factionmembers";
 import { useMe } from "../hooks/me";
 import { UpdateRole } from "../buttons/updaterole";
+import { KickMemberButton } from "../buttons/kickmember";
 
 import type { CSSProperties } from "react";
 
@@ -11,9 +12,11 @@ function RoleElement({
     role_id,
     faction_id,
     user_id,
+    username,
     canManage,
     onRoleUpdated,
 }: {
+    username: string;
     role_id: number | null;
     faction_id: number | null;
     user_id: number;
@@ -54,6 +57,11 @@ function RoleElement({
                             currentRoleId={role_id}
                             factionId={faction_id}
                             onRoleUpdated={onRoleUpdated}
+                        />{" "}
+                        <KickMemberButton
+                            userId={user_id}
+                            username={username}
+                            onKicked={onRoleUpdated}
                         />
                     </td>
                 )}
@@ -110,6 +118,7 @@ function UsersTable({ state = false }: { state: boolean }) {
                                             </td>
                                             <RoleElement
                                                 user_id={user.user_id}
+                                                username={user.username}
                                                 role_id={user.role_id}
                                                 faction_id={
                                                     current_user?.faction_id ??

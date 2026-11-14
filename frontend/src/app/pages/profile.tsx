@@ -2,6 +2,7 @@ import { useMe } from "../components/hooks/me";
 
 import Profile from "../components/profile";
 import OfferList from "../components/offerslist";
+import { LeaveFactionButton } from "../components/buttons/leavefaction";
 import ChangePassword from "../components/snippets/change_password";
 import TransactionsTable from "../components/snippets/transaction_table";
 
@@ -13,6 +14,7 @@ function ProfileComponent() {
             user ? (
                 <div className="information-container user-page">
                     <Profile value={user} />
+                    <LeaveFactionButton />
                     <ChangePassword />
 
                     <TransactionsTable userId={user?.user_id.toString()} />
