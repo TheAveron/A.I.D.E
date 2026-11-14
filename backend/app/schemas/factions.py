@@ -19,6 +19,7 @@ class FactionOut(FactionBase):
     created_at: UTCDatetime
     is_approved: bool
     requires_approval: bool
+    deleted_at: Optional[UTCDatetime] = None
 
     model_config = ConfigDict(from_attributes=True)
 

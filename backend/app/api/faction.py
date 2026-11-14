@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -9,7 +10,12 @@ from ..crud import normalize
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
 from ..schemas import FactionCreate, FactionOut, FactionUpdate
-from .documentation import move_faction_folder
+from .documentation import archive_faction_folder, move_faction_folder
+
+logger = logging.getLogger("aide")
+
+NO_FACTION_NAME = "Sans Faction"
+LEADER_ROLE_NAME = "Chef"
 
 router = APIRouter(
     prefix="/factions",
@@ -160,15 +166,45 @@ def delete_faction(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """Delete a faction: its leader (or an admin) archives it.
+
+    Members go back to "Sans Faction", open offers are cancelled, the faction
+    leaves every listing and its name is freed. Its documents are kept in an
+    archive folder and its past trades stay readable.
+    """
     faction = faction_crud.get_faction(db, faction_id)
-    if not faction:
+    if not faction or faction.deleted_at is not None:
         raise HTTPException(status_code=404, detail="Faction not found")
 
-    check_faction_permission(
-        current_user,
-        FactionPermission.MANAGE_ROLES,
-        target_faction_id=faction.faction_id,
-    )
+    if faction.name == NO_FACTION_NAME:
+        raise HTTPException(status_code=400, detail="This faction can't be deleted")
 
-    faction_crud.delete_faction(db, faction)
+    role = current_user.role
+    is_leader = (
+        current_user.faction_id == faction.faction_id
+        and role is not None
+        and role.faction_id == faction.faction_id
+        and role.name == LEADER_ROLE_NAME
+    )
+    if not (is_leader or current_user.is_admin):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the faction's leader can delete it",
+        )
+
+    old_name = faction.name
+    moved = None
+    try:
+        faction_crud.archive_faction(db, faction, current_user)
+        moved = archive_faction_folder(old_name, faction.faction_id)
+        db.commit()
+    except Exception:
+        db.rollback()
+        if moved:
+            source, target = moved
+            try:
+                target.rename(source)
+            except OSError:
+                logger.exception("Could not restore documents %s", source)
+        raise
     return None

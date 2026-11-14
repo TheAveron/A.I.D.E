@@ -2,6 +2,7 @@ import { useFaction } from "../hooks/faction";
 import { useMe } from "../hooks/me";
 import { useRole } from "../hooks/role";
 import { ApprovalToggle } from "../buttons/approvaltoggle";
+import { DeleteFactionButton } from "../buttons/deletefaction";
 
 function FactionHead({
     faction_name,
@@ -35,8 +36,14 @@ export default function FactionInfo({
     const { faction, loading, error, refresh } = useFaction(factionId ?? null);
     const { role } = useRole(user?.role_id ?? null);
     // Same rule as the API: managing roles of one's own faction
+    const archived = !!faction?.deleted_at;
+    const isLeader =
+        role?.name === "Chef" &&
+        role.faction_id === user?.faction_id &&
+        user?.faction_id === faction?.faction_id;
     const canToggle =
         !!faction &&
+        !archived &&
         user?.faction_id === faction.faction_id &&
         (role?.manage_roles ?? false);
 
@@ -52,6 +59,13 @@ export default function FactionInfo({
                                 user_faction_id={user?.faction_id ?? null}
                                 role_id={user?.role_id ?? null}
                             />
+
+                            {archived && (
+                                <p role="status">
+                                    Cette faction a été supprimée : seul son
+                                    historique reste consultable.
+                                </p>
+                            )}
 
                             <div className="info-values">
                                 <div className="info-row">
@@ -70,6 +84,12 @@ export default function FactionInfo({
                                         {faction.is_approved ? "Oui" : "Non"}
                                     </span>
                                 </div>
+                                {isLeader && !archived && (
+                                    <DeleteFactionButton
+                                        factionId={faction.faction_id}
+                                        factionName={faction.name}
+                                    />
+                                )}
                                 {canToggle ? (
                                     <ApprovalToggle
                                         factionId={faction.faction_id}

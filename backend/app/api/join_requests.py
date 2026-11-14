@@ -61,7 +61,7 @@ def create_join_request(
     current_user: User = Depends(get_current_user),
 ):
     faction = crud_faction.get_faction(db, body.faction_id)
-    if not faction:
+    if not faction or faction.deleted_at is not None:
         raise HTTPException(status_code=404, detail="Faction not found")
 
     if faction.name == NO_FACTION_NAME:

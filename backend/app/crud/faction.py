@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ..database import Faction, User
+from ..database.clock import utcnow
 from ..schemas import FactionCreate, FactionUpdate
 from .documents import normalize
 from .faction_role import create_default_faction_roles
@@ -40,14 +41,23 @@ def normalized_name_taken(
     documents, so their names are treated as identical.
     """
     key = normalize(name)
-    for faction_id, existing in db.query(Faction.faction_id, Faction.name):
+    for faction_id, existing in db.query(Faction.faction_id, Faction.name).filter(
+        Faction.deleted_at.is_(None)
+    ):
         if faction_id != exclude_faction_id and normalize(existing) == key:
             return True
     return False
 
 
 def list_factions(db: Session, skip: int = 0, limit: int = 100) -> list[Faction]:
-    return db.query(Faction).offset(skip).limit(limit).all()
+    return (
+        db.query(Faction)
+        .filter(Faction.deleted_at.is_(None))
+        .order_by(Faction.faction_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def count_members(db: Session) -> dict[int, int]:
@@ -55,6 +65,7 @@ def count_members(db: Session) -> dict[int, int]:
     rows = (
         db.query(Faction.faction_id, func.count(User.user_id))
         .outerjoin(User, User.faction_id == Faction.faction_id)
+        .filter(Faction.deleted_at.is_(None))
         .group_by(Faction.faction_id)
         .all()
     )
@@ -118,3 +129,69 @@ def delete_faction(db: Session, faction: Faction) -> None:
             status_code=409,
             detail="This faction is still referenced (members or trade history) and can't be deleted",
         )
+
+
+NO_FACTION_NAME = "Sans Faction"
+MEMBER_ROLE_NAME = "Membre"
+
+
+def archive_faction(db: Session, faction: Faction, actor: User) -> None:
+    """Delete a faction the way history allows: archive it.
+
+    In the caller's transaction (nothing is committed here):
+    - its open offers are cancelled (with a history entry each) and pending
+      join requests withdrawn;
+    - every member goes back to "Sans Faction";
+    - its currency is deleted unless offers or transactions use it;
+    - the faction is renamed "<name> [supprimée #id]" - which frees the
+      unique name - and stamped `deleted_at`. Its row stays because closed
+      offers and transactions refer to it.
+    """
+    from ..database import Offer
+    from ..misc import OfferAction, OfferStatus
+    from .currencies import is_currency_referenced
+    from .offer_history import create_offer_history
+
+    no_faction = get_faction_by_name(db, NO_FACTION_NAME)
+    member_role = None
+    if no_faction:
+        member_role = next(
+            (r for r in no_faction.roles if r.name == MEMBER_ROLE_NAME), None
+        )
+    if not no_faction or not member_role:
+        raise HTTPException(
+            status_code=503, detail=f'The "{NO_FACTION_NAME}" faction is not set up'
+        )
+
+    now = utcnow()
+
+    for offer in db.query(Offer).filter(
+        Offer.faction_id == faction.faction_id, Offer.status == OfferStatus.OPEN
+    ):
+        offer.status = OfferStatus.CANCELLED
+        offer.updated_at = now
+        create_offer_history(
+            db,
+            offer.offer_id,
+            OfferAction.CANCELLED,
+            actor_faction_id=faction.faction_id,
+            notes=f"Offer cancelled: the faction was deleted by {actor.username}",
+            commit=False,
+        )
+
+    for request in faction.join_requests:
+        if request.status == "PENDING":
+            request.status = "CANCELLED"
+            request.decided_at = now
+
+    for member in db.query(User).filter(User.faction_id == faction.faction_id):
+        member.faction_id = no_faction.faction_id
+        member.role_id = member_role.role_id
+
+    currency = faction.currency
+    if currency and not is_currency_referenced(db, currency.name):
+        db.delete(currency)
+
+    suffix = f" [supprimée #{faction.faction_id}]"
+    faction.name = faction.name[: 100 - len(suffix)] + suffix
+    faction.deleted_at = now

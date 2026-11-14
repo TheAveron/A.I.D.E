@@ -41,6 +41,10 @@ class Faction(Base):
         DateTime, default=utcnow, nullable=False
     )
 
+    # Set when the leader deletes the faction: the row stays (offers and
+    # transactions refer to it) but the faction is out of every listing.
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, onupdate=utcnow, nullable=False
     )

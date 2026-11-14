@@ -95,6 +95,36 @@ def move_faction_folder(old_name: str, new_name: str) -> bool:
     return True
 
 
+def archive_faction_folder(name: str, faction_id: int) -> tuple[Path, Path] | None:
+    """Move a deleted faction's documents out of the way, keeping them.
+
+    They go to AOS/_archive/<folder>-<faction id>. Returns (source, target) so
+    that the caller can move them back if the deletion fails, or None when
+    the faction had no documents.
+    """
+    folder = normalize(name)
+    root = DOCS_DIR.resolve() / FACTION_DOCS_SERVER
+    source = root / folder
+    if not folder or not _SAFE_FOLDER.fullmatch(folder) or not source.is_dir():
+        return None
+    target = root / "_archive" / f"{folder}-{faction_id}"
+    if target.exists():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An archive of this faction's documents already exists",
+        )
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        source.rename(target)
+    except OSError:
+        logger.exception("Could not archive documents %s -> %s", source, target)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not archive the faction's documents",
+        )
+    return source, target
+
+
 def _document_path(*folders: str, doc_name: str) -> Path:
     """Path of a markdown document under DOCS_DIR, or 404.
 
