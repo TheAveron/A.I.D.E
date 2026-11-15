@@ -33,6 +33,19 @@ main {
     align-items: center;
 }
 
+/* Loading / error messages rendered straight in <main> */
+main > p,
+main > [role="alert"] {
+    width: min(100% - 2 * var(--page-gutter), 40rem);
+    margin: 2.5rem auto 0;
+    text-align: center;
+    color: var(--muted);
+}
+
+main > [role="alert"] {
+    color: var(--danger);
+}
+
 footer:empty {
     display: none;
 }

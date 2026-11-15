@@ -1,5 +1,5 @@
 section {
-    width: min(100% - 2rem, 72rem);
+    width: min(100% - 2 * var(--page-gutter), 72rem);
     min-height: calc(100dvh - var(--header-height) - 4rem);
     margin-inline: auto;
     padding-block: clamp(1.5rem, 5vh, 3rem);
@@ -12,7 +12,7 @@ section {
 
 /* Reading column: ~75 characters per line */
 .text-section {
-    width: min(100% - 2rem, var(--text-width));
+    width: min(100% - 2 * var(--page-gutter), var(--text-width));
     align-items: stretch;
     justify-content: flex-start;
     row-gap: 1rem;
@@ -56,7 +56,14 @@ section {
 
 /* Home page: a heading followed by one paragraph */
 .text-section:has(> h2:first-child) {
-    width: min(100% - 2rem, 54rem);
+    width: min(100% - 2 * var(--page-gutter), 54rem);
+}
+
+/* Markdown rendered inside a card (editor preview): no page-sized frame */
+.snippet-container .text-section {
+    width: 100%;
+    min-height: 0;
+    padding: 0;
 }
 
 .text-section > h2:first-child {

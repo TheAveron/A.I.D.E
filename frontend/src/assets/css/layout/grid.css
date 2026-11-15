@@ -9,12 +9,18 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-auto-flow: row dense;
-    gap: clamp(1rem, 2vw, 1.75rem);
-    padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 3vw, 2.5rem);
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    padding: clamp(1.5rem, 4vw, 2.5rem) var(--page-gutter) clamp(2rem, 5vw, 3.5rem);
 }
 
 .information-container > * {
     min-width: 0;
+}
+
+/* Loose messages (loading, "not allowed") span the whole width */
+.information-container > p,
+.information-container > a {
+    grid-column: 1 / -1;
 }
 
 /* Default for cards without a dedicated class: half width */
@@ -22,7 +28,7 @@
     grid-column: span 2;
 }
 
-/* A lone card (notifications) is centered */
+/* A lone card (notifications, forms) is centered */
 :where(.information-container) > .snippet-container:only-child {
     grid-column: 2 / span 2;
 }
@@ -33,8 +39,7 @@
     grid-column: 1 / span 2;
 }
 
-.currency-container,
-.transactions-container {
+.currency-container {
     grid-column: 3 / span 2;
 }
 
@@ -42,8 +47,32 @@
 .factions-container,
 .offers-container,
 .history-container,
+.transactions-container,
 .information-container > .profile-container {
     grid-column: 1 / -1;
+}
+
+/*
+ * A plain card (no dedicated class) that holds a table is a list: it takes the
+ * whole width and drops its frame, like the offers or the history do.
+ */
+.information-container
+    > .snippet-container:not([class*="snippet-container "]):has(
+        > .table-container
+    ) {
+    grid-column: 1 / -1;
+    padding: 0;
+    background: none;
+    border: 0;
+}
+
+/* Next to the members or the profile, transactions are a half-width card */
+.information-container:has(> .users-container, > .user-container)
+    > .transactions-container {
+    grid-column: 3 / span 2;
+    padding: var(--card-padding);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
 }
 
 /* Own profile: identity and transactions on top, then offers */
@@ -65,5 +94,11 @@
     .information-container > * {
         grid-column: 1 / -1 !important;
         grid-row: auto !important;
+    }
+
+    /* Full width on one column: the framed look comes back for transactions */
+    .information-container:has(> .users-container, > .user-container)
+        > .transactions-container {
+        padding: var(--card-padding);
     }
 }

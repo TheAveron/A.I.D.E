@@ -99,6 +99,31 @@ input[type="submit"] {
     appearance: none;
 }
 
+input[type="color"] {
+    width: 3rem;
+    padding: 0.2rem;
+    cursor: pointer;
+}
+
+/*
+ * Forms made of .modal-field blocks: every block takes a full row, while the
+ * buttons that follow sit side by side instead of being stacked.
+ */
+form:has(> .modal-field) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+}
+
+form:has(> .modal-field) > :not(.button) {
+    flex: 1 1 100%;
+}
+
+form > .toolbar {
+    margin: 0;
+}
+
 .imgcontainer {
     display: flex;
     align-items: center;

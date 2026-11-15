@@ -1,10 +1,13 @@
-/* Station board: how a train's name looks on a display */
+/*
+ * Station board: how a train's name looks on a display.
+ * It is a physical screen, so it stays dark in both themes.
+ */
 .train-board {
-    background: var(--background-100);
-    border: 2px solid var(--background-300);
-    border-radius: 6px;
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    background-color: #0b0b0b;
+    border: 1px solid #333;
+    border-radius: var(--radius-lg);
+    box-shadow: inset 0 0 0 3px #151515;
 }
 
 .train-board-name {
@@ -19,35 +22,43 @@
     overflow-wrap: anywhere;
 }
 
-.train-board-parts {
+/* The prefix beats the generic list rules of the cards */
+.train-board .train-board-parts {
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
-    gap: 0.25rem 1.5rem;
-    margin: 0.75rem 0 0;
+    gap: 0.25rem 1.75rem;
+    margin: 1rem 0 0;
     padding: 0;
     list-style: none;
-    color: var(--text-700);
+    color: #bdbdbd;
     font-size: 0.85rem;
 }
 
-.train-board-parts b {
-    color: var(--text);
+.train-board .train-board-parts li {
+    display: block;
+    padding: 0;
+    border: 0;
 }
 
-.train-form-error {
-    color: red;
+.train-board .train-board-parts b {
+    color: #fff;
+}
+
+.train-board .train-board-parts small {
+    color: #9a9a9a;
 }
 
 .train-line-swatch {
     display: inline-block;
     width: 0.8em;
     height: 0.8em;
-    border-radius: 50%;
     margin-right: 0.4em;
+    border-radius: 50%;
     vertical-align: baseline;
 }
 
 .train-retired {
-    color: var(--text-600);
+    color: var(--muted);
     text-decoration: line-through;
 }

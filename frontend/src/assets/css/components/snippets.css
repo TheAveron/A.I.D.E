@@ -1,9 +1,9 @@
 .snippet-container {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.25rem;
     min-width: 0;
-    padding: 1.25rem 1.5rem;
+    padding: var(--card-padding);
     background-color: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -22,31 +22,35 @@
 .roles-container,
 .factions-container,
 .history-container,
-.offers-container {
+.offers-container,
+.transactions-container {
     padding: 0;
     background: none;
     border: 0;
+}
+
+.transactions-container > .info-header {
+    min-height: 0;
 }
 
 .profile-role {
     color: var(--muted);
 }
 
-/* Lists inside cards (documents, notifications) */
-.snippet-container ul {
+/* ── Lists inside cards (documents, notifications, stations of a line) ── */
+.snippet-container ul,
+.snippet-container ol {
     display: flex;
     flex-direction: column;
     padding: 0;
     list-style: none;
 }
 
+/* Rows are plain blocks so that sentences keep their natural spacing */
 .snippet-container li {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem 0.75rem;
-    padding: 0.65rem 0.25rem;
+    display: block;
+    padding: 0.75rem 0.25rem;
+    line-height: 1.5;
     border-bottom: 1px solid var(--border);
 }
 
@@ -54,9 +58,23 @@
     border-bottom: 0;
 }
 
+/* ...and become a row only when they carry actions */
+.snippet-container li:has(> .button) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.75rem;
+}
+
 /* The first link takes the free space: what follows is pushed to the right */
-.snippet-container li > a:first-of-type {
+.snippet-container ul > li:has(> .button) > a:first-of-type {
     margin-right: auto;
+}
+
+.snippet-container li > .button {
+    min-height: 2rem;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.85rem;
 }
 
 .snippet-container li > small {
@@ -66,7 +84,40 @@
 
 /* Unread notifications are written in bold inline: mark them */
 .snippet-container li[style*="font-weight: bold"] {
-    padding-left: 0.75rem;
+    padding-left: 0.85rem;
     background-color: var(--hover);
     box-shadow: inset 3px 0 0 var(--primary);
+}
+
+/* Ordered lists: numbered stops */
+.snippet-container ol {
+    counter-reset: step;
+}
+
+.snippet-container ol > li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.75rem;
+    counter-increment: step;
+}
+
+.snippet-container ol > li::before {
+    content: counter(step);
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.75rem;
+    height: 1.75rem;
+    padding-inline: 0.25rem;
+    background-color: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+}
+
+.snippet-container ol > li > button:first-of-type {
+    margin-left: auto;
 }

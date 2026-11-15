@@ -17,6 +17,13 @@
     height: fit-content;
 }
 
+/* On a narrow screen the title would run under the floating back button */
+@media only screen and (max-width: 700px) {
+    #map-header {
+        padding-top: 4rem;
+    }
+}
+
 /* Over the map the back button needs its own edge */
 #map-header ~ #previous,
 #map-header #previous {

@@ -26,6 +26,20 @@
     padding-inline: 0.75rem;
 }
 
+/* Inline labelled fields (coordinates, colour, filters as checkboxes) */
+.toolbar > label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0;
+}
+
+.toolbar > label > input:where(:not([type="checkbox"], [type="radio"], [type="color"])) {
+    width: 6.5rem;
+}
+
 @media only screen and (max-width: 640px) {
     .toolbar > input,
     .toolbar > select {
