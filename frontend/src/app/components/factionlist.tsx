@@ -52,12 +52,24 @@ function FactionToolbar({
                         <option value="members">Membres</option>
                         <option value="approved">Validation</option>
                     </select>
-                    <div
-                        className="button"
+                    <button
+                        type="button"
+                        className={`button sort-direction${sortAsc ? "" : " desc"}`}
+                        aria-label={`Ordre ${sortAsc ? "croissant" : "décroissant"}, cliquer pour inverser`}
                         onClick={() => setSortAsc(!sortAsc)}
                     >
-                        {sortAsc ? "⬆️" : "⬇️"}
-                    </div>
+                        <svg
+                            viewBox="0 0 24 24"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M12 19V5" />
+                            <path d="m5 12 7-7 7 7" />
+                        </svg>
+                        {sortAsc ? "Croissant" : "Décroissant"}
+                    </button>
                 </>
             }
         />

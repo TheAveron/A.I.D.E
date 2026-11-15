@@ -5,17 +5,36 @@
     gap: 0.4rem;
 }
 
-.sort-controls .button {
+.sort-controls .button,
+.sort-direction.button {
     background-color: transparent;
     color: var(--text);
     border-color: var(--border-strong);
     font-weight: 500;
 }
 
-.sort-controls .button:hover {
+.sort-controls .button:hover,
+.sort-direction.button:hover {
     background-color: var(--hover);
     border-color: var(--accent);
     color: var(--text);
+}
+
+/* Direction toggle: the arrow points up (ascending) and turns over (descending) */
+.sort-direction svg {
+    fill: none;
+    stroke: currentColor;
+    transition: transform var(--speed) var(--ease);
+}
+
+.sort-direction.desc svg {
+    transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sort-direction svg {
+        transition: none;
+    }
 }
 
 .sort-controls .button[aria-pressed="true"] {
