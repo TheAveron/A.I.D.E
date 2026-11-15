@@ -18,6 +18,7 @@ const aideRoutes = [
         route("profile", "./app/pages/profile.tsx"),
         route("offers", "./app/pages/offers.tsx"),
         route("transactions", "./app/pages/transactions.tsx"),
+        route("notifications", "./app/pages/notifications.tsx"),
 
         route("faction/:factionid", "./app/pages/faction_page.tsx"),
         route(

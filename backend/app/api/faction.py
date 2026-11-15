@@ -8,6 +8,7 @@ from ..core import get_current_user
 from ..crud import faction as faction_crud
 from ..crud import faction_role as faction_role_crud
 from ..crud import normalize
+from ..crud.notification import notify
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
 from ..schemas import FactionCreate, FactionOut, FactionUpdate, LeadershipTransfer
@@ -227,6 +228,13 @@ def transfer_leadership(
 
     successor.role_id = leader_role.role_id
     current_user.role_id = former_role.role_id
+    notify(
+        db,
+        successor.user_id,
+        "leadership",
+        f"{current_user.username} vous a nommé chef de {faction.name}",
+        f"/faction/{faction.faction_id}",
+    )
     db.commit()
     db.refresh(faction)
     return faction

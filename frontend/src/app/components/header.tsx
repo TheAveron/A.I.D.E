@@ -1,6 +1,25 @@
 import { Link } from "react-router";
 
 import { useAuth } from "../utils/authcontext";
+import { useUnreadCount } from "./hooks/notifications";
+
+/** The notifications link, with the number of unread ones; only for a logged-in user. */
+function NotificationsLink() {
+    const { count } = useUnreadCount();
+    return (
+        <Link
+            className="link"
+            to="/notifications"
+            aria-label={
+                count > 0
+                    ? `Notifications (${count} non lues)`
+                    : "Notifications"
+            }
+        >
+            Notifications{count > 0 && ` (${count > 99 ? "99+" : count})`}
+        </Link>
+    );
+}
 
 function Header() {
     const { token } = useAuth() ?? {};
@@ -32,6 +51,7 @@ function Header() {
                         <Link className="link" to="/contribuer">
                             Contribuer
                         </Link>
+                        <NotificationsLink />
                         <Link className="link" to="/profile">
                             Profil
                         </Link>

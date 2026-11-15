@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import faction as crud_faction
 from ..crud import faction_role as crud_role
+from ..crud.notification import members_with_permission, notify, notify_many
 from ..database import JoinRequest, User, get_db
 from ..database.clock import utcnow
 from ..misc import FactionPermission, JoinRequestStatus, check_faction_permission
@@ -91,6 +92,15 @@ def create_join_request(
         message=message,
     )
     db.add(join_request)
+    notify_many(
+        db,
+        members_with_permission(
+            db, faction.faction_id, FactionPermission.HANDLE_MEMBERS
+        ),
+        "join_request",
+        f"{current_user.username} demande à rejoindre {faction.name}",
+        f"/faction/{faction.faction_id}",
+    )
     try:
         db.commit()
     except IntegrityError:
@@ -179,6 +189,13 @@ def accept_join_request(
     applicant.faction_id = join_request.faction_id
     applicant.role_id = guest_role.role_id
     _close(join_request, JoinRequestStatus.ACCEPTED, current_user)
+    notify(
+        db,
+        applicant.user_id,
+        "join_accepted",
+        f"Votre demande pour rejoindre {join_request.faction.name} a été acceptée",
+        f"/faction/{join_request.faction_id}",
+    )
     db.commit()
     db.refresh(join_request)
     return join_request
@@ -197,6 +214,13 @@ def refuse_join_request(
         target_faction_id=join_request.faction_id,
     )
     _close(join_request, JoinRequestStatus.REFUSED, current_user)
+    notify(
+        db,
+        join_request.user_id,
+        "join_refused",
+        f"Votre demande pour rejoindre {join_request.faction.name} a été refusée",
+        "/factions",
+    )
     db.commit()
     db.refresh(join_request)
     return join_request

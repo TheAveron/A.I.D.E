@@ -5,6 +5,7 @@ from ..core import get_current_user
 from ..crud import faction as crud_faction
 from ..crud import faction_role as crud_role
 from ..crud import user as crud_user
+from ..crud.notification import notify
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
 from ..schemas import UserFull, UserOut, UserPublic, UserUpdate
@@ -186,6 +187,13 @@ def _assign_role(
                 detail="You can't assign a role with permissions you don't have",
             )
 
+    notify(
+        db,
+        target.user_id,
+        "role_changed",
+        f"{actor.username} vous a donné le rôle « {role.name} »",
+        f"/faction/{role.faction_id}",
+    )
     return crud_user.update_user_faction_and_role(
         db, target.user_id, None, role.role_id
     )
@@ -314,4 +322,11 @@ def kick_member(
                     detail="You can't remove a member with permissions you don't have",
                 )
 
+    notify(
+        db,
+        target.user_id,
+        "kicked",
+        f"{current_user.username} vous a exclu de {target.faction.name}",
+        "/factions",
+    )
     return _send_to_no_faction(db, target)

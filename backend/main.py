@@ -8,7 +8,8 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api import (auth, currencies, documentation, faction, join_requests,
-                     offer, offer_history, role, transactions, user)
+                     notifications, offer, offer_history, role, transactions,
+                     user)
 from app.core.errors import register_error_handlers
 from app.core.logger import log_safe, setup_logger
 from app.core.settings import ORIGINS
@@ -103,6 +104,7 @@ app.include_router(user.router)
 app.include_router(faction.router)
 app.include_router(role.router)
 app.include_router(join_requests.router)
+app.include_router(notifications.router)
 app.include_router(currencies.router)
 app.include_router(offer.router)
 app.include_router(offer_history.router)

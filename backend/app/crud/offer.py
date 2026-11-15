@@ -10,8 +10,9 @@ from sqlalchemy.orm import Session
 from ..crud import get_faction
 from ..database import Currency, Faction, Offer, OfferHistory, Role, Transaction, User
 from ..database.clock import utcnow
-from ..misc import OfferAction, OfferStatus, OfferType
+from ..misc import FactionPermission, OfferAction, OfferStatus, OfferType
 from ..schemas import OfferAccept, OfferCreate, OfferUpdate
+from .notification import members_with_permission, notify_many
 from .offer_history import create_offer_history
 
 logger = logging.getLogger("aide")
@@ -355,6 +356,24 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
         notes=f"Accepted by {buyer} (quantity: {quantity})",
         commit=False,
         **history_actor,
+    )
+
+    # The owner hears about it: the user, or the members who run the
+    # faction's offers.
+    owners = (
+        [offer.user_id]
+        if offer.user_id is not None
+        else members_with_permission(
+            db, offer.faction_id, FactionPermission.CREATE_OFFERS
+        )
+    )
+    notify_many(
+        db,
+        [u for u in owners if u != current_user.user_id],
+        "offer_accepted",
+        f"{buyer} a accepté votre offre « {offer.item_description} » "
+        f"({quantity} × {offer.price_per_unit} {offer.currency_name})",
+        "/transactions",
     )
 
     db.commit()

@@ -4,6 +4,7 @@ from .models import (
     CurrencyHistory,
     Faction,
     JoinRequest,
+    Notification,
     Offer,
     OfferAction,
     OfferHistory,

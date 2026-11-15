@@ -136,6 +136,7 @@ def archive_faction(db: Session, faction: Faction, actor: User) -> None:
     from ..database import Offer
     from ..misc import OfferAction, OfferStatus
     from .currencies import is_currency_referenced
+    from .notification import notify
     from .offer_history import create_offer_history
 
     no_faction = get_faction_by_name(db, NO_FACTION_NAME)
@@ -173,6 +174,14 @@ def archive_faction(db: Session, faction: Faction, actor: User) -> None:
     for member in db.query(User).filter(User.faction_id == faction.faction_id):
         member.faction_id = no_faction.faction_id
         member.role_id = member_role.role_id
+        if member.user_id != actor.user_id:
+            notify(
+                db,
+                member.user_id,
+                "faction_deleted",
+                f"{actor.username} a supprimé la faction {faction.name}",
+                "/factions",
+            )
 
     currency = faction.currency
     if currency and not is_currency_referenced(db, currency.name):
