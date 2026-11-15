@@ -5,6 +5,7 @@ import { useMembers } from "../hooks/factionmembers";
 import { useMe } from "../hooks/me";
 import { UpdateRole } from "../buttons/updaterole";
 import { KickMemberButton } from "../buttons/kickmember";
+import { TransferLeadershipButton } from "../buttons/transferleadership";
 
 import type { CSSProperties } from "react";
 
@@ -14,6 +15,7 @@ function RoleElement({
     user_id,
     username,
     canManage,
+    isLeader,
     onRoleUpdated,
 }: {
     username: string;
@@ -23,6 +25,8 @@ function RoleElement({
     // Whether the *viewer* may change this member's role (not a property of
     // the member's own role).
     canManage: boolean;
+    // Whether the viewer is the leader of this faction (may hand it over)
+    isLeader: boolean;
     onRoleUpdated: () => void;
 }) {
     const { role } = useRole(role_id);
@@ -63,6 +67,17 @@ function RoleElement({
                             username={username}
                             onKicked={onRoleUpdated}
                         />
+                        {isLeader && faction_id !== null && (
+                            <>
+                                {" "}
+                                <TransferLeadershipButton
+                                    factionId={faction_id}
+                                    userId={user_id}
+                                    username={username}
+                                    onDone={onRoleUpdated}
+                                />
+                            </>
+                        )}
                     </td>
                 )}
         </>
@@ -128,6 +143,11 @@ function UsersTable({ state = false }: { state: boolean }) {
                                                     viewerCanManage &&
                                                     user.user_id !==
                                                         current_user?.user_id
+                                                }
+                                                isLeader={
+                                                    myRole?.name === "Chef" &&
+                                                    myRole.faction_id ===
+                                                        current_user?.faction_id
                                                 }
                                                 onRoleUpdated={refresh}
                                             />

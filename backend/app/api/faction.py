@@ -6,16 +6,19 @@ from sqlalchemy.orm import Session
 
 from ..core import get_current_user
 from ..crud import faction as faction_crud
+from ..crud import faction_role as faction_role_crud
 from ..crud import normalize
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
-from ..schemas import FactionCreate, FactionOut, FactionUpdate
+from ..schemas import FactionCreate, FactionOut, FactionUpdate, LeadershipTransfer
 from .documentation import archive_faction_folder, move_faction_folder
 
 logger = logging.getLogger("aide")
 
 NO_FACTION_NAME = "Sans Faction"
 LEADER_ROLE_NAME = "Chef"
+GUEST_ROLE_NAME = "Invité"
+DEPUTY_ROLE_NAME = "Chef Adjoint"
 
 router = APIRouter(
     prefix="/factions",
@@ -35,6 +38,17 @@ def _check_name_usable(
         raise HTTPException(
             status_code=409, detail="A faction with a similar name already exists"
         )
+
+
+def _is_leader_of(user: User, faction) -> bool:
+    """Being "Chef" of another faction gives no right on this one."""
+    role = user.role
+    return (
+        user.faction_id == faction.faction_id
+        and role is not None
+        and role.faction_id == faction.faction_id
+        and role.name == LEADER_ROLE_NAME
+    )
 
 
 @router.post("/create", response_model=FactionOut, status_code=status.HTTP_201_CREATED)
@@ -160,6 +174,64 @@ def update_faction(
     return updated_faction
 
 
+@router.post("/transfer/{faction_id}", response_model=FactionOut)
+def transfer_leadership(
+    faction_id: int,
+    body: LeadershipTransfer,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """The leader hands the faction over to another of its members.
+
+    The new leader gets the "Chef" role; the former one becomes "Chef Adjoint"
+    (or, if the faction has no such role any more, its most powerful other
+    role), so the faction always has exactly one leader.
+    """
+    faction = faction_crud.get_faction(db, faction_id)
+    if not faction or faction.deleted_at is not None:
+        raise HTTPException(status_code=404, detail="Faction not found")
+
+    if not _is_leader_of(current_user, faction):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the faction's leader can hand it over",
+        )
+
+    if body.user_id == current_user.user_id:
+        raise HTTPException(
+            status_code=400, detail="You already are the faction's leader"
+        )
+    successor = db.query(User).filter(User.user_id == body.user_id).first()
+    if not successor or successor.faction_id != faction.faction_id:
+        raise HTTPException(
+            status_code=404, detail="This user is not a member of the faction"
+        )
+
+    roles = faction_role_crud.get_roles_by_faction(db, faction.faction_id)
+    leader_role = next((r for r in roles if r.name == LEADER_ROLE_NAME), None)
+    if leader_role is None:
+        raise HTTPException(status_code=409, detail="The faction has no leader role")
+
+    def power(role) -> int:
+        return sum(role.has_permission(p.value) for p in FactionPermission)
+
+    others = [r for r in roles if r.name not in (LEADER_ROLE_NAME, GUEST_ROLE_NAME)]
+    former_role = next((r for r in others if r.name == DEPUTY_ROLE_NAME), None) or (
+        max(others, key=power, default=None)
+    )
+    if former_role is None:
+        raise HTTPException(
+            status_code=409,
+            detail="Create a role for the former leader first",
+        )
+
+    successor.role_id = leader_role.role_id
+    current_user.role_id = former_role.role_id
+    db.commit()
+    db.refresh(faction)
+    return faction
+
+
 @router.delete("/delete/{faction_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_faction(
     faction_id: int,
@@ -179,14 +251,7 @@ def delete_faction(
     if faction.name == NO_FACTION_NAME:
         raise HTTPException(status_code=400, detail="This faction can't be deleted")
 
-    role = current_user.role
-    is_leader = (
-        current_user.faction_id == faction.faction_id
-        and role is not None
-        and role.faction_id == faction.faction_id
-        and role.name == LEADER_ROLE_NAME
-    )
-    if not (is_leader or current_user.is_admin):
+    if not (_is_leader_of(current_user, faction) or current_user.is_admin):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only the faction's leader can delete it",

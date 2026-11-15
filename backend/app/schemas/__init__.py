@@ -9,7 +9,13 @@ from .currency import (
 from .currency_history import CurrencyHistoryBase, CurrencyHistoryOut
 from .faction_member import FactionMemberBase, FactionMemberCreate, FactionMemberOut
 from .faction_role import RoleBase, RoleCreate, RoleOut, RoleUpdate
-from .factions import FactionBase, FactionCreate, FactionOut, FactionUpdate
+from .factions import (
+    FactionBase,
+    FactionCreate,
+    FactionOut,
+    FactionUpdate,
+    LeadershipTransfer,
+)
 from .join_request import JoinRequestCreate, JoinRequestOut
 from .offer import (
     OfferAccept,

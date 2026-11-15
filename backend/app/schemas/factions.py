@@ -24,6 +24,12 @@ class FactionOut(FactionBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class LeadershipTransfer(BaseModel):
+    """Body of POST /factions/transfer/{faction_id}."""
+
+    user_id: int
+
+
 class FactionUpdate(PartialUpdate):
     non_nullable = ("name", "is_approved", "requires_approval")
 
