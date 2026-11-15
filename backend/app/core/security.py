@@ -97,3 +97,21 @@ def get_optional_user(
     if token is None:
         return None
     return get_current_user(token, db)
+
+
+def require_global_role(*roles: str):
+    """Dependency factory: the caller must hold at least one of `roles`.
+
+    Global roles are independent of each other: being an admin does not make
+    somebody a train admin. Routes that should accept both list both.
+    """
+
+    def dependency(current_user: User = Depends(get_current_user)) -> User:
+        if not any(current_user.has_global_role(role) for role in roles):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You lack the server-wide role for this action",
+            )
+        return current_user
+
+    return dependency

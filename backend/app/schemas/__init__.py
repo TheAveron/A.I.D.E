@@ -16,6 +16,7 @@ from .factions import (
     FactionUpdate,
     LeadershipTransfer,
 )
+from .global_role import GlobalRoleOut
 from .join_request import JoinRequestCreate, JoinRequestOut
 from .offer import (
     OfferAccept,

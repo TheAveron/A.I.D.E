@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 
+from .database.models.global_role import GlobalRoleName  # noqa: F401
 from .database.models.user import User
 
 

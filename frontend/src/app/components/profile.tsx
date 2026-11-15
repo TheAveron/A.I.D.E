@@ -24,7 +24,8 @@ function Profile({ value }: { value: UserType }) {
                         <div
                             className="info-header"
                             style={
-                                profile.is_admin
+                                profile.is_admin ||
+                                profile.global_roles?.includes("train_admin")
                                     ? {
                                           justifyContent: "space-between",
                                       }
@@ -36,6 +37,9 @@ function Profile({ value }: { value: UserType }) {
                                 <div className="profile-role">
                                     Administrateur
                                 </div>
+                            )}
+                            {profile.global_roles?.includes("train_admin") && (
+                                <div className="profile-role">Admin trains</div>
                             )}
                         </div>
                         <div className="info-values">

@@ -84,3 +84,6 @@ class UserFull(UserPublic):
     """The account holder's own view (/users/me)."""
 
     email: str | None
+    global_roles: list[str] = Field(
+        default_factory=list, validation_alias="global_role_names"
+    )

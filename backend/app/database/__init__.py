@@ -3,6 +3,8 @@ from .models import (
     Currency,
     CurrencyHistory,
     Faction,
+    GlobalRole,
+    GlobalRoleName,
     JoinRequest,
     Notification,
     Offer,

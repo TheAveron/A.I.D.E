@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..clock import utcnow
 from ..database import Base
+from .global_role import GlobalRole, GlobalRoleName
 
 
 class User(Base):
@@ -17,7 +18,6 @@ class User(Base):
     __table_args__ = (Index("ix_users_username_email", "username", "email"),)
 
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    is_admin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
 
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=True)
@@ -51,6 +51,40 @@ class User(Base):
         back_populates="accepted_by_user_obj",
         foreign_keys="[Offer.accepted_by_user_id]",
     )
+
+    # Server-wide roles (admin, train admin...), see GlobalRole
+    global_roles = relationship(
+        "GlobalRole",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    @property
+    def global_role_names(self) -> list[str]:
+        return sorted(r.role for r in self.global_roles)
+
+    def has_global_role(self, role: str) -> bool:
+        return any(r.role == role for r in self.global_roles)
+
+    def add_global_role(self, role: str) -> None:
+        if not self.has_global_role(role):
+            self.global_roles.append(GlobalRole(role=role))
+
+    def remove_global_role(self, role: str) -> None:
+        for held in [r for r in self.global_roles if r.role == role]:
+            self.global_roles.remove(held)
+
+    @property
+    def is_admin(self) -> bool:
+        return self.has_global_role(GlobalRoleName.ADMIN.value)
+
+    @is_admin.setter
+    def is_admin(self, value: bool) -> None:
+        if value:
+            self.add_global_role(GlobalRoleName.ADMIN.value)
+        else:
+            self.remove_global_role(GlobalRoleName.ADMIN.value)
 
     def __repr__(self) -> str:
         return f"<User(username={self.username}, email={self.email}, faction={self.faction_id})>"
