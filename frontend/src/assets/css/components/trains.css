@@ -1,0 +1,53 @@
+/* Station board: how a train's name looks on a display */
+.train-board {
+    background: var(--background-100);
+    border: 2px solid var(--background-300);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.train-board-name {
+    display: block;
+    font:
+        600 clamp(1.5rem, 6vw, 2.4rem) / 1.15 "Cascadia Mono",
+        "SF Mono",
+        Consolas,
+        monospace;
+    color: var(--secondary);
+    letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+}
+
+.train-board-parts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-700);
+    font-size: 0.85rem;
+}
+
+.train-board-parts b {
+    color: var(--text);
+}
+
+.train-form-error {
+    color: red;
+}
+
+.train-line-swatch {
+    display: inline-block;
+    width: 0.8em;
+    height: 0.8em;
+    border-radius: 50%;
+    margin-right: 0.4em;
+    vertical-align: baseline;
+}
+
+.train-retired {
+    color: var(--text-600);
+    text-decoration: line-through;
+}

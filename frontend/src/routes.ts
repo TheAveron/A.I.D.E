@@ -19,6 +19,13 @@ const aideRoutes = [
         route("offers", "./app/pages/offers.tsx"),
         route("transactions", "./app/pages/transactions.tsx"),
         route("notifications", "./app/pages/notifications.tsx"),
+        route("trains", "./app/pages/trains.tsx"),
+        route("trains/new", "./app/pages/train_new.tsx"),
+        route("train/:trainid", "./app/pages/train_page.tsx"),
+        route("lines", "./app/pages/lines.tsx"),
+        route("line/:code", "./app/pages/line_page.tsx"),
+        route("stations", "./app/pages/stations.tsx"),
+        route("station/:stationid", "./app/pages/station_page.tsx"),
 
         route("faction/:factionid", "./app/pages/faction_page.tsx"),
         route(

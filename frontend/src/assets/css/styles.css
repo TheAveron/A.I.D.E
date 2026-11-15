@@ -20,6 +20,7 @@
 @import "./components/snippets.css";
 @import "./components/sort-control.css";
 @import "./components/tables.css";
+@import "./components/trains.css";
 
 /* layout */
 @import "./layout/header.css";
