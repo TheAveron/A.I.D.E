@@ -5,6 +5,7 @@ import { useStations } from "../components/hooks/stations";
 import { usePagination } from "../components/hooks/pagination";
 import NewStation from "../components/snippets/new_station";
 import { Pagination } from "../components/snippets/pagination";
+import ToolbarPanels from "../components/snippets/toolbar_panels";
 import { DIMENSIONS } from "../types/trains";
 
 const PER_PAGE = 20;
@@ -31,28 +32,35 @@ export default function StationsPage() {
                         Trains
                     </Link>
                 </div>
-                <div className="toolbar">
-                    <input
-                        type="text"
-                        placeholder="Rechercher une gare..."
-                        aria-label="Rechercher une gare"
-                        maxLength={60}
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <select
-                        aria-label="Filtrer par dimension"
-                        value={dimension}
-                        onChange={(e) => setDimension(e.target.value)}
-                    >
-                        <option value="">Toutes les dimensions</option>
-                        {Object.entries(DIMENSIONS).map(([value, label]) => (
-                            <option key={value} value={value}>
-                                {label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                <ToolbarPanels
+                    activeFilters={dimension ? 1 : 0}
+                    search={
+                        <input
+                            type="text"
+                            placeholder="Rechercher une gare..."
+                            aria-label="Rechercher une gare"
+                            maxLength={60}
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    }
+                    filters={
+                        <select
+                            aria-label="Filtrer par dimension"
+                            value={dimension}
+                            onChange={(e) => setDimension(e.target.value)}
+                        >
+                            <option value="">Toutes les dimensions</option>
+                            {Object.entries(DIMENSIONS).map(
+                                ([value, label]) => (
+                                    <option key={value} value={value}>
+                                        {label}
+                                    </option>
+                                ),
+                            )}
+                        </select>
+                    }
+                />
                 <div className="table-container">
                     <table>
                         <thead>

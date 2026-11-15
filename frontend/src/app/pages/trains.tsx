@@ -5,6 +5,7 @@ import { useLines, useTrains } from "../components/hooks/trains";
 import { useMe } from "../components/hooks/me";
 import { usePagination } from "../components/hooks/pagination";
 import { Pagination } from "../components/snippets/pagination";
+import ToolbarPanels from "../components/snippets/toolbar_panels";
 import TrainOwner from "../components/snippets/train_owner";
 import { SERVICE_NAMES } from "../utils/trains";
 import type { TrainService } from "../types/trains";
@@ -50,59 +51,70 @@ export default function TrainsPage() {
                     </Link>
                 </div>
 
-                <div className="toolbar">
-                    <input
-                        type="text"
-                        placeholder="Nom ou ancien nom..."
-                        aria-label="Rechercher un train"
-                        maxLength={50}
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <select
-                        aria-label="Filtrer par ligne"
-                        value={line}
-                        onChange={(e) => setLine(e.target.value)}
-                    >
-                        <option value="">Toutes les lignes</option>
-                        {lines.map((l) => (
-                            <option key={l.code} value={l.code}>
-                                {l.code}
-                                {l.name ? ` - ${l.name}` : ""}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        aria-label="Filtrer par service"
-                        value={service}
-                        onChange={(e) => setService(e.target.value)}
-                    >
-                        <option value="">Tous les services</option>
-                        {(Object.keys(SERVICE_NAMES) as TrainService[]).map(
-                            (s) => (
-                                <option key={s} value={s}>
-                                    {s} - {SERVICE_NAMES[s]}
-                                </option>
-                            ),
-                        )}
-                    </select>
-                    <label>
+                <ToolbarPanels
+                    activeFilters={
+                        [line, service, mine, retired].filter(Boolean).length
+                    }
+                    search={
                         <input
-                            type="checkbox"
-                            checked={mine}
-                            onChange={(e) => setMine(e.target.checked)}
-                        />{" "}
-                        Mes trains
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={retired}
-                            onChange={(e) => setRetired(e.target.checked)}
-                        />{" "}
-                        Avec les trains retirés
-                    </label>
-                </div>
+                            type="text"
+                            placeholder="Nom ou ancien nom..."
+                            aria-label="Rechercher un train"
+                            maxLength={50}
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    }
+                    filters={
+                        <>
+                            <select
+                                aria-label="Filtrer par ligne"
+                                value={line}
+                                onChange={(e) => setLine(e.target.value)}
+                            >
+                                <option value="">Toutes les lignes</option>
+                                {lines.map((l) => (
+                                    <option key={l.code} value={l.code}>
+                                        {l.code}
+                                        {l.name ? ` - ${l.name}` : ""}
+                                    </option>
+                                ))}
+                            </select>
+                            <select
+                                aria-label="Filtrer par service"
+                                value={service}
+                                onChange={(e) => setService(e.target.value)}
+                            >
+                                <option value="">Tous les services</option>
+                                {(
+                                    Object.keys(SERVICE_NAMES) as TrainService[]
+                                ).map((s) => (
+                                    <option key={s} value={s}>
+                                        {s} - {SERVICE_NAMES[s]}
+                                    </option>
+                                ))}
+                            </select>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={mine}
+                                    onChange={(e) => setMine(e.target.checked)}
+                                />{" "}
+                                Mes trains
+                            </label>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={retired}
+                                    onChange={(e) =>
+                                        setRetired(e.target.checked)
+                                    }
+                                />{" "}
+                                Avec les trains retirés
+                            </label>
+                        </>
+                    }
+                />
 
                 <div className="table-container">
                     <table>

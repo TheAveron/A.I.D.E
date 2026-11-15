@@ -4,6 +4,7 @@ import { useFactions } from "./hooks/factions";
 import { useMemberCounts } from "./hooks/member_counts";
 import { useMe } from "./hooks/me";
 import FactionTable from "./snippets/factions_table";
+import ToolbarPanels from "./snippets/toolbar_panels";
 import { useFaction } from "./hooks/faction";
 
 type Props = {
@@ -15,6 +16,12 @@ type Props = {
     setSortAsc: (val: boolean) => void;
 };
 
+const SORT_LABELS: Record<string, string> = {
+    name: "Nom",
+    members: "Membres",
+    approved: "Validation",
+};
+
 function FactionToolbar({
     search,
     setSearch,
@@ -24,25 +31,36 @@ function FactionToolbar({
     setSortAsc,
 }: Props) {
     return (
-        <div className="toolbar">
-            <input
-                type="text"
-                placeholder="Rechercher une faction..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-            />
-            <select
-                value={sortKey}
-                onChange={(e) => setSortKey(e.target.value)}
-            >
-                <option value="name">Nom</option>
-                <option value="members">Membres</option>
-                <option value="approved">Validation</option>
-            </select>
-            <div className="button" onClick={() => setSortAsc(!sortAsc)}>
-                {sortAsc ? "⬆️" : "⬇️"}
-            </div>
-        </div>
+        <ToolbarPanels
+            sortSummary={`${SORT_LABELS[sortKey]} ${sortAsc ? "↑" : "↓"}`}
+            search={
+                <input
+                    type="text"
+                    placeholder="Rechercher une faction..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            }
+            sort={
+                <>
+                    <select
+                        aria-label="Trier par"
+                        value={sortKey}
+                        onChange={(e) => setSortKey(e.target.value)}
+                    >
+                        <option value="name">Nom</option>
+                        <option value="members">Membres</option>
+                        <option value="approved">Validation</option>
+                    </select>
+                    <div
+                        className="button"
+                        onClick={() => setSortAsc(!sortAsc)}
+                    >
+                        {sortAsc ? "⬆️" : "⬇️"}
+                    </div>
+                </>
+            }
+        />
     );
 }
 
