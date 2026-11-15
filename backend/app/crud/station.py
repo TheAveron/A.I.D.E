@@ -12,7 +12,7 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..database import GlobalRoleName, Platform, Station, User
+from ..database import GlobalRoleName, LineStop, Platform, Station, User
 from ..misc import StationDimension
 from ..schemas import (
     PlatformCreate,
@@ -124,6 +124,11 @@ def update_station(db: Session, station: Station, data: StationUpdate) -> Statio
 
 
 def delete_station(db: Session, station: Station) -> None:
+    if db.query(LineStop).filter(LineStop.station_id == station.station_id).first():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This station still serves a line: remove it from the line first",
+        )
     db.delete(station)
     db.commit()
 

@@ -6,6 +6,8 @@ from .models import (
     GlobalRole,
     GlobalRoleName,
     JoinRequest,
+    Line,
+    LineStop,
     Notification,
     Offer,
     OfferAction,
@@ -15,6 +17,8 @@ from .models import (
     Platform,
     Role,
     Station,
+    Train,
+    TrainHistory,
     Transaction,
     User,
 )

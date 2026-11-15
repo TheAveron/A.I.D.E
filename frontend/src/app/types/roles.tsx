@@ -9,6 +9,7 @@ export interface RoleType {
     handle_members: boolean;
     manage_roles: boolean;
     manage_docs: boolean;
+    manage_trains: boolean;
     view_transactions: boolean;
     role_id: number;
     faction_id: number;
@@ -29,6 +30,7 @@ export const ROLE_PERMISSIONS = [
     ["create_offers", "Créer des offres"],
     ["manage_funds", "Gérer la monnaie"],
     ["manage_docs", "Gérer les documents"],
+    ["manage_trains", "Gérer les trains"],
     ["handle_members", "Gérer les membres"],
     ["manage_roles", "Gérer les rôles"],
 ] as const;

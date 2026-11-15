@@ -9,6 +9,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    false,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -38,6 +39,9 @@ class Role(Base):
     handle_members: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     manage_roles: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     manage_docs: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    manage_trains: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), nullable=False
+    )
     view_transactions: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False
     )

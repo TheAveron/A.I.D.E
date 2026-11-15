@@ -40,12 +40,29 @@ class JoinRequestStatus(str, Enum):
     CANCELLED = "CANCELLED"  # withdrawn by the applicant, or no longer possible
 
 
+class TrainAction(str, Enum):
+    """What a train's history records."""
+
+    CREATED = "CREATED"
+    UPDATED = "UPDATED"  # a change of line, service, name or owner
+    RETIRED = "RETIRED"
+
+
 class StationDimension(str, Enum):
     """The world a station is built in."""
 
     OVERWORLD = "overworld"
     NETHER = "nether"
     END = "end"
+
+
+class TrainService(str, Enum):
+    """What a train does; the maintenance line Z has none."""
+
+    OMNIBUS = "O"  # stops at every station of the line
+    EXPRESS = "E"  # stops at the two ends of the line only
+    FREIGHT = "F"
+    LIQUID = "L"
 
 
 class FactionPermission(str, Enum):
@@ -57,6 +74,7 @@ class FactionPermission(str, Enum):
     HANDLE_MEMBERS = "handle_members"
     MANAGE_ROLES = "manage_roles"
     MANAGE_DOCS = "manage_docs"
+    MANAGE_TRAINS = "manage_trains"
     VIEW_TRANSACTIONS = "view_transactions"
 
 

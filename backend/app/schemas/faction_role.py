@@ -15,6 +15,7 @@ class RoleBase(BaseModel):
     handle_members: bool = False
     manage_roles: bool = False
     manage_docs: bool = False
+    manage_trains: bool = False
     view_transactions: bool = False
 
 
@@ -32,6 +33,7 @@ class RoleUpdate(PartialUpdate):
         "handle_members",
         "manage_roles",
         "manage_docs",
+        "manage_trains",
         "view_transactions",
     )
 
@@ -44,6 +46,7 @@ class RoleUpdate(PartialUpdate):
     handle_members: Optional[bool] = None
     manage_roles: Optional[bool] = None
     manage_docs: Optional[bool] = None
+    manage_trains: Optional[bool] = None
     view_transactions: Optional[bool] = None
 
 

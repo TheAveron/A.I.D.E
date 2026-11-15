@@ -20,6 +20,7 @@ def create_role(db: Session, faction_id: int, role_in: RoleCreate) -> Role:
         handle_members=role_in.handle_members,
         manage_roles=role_in.manage_roles,
         manage_docs=role_in.manage_docs,
+        manage_trains=role_in.manage_trains,
         view_transactions=role_in.view_transactions,
     )
     db.add(role)
@@ -93,6 +94,7 @@ def create_default_faction_roles(
                 FactionPermission.HANDLE_MEMBERS: True,
                 FactionPermission.MANAGE_ROLES: True,
                 FactionPermission.MANAGE_DOCS: True,
+                FactionPermission.MANAGE_TRAINS: True,
                 FactionPermission.VIEW_TRANSACTIONS: True,
             },
         },
@@ -106,6 +108,7 @@ def create_default_faction_roles(
                 FactionPermission.HANDLE_MEMBERS: True,
                 FactionPermission.MANAGE_ROLES: True,
                 FactionPermission.MANAGE_DOCS: True,
+                FactionPermission.MANAGE_TRAINS: True,
                 FactionPermission.VIEW_TRANSACTIONS: True,
             },
         },
@@ -119,6 +122,7 @@ def create_default_faction_roles(
                 FactionPermission.HANDLE_MEMBERS: False,
                 FactionPermission.MANAGE_ROLES: False,
                 FactionPermission.MANAGE_DOCS: False,
+                FactionPermission.MANAGE_TRAINS: False,
                 FactionPermission.VIEW_TRANSACTIONS: True,
             },
         },
@@ -132,6 +136,7 @@ def create_default_faction_roles(
                 FactionPermission.HANDLE_MEMBERS: False,
                 FactionPermission.MANAGE_ROLES: False,
                 FactionPermission.MANAGE_DOCS: False,
+                FactionPermission.MANAGE_TRAINS: False,
                 FactionPermission.VIEW_TRANSACTIONS: True,
             },
         },
@@ -145,6 +150,7 @@ def create_default_faction_roles(
                 FactionPermission.HANDLE_MEMBERS: False,
                 FactionPermission.MANAGE_ROLES: False,
                 FactionPermission.MANAGE_DOCS: False,
+                FactionPermission.MANAGE_TRAINS: False,
                 FactionPermission.VIEW_TRANSACTIONS: True,
             },
         },
@@ -158,6 +164,7 @@ def create_default_faction_roles(
                 FactionPermission.HANDLE_MEMBERS: False,
                 FactionPermission.MANAGE_ROLES: False,
                 FactionPermission.MANAGE_DOCS: False,
+                FactionPermission.MANAGE_TRAINS: False,
                 FactionPermission.VIEW_TRANSACTIONS: False,
             },
         },
@@ -174,6 +181,7 @@ def create_default_faction_roles(
             handle_members=role_data["permissions"][FactionPermission.HANDLE_MEMBERS],
             manage_roles=role_data["permissions"][FactionPermission.MANAGE_ROLES],
             manage_docs=role_data["permissions"][FactionPermission.MANAGE_DOCS],
+            manage_trains=role_data["permissions"][FactionPermission.MANAGE_TRAINS],
             view_transactions=role_data["permissions"][
                 FactionPermission.VIEW_TRANSACTIONS
             ],

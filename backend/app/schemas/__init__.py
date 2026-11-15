@@ -37,6 +37,16 @@ from .station import (
     StationOut,
     StationUpdate,
 )
+from .train import (
+    LineCreate,
+    LineOut,
+    LineUpdate,
+    StopsUpdate,
+    TrainCreate,
+    TrainHistoryOut,
+    TrainOut,
+    TrainUpdate,
+)
 from .transaction import TransactionCreate, TransactionOut
 from .user import (
     PasswordChange,
