@@ -224,4 +224,4 @@ cython_debug/
 
 .react-router
 
-maps/
+backend/documents/maps/
