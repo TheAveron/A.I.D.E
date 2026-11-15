@@ -1,12 +1,33 @@
+import axios from "axios";
+import { useState } from "react";
 import { useParams } from "react-router";
-import { type RoleType } from "../../types/roles";
-import { useRoles } from "../hooks/factionroles";
 
-function RolesList({ roles }: { roles: RoleType[] | null }) {
+import { getErrorMessage } from "../../utils/apierror";
+import { type RoleType } from "../../types/roles";
+import { useMe } from "../hooks/me";
+import { useRole } from "../hooks/role";
+import { useRoles } from "../hooks/factionroles";
+import RoleEditor from "./role_editor";
+
+const LEADER_ROLE = "Chef";
+
+function RolesList({
+    roles,
+    canManage,
+    ownRoleId,
+    onEdit,
+    onDelete,
+}: {
+    roles: RoleType[] | null;
+    canManage: boolean;
+    ownRoleId: number | null;
+    onEdit: (role: RoleType) => void;
+    onDelete: (role: RoleType) => void;
+}) {
     if (!roles) {
         return (
             <tr>
-                <td colSpan={9}>Aucun Role trouvé.</td>
+                <td colSpan={10}>Aucun Role trouvé.</td>
             </tr>
         );
     }
@@ -36,13 +57,57 @@ function RolesList({ roles }: { roles: RoleType[] | null }) {
             <td>{role.manage_docs ? "✅" : "❌"}</td>
             <td>{role.handle_members ? "✅" : "❌"}</td>
             <td>{role.manage_roles ? "✅" : "❌"}</td>
+            {canManage && (
+                <td>
+                    {role.name !== LEADER_ROLE &&
+                        role.role_id !== ownRoleId && (
+                            <>
+                                <button
+                                    type="button"
+                                    className="button"
+                                    onClick={() => onEdit(role)}
+                                >
+                                    Modifier
+                                </button>{" "}
+                                <button
+                                    type="button"
+                                    className="button"
+                                    onClick={() => onDelete(role)}
+                                >
+                                    Supprimer
+                                </button>
+                            </>
+                        )}
+                </td>
+            )}
         </tr>
     ));
 }
 
 export default function RolesTable() {
     const { factionid } = useParams();
-    const { roles, loading, error } = useRoles(factionid ?? null);
+    const { roles, loading, error, refresh } = useRoles(factionid ?? null);
+    const { user } = useMe();
+    const { role: ownRole } = useRole(user?.role_id ?? null);
+    // Same rule as the API: managing the roles of one's own faction
+    const canManage =
+        !!ownRole?.manage_roles &&
+        ownRole.faction_id === Number(factionid) &&
+        user?.faction_id === Number(factionid);
+    // null: nothing open, "new": creating, a role: editing it
+    const [editing, setEditing] = useState<RoleType | "new" | null>(null);
+    const [actionError, setActionError] = useState("");
+
+    const remove = async (role: RoleType) => {
+        if (!window.confirm(`Supprimer le rôle « ${role.name} » ?`)) return;
+        setActionError("");
+        try {
+            await axios.delete(`/roles/delete/${role.role_id}`);
+            refresh();
+        } catch (err) {
+            setActionError(getErrorMessage(err));
+        }
+    };
 
     if (!factionid) {
         return <p>No faction id provided</p>;
@@ -54,6 +119,28 @@ export default function RolesTable() {
     return (
         <div className="snippet-container roles-container">
             <h2>Roles</h2>
+            {canManage && !editing && (
+                <button
+                    type="button"
+                    className="button"
+                    onClick={() => setEditing("new")}
+                >
+                    Nouveau rôle
+                </button>
+            )}
+            {actionError && <p role="alert">{actionError}</p>}
+            {canManage && editing && ownRole && (
+                <RoleEditor
+                    key={editing === "new" ? "new" : editing.role_id}
+                    factionId={Number(factionid)}
+                    role={editing === "new" ? null : editing}
+                    actorRole={ownRole}
+                    onDone={(changed) => {
+                        setEditing(null);
+                        if (changed) refresh();
+                    }}
+                />
+            )}
             <div className="table-container">
                 <table>
                     <thead>
@@ -67,10 +154,17 @@ export default function RolesTable() {
                             <th>Gérer les Documents</th>
                             <th>Gérer les Membres</th>
                             <th>Gérer les Roles</th>
+                            {canManage && <th>Action</th>}
                         </tr>
                     </thead>
                     <tbody>
-                        <RolesList roles={roles} />
+                        <RolesList
+                            roles={roles}
+                            canManage={canManage}
+                            ownRoleId={user?.role_id ?? null}
+                            onEdit={setEditing}
+                            onDelete={remove}
+                        />
                     </tbody>
                 </table>
             </div>

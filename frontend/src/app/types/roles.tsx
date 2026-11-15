@@ -20,4 +20,17 @@ export interface RoleHook extends HookResult {
 
 export interface RolesHook extends HookResult {
     roles: RoleType[] | null;
+    refresh: () => void;
 }
+
+export const ROLE_PERMISSIONS = [
+    ["view_transactions", "Voir les transactions"],
+    ["accept_offers", "Accepter les offres"],
+    ["create_offers", "Créer des offres"],
+    ["manage_funds", "Gérer la monnaie"],
+    ["manage_docs", "Gérer les documents"],
+    ["handle_members", "Gérer les membres"],
+    ["manage_roles", "Gérer les rôles"],
+] as const;
+
+export type RolePermission = (typeof ROLE_PERMISSIONS)[number][0];
