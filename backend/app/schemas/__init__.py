@@ -29,6 +29,14 @@ from .offer import (
     OfferUpdate,
 )
 from .offer_history import OfferHistoryCreate, OfferHistoryOut
+from .station import (
+    PlatformCreate,
+    PlatformOut,
+    PlatformUpdate,
+    StationCreate,
+    StationOut,
+    StationUpdate,
+)
 from .transaction import TransactionCreate, TransactionOut
 from .user import (
     PasswordChange,

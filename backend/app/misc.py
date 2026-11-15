@@ -40,6 +40,14 @@ class JoinRequestStatus(str, Enum):
     CANCELLED = "CANCELLED"  # withdrawn by the applicant, or no longer possible
 
 
+class StationDimension(str, Enum):
+    """The world a station is built in."""
+
+    OVERWORLD = "overworld"
+    NETHER = "nether"
+    END = "end"
+
+
 class FactionPermission(str, Enum):
     """Possible permissions for faction members"""
 

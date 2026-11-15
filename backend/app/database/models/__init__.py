@@ -7,5 +7,6 @@ from .join_request import JoinRequest
 from .notification import Notification
 from .offer import Offer, OfferStatus, OfferType
 from .offer_history import OfferAction, OfferHistory
+from .station import Platform, Station
 from .transaction import Transaction
 from .user import User
