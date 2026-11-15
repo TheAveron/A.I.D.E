@@ -1,27 +1,34 @@
-/* Offers Toolbar */
 .toolbar {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
-    justify-content: space-between;
-    align-items: center;
-    margin: 1rem 0;
     flex-wrap: wrap;
-    height: fit-content;
+    align-items: stretch;
+    gap: 0.6rem;
+    margin: 0;
 }
 
-.toolbar {
-    display: flex;
-    gap: 1vw;
-    margin-bottom: 2vh;
-    align-items: center;
-    flex-wrap: wrap;
+.toolbar > input[type="text"] {
+    flex: 1 1 14rem;
+    min-width: 0;
 }
 
-.toolbar input[type="text"] {
-    flex: 1;
+.toolbar > input[type="number"] {
+    flex: 0 1 7.5rem;
+    min-width: 0;
 }
 
-.toolbar .button {
-    height: 100%;
+.toolbar > select {
+    flex: 0 1 auto;
+}
+
+.toolbar > .button {
+    min-width: 2.5rem;
+    padding-inline: 0.75rem;
+}
+
+@media only screen and (max-width: 640px) {
+    .toolbar > input,
+    .toolbar > select {
+        flex: 1 1 100%;
+    }
 }

@@ -1,16 +1,105 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wdth,wght@0,75..100,100..900;1,75..100,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Roboto:ital,wdth,wght@0,75..100,100..900;1,75..100,100..900&display=swap");
+
+/*
+ * Design tokens.
+ *
+ * Palette: themes/dark.css and themes/light.css define the three brand colours
+ * (--primary, --secondary, --accent) and their 50-950 scales.
+ * Everything below is DERIVED from those three colours (tints use color-mix),
+ * so re-tinting the whole UI only means changing those three values.
+ *
+ * Roles of the colours:
+ *   --primary    confirm / success / active   (green)
+ *   --secondary  open / navigate / pending    (lime)
+ *   --accent     focus / links / information  (teal)
+ */
 
 :root {
-    font-family: "Roboto", sans-serif;
+    /* Typefaces: a squared display face for titles, Roboto for reading */
+    --font-body: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-display: "Chakra Petch", "Roboto", system-ui, sans-serif;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+
+    /* Keep in sync with the inline values restored by components/pagegen.tsx */
+    --header-height: 75px;
+    --content-width: 90rem;
+    --text-width: 42rem;
+
+    --radius-sm: 3px;
+    --radius-md: 5px;
+    --radius-lg: 8px;
+
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --speed: 150ms;
+
+    --canvas: var(--background-50);
+    --button-text: #0d0d0d;
+    --masklight04: rgba(255, 255, 255, 0.4);
+
+    /* Tints derived from the palette */
+    --hover: color-mix(in srgb, var(--primary) 8%, transparent);
+    --success-bg: color-mix(in srgb, var(--primary) 16%, transparent);
+    --pending-bg: color-mix(in srgb, var(--secondary) 18%, transparent);
+    --info-bg: color-mix(in srgb, var(--accent) 14%, transparent);
+
+    font-family: var(--font-body);
+    font-size: 100%;
+    line-height: 1.55;
     color: var(--text);
-    background-color: var(--background-50);
+    background-color: var(--canvas);
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
     scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
     overflow-x: hidden;
     box-sizing: border-box;
-    line-height: 1.5;
-    --header-height: max(calc(100px + 4vh + 0.003mm), calc(8vh + 0.003mm));
+}
 
-    --masklight04: rgba(255, 255, 255, 0.4);
-    --button-text: #4d4d4d;
+/* Semantic tokens, dark theme (default) */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --surface: #151515;
+    --surface-2: #1d1d1d;
+    --field-bg: #0f0f0f;
+    --border: #2a2a2a;
+    --border-strong: #424242;
+    --muted: #a8a8a8;
+
+    --focus: var(--accent);
+    --success-fg: var(--primary);
+    --pending-fg: var(--secondary);
+    --button-border: transparent;
+
+    --danger: #ff7b7b;
+    --danger-bg: rgba(255, 107, 107, 0.14);
+
+    --header-bg: rgba(13, 13, 13, 0.86);
+    --overlay: rgba(0, 0, 0, 0.72);
+    --grid-line: rgba(255, 255, 255, 0.03);
+}
+
+/* Semantic tokens, light theme */
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    --surface: #ffffff;
+    --surface-2: #f6f6f6;
+    --field-bg: #ffffff;
+    --border: #dddddd;
+    --border-strong: #b8b8b8;
+    --muted: #5a5a5a;
+
+    --focus: color-mix(in srgb, var(--accent) 55%, #000);
+    --success-fg: color-mix(in srgb, var(--primary) 40%, #000);
+    --pending-fg: color-mix(in srgb, var(--secondary) 45%, #000);
+    --button-border: color-mix(in srgb, var(--secondary) 55%, #000);
+
+    --danger: #b42318;
+    --danger-bg: #fdecea;
+
+    --header-bg: rgba(255, 255, 255, 0.88);
+    --overlay: rgba(0, 0, 0, 0.5);
+    --grid-line: rgba(0, 0, 0, 0.045);
 }

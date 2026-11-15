@@ -1,12 +1,108 @@
 form {
     display: flex;
     flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+label {
+    font-size: 0.95rem;
+    padding-bottom: 0.2rem;
+}
+
+label b {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+label:has(> input[type="checkbox"]),
+label:has(> input[type="radio"]) {
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    background-color: var(--primary-100);
-    padding: 5vh 5vw;
-    border-radius: 20px;
-    width: fit-content;
+    gap: 0.5rem;
+    padding-bottom: 0;
+    cursor: pointer;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin: 0;
+    accent-color: var(--success-fg);
+    cursor: pointer;
+}
+
+/* One look for every text-like field (:where keeps the specificity at zero) */
+input:where(
+        :not(
+                [type="checkbox"],
+                [type="radio"],
+                [type="submit"],
+                [type="button"],
+                [type="range"],
+                [type="file"]
+            )
+    ),
+select,
+textarea {
+    min-height: 2.5rem;
+    max-width: 100%;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--field-bg);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    line-height: 1.4;
+    transition:
+        border-color var(--speed) var(--ease),
+        background-color var(--speed) var(--ease);
+}
+
+input:hover:not(:disabled):not([type="submit"]),
+select:hover:not(:disabled),
+textarea:hover:not(:disabled) {
+    border-color: var(--muted);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 0;
+    border-color: var(--focus);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+    opacity: 0.55;
+}
+
+::placeholder {
+    color: var(--muted);
+    opacity: 0.8;
+}
+
+textarea {
+    width: 100%;
+    height: auto;
+    min-height: 6rem;
+    max-height: 70vh;
+    resize: vertical;
+}
+
+input[type="submit"] {
+    appearance: none;
+}
+
+.imgcontainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
 }
 
 .form-end {
@@ -14,51 +110,6 @@ form {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-}
-.form-end * {
-    font-size: 1.2em;
-    font-weight: 500;
-}
-
-.imgcontainer {
-    margin-bottom: 5vh;
-}
-
-#login,
-#register {
-    min-height: calc(100vh - 2 * var(--header-height));
-    align-items: center;
-}
-
-input[type="username"],
-input[type="password"],
-input[type="text"],
-input[type="number"],
-select {
-    background-color: var(--text-200);
-    height: 100%;
-    padding: min(1.5vh, 10px) min(2vw, 30px);
-    border-radius: 10px;
-    border: 1px solid var(--accent);
-
-    font-size: 1em;
-}
-
-textarea {
-    min-height: 70px;
-    max-height: 30vh;
-    height: 2vh;
-    width: 100%;
-
-    max-width: 100%;
-    border-radius: 10px;
-    padding: 1vh 1vw;
-
-    border: 1px solid var(--accent);
-
-    background-color: var(--text-200);
-}
-
-label {
-    padding-bottom: 0.2em;
+    gap: 1rem;
+    margin-top: 1rem;
 }

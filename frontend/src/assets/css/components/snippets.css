@@ -1,63 +1,72 @@
 .snippet-container {
     display: flex;
     flex-direction: column;
-
-    background: var(--background-100);
-    /*border: 3px solid var(--background-200);*/
-    border-radius: 10px;
-
-    gap: 0;
-    height: inherit;
-    width: 100%;
-    height: 100%;
-    max-height: 100%;
-
-    padding: 2vh 2vw;
+    gap: 1rem;
+    min-width: 0;
+    padding: 1.25rem 1.5rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
 }
 
-.snippet-container a {
-    text-decoration: none;
+/* A card inside a card (role editor) is one step lighter */
+.snippet-container .snippet-container {
+    background-color: var(--surface-2);
 }
 
-.profile-role {
-    color: var(--text-600);
+.snippet-container > h2 {
+    font-size: 1.45rem;
 }
 
-.roles-container h2,
-.factions-container .factions-header,
-.offers-container .offers-header,
-.history-container h2 {
-    padding-bottom: max(2vh, 50px);
-    height: fit-content;
-}
-
+/* Big lists sit directly on the page, only their table has a frame */
 .roles-container,
 .factions-container,
 .history-container,
 .offers-container {
     padding: 0;
     background: none;
+    border: 0;
 }
 
-.users-container,
-.currency-container,
-.faction-container,
-.transactions-container {
-    padding-top: 3em;
-    max-height: fit-content;
-
-    text-align: center;
-
-    place-items: center;
-    place-content: center;
+.profile-role {
+    color: var(--muted);
 }
 
-.users-container table *,
-.transactions-container table * {
-    padding: 1vh 1vw;
-    min-height: fit-content;
+/* Lists inside cards (documents, notifications) */
+.snippet-container ul {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    list-style: none;
 }
 
-.users-container td {
-    cursor: pointer;
+.snippet-container li {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    padding: 0.65rem 0.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.snippet-container li:last-child {
+    border-bottom: 0;
+}
+
+/* The first link takes the free space: what follows is pushed to the right */
+.snippet-container li > a:first-of-type {
+    margin-right: auto;
+}
+
+.snippet-container li > small {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Unread notifications are written in bold inline: mark them */
+.snippet-container li[style*="font-weight: bold"] {
+    padding-left: 0.75rem;
+    background-color: var(--hover);
+    box-shadow: inset 3px 0 0 var(--primary);
 }

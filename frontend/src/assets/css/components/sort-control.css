@@ -1,21 +1,25 @@
+/* Sort toggles: outlined, green when active */
 .sort-controls {
     display: flex;
     flex-direction: row;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
-.sort-controls button {
-    padding: 0.5em 1em;
-    font-size: 1em;
-    background-color: var(--secondary);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    color: var(--button-text);
+.sort-controls .button {
+    background-color: transparent;
+    color: var(--text);
+    border-color: var(--border-strong);
+    font-weight: 500;
 }
 
-.sort-controls button:hover {
-    background-color: var(--primary);
-    border: 1px solid var(--accent);
+.sort-controls .button:hover {
+    background-color: var(--hover);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.sort-controls .button[aria-pressed="true"] {
+    background-color: var(--success-bg);
+    border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+    color: var(--success-fg);
 }
