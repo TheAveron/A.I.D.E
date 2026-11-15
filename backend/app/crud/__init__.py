@@ -10,7 +10,6 @@ from .currency_history import create_currency_history, get_currency_histories
 from .documents import normalize
 from .faction import (
     create_faction,
-    delete_faction,
     get_faction,
     get_faction_by_name,
     get_faction_by_user_id,

@@ -16,12 +16,20 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.api import (documentation, faction, offer, offer_history,
-                     transactions, user)
+from app.api import documentation, faction, offer, offer_history, transactions, user
 from app.core.security import create_access_token, hash_password
 from app.crud import faction as faction_crud
-from app.database import (Base, Currency, Faction, Offer, OfferHistory, Role,
-                          Transaction, User, get_db)
+from app.database import (
+    Base,
+    Currency,
+    Faction,
+    Offer,
+    OfferHistory,
+    Role,
+    Transaction,
+    User,
+    get_db,
+)
 from app.misc import FactionPermission, check_faction_permission
 
 PW_HASH = hash_password("pw")  # bcrypt is slow: hash once, not once per user per test
@@ -645,14 +653,6 @@ class TestFactions:
             ).status_code
             == 202
         )
-
-    def test_delete_of_a_still_referenced_faction_is_a_409_not_a_500(self):
-        db = MagicMock()
-        db.commit.side_effect = IntegrityError("stmt", {}, Exception("fk"))
-        with pytest.raises(HTTPException) as e:
-            faction_crud.delete_faction(db, MagicMock())
-        assert e.value.status_code == 409
-        db.rollback.assert_called_once()
 
 
 # ------------------------------------------- transactions / history visibility

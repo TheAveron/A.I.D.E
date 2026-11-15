@@ -117,20 +117,6 @@ def update_faction_validation(
         raise HTTPException(status_code=500, detail="Database error occurred")
 
 
-def delete_faction(db: Session, faction: Faction) -> None:
-    try:
-        db.delete(faction)
-        db.commit()
-    except IntegrityError:
-        # Members, or transactions/history that reference the faction, are
-        # still attached to it.
-        db.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail="This faction is still referenced (members or trade history) and can't be deleted",
-        )
-
-
 NO_FACTION_NAME = "Sans Faction"
 MEMBER_ROLE_NAME = "Membre"
 
