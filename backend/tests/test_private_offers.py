@@ -141,3 +141,44 @@ def test_the_owner_can_open_or_close_the_audience(env):  # noqa: F811
 def test_a_bad_token_is_still_a_401(env):  # noqa: F811
     r = env.client.get("/offers/list", headers={"Authorization": "Bearer nope"})
     assert r.status_code == 401
+
+
+def _search(env, query, who="alice"):  # noqa: F811
+    r = env.client.get(f"/offers/list?{query}", headers=env.h(who))
+    assert r.status_code == 200, r.text
+    return [o["item_description"] for o in r.json()]
+
+
+def test_offers_can_be_filtered_by_type_text_and_price(env):  # noqa: F811
+    _sell(env, item_description="Épée en fer", price_per_unit=5)
+    _sell(env, item_description="Pioche 100%", price_per_unit=2)
+    _sell(env, item_description="Arc_long", price_per_unit=9, offer_type="BUY")
+
+    assert sorted(_search(env, "offer_type=BUY")) == ["Arc_long"]
+    assert sorted(_search(env, "offer_type=SELL")) == ["Pioche 100%", "Épée en fer"]
+    assert _search(env, "q=PIOCHE") == ["Pioche 100%"]
+    assert sorted(_search(env, "min_price=5")) == ["Arc_long", "Épée en fer"]
+    assert _search(env, "max_price=2") == ["Pioche 100%"]
+    assert _search(env, "min_price=3&max_price=6") == ["Épée en fer"]
+    assert _search(env, "q=er&offer_type=SELL") == ["Épée en fer"]
+
+
+def test_wildcards_in_the_search_are_plain_characters(env):  # noqa: F811
+    _sell(env, item_description="Pioche 100%")
+    _sell(env, item_description="Arc_long")
+    _sell(env, item_description="Arcxlong")
+    assert _search(env, "q=%25") == ["Pioche 100%"]
+    assert _search(env, "q=c_l") == ["Arc_long"]
+
+
+def test_bad_filters_are_422(env):  # noqa: F811
+    for query in ("offer_type=XX", "min_price=-1", "q=" + "x" * 101):
+        r = env.client.get(f"/offers/list?{query}", headers=env.h("alice"))
+        assert r.status_code == 422, query
+
+
+def test_filters_do_not_reveal_private_offers(env):  # noqa: F811
+    _world(env)
+    _sell(env, item_description="Secret", allowed_user_ids=[2])
+    assert _search(env, "q=secret", "eve") == []
+    assert _search(env, "q=secret", "newbie") == ["Secret"]

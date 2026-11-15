@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user, get_optional_user
 from ..crud import offer as offer_crud
 from ..database import Offer, User, get_db
-from ..misc import FactionPermission, OfferStatus, check_faction_permission
+from ..misc import FactionPermission, OfferStatus, OfferType, check_faction_permission
 from ..schemas import OfferAccept, OfferAcceptOut, OfferCreate, OfferOut, OfferUpdate
 
 router = APIRouter(prefix="/offers", tags=["Offers"])
@@ -42,6 +42,10 @@ def list_offers(
     currency: Optional[str] = Query(None),
     user_id: Optional[int] = Query(None, description="Only this user's own offers"),
     faction_id: Optional[int] = Query(None, description="Only this faction's offers"),
+    offer_type: Optional[OfferType] = Query(None, description="BUY or SELL"),
+    q: Optional[str] = Query(None, max_length=100, description="Words in the item"),
+    min_price: Optional[float] = Query(None, ge=0),
+    max_price: Optional[float] = Query(None, ge=0),
     skip: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     db: Session = Depends(get_db),
@@ -59,6 +63,10 @@ def list_offers(
         currency=currency,
         user_id=user_id,
         faction_id=faction_id,
+        offer_type=offer_type,
+        search=q,
+        min_price=min_price,
+        max_price=max_price,
         viewer=viewer,
     )
 

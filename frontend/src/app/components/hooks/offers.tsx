@@ -10,6 +10,7 @@ import { getErrorMessage } from "../../utils/apierror";
 import { useApiGet } from "../../utils/useapiget";
 import { useMe } from "./me";
 import { useFactions } from "./factions";
+import { resolveAudience } from "../../utils/audience";
 
 import type {
     OfferCreate as OfferForm,
@@ -59,21 +60,53 @@ export function useOffer(offer_id?: number): OfferHook {
 // The server returns 50 offers unless asked for more (up to 200), newest first.
 const MAX_OFFERS = "200";
 
-export function useOffersList(
-    currency?: string,
-    status?: string,
-    userId?: string | null,
-    factionId?: string | null,
-): OffersHook {
+export interface OffersFilters {
+    currency?: string;
+    status?: string;
+    offerType?: string;
+    search?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    userId?: string | null;
+    factionId?: string | null;
+}
+
+export function useOffersList(filters: OffersFilters): OffersHook {
+    const {
+        currency,
+        status,
+        offerType,
+        search,
+        minPrice,
+        maxPrice,
+        userId,
+        factionId,
+    } = filters;
     const query = useMemo(() => {
         const params = new URLSearchParams({ limit: MAX_OFFERS });
         if (status) params.append("status", status);
         if (currency) params.append("currency", currency);
-        // Filtered by the server: filtering the 200 newest offers here would hide the older offers of a user or of a faction.
+        if (offerType) params.append("offer_type", offerType);
+        if (search?.trim()) params.append("q", search.trim().slice(0, 100));
+        // Filtered by the server: filtering the 200 newest offers here would
+        // hide the older ones.
+        if (minPrice && Number(minPrice) >= 0)
+            params.append("min_price", minPrice);
+        if (maxPrice && Number(maxPrice) >= 0)
+            params.append("max_price", maxPrice);
         if (userId) params.append("user_id", userId);
         if (factionId) params.append("faction_id", factionId);
         return params.toString();
-    }, [status, currency, userId, factionId]);
+    }, [
+        status,
+        currency,
+        offerType,
+        search,
+        minPrice,
+        maxPrice,
+        userId,
+        factionId,
+    ]);
 
     const { data, loading, error, refresh } = useApiGet<OfferType[]>(
         `/offers/list?${query}`,
@@ -81,14 +114,6 @@ export function useOffersList(
     );
 
     return { offers: data ?? [], loading, error, refresh };
-}
-
-/** The comma-separated names typed in a form, trimmed, without blanks. */
-function splitNames(text: string): string[] {
-    return text
-        .split(",")
-        .map((name) => name.trim())
-        .filter(Boolean);
 }
 
 export function useNewOffer(onCreated?: () => void): OfferFormHook {
@@ -120,41 +145,17 @@ export function useNewOffer(onCreated?: () => void): OfferFormHook {
                     `Unable to get user information. ${userError ?? ""}`,
                 );
 
-            const userNames = splitNames(audienceUsers);
-            const factionNames = splitNames(audienceFactions);
-
             // Names are what people know: the API wants ids.
-            const allowedUserIds: number[] = [];
-            for (const name of userNames) {
-                try {
-                    const res = await axios.get<{ user_id: number }>(
-                        `/users/from_name/${encodeURIComponent(name)}`,
-                    );
-                    allowedUserIds.push(res.data.user_id);
-                } catch (error: unknown) {
-                    if (
-                        axios.isAxiosError(error) &&
-                        error.response?.status === 404
-                    ) {
-                        throw new Error(`Utilisateur inconnu : ${name}`);
-                    }
-                    throw error;
-                }
-            }
-            const allowedFactionIds = factionNames.map((name) => {
-                const found = factions?.find(
-                    (f) => f.name.toLowerCase() === name.toLowerCase(),
-                );
-                if (!found) throw new Error(`Faction inconnue : ${name}`);
-                return found.faction_id;
-            });
+            const { userIds, factionIds } = await resolveAudience(
+                audienceUsers,
+                audienceFactions,
+                factions,
+            );
 
             const payload: OfferCreateData = {
                 ...data,
-                allowed_user_ids: allowedUserIds.length ? allowedUserIds : null,
-                allowed_faction_ids: allowedFactionIds.length
-                    ? allowedFactionIds
-                    : null,
+                allowed_user_ids: userIds,
+                allowed_faction_ids: factionIds,
                 user_id: forFaction ? null : user.user_id,
                 faction_id: forFaction ? user.faction_id : null,
                 init_quantity: data.quantity,

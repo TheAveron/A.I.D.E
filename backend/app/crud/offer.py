@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from ..crud import get_faction
 from ..database import Currency, Faction, Offer, OfferHistory, Role, Transaction, User
 from ..database.clock import utcnow
-from ..misc import OfferAction, OfferStatus
+from ..misc import OfferAction, OfferStatus, OfferType
 from ..schemas import OfferAccept, OfferCreate, OfferUpdate
 from .offer_history import create_offer_history
 
@@ -86,6 +86,10 @@ def get_offers(
     currency: Optional[str] = None,
     user_id: Optional[int] = None,
     faction_id: Optional[int] = None,
+    offer_type: Optional[OfferType] = None,
+    search: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
     viewer: Optional[User] = None,
 ) -> list[Offer]:
     """Offers `viewer` may see, newest first (offer_id breaks ties)."""
@@ -112,6 +116,22 @@ def get_offers(
 
     if faction_id is not None:
         query = query.filter(Offer.faction_id == faction_id)
+
+    if offer_type:
+        query = query.filter(Offer.offer_type == offer_type)
+
+    if search and search.strip():
+        # "%" and "_" typed by the user are plain characters here, not wildcards
+        escaped = (
+            search.strip().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        )
+        query = query.filter(Offer.item_description.ilike(f"%{escaped}%", escape="\\"))
+
+    if min_price is not None:
+        query = query.filter(Offer.price_per_unit >= min_price)
+
+    if max_price is not None:
+        query = query.filter(Offer.price_per_unit <= max_price)
 
     return (
         query.order_by(Offer.created_at.desc(), Offer.offer_id.desc())

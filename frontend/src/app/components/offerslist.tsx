@@ -46,7 +46,18 @@ function OfferRow({
                     {STATUS_LABELS[offer.status] || offer.status}
                 </span>
             </td>
-            <td>{offer.item_description}</td>
+            <td>
+                {offer.item_description}
+                {offer.is_private && (
+                    <span
+                        className="status"
+                        title="Visible seulement par les destinataires"
+                    >
+                        {" "}
+                        🔒 Privée
+                    </span>
+                )}
+            </td>
             <td>
                 {offer.status === "OPEN" ? offer.quantity : offer.init_quantity}
             </td>
@@ -95,6 +106,11 @@ export default function OfferList({
     offersPerPage?: number;
 }) {
     const [search, setSearch] = useState("");
+    // The text is sent to the server once typing pauses
+    const [searchSent, setSearchSent] = useState("");
+    const [typeFilter, setTypeFilter] = useState("");
+    const [minPrice, setMinPrice] = useState("");
+    const [maxPrice, setMaxPrice] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
     const [currencyFilter, setCurrencyFilter] = useState("");
     const [knownCurrencies, setKnownCurrencies] = useState<string[]>([]);
@@ -113,12 +129,21 @@ export default function OfferList({
                 !!role?.create_offers &&
                 role.faction_id === user.faction_id));
 
-    const { offers, loading, error, refresh } = useOffersList(
-        currencyFilter || undefined,
-        statusFilter || undefined,
+    useEffect(() => {
+        const timer = setTimeout(() => setSearchSent(search), 300);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    const { offers, loading, error, refresh } = useOffersList({
+        currency: currencyFilter || undefined,
+        status: statusFilter || undefined,
+        offerType: typeFilter || undefined,
+        search: searchSent,
+        minPrice,
+        maxPrice,
         userId,
         factionId,
-    );
+    });
 
     useEffect(() => {
         setKnownCurrencies((current) => {
@@ -128,17 +153,8 @@ export default function OfferList({
         });
     }, [offers]);
 
-    const filteredOffers = useMemo(() => {
-        const term = (search ?? "").toLowerCase();
-        return (
-            (offers ?? []).filter((offer) =>
-                (offer.item_description ?? "").toLowerCase().includes(term),
-            ) || []
-        );
-    }, [offers, search]);
-
     const sortedOffers = useMemo(() => {
-        const copy = [...filteredOffers];
+        const copy = [...(offers ?? [])];
 
         if (sortBy === "price") {
             copy.sort((a, b) => a.price_per_unit - b.price_per_unit);
@@ -150,7 +166,7 @@ export default function OfferList({
             );
         }
         return sortDirection === "asc" ? copy : copy.reverse();
-    }, [filteredOffers, sortBy, sortDirection]);
+    }, [offers, sortBy, sortDirection]);
 
     const selectSort = (nextSort: "price" | "date") => {
         if (sortBy === nextSort) {
@@ -187,6 +203,42 @@ export default function OfferList({
                     value={search}
                     onChange={(e) => {
                         setSearch(e.target.value);
+                        setPage(1);
+                    }}
+                />
+                <select
+                    aria-label="Filtrer par type"
+                    value={typeFilter}
+                    onChange={(event) => {
+                        setTypeFilter(event.target.value);
+                        setPage(1);
+                    }}
+                >
+                    <option value="">Achats et ventes</option>
+                    <option value="SELL">Ventes</option>
+                    <option value="BUY">Achats</option>
+                </select>
+                <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    aria-label="Prix minimum"
+                    placeholder="Prix min"
+                    value={minPrice}
+                    onChange={(e) => {
+                        setMinPrice(e.target.value);
+                        setPage(1);
+                    }}
+                />
+                <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    aria-label="Prix maximum"
+                    placeholder="Prix max"
+                    value={maxPrice}
+                    onChange={(e) => {
+                        setMaxPrice(e.target.value);
                         setPage(1);
                     }}
                 />
