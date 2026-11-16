@@ -9,6 +9,7 @@ import {
 import { Link } from "react-router";
 
 import { useAuth } from "../utils/authcontext";
+import { useMe } from "./hooks/me";
 import { useUnreadCount } from "./hooks/notifications";
 
 /** Runs `close` when a click lands on a link: the menus close after navigating. */
@@ -154,6 +155,17 @@ function NotificationsLink({ count }: { count: number }) {
     );
 }
 
+/** The panel link, only for the server staff (admins and train admins). */
+function AdminLink() {
+    const { user } = useMe();
+    if (!user?.global_roles?.length) return null;
+    return (
+        <Link className="link" to="/admin">
+            Administration
+        </Link>
+    );
+}
+
 function LoggedInNav() {
     const { count } = useUnreadCount();
 
@@ -182,6 +194,7 @@ function LoggedInNav() {
                     <Link className="link" to="/contribuer">
                         Contribuer
                     </Link>
+                    <AdminLink />
                 </MoreMenu>
             </div>
             <div className="nav-account">

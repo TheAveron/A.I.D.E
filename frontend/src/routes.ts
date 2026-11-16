@@ -26,6 +26,7 @@ const aideRoutes = [
         route("line/:code", "./app/pages/line_page.tsx"),
         route("stations", "./app/pages/stations.tsx"),
         route("station/:stationid", "./app/pages/station_page.tsx"),
+        route("admin", "./app/pages/admin.tsx"),
 
         route("faction/:factionid", "./app/pages/faction_page.tsx"),
         route(
