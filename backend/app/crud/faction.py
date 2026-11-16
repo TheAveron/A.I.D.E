@@ -128,12 +128,13 @@ def archive_faction(db: Session, faction: Faction, actor: User) -> None:
     - its open offers are cancelled (with a history entry each) and pending
       join requests withdrawn;
     - every member goes back to "Sans Faction";
+    - its territories and map markers are removed;
     - its currency is deleted unless offers or transactions use it;
     - the faction is renamed "<name> [supprimée #id]" - which frees the
       unique name - and stamped `deleted_at`. Its row stays because closed
       offers and transactions refer to it.
     """
-    from ..database import Offer
+    from ..database import MapMarker, MapTerritory, Offer
     from ..misc import OfferAction, OfferStatus
     from .currencies import is_currency_referenced
     from .notification import notify
@@ -182,6 +183,14 @@ def archive_faction(db: Session, faction: Faction, actor: User) -> None:
                 f"{actor.username} a supprimé la faction {faction.name}",
                 "/factions",
             )
+
+    # What it drew on the maps goes with it
+    db.query(MapTerritory).filter(MapTerritory.faction_id == faction.faction_id).delete(
+        synchronize_session=False
+    )
+    db.query(MapMarker).filter(MapMarker.faction_id == faction.faction_id).delete(
+        synchronize_session=False
+    )
 
     currency = faction.currency
     if currency and not is_currency_referenced(db, currency.name):

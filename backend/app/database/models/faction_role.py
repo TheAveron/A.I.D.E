@@ -34,6 +34,9 @@ class Role(Base):
     manage_trains: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default=false(), nullable=False
     )
+    manage_territory: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), nullable=False
+    )
     view_transactions: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False
     )

@@ -5,6 +5,7 @@ from .faction import Faction
 from .faction_role import Role
 from .global_role import GlobalRole, GlobalRoleName
 from .join_request import JoinRequest
+from .map_overlay import MapMarker, MapTerritory
 from .notification import Notification
 from .offer import Offer, OfferStatus, OfferType
 from .offer_history import OfferAction, OfferHistory

@@ -65,6 +65,16 @@ class TrainService(str, Enum):
     LIQUID = "L"
 
 
+class MarkerKind(str, Enum):
+    """What a point of interest on the map is (picks its icon and legend)."""
+
+    BASE = "base"
+    RESOURCE = "resource"
+    PORTAL = "portal"
+    LANDMARK = "landmark"
+    OTHER = "other"
+
+
 class FactionPermission(str, Enum):
     """Possible permissions for faction members"""
 
@@ -75,6 +85,7 @@ class FactionPermission(str, Enum):
     MANAGE_ROLES = "manage_roles"
     MANAGE_DOCS = "manage_docs"
     MANAGE_TRAINS = "manage_trains"
+    MANAGE_TERRITORY = "manage_territory"
     VIEW_TRANSACTIONS = "view_transactions"
 
 

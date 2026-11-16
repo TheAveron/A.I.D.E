@@ -26,6 +26,11 @@ class AuditAction(str, Enum):
     CURRENCY_CREATED = "currency_created"
     CURRENCY_CHANGED = "currency_changed"
     CURRENCY_DELETED = "currency_deleted"
+    # Admins acting on the territories and markers of others
+    TERRITORY_CHANGED = "territory_changed"
+    TERRITORY_DELETED = "territory_deleted"
+    MARKER_CHANGED = "marker_changed"
+    MARKER_DELETED = "marker_deleted"
     # Train admins acting on what belongs to somebody else
     TRAIN_CHANGED = "train_changed"
     TRAIN_RETIRED = "train_retired"
