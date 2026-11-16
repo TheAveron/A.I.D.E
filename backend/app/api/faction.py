@@ -12,7 +12,8 @@ from ..crud import normalize
 from ..crud.notification import notify
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
-from ..schemas import FactionCreate, FactionOut, FactionUpdate, LeadershipTransfer
+from ..schemas import (FactionCreate, FactionOut, FactionUpdate,
+                       LeadershipTransfer)
 from .documentation import archive_faction_folder, move_faction_folder
 
 logger = logging.getLogger("aide")

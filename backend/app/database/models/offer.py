@@ -1,18 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (
-    JSON,
-    Boolean,
-    CheckConstraint,
-    DateTime,
-    Float,
-    ForeignKey,
-    Index,
-    Integer,
-    String,
-    false,
-)
+from sqlalchemy import (JSON, Boolean, CheckConstraint, DateTime, Float,
+                        ForeignKey, Index, Integer, String, false)
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

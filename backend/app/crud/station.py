@@ -14,12 +14,8 @@ from sqlalchemy.orm import Session
 
 from ..database import GlobalRoleName, LineStop, Platform, Station, User
 from ..misc import StationDimension
-from ..schemas import (
-    PlatformCreate,
-    PlatformUpdate,
-    StationCreate,
-    StationUpdate,
-)
+from ..schemas import (PlatformCreate, PlatformUpdate, StationCreate,
+                       StationUpdate)
 
 # A cap per user so one account cannot flood the index (train admins exempt).
 MAX_STATIONS_PER_USER = 100

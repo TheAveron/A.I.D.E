@@ -13,15 +13,9 @@ from ..core import hash_password, require_global_role
 from ..crud import audit
 from ..crud import faction as faction_crud
 from ..crud.notification import notify
-from ..database import (
-    AuditLog,
-    Faction,
-    GlobalRoleName,
-    Role,
-    User,
-    get_db,
-)
-from ..schemas import AdminFactionOut, AdminPasswordReset, AdminUserOut, AuditLogOut
+from ..database import AuditLog, Faction, GlobalRoleName, Role, User, get_db
+from ..schemas import (AdminFactionOut, AdminPasswordReset, AdminUserOut,
+                       AuditLogOut)
 from .user import LEADER_ROLE_NAME, _in_a_real_faction, _send_to_no_faction
 
 router = APIRouter(prefix="/admin", tags=["Administration"])

@@ -1,12 +1,7 @@
 from typing import Annotated, Optional
 
-from pydantic import (
-    AfterValidator,
-    BaseModel,
-    ConfigDict,
-    Field,
-    field_validator,
-)
+from pydantic import (AfterValidator, BaseModel, ConfigDict, Field,
+                      field_validator)
 
 from ..misc import StationDimension
 from .base import MAX_DESCRIPTION_LENGTH, PartialUpdate, UTCDatetime

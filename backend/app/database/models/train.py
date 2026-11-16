@@ -1,17 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (
-    CheckConstraint,
-    DateTime,
-    ForeignKey,
-    Index,
-    Integer,
-    String,
-    Text,
-    UniqueConstraint,
-    text,
-)
+from sqlalchemy import (CheckConstraint, DateTime, ForeignKey, Index, Integer,
+                        String, Text, UniqueConstraint, text)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..clock import utcnow

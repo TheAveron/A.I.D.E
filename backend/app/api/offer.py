@@ -6,8 +6,10 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user, get_optional_user
 from ..crud import offer as offer_crud
 from ..database import Offer, User, get_db
-from ..misc import FactionPermission, OfferStatus, OfferType, check_faction_permission
-from ..schemas import OfferAccept, OfferAcceptOut, OfferCreate, OfferOut, OfferUpdate
+from ..misc import (FactionPermission, OfferStatus, OfferType,
+                    check_faction_permission)
+from ..schemas import (OfferAccept, OfferAcceptOut, OfferCreate, OfferOut,
+                       OfferUpdate)
 
 router = APIRouter(prefix="/offers", tags=["Offers"])
 

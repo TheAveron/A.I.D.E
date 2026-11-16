@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, false
+from sqlalchemy import (Boolean, DateTime, ForeignKey, Index, Integer, String,
+                        false)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..clock import utcnow

@@ -8,7 +8,8 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ..crud import get_faction
-from ..database import Currency, Faction, Offer, OfferHistory, Role, Transaction, User
+from ..database import (Currency, Faction, Offer, OfferHistory, Role,
+                        Transaction, User)
 from ..database.clock import utcnow
 from ..misc import FactionPermission, OfferAction, OfferStatus, OfferType
 from ..schemas import OfferAccept, OfferCreate, OfferUpdate

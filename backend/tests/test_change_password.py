@@ -1,7 +1,8 @@
 """A user changes their own password, after proving they know the current one."""
 
-from app.api import auth
 from test_hardening import env  # noqa: F401  (pytest fixture)
+
+from app.api import auth
 
 
 def _change(env, current, new, who="alice"):  # noqa: F811

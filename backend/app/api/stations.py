@@ -10,14 +10,8 @@ from ..crud import audit
 from ..crud import station as crud
 from ..database import User, get_db
 from ..misc import StationDimension
-from ..schemas import (
-    PlatformCreate,
-    PlatformOut,
-    PlatformUpdate,
-    StationCreate,
-    StationOut,
-    StationUpdate,
-)
+from ..schemas import (PlatformCreate, PlatformOut, PlatformUpdate,
+                       StationCreate, StationOut, StationUpdate)
 
 router = APIRouter(prefix="/stations", tags=["Stations"])
 

@@ -1,15 +1,8 @@
 import re
 from typing import Annotated, Optional
 
-from pydantic import (
-    AfterValidator,
-    BaseModel,
-    ConfigDict,
-    Field,
-    PositiveInt,
-    field_validator,
-    model_validator,
-)
+from pydantic import (AfterValidator, BaseModel, ConfigDict, Field,
+                      PositiveInt, field_validator, model_validator)
 
 from ..misc import StationDimension, TrainAction, TrainService
 from .base import MAX_DESCRIPTION_LENGTH, PartialUpdate, UTCDatetime

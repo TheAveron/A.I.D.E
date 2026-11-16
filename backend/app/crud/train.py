@@ -19,26 +19,13 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..database import (
-    Faction,
-    GlobalRoleName,
-    Line,
-    LineStop,
-    Station,
-    Train,
-    TrainHistory,
-    User,
-)
+from ..database import (Faction, GlobalRoleName, Line, LineStop, Station,
+                        Train, TrainHistory, User)
 from ..database.clock import utcnow
 from ..database.models.train import MAINTENANCE_LINE
 from ..misc import FactionPermission, TrainAction, check_faction_permission
-from ..schemas import (
-    LineCreate,
-    LineUpdate,
-    StopsUpdate,
-    TrainCreate,
-    TrainUpdate,
-)
+from ..schemas import (LineCreate, LineUpdate, StopsUpdate, TrainCreate,
+                       TrainUpdate)
 
 MAX_NUMBER = 99
 # Attempts when two requests grab the same free number at once

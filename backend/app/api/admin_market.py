@@ -17,40 +17,16 @@ from ..crud import faction as faction_crud
 from ..crud import offer as offer_crud
 from ..crud.notification import members_with_permission, notify_many
 from ..crud.offer_history import create_offer_history
-from ..database import (
-    Currency,
-    Faction,
-    JoinRequest,
-    Notification,
-    Offer,
-    Role,
-    Train,
-    Transaction,
-    User,
-    get_db,
-)
+from ..database import (Currency, Faction, JoinRequest, Notification, Offer,
+                        Role, Train, Transaction, User, get_db)
 from ..database.clock import utcnow
 from ..misc import FactionPermission, OfferAction, OfferStatus
-from ..schemas import (
-    AdminCurrencyOut,
-    AdminFactionOut,
-    AdminFactionState,
-    AdminOfferOut,
-    AdminReason,
-    AdminRoleState,
-    AdminTransactionCancelled,
-    AdminTransactionOut,
-    AdminUserState,
-    CurrencyCreate,
-    CurrencyUpdate,
-)
-from .admin import (
-    LEADER_ROLE_NAME,
-    _admin_only,
-    _escape_like,
-    _target_user,
-    _user_out,
-)
+from ..schemas import (AdminCurrencyOut, AdminFactionOut, AdminFactionState,
+                       AdminOfferOut, AdminReason, AdminRoleState,
+                       AdminTransactionCancelled, AdminTransactionOut,
+                       AdminUserState, CurrencyCreate, CurrencyUpdate)
+from .admin import (LEADER_ROLE_NAME, _admin_only, _escape_like, _target_user,
+                    _user_out)
 
 router = APIRouter(prefix="/admin", tags=["Administration"])
 
