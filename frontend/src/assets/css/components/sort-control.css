@@ -1,11 +1,4 @@
-/* Sort toggles: outlined, green when active */
-.sort-controls {
-    display: flex;
-    flex-direction: row;
-    gap: 0.4rem;
-}
-
-.sort-controls .button,
+/* Sort controls (components/snippets/sort_control.tsx): criterion picker + direction button */
 .sort-direction.button {
     background-color: transparent;
     color: var(--text);
@@ -13,14 +6,19 @@
     font-weight: 500;
 }
 
-.sort-controls .button:hover,
 .sort-direction.button:hover {
     background-color: var(--hover);
     border-color: var(--accent);
     color: var(--text);
 }
 
-/* Direction toggle: the arrow points up (ascending) and turns over (descending) */
+/* No sort selected: the direction means nothing yet */
+.sort-direction.button:disabled:hover {
+    background-color: transparent;
+    border-color: var(--border-strong);
+}
+
+/* The arrow points up (ascending) and turns over (descending) */
 .sort-direction svg {
     fill: none;
     stroke: currentColor;
@@ -35,10 +33,4 @@
     .sort-direction svg {
         transition: none;
     }
-}
-
-.sort-controls .button[aria-pressed="true"] {
-    background-color: var(--success-bg);
-    border-color: color-mix(in srgb, var(--primary) 55%, transparent);
-    color: var(--success-fg);
 }

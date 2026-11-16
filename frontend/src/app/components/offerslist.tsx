@@ -12,6 +12,9 @@ import { ManageOfferButtons } from "./buttons/manageoffer";
 import ToolbarPanels from "./snippets/toolbar_panels";
 import { formatExpiry } from "../utils/expiry";
 
+import SortControl from "./snippets/sort_control";
+import { sortSummary, type SortOption } from "./snippets/sort_utils";
+
 const STATUS_LABELS: Record<string, string> = {
   OPEN: "Ouvert",
   CLOSED: "Complétée",
@@ -98,6 +101,11 @@ function OfferRow({
   );
 }
 
+const SORT_OPTIONS: SortOption<"price" | "date">[] = [
+  { value: "date", label: "Date" },
+  { value: "price", label: "Prix" },
+];
+
 export default function OfferList({
   userId,
   factionId,
@@ -169,16 +177,6 @@ export default function OfferList({
     return sortDirection === "asc" ? copy : copy.reverse();
   }, [offers, sortBy, sortDirection]);
 
-  const selectSort = (nextSort: "price" | "date") => {
-    if (sortBy === nextSort) {
-      setSortDirection((direction) => (direction === "asc" ? "desc" : "asc"));
-    } else {
-      setSortBy(nextSort);
-      setSortDirection(nextSort === "date" ? "desc" : "asc");
-    }
-    setPage(1);
-  };
-
   const totalPages = Math.ceil(sortedOffers.length / offersPerPage);
 
   const currentPage = Math.min(page, Math.max(totalPages, 1));
@@ -201,11 +199,7 @@ export default function OfferList({
             Boolean,
           ).length
         }
-        sortSummary={
-          sortBy
-            ? `${sortBy === "price" ? "Prix" : "Date"} ${sortDirection === "asc" ? "↑" : "↓"}`
-            : undefined
-        }
+        sortSummary={sortSummary(SORT_OPTIONS, sortBy, sortDirection)}
         search={
           <input
             type="text"
@@ -286,24 +280,18 @@ export default function OfferList({
           </>
         }
         sort={
-          <div className="sort-controls">
-            <button
-              type="button"
-              className="button"
-              aria-pressed={sortBy === "price"}
-              onClick={() => selectSort("price")}
-            >
-              Prix {sortBy === "price" && (sortDirection === "asc" ? "↑" : "↓")}
-            </button>
-            <button
-              type="button"
-              className="button"
-              aria-pressed={sortBy === "date"}
-              onClick={() => selectSort("date")}
-            >
-              Date {sortBy === "date" && (sortDirection === "asc" ? "↑" : "↓")}
-            </button>
-          </div>
+          <SortControl
+            options={SORT_OPTIONS}
+            value={sortBy}
+            direction={sortDirection}
+            noneLabel="Par défaut"
+            defaultDirection={(value) => (value === "date" ? "desc" : "asc")}
+            onChange={(value, direction) => {
+              setSortBy(value);
+              setSortDirection(direction);
+              setPage(1);
+            }}
+          />
         }
       />
 

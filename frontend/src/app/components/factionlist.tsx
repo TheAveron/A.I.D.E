@@ -5,6 +5,8 @@ import { useMemberCounts } from "./hooks/member_counts";
 import { useMe } from "./hooks/me";
 import FactionTable from "./snippets/factions_table";
 import ToolbarPanels from "./snippets/toolbar_panels";
+import SortControl from "./snippets/sort_control";
+import { sortSummary } from "./snippets/sort_utils";
 import { useFaction } from "./hooks/faction";
 
 type Props = {
@@ -16,11 +18,11 @@ type Props = {
     setSortAsc: (val: boolean) => void;
 };
 
-const SORT_LABELS: Record<string, string> = {
-    name: "Nom",
-    members: "Membres",
-    approved: "Validation",
-};
+const SORT_OPTIONS = [
+    { value: "name", label: "Nom" },
+    { value: "members", label: "Membres" },
+    { value: "approved", label: "Validation" },
+];
 
 function FactionToolbar({
     search,
@@ -32,7 +34,11 @@ function FactionToolbar({
 }: Props) {
     return (
         <ToolbarPanels
-            sortSummary={`${SORT_LABELS[sortKey]} ${sortAsc ? "↑" : "↓"}`}
+            sortSummary={sortSummary(
+                SORT_OPTIONS,
+                sortKey,
+                sortAsc ? "asc" : "desc",
+            )}
             search={
                 <input
                     type="text"
@@ -42,35 +48,15 @@ function FactionToolbar({
                 />
             }
             sort={
-                <>
-                    <select
-                        aria-label="Trier par"
-                        value={sortKey}
-                        onChange={(e) => setSortKey(e.target.value)}
-                    >
-                        <option value="name">Nom</option>
-                        <option value="members">Membres</option>
-                        <option value="approved">Validation</option>
-                    </select>
-                    <button
-                        type="button"
-                        className={`button sort-direction${sortAsc ? "" : " desc"}`}
-                        aria-label={`Ordre ${sortAsc ? "croissant" : "décroissant"}, cliquer pour inverser`}
-                        onClick={() => setSortAsc(!sortAsc)}
-                    >
-                        <svg
-                            viewBox="0 0 24 24"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                        >
-                            <path d="M12 19V5" />
-                            <path d="m5 12 7-7 7 7" />
-                        </svg>
-                        {sortAsc ? "Croissant" : "Décroissant"}
-                    </button>
-                </>
+                <SortControl
+                    options={SORT_OPTIONS}
+                    value={sortKey}
+                    direction={sortAsc ? "asc" : "desc"}
+                    onChange={(key, direction) => {
+                        if (key) setSortKey(key);
+                        setSortAsc(direction === "asc");
+                    }}
+                />
             }
         />
     );
