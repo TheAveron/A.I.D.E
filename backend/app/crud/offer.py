@@ -22,6 +22,60 @@ def get_offer(db: Session, offer_id: int) -> Optional[Offer]:
     return db.query(Offer).filter(Offer.offer_id == offer_id).first()
 
 
+def offer_owner_ids(db: Session, offer: Offer) -> list[int]:
+    """Who hears about an offer: its user, or the members who run a faction's."""
+    if offer.user_id is not None:
+        return [offer.user_id]
+    return members_with_permission(
+        db, offer.faction_id, FactionPermission.CREATE_OFFERS
+    )
+
+
+def _expire(db: Session, offer: Offer) -> None:
+    """Cancel an offer whose time is up (the caller commits)."""
+    offer.status = OfferStatus.CANCELLED
+    offer.updated_at = utcnow()
+    create_offer_history(
+        db,
+        offer.offer_id,
+        OfferAction.CANCELLED,
+        actor_user_id=offer.user_id,
+        actor_faction_id=offer.faction_id,
+        notes="Offer expired",
+        commit=False,
+    )
+    notify_many(
+        db,
+        offer_owner_ids(db, offer),
+        "offer_expired",
+        f"Votre offre « {offer.item_description} » a expiré",
+        "/offers",
+    )
+
+
+def expire_overdue(db: Session) -> int:
+    """Cancel every open offer whose expiry has passed; returns how many.
+
+    Offers expire when they are next read rather than on a timer: nothing
+    can see an overdue offer as open, and no background job is needed.
+    """
+    overdue = (
+        db.query(Offer)
+        .filter(
+            Offer.status == OfferStatus.OPEN,
+            Offer.expires_at.is_not(None),
+            Offer.expires_at <= utcnow(),
+        )
+        .with_for_update(skip_locked=True)
+        .all()
+    )
+    for offer in overdue:
+        _expire(db, offer)
+    if overdue:
+        db.commit()
+    return len(overdue)
+
+
 def _clean_ids(ids: Optional[list[int]]) -> Optional[list[int]]:
     """The ids once each, in order; an empty list means "nobody listed"."""
     if not ids:
@@ -94,6 +148,7 @@ def get_offers(
     viewer: Optional[User] = None,
 ) -> list[Offer]:
     """Offers `viewer` may see, newest first (offer_id breaks ties)."""
+    expire_overdue(db)
     query = db.query(Offer)
     if viewer is None or not viewer.is_admin:
         # Private offers are few: the ones this viewer may see are picked in
@@ -201,6 +256,7 @@ def update_offer(
     history table enforces it). The change and its history entry are written
     in one transaction.
     """
+    expire_overdue(db)
     offer = get_offer(db, offer_id)
     if not offer:
         raise HTTPException(status_code=404, detail="Offer not found")
@@ -273,6 +329,14 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
     if not offer or not can_view_offer(offer, current_user):
         raise HTTPException(status_code=404, detail="Offer not found")
 
+    if (
+        offer.status == OfferStatus.OPEN
+        and offer.expires_at is not None
+        and offer.expires_at <= utcnow()
+    ):
+        _expire(db, offer)
+        db.commit()
+
     if offer.status != OfferStatus.OPEN:
         raise HTTPException(status_code=400, detail="Offer is not available")
 
@@ -339,6 +403,7 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
         amount=quantity * offer.price_per_unit,
         currency_name=offer.currency_name,
         timestamp=utcnow(),
+        quantity=quantity,
         **buyer_identity,
     )
     db.add(transaction)
@@ -360,16 +425,9 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
 
     # The owner hears about it: the user, or the members who run the
     # faction's offers.
-    owners = (
-        [offer.user_id]
-        if offer.user_id is not None
-        else members_with_permission(
-            db, offer.faction_id, FactionPermission.CREATE_OFFERS
-        )
-    )
     notify_many(
         db,
-        [u for u in owners if u != current_user.user_id],
+        [u for u in offer_owner_ids(db, offer) if u != current_user.user_id],
         "offer_accepted",
         f"{buyer} a accepté votre offre « {offer.item_description} » "
         f"({quantity} × {offer.price_per_unit} {offer.currency_name})",

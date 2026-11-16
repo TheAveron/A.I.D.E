@@ -7,9 +7,10 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import (admin, auth, currencies, documentation, faction,
-                     global_roles, join_requests, lines, notifications, offer,
-                     offer_history, role, stations, trains, transactions, user)
+from app.api import (admin, admin_market, auth, currencies, documentation,
+                     faction, global_roles, join_requests, lines,
+                     notifications, offer, offer_history, role, stations,
+                     trains, transactions, user)
 from app.core.errors import register_error_handlers
 from app.core.logger import log_safe, setup_logger
 from app.core.settings import ORIGINS
@@ -105,6 +106,7 @@ app.include_router(faction.router)
 app.include_router(role.router)
 app.include_router(global_roles.router)
 app.include_router(admin.router)
+app.include_router(admin_market.router)
 app.include_router(join_requests.router)
 app.include_router(stations.router)
 app.include_router(lines.router)

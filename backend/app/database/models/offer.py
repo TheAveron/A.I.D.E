@@ -80,6 +80,11 @@ class Offer(Base):
         Boolean, nullable=False, default=False, server_default=false(), index=True
     )
 
+    # After this moment an open offer is cancelled (checked when offers are read)
+    expires_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime, nullable=True, index=True
+    )
+
     status: Mapped[OfferStatus] = mapped_column(
         offer_status_enum,
         default=OfferStatus.OPEN,

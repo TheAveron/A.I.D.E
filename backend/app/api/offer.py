@@ -104,6 +104,7 @@ def get_offer(
     db: Session = Depends(get_db),
     viewer: Optional[User] = Depends(get_optional_user),
 ):
+    offer_crud.expire_overdue(db)
     offer = offer_crud.get_offer(db, offer_id)
     if not offer or not offer_crud.can_view_offer(offer, viewer):
         raise HTTPException(status_code=404, detail="Offer not found")

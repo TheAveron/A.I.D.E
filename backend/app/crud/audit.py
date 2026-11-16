@@ -20,6 +20,12 @@ class AuditAction(str, Enum):
     FACTION_APPROVED = "faction_approved"
     FACTION_UNAPPROVED = "faction_unapproved"
     FACTION_DELETED = "faction_deleted"
+    # The market
+    OFFER_CANCELLED = "offer_cancelled"
+    TRANSACTION_CANCELLED = "transaction_cancelled"
+    CURRENCY_CREATED = "currency_created"
+    CURRENCY_CHANGED = "currency_changed"
+    CURRENCY_DELETED = "currency_deleted"
     # Train admins acting on what belongs to somebody else
     TRAIN_CHANGED = "train_changed"
     TRAIN_RETIRED = "train_retired"
