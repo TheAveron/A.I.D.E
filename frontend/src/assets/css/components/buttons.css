@@ -152,6 +152,11 @@ td .button {
     transition: top 0.4s ease-out;
 }
 
+#map-header #previous {
+    top: unset;
+    margin-top: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .button,
     #previous {
