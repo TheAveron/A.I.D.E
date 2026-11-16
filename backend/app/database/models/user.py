@@ -23,6 +23,11 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(128), nullable=False)
 
+    # Bumped when the password changes: tokens issued before are refused
+    token_version: Mapped[int] = mapped_column(
+        Integer, default=0, server_default="0", nullable=False
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, nullable=False
     )

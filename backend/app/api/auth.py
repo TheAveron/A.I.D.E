@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..core import create_access_token, get_current_user, hash_password
+from ..core import create_user_token, get_current_user, hash_password
 from ..core.ratelimit import LoginLimiter
 from ..core.security import verify_password
 from ..crud import (
@@ -68,7 +68,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> Auth:
         db.rollback()
         raise name_in_use
 
-    token = create_access_token(data={"sub": user.username})
+    token = create_user_token(user_register)
 
     return Auth(
         access_token=token,
@@ -101,7 +101,7 @@ def login(user: UserLogin, request: Request, db: Session = Depends(get_db)) -> A
             headers={"WWW-Authenticate": "Bearer"},
         )
     login_limiter.reset(key)
-    token = create_access_token(data={"sub": user_login.username})
+    token = create_user_token(user_login)
 
     return Auth(
         access_token=token,
@@ -146,9 +146,11 @@ def change_password(
         )
 
     current_user.hashed_password = hash_password(body.new_password)
+    # Every other session of this account is signed out
+    current_user.token_version = (current_user.token_version or 0) + 1
     db.commit()
 
-    token = create_access_token(data={"sub": current_user.username})
+    token = create_user_token(current_user)
     return Auth(
         access_token=token,
         token_type="bearer",

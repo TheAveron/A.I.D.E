@@ -130,6 +130,7 @@ def reset_password(
     """Give an account a new password (the owner is told to change it)."""
     user = _target_user(db, user_id)
     user.hashed_password = hash_password(body.new_password)
+    user.token_version = (user.token_version or 0) + 1  # signs them out
     audit.record(
         db, admin, audit.AuditAction.PASSWORD_RESET, "user", user.user_id, user.username
     )

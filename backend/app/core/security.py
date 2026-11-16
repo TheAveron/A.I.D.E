@@ -58,6 +58,13 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
+def create_user_token(user: User) -> str:
+    """A token for `user`, valid until their password next changes."""
+    return create_access_token(
+        data={"sub": user.username, "tv": user.token_version or 0}
+    )
+
+
 def get_current_user(token=Depends(oauth2_scheme), db: Session = Depends(get_db)):
 
     credentials_exception = HTTPException(
@@ -82,6 +89,10 @@ def get_current_user(token=Depends(oauth2_scheme), db: Session = Depends(get_db)
     user = get_user_by_username(db, username)
     if user is None:
         logger.debug("JWT valid but no matching user: %s", username)
+        raise credentials_exception
+    # Tokens from before a password change carry an older version (or none)
+    if payload.get("tv", 0) != (user.token_version or 0):
+        logger.debug("JWT from before a password change: %s", username)
         raise credentials_exception
     return user
 
