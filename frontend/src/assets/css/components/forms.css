@@ -37,15 +37,15 @@ input[type="radio"] {
 
 /* One look for every text-like field (:where keeps the specificity at zero) */
 input:where(
-        :not(
-                [type="checkbox"],
-                [type="radio"],
-                [type="submit"],
-                [type="button"],
-                [type="range"],
-                [type="file"]
-            )
-    ),
+    :not(
+        [type="checkbox"],
+        [type="radio"],
+        [type="submit"],
+        [type="button"],
+        [type="range"],
+        [type="file"]
+    )
+),
 select,
 textarea {
     min-height: 2.5rem;

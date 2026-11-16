@@ -47,7 +47,6 @@ function PageGenerator(page: string, render: boolean) {
         if (previousBlock) {
             previousBlock.style.marginTop = "0";
             previousBlock.style.top = "unset";
-
         }
         if (main) main.style.marginTop = "0";
 

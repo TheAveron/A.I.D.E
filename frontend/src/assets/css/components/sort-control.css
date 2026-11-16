@@ -1,22 +1,4 @@
-/* Sort controls (components/snippets/sort_control.tsx): criterion picker + direction button */
-.sort-direction.button {
-    background-color: transparent;
-    color: var(--text);
-    border-color: var(--border-strong);
-    font-weight: 500;
-}
-
-.sort-direction.button:hover {
-    background-color: var(--hover);
-    border-color: var(--accent);
-    color: var(--text);
-}
-
-/* No sort selected: the direction means nothing yet */
-.sort-direction.button:disabled:hover {
-    background-color: transparent;
-    border-color: var(--border-strong);
-}
+/* Sort controls (components/snippets/sort_control.tsx); the button look comes from .button-quiet */
 
 /* The arrow points up (ascending) and turns over (descending) */
 .sort-direction svg {

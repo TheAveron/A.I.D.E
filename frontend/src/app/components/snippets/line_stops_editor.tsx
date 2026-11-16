@@ -87,25 +87,41 @@ export default function LineStopsEditor({
                                     {" "}
                                     <button
                                         type="button"
-                                        className="button"
+                                        className="button button-quiet icon-button"
                                         aria-label={`Monter ${s.name}`}
                                         disabled={i === 0}
                                         onClick={() => move(i, -1)}
                                     >
-                                        ↑
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            aria-hidden="true"
+                                        >
+                                            <path d="m18 15-6-6-6 6" />
+                                        </svg>
                                     </button>{" "}
                                     <button
                                         type="button"
-                                        className="button"
+                                        className="button button-quiet icon-button"
                                         aria-label={`Descendre ${s.name}`}
                                         disabled={i === shown.length - 1}
                                         onClick={() => move(i, 1)}
                                     >
-                                        ↓
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            aria-hidden="true"
+                                        >
+                                            <path d="m6 9 6 6 6-6" />
+                                        </svg>
                                     </button>{" "}
                                     <button
                                         type="button"
-                                        className="button"
+                                        className="button button-quiet"
                                         aria-label={`Retirer ${s.name}`}
                                         onClick={() =>
                                             edit((list) =>

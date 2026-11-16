@@ -47,7 +47,7 @@ export default function SortControl<K extends string>({
             </select>
             <button
                 type="button"
-                className={`button sort-direction${ascending ? "" : " desc"}`}
+                className={`button button-quiet sort-direction${ascending ? "" : " desc"}`}
                 disabled={value === null}
                 aria-label={`Ordre ${ascending ? "croissant" : "décroissant"}, cliquer pour inverser`}
                 onClick={() => onChange(value, ascending ? "desc" : "asc")}

@@ -36,7 +36,9 @@
     padding: 0;
 }
 
-.toolbar > label > input:where(:not([type="checkbox"], [type="radio"], [type="color"])) {
+.toolbar
+    > label
+    > input:where(:not([type="checkbox"], [type="radio"], [type="color"])) {
     width: 6.5rem;
 }
 

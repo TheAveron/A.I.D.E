@@ -19,7 +19,7 @@ export function UserState({ userId }: { userId: number }) {
     return (
         <ul>
             <li>
-                <b>Compte</b> : {" "}
+                <b>Compte</b> :{" "}
                 <Link to={`/user/${data.user.user_id}`}>
                     {data.user.username}
                 </Link>{" "}

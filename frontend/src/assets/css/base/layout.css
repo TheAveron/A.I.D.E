@@ -13,7 +13,11 @@ body {
     /* A faint build grid, only visible in the gutters between the cards */
     background-image:
         linear-gradient(var(--grid-line, transparent) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid-line, transparent) 1px, transparent 1px);
+        linear-gradient(
+            90deg,
+            var(--grid-line, transparent) 1px,
+            transparent 1px
+        );
     background-size: 32px 32px;
 }
 

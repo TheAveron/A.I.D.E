@@ -4,7 +4,6 @@
     --primary: hsl(134, 100%, 68%);
     --secondary: #6b8bff;
     --accent: #3fc6b4;
-
 }
 
 :root[data-theme="dark"] {
@@ -24,9 +23,7 @@
     --text-800: #cccccc;
     --text-900: #e6e6e6;
     --text-950: #f2f2f2;
-  
-    
-    
+
     --background-50: #090911;
     --background-100: #121221;
     --background-200: #242442;
@@ -39,7 +36,6 @@
     --background-900: #dedeed;
     --background-950: #eeeef6;
 
-  
     --primary-50: #001a06;
     --primary-100: #00330c;
     --primary-200: #006618;
@@ -51,7 +47,7 @@
     --primary-800: #99ffb1;
     --primary-900: #ccffd8;
     --primary-950: #e5ffeb;
-  
+
     --secondary-50: #00061a;
     --secondary-100: #000b33;
     --secondary-200: #001666;
@@ -63,7 +59,7 @@
     --secondary-800: #99afff;
     --secondary-900: #ccd7ff;
     --secondary-950: #e5ebff;
-  
+
     --accent-50: #061412;
     --accent-100: #0c2724;
     --accent-200: #174f47;
@@ -75,6 +71,4 @@
     --accent-800: #b0e8e0;
     --accent-900: #d8f3f0;
     --accent-950: #ebf9f7;
-  
 }
-  
