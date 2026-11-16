@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from ..core import require_global_role
+from ..crud import audit
 from ..database import GlobalRole, GlobalRoleName, User, get_db
 from ..schemas import GlobalRoleOut
 
@@ -47,10 +48,20 @@ def grant_global_role(
     user_id: int,
     role: GlobalRoleName,
     db: Session = Depends(get_db),
-    _: User = Depends(_admin_only),
+    admin: User = Depends(_admin_only),
 ):
     """Give `role` to a user (nothing changes if they already have it)."""
     user = _user_or_404(db, user_id)
+    if not user.has_global_role(role.value):
+        audit.record(
+            db,
+            admin,
+            audit.AuditAction.ROLE_GRANTED,
+            "user",
+            user.user_id,
+            user.username,
+            role.value,
+        )
     user.add_global_role(role.value)
     db.commit()
     db.refresh(user)
@@ -63,7 +74,7 @@ def revoke_global_role(
     user_id: int,
     role: GlobalRoleName,
     db: Session = Depends(get_db),
-    _: User = Depends(_admin_only),
+    admin: User = Depends(_admin_only),
 ):
     user = _user_or_404(db, user_id)
     if role is GlobalRoleName.ADMIN and user.has_global_role(role.value):
@@ -74,6 +85,16 @@ def revoke_global_role(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="You cannot remove the last admin",
             )
+    if user.has_global_role(role.value):
+        audit.record(
+            db,
+            admin,
+            audit.AuditAction.ROLE_REVOKED,
+            "user",
+            user.user_id,
+            user.username,
+            role.value,
+        )
     user.remove_global_role(role.value)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

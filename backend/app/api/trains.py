@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from ..core import get_current_user
+from ..crud import audit
 from ..crud import train as crud
 from ..database import User, get_db
 from ..misc import TrainService
@@ -68,7 +69,21 @@ def update_train(
 ):
     train = crud.get_train(db, train_id)
     crud.check_can_manage_train(current_user, train)
-    return crud.update_train(db, current_user, train, train_in)
+    override = crud.is_train_override(current_user, train)
+    old_name = train.display_name
+    updated = crud.update_train(db, current_user, train, train_in)
+    if override:
+        audit.record(
+            db,
+            current_user,
+            audit.AuditAction.TRAIN_CHANGED,
+            "train",
+            updated.train_id,
+            old_name,
+            f"{old_name} -> {updated.display_name}",
+        )
+        db.commit()
+    return updated
 
 
 @router.delete("/{train_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -80,5 +95,16 @@ def retire_train(
     """Take a train out of service: its number is freed, its history stays."""
     train = crud.get_train(db, train_id)
     crud.check_can_manage_train(current_user, train)
+    override = crud.is_train_override(current_user, train)
     crud.retire_train(db, current_user, train)
+    if override:
+        audit.record(
+            db,
+            current_user,
+            audit.AuditAction.TRAIN_RETIRED,
+            "train",
+            train.train_id,
+            train.display_name,
+        )
+        db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -272,6 +272,19 @@ def can_manage_train(user: User, train: Train) -> bool:
     return holds_manage_trains(user, train.owner_faction_id)
 
 
+def is_train_override(user: User, train: Train) -> bool:
+    """A train admin acting on a train they would not otherwise manage."""
+    if not is_train_admin(user):
+        return False
+    if train.owner_user_id is not None:
+        return train.owner_user_id != user.user_id
+    return not holds_manage_trains(user, train.owner_faction_id)
+
+
+def is_line_override(user: User, line: Line) -> bool:
+    return is_train_admin(user) and not holds_manage_trains(user, line.owner_faction_id)
+
+
 def check_can_manage_train(user: User, train: Train) -> None:
     if not can_manage_train(user, train):
         raise _error(

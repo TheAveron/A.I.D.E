@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from ..core import get_current_user
+from ..crud import audit
 from ..crud import faction as faction_crud
 from ..crud import faction_role as faction_role_crud
 from ..crud import normalize
@@ -155,8 +156,8 @@ def update_faction(
         _check_name_usable(db, new_name, exclude_faction_id=faction.faction_id)
 
     old_name = faction.name
-    # The documents folder is named after the faction: it moves with it, and
-    # goes back if the database refuses the rename.
+    approval_before = bool(faction.is_approved)
+    # The documents folder is named after the faction: it moves with it, and goes back if the database refuses the rename.
     moved = (
         new_name is not None
         and new_name != old_name
@@ -172,6 +173,20 @@ def update_faction(
         if isinstance(e, ValueError):
             raise HTTPException(status_code=400, detail=str(e))
         raise
+    if bool(updated_faction.is_approved) != approval_before:
+        audit.record(
+            db,
+            current_user,
+            (
+                audit.AuditAction.FACTION_APPROVED
+                if updated_faction.is_approved
+                else audit.AuditAction.FACTION_UNAPPROVED
+            ),
+            "faction",
+            updated_faction.faction_id,
+            updated_faction.name,
+        )
+        db.commit()
     return updated_faction
 
 
@@ -266,10 +281,22 @@ def delete_faction(
         )
 
     old_name = faction.name
+    # asked now: archiving sends the leader back to "Sans Faction"
+    acts_as_leader = _is_leader_of(current_user, faction)
     moved = None
     try:
         faction_crud.archive_faction(db, faction, current_user)
         moved = archive_faction_folder(old_name, faction.faction_id)
+        if not acts_as_leader:
+            # an admin acting on somebody else's faction leaves a trace
+            audit.record(
+                db,
+                current_user,
+                audit.AuditAction.FACTION_DELETED,
+                "faction",
+                faction.faction_id,
+                old_name,
+            )
         db.commit()
     except Exception:
         db.rollback()

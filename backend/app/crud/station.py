@@ -34,6 +34,11 @@ def can_manage_station(user: User, station: Station) -> bool:
     return is_train_admin(user) or station.created_by_user_id == user.user_id
 
 
+def is_station_override(user: User, station: Station) -> bool:
+    """A train admin acting on a station somebody else registered."""
+    return is_train_admin(user) and station.created_by_user_id != user.user_id
+
+
 def check_can_manage_station(user: User, station: Station) -> None:
     if not can_manage_station(user, station):
         raise HTTPException(

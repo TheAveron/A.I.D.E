@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from ..core import get_current_user
+from ..crud import audit
 from ..crud import station as crud
 from ..database import User, get_db
 from ..misc import StationDimension
@@ -55,7 +56,20 @@ def update_station(
 ):
     station = crud.get_station(db, station_id)
     crud.check_can_manage_station(current_user, station)
-    return crud.update_station(db, station, station_in)
+    override = crud.is_station_override(current_user, station)
+    old_name = station.name
+    updated = crud.update_station(db, station, station_in)
+    if override:
+        audit.record(
+            db,
+            current_user,
+            audit.AuditAction.STATION_CHANGED,
+            "station",
+            updated.station_id,
+            old_name,
+        )
+        db.commit()
+    return updated
 
 
 @router.delete("/{station_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -66,7 +80,19 @@ def delete_station(
 ):
     station = crud.get_station(db, station_id)
     crud.check_can_manage_station(current_user, station)
+    override = crud.is_station_override(current_user, station)
+    name = station.name
     crud.delete_station(db, station)
+    if override:
+        audit.record(
+            db,
+            current_user,
+            audit.AuditAction.STATION_DELETED,
+            "station",
+            station_id,
+            name,
+        )
+        db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

@@ -1,5 +1,6 @@
 from .database import Base, SessionLocal, engine, get_db
 from .models import (
+    AuditLog,
     Currency,
     CurrencyHistory,
     Faction,
