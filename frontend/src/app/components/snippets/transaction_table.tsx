@@ -22,7 +22,7 @@ export function OfferRow({ transaction }: { transaction: TransactionType }) {
     const { offer, loading, error } = useOffer(transaction.offer_id);
 
     return (
-        <tr>
+        <tr className={transaction.cancelled_at ? "train-retired" : undefined}>
             {error ? (
                 <td colSpan={5}>
                     Erreur lors du chargement de la transaction{" "}
@@ -47,6 +47,19 @@ export function OfferRow({ transaction }: { transaction: TransactionType }) {
                     </td>
                     <td>
                         {transaction.amount} {transaction.currency_name}
+                        {transaction.cancelled_at && (
+                            <>
+                                {" "}
+                                <span
+                                    className="status cancelled"
+                                    title={
+                                        transaction.cancel_reason ?? undefined
+                                    }
+                                >
+                                    Annulée
+                                </span>
+                            </>
+                        )}
                     </td>
                     <td>
                         {new Date(transaction.timestamp).toLocaleDateString() +

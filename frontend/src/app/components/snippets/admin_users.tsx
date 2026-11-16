@@ -1,7 +1,8 @@
 import axios from "axios";
-import { useState, type FormEvent } from "react";
+import { Fragment, useState, type FormEvent } from "react";
 import { Link } from "react-router";
 
+import { UserState } from "./admin_state";
 import ToolbarPanels from "./toolbar_panels";
 import { ADMIN_PAGE, useAdminUsers } from "../hooks/admin";
 import { getErrorMessage } from "../../utils/apierror";
@@ -87,6 +88,7 @@ export default function AdminUsers() {
     const [role, setRole] = useState("");
     const [page, setPage] = useState(1);
     const [message, setMessage] = useState("");
+    const [detailsOf, setDetailsOf] = useState<number | null>(null);
     const { users, loading, error, refresh } = useAdminUsers(
         search,
         role,
@@ -200,53 +202,80 @@ export default function AdminUsers() {
                             </tr>
                         ) : (
                             users.map((u) => (
-                                <tr key={u.user_id}>
-                                    <td>
-                                        <Link to={`/user/${u.user_id}`}>
-                                            {u.username}
-                                        </Link>
-                                    </td>
-                                    <td>{u.email ?? "-"}</td>
-                                    <td>
-                                        {u.faction_name ?? "-"}
-                                        {u.role_name && (
-                                            <small> ({u.role_name})</small>
-                                        )}
-                                    </td>
-                                    <td>
-                                        {GLOBAL_ROLES.map((r) => (
-                                            <label key={r}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={u.global_roles.includes(
-                                                        r,
-                                                    )}
-                                                    onChange={() =>
-                                                        toggleRole(u, r)
-                                                    }
-                                                />{" "}
-                                                {GLOBAL_ROLE_LABELS[r]}{" "}
-                                            </label>
-                                        ))}
-                                    </td>
-                                    <td>
-                                        <PasswordReset
-                                            user={u}
-                                            onDone={setMessage}
-                                        />{" "}
-                                        {u.faction_name &&
-                                            u.faction_name !==
-                                                "Sans Faction" && (
-                                                <button
-                                                    type="button"
-                                                    className="button"
-                                                    onClick={() => detach(u)}
-                                                >
-                                                    Retirer de la faction
-                                                </button>
+                                <Fragment key={u.user_id}>
+                                    <tr>
+                                        <td>
+                                            <Link to={`/user/${u.user_id}`}>
+                                                {u.username}
+                                            </Link>
+                                        </td>
+                                        <td>{u.email ?? "-"}</td>
+                                        <td>
+                                            {u.faction_name ?? "-"}
+                                            {u.role_name && (
+                                                <small> ({u.role_name})</small>
                                             )}
-                                    </td>
-                                </tr>
+                                        </td>
+                                        <td>
+                                            {GLOBAL_ROLES.map((r) => (
+                                                <label key={r}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={u.global_roles.includes(
+                                                            r,
+                                                        )}
+                                                        onChange={() =>
+                                                            toggleRole(u, r)
+                                                        }
+                                                    />{" "}
+                                                    {GLOBAL_ROLE_LABELS[r]}{" "}
+                                                </label>
+                                            ))}
+                                        </td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                className="button"
+                                                aria-expanded={
+                                                    detailsOf === u.user_id
+                                                }
+                                                onClick={() =>
+                                                    setDetailsOf(
+                                                        detailsOf === u.user_id
+                                                            ? null
+                                                            : u.user_id,
+                                                    )
+                                                }
+                                            >
+                                                État
+                                            </button>{" "}
+                                            <PasswordReset
+                                                user={u}
+                                                onDone={setMessage}
+                                            />{" "}
+                                            {u.faction_name &&
+                                                u.faction_name !==
+                                                    "Sans Faction" && (
+                                                    <button
+                                                        type="button"
+                                                        className="button"
+                                                        onClick={() =>
+                                                            detach(u)
+                                                        }
+                                                    >
+                                                        Retirer de la faction
+                                                    </button>
+                                                )}
+                                        </td>
+                                    </tr>
+                                    {detailsOf === u.user_id && (
+                                        <tr>
+                                            <td colSpan={5}>
+                                                <UserState userId={u.user_id} />
+                                            </td>
+                                        </tr>
+                                    )}
+                                </Fragment>
                             ))
                         )}
                     </tbody>

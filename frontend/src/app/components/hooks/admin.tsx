@@ -1,10 +1,15 @@
 import { useApiGet } from "../../utils/useapiget";
 
 import type {
+    AdminCurrencyType,
     AdminFactionType,
+    AdminOfferType,
+    AdminTransactionType,
     AdminUserType,
     AuditEntryType,
     FactionState,
+    OfferState,
+    TransactionState,
 } from "../../types/admin";
 
 export const ADMIN_PAGE = 50;
@@ -48,4 +53,50 @@ export function useAdminFactions(state: FactionState, search: string) {
         "Erreur lors du chargement des factions",
     );
     return { factions: data ?? [], loading, error, refresh };
+}
+
+function pagedParams(
+    search: string,
+    page: number,
+    extra: Record<string, string>,
+) {
+    const params = new URLSearchParams({
+        limit: String(ADMIN_PAGE),
+        skip: String((page - 1) * ADMIN_PAGE),
+        ...extra,
+    });
+    if (search.trim()) params.set("q", search.trim());
+    return params.toString();
+}
+
+export function useAdminOffers(
+    state: OfferState,
+    search: string,
+    page: number,
+) {
+    const { data, loading, error, refresh } = useApiGet<AdminOfferType[]>(
+        `/admin/offers?${pagedParams(search, page, { state })}`,
+        "Erreur lors du chargement des offres",
+    );
+    return { offers: data ?? [], loading, error, refresh };
+}
+
+export function useAdminTransactions(
+    state: TransactionState,
+    search: string,
+    page: number,
+) {
+    const { data, loading, error, refresh } = useApiGet<AdminTransactionType[]>(
+        `/admin/transactions?${pagedParams(search, page, { state })}`,
+        "Erreur lors du chargement des transactions",
+    );
+    return { transactions: data ?? [], loading, error, refresh };
+}
+
+export function useAdminCurrencies() {
+    const { data, loading, error, refresh } = useApiGet<AdminCurrencyType[]>(
+        "/admin/currencies",
+        "Erreur lors du chargement des monnaies",
+    );
+    return { currencies: data ?? [], loading, error, refresh };
 }

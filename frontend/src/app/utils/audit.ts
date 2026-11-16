@@ -13,6 +13,11 @@ export const AUDIT_LABELS: Record<string, string> = {
     line_deleted: "Ligne supprimée",
     station_changed: "Gare modifiée",
     station_deleted: "Gare supprimée",
+    offer_cancelled: "Offre annulée",
+    transaction_cancelled: "Transaction annulée",
+    currency_created: "Monnaie créée",
+    currency_changed: "Monnaie modifiée",
+    currency_deleted: "Monnaie supprimée",
 };
 
 export const GLOBAL_ROLE_LABELS: Record<string, string> = {
@@ -29,7 +34,24 @@ export const TARGET_LABELS: Record<string, string> = {
     train: "Train",
     line: "Ligne",
     station: "Gare",
+    offer: "Offre",
+    transaction: "Transaction",
+    currency: "Monnaie",
 };
+
+/**
+ * Ask an admin why they cancel something; null when they give up. The server
+ * wants at least 3 characters and tells the people concerned.
+ */
+export function askReason(question: string): string | null {
+    const reason = window.prompt(`${question}\n\nMotif (obligatoire) :`);
+    if (reason === null) return null;
+    if (reason.trim().length < 3) {
+        window.alert("Un motif d'au moins 3 caractères est obligatoire.");
+        return null;
+    }
+    return reason.trim().slice(0, 200);
+}
 
 /** Where the thing an audit entry is about can be seen, if it still exists. */
 export function targetLink(type: string, id: number | null): string | null {
@@ -43,6 +65,8 @@ export function targetLink(type: string, id: number | null): string | null {
             return `/train/${id}`;
         case "station":
             return `/station/${id}`;
+        case "offer":
+            return `/offers`;
         default:
             return null;
     }

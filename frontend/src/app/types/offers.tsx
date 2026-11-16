@@ -18,6 +18,8 @@ export interface OfferCreateData extends OfferBase {
     // A private offer is addressed to these users and these factions' members
     allowed_user_ids: number[] | null;
     allowed_faction_ids: number[] | null;
+    // The open offer is cancelled after this moment (ISO date); null: never
+    expires_at?: string | null;
     user_id: number | null;
     faction_id: number | null;
 }
@@ -25,6 +27,7 @@ export interface OfferCreateData extends OfferBase {
 export interface OfferType extends OfferCreateData {
     offer_id: number;
     is_private: boolean;
+    expires_at: string | null;
     status: OfferStatusLiteral;
     created_at: string;
     updated_at: string;
@@ -66,4 +69,7 @@ export interface OfferFormHook extends HookForm<OfferCreate> {
     setAudienceUsers: React.Dispatch<React.SetStateAction<string>>;
     audienceFactions: string;
     setAudienceFactions: React.Dispatch<React.SetStateAction<string>>;
+    // Value of a datetime-local input; empty: the offer never expires
+    expiresAt: string;
+    setExpiresAt: React.Dispatch<React.SetStateAction<string>>;
 }

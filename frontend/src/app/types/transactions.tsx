@@ -8,6 +8,10 @@ export interface TransactionType {
     currency_name: string;
     transaction_id: number;
     timestamp: string;
+    quantity?: number | null;
+    // Set when an admin cancelled the transaction
+    cancelled_at?: string | null;
+    cancel_reason?: string | null;
 }
 
 export interface TransactionHook extends HookResult {

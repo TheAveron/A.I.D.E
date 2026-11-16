@@ -11,6 +11,7 @@ import { useApiGet } from "../../utils/useapiget";
 import { useMe } from "./me";
 import { useFactions } from "./factions";
 import { resolveAudience } from "../../utils/audience";
+import { fromLocalInput } from "../../utils/expiry";
 
 import type {
     OfferCreate as OfferForm,
@@ -122,6 +123,7 @@ export function useNewOffer(onCreated?: () => void): OfferFormHook {
     const { factions } = useFactions();
     const [audienceUsers, setAudienceUsers] = useState("");
     const [audienceFactions, setAudienceFactions] = useState("");
+    const [expiresAt, setExpiresAt] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -156,6 +158,7 @@ export function useNewOffer(onCreated?: () => void): OfferFormHook {
                 ...data,
                 allowed_user_ids: userIds,
                 allowed_faction_ids: factionIds,
+                expires_at: fromLocalInput(expiresAt),
                 user_id: forFaction ? null : user.user_id,
                 faction_id: forFaction ? user.faction_id : null,
                 init_quantity: data.quantity,
@@ -172,6 +175,7 @@ export function useNewOffer(onCreated?: () => void): OfferFormHook {
             setForFaction(false);
             setAudienceUsers("");
             setAudienceFactions("");
+            setExpiresAt("");
             onCreated?.();
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 409) {
@@ -199,5 +203,7 @@ export function useNewOffer(onCreated?: () => void): OfferFormHook {
         setAudienceUsers,
         audienceFactions,
         setAudienceFactions,
+        expiresAt,
+        setExpiresAt,
     };
 }

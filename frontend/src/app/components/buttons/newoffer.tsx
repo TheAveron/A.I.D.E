@@ -19,6 +19,8 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
         setAudienceUsers,
         audienceFactions,
         setAudienceFactions,
+        expiresAt,
+        setExpiresAt,
     } = useNewOffer(onCreated);
 
     const {
@@ -150,6 +152,20 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
                                 />
                                 <small>
                                     Vide : l'offre est visible par tous.
+                                </small>
+                            </div>
+                            <div className="modal-field">
+                                <label>Expire le (facultatif)</label>
+                                <input
+                                    type="datetime-local"
+                                    value={expiresAt}
+                                    onChange={(e) =>
+                                        setExpiresAt(e.target.value)
+                                    }
+                                />
+                                <small>
+                                    Vide : l'offre reste ouverte jusqu'à son
+                                    annulation.
                                 </small>
                             </div>
 

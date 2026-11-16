@@ -10,6 +10,7 @@ import { useMe } from "./hooks/me";
 import { useRole } from "./hooks/role";
 import { ManageOfferButtons } from "./buttons/manageoffer";
 import ToolbarPanels from "./snippets/toolbar_panels";
+import { formatExpiry } from "../utils/expiry";
 
 const STATUS_LABELS: Record<string, string> = {
   OPEN: "Ouvert",
@@ -46,6 +47,9 @@ function OfferRow({
         <span className={STATUS_CLASSES[offer.status] || "status"}>
           {STATUS_LABELS[offer.status] || offer.status}
         </span>
+        {offer.status === "OPEN" && offer.expires_at && (
+          <small> jusqu'au {formatExpiry(offer.expires_at)}</small>
+        )}
       </td>
       <td>
         {offer.item_description}

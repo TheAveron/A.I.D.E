@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { getErrorMessage } from "../../utils/apierror";
 import type { OfferType } from "../../types/offers";
 import { useFactions } from "../hooks/factions";
+import { fromLocalInput, toLocalInput } from "../../utils/expiry";
 import {
     factionNamesText,
     resolveAudience,
@@ -33,6 +34,7 @@ export function ManageOfferButtons({
     const [quantity, setQuantity] = useState(String(offer.quantity));
     const [audienceUsers, setAudienceUsers] = useState("");
     const [audienceFactions, setAudienceFactions] = useState("");
+    const [expiresAt, setExpiresAt] = useState(toLocalInput(offer.expires_at));
     const { factions } = useFactions();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -86,6 +88,7 @@ export function ManageOfferButtons({
                 quantity?: number;
                 allowed_user_ids?: number[] | null;
                 allowed_faction_ids?: number[] | null;
+                expires_at?: string | null;
             } = {};
             if (priceValue !== offer.price_per_unit)
                 changes.price_per_unit = priceValue;
@@ -95,6 +98,11 @@ export function ManageOfferButtons({
                 changes.allowed_user_ids = userIds;
             if (!sameIds(factionIds, offer.allowed_faction_ids))
                 changes.allowed_faction_ids = factionIds;
+            // Only a date that was touched is checked: a date already set may
+            // be about to pass without blocking the other changes.
+            if (expiresAt !== toLocalInput(offer.expires_at)) {
+                changes.expires_at = fromLocalInput(expiresAt);
+            }
             if (Object.keys(changes).length === 0) return;
             await axios.put(`/offers/update/${offer.offer_id}`, changes);
         });
@@ -148,6 +156,14 @@ export function ManageOfferButtons({
                             onChange={(e) =>
                                 setAudienceFactions(e.target.value)
                             }
+                        />
+                    </label>{" "}
+                    <label>
+                        Expire le{" "}
+                        <input
+                            type="datetime-local"
+                            value={expiresAt}
+                            onChange={(e) => setExpiresAt(e.target.value)}
                         />
                     </label>{" "}
                     <button

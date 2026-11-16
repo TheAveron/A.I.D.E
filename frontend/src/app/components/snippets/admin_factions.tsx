@@ -1,7 +1,8 @@
 import axios from "axios";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Link } from "react-router";
 
+import { FactionState as FactionStatePanel } from "./admin_state";
 import ToolbarPanels from "./toolbar_panels";
 import { useAdminFactions } from "../hooks/admin";
 import { getErrorMessage } from "../../utils/apierror";
@@ -19,6 +20,7 @@ export default function AdminFactions() {
     const [state, setState] = useState<FactionState>("pending");
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
+    const [detailsOf, setDetailsOf] = useState<number | null>(null);
     const { factions, loading, error, refresh } = useAdminFactions(
         state,
         search,
@@ -116,53 +118,85 @@ export default function AdminFactions() {
                             </tr>
                         ) : (
                             factions.map((f) => (
-                                <tr key={f.faction_id}>
-                                    <td>
-                                        <Link to={`/faction/${f.faction_id}`}>
-                                            {f.name}
-                                        </Link>
-                                    </td>
-                                    <td>{f.member_count}</td>
-                                    <td>
-                                        {f.requires_approval
-                                            ? "Sur demande"
-                                            : "Libre"}
-                                    </td>
-                                    <td>
-                                        {f.deleted_at
-                                            ? `Archivée le ${new Date(f.deleted_at).toLocaleDateString()}`
-                                            : f.is_approved
-                                              ? "Approuvée"
-                                              : "En attente"}
-                                    </td>
-                                    <td>
-                                        {!f.deleted_at && (
-                                            <>
-                                                <button
-                                                    type="button"
-                                                    className="button"
-                                                    onClick={() =>
-                                                        setApproved(
-                                                            f,
-                                                            !f.is_approved,
-                                                        )
-                                                    }
-                                                >
-                                                    {f.is_approved
-                                                        ? "Retirer l'approbation"
-                                                        : "Approuver"}
-                                                </button>{" "}
-                                                <button
-                                                    type="button"
-                                                    className="button"
-                                                    onClick={() => remove(f)}
-                                                >
-                                                    Supprimer
-                                                </button>
-                                            </>
-                                        )}
-                                    </td>
-                                </tr>
+                                <Fragment key={f.faction_id}>
+                                    <tr>
+                                        <td>
+                                            <Link
+                                                to={`/faction/${f.faction_id}`}
+                                            >
+                                                {f.name}
+                                            </Link>
+                                        </td>
+                                        <td>{f.member_count}</td>
+                                        <td>
+                                            {f.requires_approval
+                                                ? "Sur demande"
+                                                : "Libre"}
+                                        </td>
+                                        <td>
+                                            {f.deleted_at
+                                                ? `Archivée le ${new Date(f.deleted_at).toLocaleDateString()}`
+                                                : f.is_approved
+                                                  ? "Approuvée"
+                                                  : "En attente"}
+                                        </td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                className="button"
+                                                aria-expanded={
+                                                    detailsOf === f.faction_id
+                                                }
+                                                onClick={() =>
+                                                    setDetailsOf(
+                                                        detailsOf ===
+                                                            f.faction_id
+                                                            ? null
+                                                            : f.faction_id,
+                                                    )
+                                                }
+                                            >
+                                                État
+                                            </button>{" "}
+                                            {!f.deleted_at && (
+                                                <>
+                                                    <button
+                                                        type="button"
+                                                        className="button"
+                                                        onClick={() =>
+                                                            setApproved(
+                                                                f,
+                                                                !f.is_approved,
+                                                            )
+                                                        }
+                                                    >
+                                                        {f.is_approved
+                                                            ? "Retirer l'approbation"
+                                                            : "Approuver"}
+                                                    </button>{" "}
+                                                    <button
+                                                        type="button"
+                                                        className="button"
+                                                        onClick={() =>
+                                                            remove(f)
+                                                        }
+                                                    >
+                                                        Supprimer
+                                                    </button>
+                                                </>
+                                            )}
+                                        </td>
+                                    </tr>
+                                    {detailsOf === f.faction_id && (
+                                        <tr>
+                                            <td colSpan={5}>
+                                                <FactionStatePanel
+                                                    factionId={f.faction_id}
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
+                                </Fragment>
                             ))
                         )}
                     </tbody>

@@ -3,10 +3,20 @@ import { Link } from "react-router";
 
 import { useMe } from "../components/hooks/me";
 import AdminAudit from "../components/snippets/admin_audit";
+import AdminCurrencies from "../components/snippets/admin_currencies";
 import AdminFactions from "../components/snippets/admin_factions";
+import AdminOffers from "../components/snippets/admin_offers";
+import AdminTransactions from "../components/snippets/admin_transactions";
 import AdminUsers from "../components/snippets/admin_users";
 
-type Tab = "users" | "factions" | "trains" | "audit";
+type Tab =
+    | "users"
+    | "factions"
+    | "offers"
+    | "transactions"
+    | "currencies"
+    | "trains"
+    | "audit";
 
 /** The administration panel; the tabs shown depend on the server-wide roles. */
 export default function AdminPage() {
@@ -35,6 +45,9 @@ export default function AdminPage() {
             ? ([
                   ["users", "Comptes"],
                   ["factions", "Factions"],
+                  ["offers", "Offres"],
+                  ["transactions", "Transactions"],
+                  ["currencies", "Monnaies"],
               ] as [Tab, string][])
             : []),
         ["trains", "Trains, lignes et gares"],
@@ -67,6 +80,9 @@ export default function AdminPage() {
 
             {tab === "users" && isAdmin && <AdminUsers />}
             {tab === "factions" && isAdmin && <AdminFactions />}
+            {tab === "offers" && isAdmin && <AdminOffers />}
+            {tab === "transactions" && isAdmin && <AdminTransactions />}
+            {tab === "currencies" && isAdmin && <AdminCurrencies />}
             {tab === "trains" && (
                 <div className="snippet-container">
                     <h2>Trains, lignes et gares</h2>
