@@ -3,4 +3,4 @@ from .models import (AuditLog, Currency, CurrencyHistory, Faction, GlobalRole,
                      GlobalRoleName, JoinRequest, Line, LineStop, Notification,
                      Offer, OfferAction, OfferHistory, OfferStatus, OfferType,
                      Platform, Role, Station, Train, TrainHistory, Transaction,
-                     User)
+                     User, UserPreferences)

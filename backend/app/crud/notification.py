@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from ..database import Notification, Role, User
 from ..misc import FactionPermission
+from .preferences import wants_notification
 
 # The oldest ones go once a user has this many.
 MAX_PER_USER = 100
@@ -21,7 +22,10 @@ def notify(
     kind: str,
     message: str,
     link: Optional[str] = None,
-) -> Notification:
+) -> Optional[Notification]:
+    """Tell a user something, unless they switched this kind off."""
+    if not wants_notification(db, user_id, kind):
+        return None
     notification = Notification(
         user_id=user_id, kind=kind, message=message[:300], link=link
     )

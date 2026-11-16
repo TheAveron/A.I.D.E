@@ -12,3 +12,4 @@ from .station import Platform, Station
 from .train import Line, LineStop, Train, TrainHistory
 from .transaction import Transaction
 from .user import User
+from .user_preferences import UserPreferences

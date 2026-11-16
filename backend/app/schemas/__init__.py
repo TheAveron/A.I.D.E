@@ -17,6 +17,7 @@ from .join_request import JoinRequestCreate, JoinRequestOut
 from .offer import (OfferAccept, OfferAcceptOut, OfferBase, OfferCreate,
                     OfferOut, OfferStatus, OfferType, OfferUpdate)
 from .offer_history import OfferHistoryCreate, OfferHistoryOut
+from .preferences import PreferencesOut, PreferencesUpdate
 from .station import (PlatformCreate, PlatformOut, PlatformUpdate,
                       StationCreate, StationOut, StationUpdate)
 from .train import (LineCreate, LineOut, LineUpdate, StopsUpdate, TrainCreate,

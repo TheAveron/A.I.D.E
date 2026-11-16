@@ -7,7 +7,8 @@ from app.api import currencies as api
 from app.crud import currencies as crud
 from app.crud import currency_history as crud_hist
 from app.database import (Base, Currency, CurrencyHistory, Faction, GlobalRole,
-                          Offer, OfferHistory, Role, Transaction, User)
+                          Offer, OfferHistory, Role, Transaction, User,
+                          UserPreferences)
 from app.database.models import (currency, currency_history, faction,
                                  faction_role, user)
 from app.schemas import CurrencyCreate, CurrencyUpdate
@@ -22,6 +23,7 @@ TABLES = [
     Offer.__table__,
     OfferHistory.__table__,
     Transaction.__table__,
+    UserPreferences.__table__,
 ]
 
 
