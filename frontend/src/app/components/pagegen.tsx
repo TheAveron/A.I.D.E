@@ -44,8 +44,11 @@ function PageGenerator(page: string, render: boolean) {
             headerBlock.style.borderBottomWidth = "0";
         }
 
-        if (previousBlock) previousBlock.style.top = "unset";
+        if (previousBlock) {
+            previousBlock.style.marginTop = "0";
+            previousBlock.style.top = "unset";
 
+        }
         if (main) main.style.marginTop = "0";
 
         return () => {
@@ -59,7 +62,11 @@ function PageGenerator(page: string, render: boolean) {
                 headerBlock.style.borderBottomWidth = "1px";
             }
 
-            if (previousBlock) previousBlock.style.top = "var(--header-height)";
+            if (previousBlock) {
+                previousBlock.style.marginTop = "var(--header-height)";
+                previousBlock.style.top = "var(--header-height)";
+            }
+
             if (main) main.style.marginTop = "var(--header-height)";
 
             toggleLayout(true);

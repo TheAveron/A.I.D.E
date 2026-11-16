@@ -19,7 +19,7 @@ export function UserState({ userId }: { userId: number }) {
     return (
         <ul>
             <li>
-                <b>Compte</b> :
+                <b>Compte</b> : {" "}
                 <Link to={`/user/${data.user.user_id}`}>
                     {data.user.username}
                 </Link>{" "}
@@ -30,7 +30,7 @@ export function UserState({ userId }: { userId: number }) {
                 <b>Offres</b> : {counts(data.offers_by_status)}
             </li>
             <li>
-                <b>Transactions</b> :{data.purchases} achats, {data.sales}{" "}
+                <b>Transactions</b> : {data.purchases} achats, {data.sales}{" "}
                 ventes
             </li>
             <li>
