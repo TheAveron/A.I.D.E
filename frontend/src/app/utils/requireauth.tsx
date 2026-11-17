@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useAuth } from "./authcontext";
-import ThemeSync from "../components/snippets/theme_sync";
+import ThemeSync from "../components/common/theme_sync";
 
 export default function RequireAuth() {
     const auth = useAuth();

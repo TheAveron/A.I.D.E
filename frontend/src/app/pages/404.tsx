@@ -1,6 +1,6 @@
 import logo from "../../assets/images/Error.png";
 
-import { GoBackButton } from "../components/buttons/return";
+import { GoBackButton } from "../components/common/return";
 
 function Error404() {
     return (

@@ -9,37 +9,37 @@ import {
 const aideRoutes = [
     index("./app/pages/home.tsx"),
 
-    route("login", "./app/pages/login.tsx"),
-    route("register", "./app/pages/register.tsx"),
+    route("login", "./app/pages/auth/login.tsx"),
+    route("register", "./app/pages/auth/register.tsx"),
 
     layout("./app/utils/requireauth.tsx", [
         route("contribuer", "./app/pages/contribution.tsx"),
-        route("factions", "./app/pages/factions.tsx"),
-        route("profile", "./app/pages/profile.tsx"),
-        route("offers", "./app/pages/offers.tsx"),
-        route("transactions", "./app/pages/transactions.tsx"),
-        route("notifications", "./app/pages/notifications.tsx"),
-        route("trains", "./app/pages/trains.tsx"),
-        route("trains/new", "./app/pages/train_new.tsx"),
-        route("train/:trainid", "./app/pages/train_page.tsx"),
-        route("lines", "./app/pages/lines.tsx"),
-        route("line/:code", "./app/pages/line_page.tsx"),
-        route("stations", "./app/pages/stations.tsx"),
-        route("station/:stationid", "./app/pages/station_page.tsx"),
-        route("admin", "./app/pages/admin.tsx"),
+        route("factions", "./app/pages/factions/factions.tsx"),
+        route("profile", "./app/pages/users/profile.tsx"),
+        route("offers", "./app/pages/offers/offers.tsx"),
+        route("transactions", "./app/pages/offers/transactions.tsx"),
+        route("notifications", "./app/pages/users/notifications.tsx"),
+        route("trains", "./app/pages/network/trains.tsx"),
+        route("trains/new", "./app/pages/network/train_new.tsx"),
+        route("train/:trainid", "./app/pages/network/train_page.tsx"),
+        route("lines", "./app/pages/network/lines.tsx"),
+        route("line/:code", "./app/pages/network/line_page.tsx"),
+        route("stations", "./app/pages/network/stations.tsx"),
+        route("station/:stationid", "./app/pages/network/station_page.tsx"),
+        route("admin", "./app/pages/admin/admin.tsx"),
 
-        route("faction/:factionid", "./app/pages/faction_page.tsx"),
+        route("faction/:factionid", "./app/pages/factions/faction_page.tsx"),
         route(
             "faction/:factionid/documents/new",
-            "./app/pages/document_editor.tsx",
+            "./app/pages/factions/document_editor.tsx",
             { id: "document-new" },
         ),
         route(
             "faction/:factionid/documents/:docname/edit",
-            "./app/pages/document_editor.tsx",
+            "./app/pages/factions/document_editor.tsx",
             { id: "document-edit" },
         ),
-        route("user/:userid", "./app/pages/user_page.tsx"),
+        route("user/:userid", "./app/pages/users/user_page.tsx"),
     ]),
 
     ...prefix("archives", [
@@ -61,7 +61,7 @@ const aideRoutes = [
     ]),
 
     route("actual", "./app/pages/archives/maps/currentmap.tsx"),
-    route("network", "./app/pages/network.tsx"),
+    route("network", "./app/pages/network/network.tsx"),
 
     route(
         "documentation/AgeOfSteam",

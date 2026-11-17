@@ -1,6 +1,6 @@
-import { GoBackButton } from "../../../components/buttons/return";
-import { useFullscreenMap } from "../../../components/hooks/fullscreen_map";
-import MapViewer from "../../../components/snippets/map_viewer";
+import { GoBackButton } from "../../../components/common/return";
+import { useFullscreenMap } from "../../../hooks/network/fullscreen_map";
+import MapViewer from "../../../components/network/map_viewer";
 import { CURRENT_MAP_FOLDER, getLabelFromFolder } from "../../../utils/maps";
 
 /** The current server's map: the native viewer, with the factions' overlays. */

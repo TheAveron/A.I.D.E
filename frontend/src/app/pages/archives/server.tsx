@@ -1,5 +1,5 @@
-import PageGenerator from "../../components/pagegen";
-import { GoBackButton } from "../../components/buttons/return";
+import PageGenerator from "../../components/layout/pagegen";
+import { GoBackButton } from "../../components/common/return";
 import { getLabelFromFolder } from "../../utils/maps";
 
 function ServerPage(servername: string) {
