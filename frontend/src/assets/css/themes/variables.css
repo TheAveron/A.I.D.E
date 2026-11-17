@@ -20,7 +20,7 @@
     --font-display: "Chakra Petch", "Roboto", system-ui, sans-serif;
     --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
 
-    /* Keep in sync with the inline values restored by components/pagegen.tsx */
+    /* Header height; map pages fold it with inline styles (hooks/fullscreen_map.ts) */
     --header-height: 75px;
     --content-width: 90rem;
     --text-width: 42rem;

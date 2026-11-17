@@ -12,7 +12,7 @@ function ServerPage(servername: string) {
                 </div>
             </div>
 
-            {PageGenerator(servername, false)}
+            {PageGenerator(servername)}
         </>
     );
 }

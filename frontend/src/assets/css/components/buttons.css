@@ -142,7 +142,7 @@ td .button {
     fill: inherit;
 }
 
-/* Back button: top-left under the header (top is also written by pagegen.tsx) */
+/* Back button: top-left under the header (top is also written on map pages by hooks/fullscreen_map.ts) */
 #previous {
     position: absolute;
     left: clamp(1rem, 4vw, 3rem);

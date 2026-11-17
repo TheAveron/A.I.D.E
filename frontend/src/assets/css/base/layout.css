@@ -21,7 +21,7 @@ body {
     background-size: 32px 32px;
 }
 
-/* margin-top is also written inline by components/pagegen.tsx (map view) */
+/* margin-top is also written inline on map pages (components/hooks/fullscreen_map.ts) */
 main {
     flex: 1 0 auto;
     width: 100%;

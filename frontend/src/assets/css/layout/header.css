@@ -1,7 +1,7 @@
 /*
- * The header is collapsed / restored by components/pagegen.tsx with inline
- * styles (map view), so its size must not rely on !important and must match
- * the 75px minimum height that file restores.
+ * Map pages fold the header with inline styles (hooks/fullscreen_map.ts), so
+ * its size must not rely on !important. The inline styles are removed when
+ * leaving the map, which hands the size back to this stylesheet.
  */
 header {
     position: fixed;
@@ -31,7 +31,7 @@ header {
         border-width 0.4s ease-out;
 }
 
-/* Visible so that the "Plus" menu can drop out of the bar, except while pagegen folds it */
+/* Visible so that the "Plus" menu can drop out of the bar, except while a map page folds it */
 header[style*="height: 0"] {
     overflow: hidden;
 }
