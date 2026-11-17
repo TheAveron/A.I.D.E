@@ -1,0 +1,191 @@
+import { Link, useParams } from "react-router";
+
+import { useRole } from "../../hooks/factions/role";
+import { useMembers } from "../../hooks/factions/factionmembers";
+import { useMe } from "../../hooks/users/me";
+import { UpdateRole } from "../factions/updaterole";
+import { KickMemberButton } from "../factions/kickmember";
+import { TransferLeadershipButton } from "../factions/transferleadership";
+
+import type { CSSProperties } from "react";
+
+function RoleElement({
+    role_id,
+    faction_id,
+    user_id,
+    username,
+    canManage,
+    isLeader,
+    onRoleUpdated,
+}: {
+    username: string;
+    role_id: number | null;
+    faction_id: number | null;
+    user_id: number;
+    // Whether the *viewer* may change this member's role (not a property of
+    // the member's own role).
+    canManage: boolean;
+    // Whether the viewer is the leader of this faction (may hand it over)
+    isLeader: boolean;
+    onRoleUpdated: () => void;
+}) {
+    const { role } = useRole(role_id);
+
+    if (!role_id) {
+        return (
+            <>
+                <td>Pas de rôle renseigné</td>
+                <td></td>
+            </>
+        );
+    }
+
+    if (!role) {
+        return (
+            <>
+                <td>No role found with this id</td>
+                <td></td>
+            </>
+        );
+    }
+
+    return (
+        <>
+            <td>{role.name}</td>
+            {canManage &&
+                role.faction_id === faction_id &&
+                role.name != "Chef" && (
+                    <td>
+                        <UpdateRole
+                            userId={user_id}
+                            currentRoleId={role_id}
+                            factionId={faction_id}
+                            onRoleUpdated={onRoleUpdated}
+                        />{" "}
+                        <KickMemberButton
+                            userId={user_id}
+                            username={username}
+                            onKicked={onRoleUpdated}
+                        />
+                        {isLeader && faction_id !== null && (
+                            <>
+                                {" "}
+                                <TransferLeadershipButton
+                                    factionId={faction_id}
+                                    userId={user_id}
+                                    username={username}
+                                    onDone={onRoleUpdated}
+                                />
+                            </>
+                        )}
+                    </td>
+                )}
+        </>
+    );
+}
+
+function UsersTable({ state = false }: { state: boolean }) {
+    const { factionid } = useParams();
+    const { users, loading, error, refresh } = useMembers(factionid ?? null);
+    const { user: current_user } = useMe();
+    const { role: myRole } = useRole(current_user?.role_id ?? null);
+
+    // The viewer can manage members of the faction being displayed only if
+    // they belong to it and their role has handle_members.
+    const viewerCanManage =
+        !!current_user &&
+        !!myRole?.handle_members &&
+        myRole.faction_id === current_user.faction_id &&
+        current_user.faction_id?.toString() === factionid;
+
+    const style: CSSProperties = { gridColumn: "2 / span 2" };
+    const nostyle: CSSProperties = { gridColumn: "1 / span 2" };
+
+    return (
+        <div
+            id="user-list"
+            className="snippet-container users-container"
+            style={state ? nostyle : style}
+        >
+            <div className="info-header">
+                <div className="info-title">Membres</div>
+            </div>
+            <div className="info-values table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th colSpan={2}>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {!error ? (
+                            !loading ? (
+                                users && users.length > 0 ? (
+                                    users.map((user) => (
+                                        <tr key={user.user_id}>
+                                            <td>
+                                                <Link
+                                                    to={`/user/${user.user_id}`}
+                                                >
+                                                    {user.username}
+                                                </Link>
+                                            </td>
+                                            <RoleElement
+                                                user_id={user.user_id}
+                                                username={user.username}
+                                                role_id={user.role_id}
+                                                faction_id={
+                                                    current_user?.faction_id ??
+                                                    null
+                                                }
+                                                canManage={
+                                                    viewerCanManage &&
+                                                    user.user_id !==
+                                                        current_user?.user_id
+                                                }
+                                                isLeader={
+                                                    myRole?.name === "Chef" &&
+                                                    myRole.faction_id ===
+                                                        current_user?.faction_id
+                                                }
+                                                onRoleUpdated={refresh}
+                                            />
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={3}>
+                                            Aucun utilisateur trouvé.
+                                        </td>
+                                    </tr>
+                                )
+                            ) : (
+                                <tr>
+                                    <td colSpan={3}>
+                                        Chargement des membres...
+                                    </td>
+                                </tr>
+                            )
+                        ) : (
+                            <tr>
+                                <td colSpan={3}>
+                                    <p>{error}</p>
+                                    <button
+                                        type="button"
+                                        className="button"
+                                        onClick={refresh}
+                                    >
+                                        Réessayer
+                                    </button>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
+
+export default UsersTable;

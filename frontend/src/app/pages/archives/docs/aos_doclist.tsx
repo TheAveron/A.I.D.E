@@ -1,5 +1,5 @@
 /*import { Link } from "react-router";*/
-import { GoBackButton } from "../../../components/buttons/return";
+import { GoBackButton } from "../../../components/common/return";
 
 function AOSdocs() {
     return (

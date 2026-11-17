@@ -1,0 +1,218 @@
+import { useNewOffer } from "../../hooks/offers/offers";
+import { useMe } from "../../hooks/users/me";
+import { useRole } from "../../hooks/factions/role";
+
+export function NewOffer({ onCreated }: { onCreated?: () => void }) {
+    const { user } = useMe();
+    const { role } = useRole(user?.role_id ?? null);
+
+    const {
+        form,
+        loading,
+        message,
+        onSubmit,
+        isOpen,
+        setIsOpen,
+        forFaction,
+        setForFaction,
+        audienceUsers,
+        setAudienceUsers,
+        audienceFactions,
+        setAudienceFactions,
+        expiresAt,
+        setExpiresAt,
+    } = useNewOffer(onCreated);
+
+    const {
+        register,
+        formState: { errors },
+    } = form;
+
+    return (
+        <div>
+            <button
+                type="button"
+                className="button"
+                onClick={() => setIsOpen(true)}
+            >
+                Créer une offre
+            </button>
+
+            {isOpen && (
+                <div
+                    className="modal-container"
+                    onClick={() => setIsOpen(false)}
+                >
+                    <div onClick={(e) => e.stopPropagation()} className="modal">
+                        <h2>Créer une offre</h2>
+                        <form onSubmit={onSubmit}>
+                            <div className="modal-field">
+                                <label>Type</label>
+                                <select {...register("offer_type")}>
+                                    <option value="">
+                                        Sélectionner un type
+                                    </option>
+                                    <option value="BUY">Acheter</option>
+                                    <option value="SELL">Vendre</option>
+                                </select>
+                                {errors.offer_type && (
+                                    <p>{errors.offer_type.message}</p>
+                                )}
+                            </div>
+
+                            <div className="modal-field">
+                                <label>Description</label>
+                                <input
+                                    type="text"
+                                    {...register("item_description")}
+                                />
+                                {errors.item_description && (
+                                    <p>{errors.item_description.message}</p>
+                                )}
+                            </div>
+
+                            <div className="modal-field">
+                                <label>Monnaie</label>
+                                <input
+                                    type="text"
+                                    {...register("currency_name")}
+                                />
+                                {errors.currency_name && (
+                                    <p>{errors.currency_name.message}</p>
+                                )}
+                            </div>
+
+                            <div className="modal-field">
+                                <label>Prix par unité</label>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    min="0"
+                                    {...register("price_per_unit")}
+                                />
+                                {errors.price_per_unit && (
+                                    <p>{errors.price_per_unit.message}</p>
+                                )}
+                            </div>
+
+                            <div className="modal-field">
+                                <label>Quantité</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    step="1"
+                                    {...register("quantity")}
+                                />
+                                {errors.quantity && (
+                                    <p>{errors.quantity.message}</p>
+                                )}
+                            </div>
+
+                            {role?.create_offers ? (
+                                <div className="modal-field">
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={forFaction}
+                                            onChange={(e) =>
+                                                setForFaction(e.target.checked)
+                                            }
+                                        />
+                                        Pour la faction
+                                    </label>
+                                </div>
+                            ) : (
+                                <></>
+                            )}
+
+                            <div className="modal-field">
+                                <label>
+                                    Réservée aux utilisateurs (noms séparés par
+                                    des virgules)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={audienceUsers}
+                                    onChange={(e) =>
+                                        setAudienceUsers(e.target.value)
+                                    }
+                                />
+                            </div>
+                            <div className="modal-field">
+                                <label>
+                                    Réservée aux membres des factions (noms
+                                    séparés par des virgules)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={audienceFactions}
+                                    onChange={(e) =>
+                                        setAudienceFactions(e.target.value)
+                                    }
+                                />
+                                <small>
+                                    Vide : l'offre est visible par tous.
+                                </small>
+                            </div>
+                            <div className="modal-field">
+                                <label>Expire le (facultatif)</label>
+                                <input
+                                    type="datetime-local"
+                                    value={expiresAt}
+                                    onChange={(e) =>
+                                        setExpiresAt(e.target.value)
+                                    }
+                                />
+                                <small>
+                                    Vide : l'offre reste ouverte jusqu'à son
+                                    annulation.
+                                </small>
+                            </div>
+
+                            <div className="modal-buttons">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: loading
+                                            ? "#555"
+                                            : "#4CAF50",
+                                        padding: "10px 20px",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        color: "white",
+                                        cursor: loading
+                                            ? "not-allowed"
+                                            : "pointer",
+                                    }}
+                                >
+                                    {loading ? "Création..." : "Créer"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsOpen(false)}
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: "#d9534f",
+                                        padding: "10px 20px",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        color: "white",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Annuler
+                                </button>
+                            </div>
+                        </form>
+
+                        {message && (
+                            <p style={{ marginTop: "10px" }}>{message}</p>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

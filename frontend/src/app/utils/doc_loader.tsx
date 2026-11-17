@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState, type MouseEvent } from "react";
 
 import ReactMarkdown, { type Components } from "react-markdown";
-import { GoBackButton } from "../components/buttons/return";
+import { GoBackButton } from "../components/common/return";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 
