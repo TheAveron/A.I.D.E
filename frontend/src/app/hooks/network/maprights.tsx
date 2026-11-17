@@ -24,6 +24,8 @@ export function useMapRights() {
 
     const canEditMarker = (marker: MarkerType): boolean => {
         if (!user) return false;
+        // The spawn belongs to the admins, whoever put it there
+        if (marker.kind === "spawn") return isAdmin;
         if (marker.user_id !== null) {
             return isAdmin || marker.user_id === user.user_id;
         }

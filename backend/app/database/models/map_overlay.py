@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (JSON, CheckConstraint, DateTime, ForeignKey, Integer,
-                        String, Text, UniqueConstraint)
+from sqlalchemy import (JSON, CheckConstraint, DateTime, ForeignKey, Index,
+                        Integer, String, Text, UniqueConstraint, text)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..clock import utcnow
@@ -65,6 +65,14 @@ class MapMarker(Base):
             "(faction_id IS NOT NULL AND user_id IS NULL) OR "
             "(faction_id IS NULL AND user_id IS NOT NULL)",
             name="ck_map_marker_one_owner",
+        ),
+        # One spawn per map (the rules before that are in crud/map_overlay.py)
+        Index(
+            "uq_map_one_spawn",
+            "map_name",
+            unique=True,
+            postgresql_where=text("kind = 'spawn'"),
+            sqlite_where=text("kind = 'spawn'"),
         ),
     )
 

@@ -15,7 +15,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..database import Faction, MapMarker, MapTerritory, User
-from ..misc import FactionPermission, check_faction_permission
+from ..misc import FactionPermission, MarkerKind, check_faction_permission
 from ..schemas import (MarkerCreate, MarkerUpdate, TerritoryCreate,
                        TerritoryUpdate)
 
@@ -173,9 +173,50 @@ def check_can_manage_marker(user: User, marker: MapMarker) -> None:
         raise _error(status.HTTP_403_FORBIDDEN, "You can't change this marker")
 
 
+def is_spawn(kind) -> bool:
+    return getattr(kind, "value", kind) == MarkerKind.SPAWN.value
+
+
+def check_spawn_rules(
+    db: Session,
+    user: User,
+    map_name: str,
+    *,
+    current: Optional[MapMarker] = None,
+    new_kind=None,
+) -> None:
+    """The spawn is one per map, and only an admin places, moves or removes it.
+
+    `current` is the marker being changed or deleted, `new_kind` the kind that
+    a creation or an update asks for.
+    """
+    touches_spawn = is_spawn(new_kind) or (
+        current is not None and is_spawn(current.kind)
+    )
+    if not touches_spawn:
+        return
+    if not user.is_admin:
+        raise _error(
+            status.HTTP_403_FORBIDDEN, "Only an admin can place or move the spawn"
+        )
+    if is_spawn(new_kind) and not (current is not None and is_spawn(current.kind)):
+        taken = (
+            db.query(MapMarker)
+            .filter(MapMarker.map_name == map_name, MapMarker.kind == "spawn")
+            .first()
+        )
+        if taken:
+            raise _error(
+                status.HTTP_409_CONFLICT,
+                "This map already has a spawn: move it instead",
+            )
+
+
 def is_marker_override(user: User, marker: MapMarker) -> bool:
     if not user.is_admin:
         return False
+    if is_spawn(marker.kind):
+        return True  # the spawn is common property: every change is audited
     if marker.user_id is not None:
         return marker.user_id != user.user_id
     return not holds_manage_territory(user, marker.faction_id)
@@ -187,6 +228,12 @@ def create_marker(
     """Returns the marker and whether an admin made it for somebody else."""
     fields = data.model_dump(exclude={"faction_id", "user_id"})
     override = False
+    check_spawn_rules(db, user, data.map_name, new_kind=data.kind)
+    if is_spawn(data.kind):
+        # Nobody owns the spawn: it is stored under the admin who sets it
+        if data.faction_id is not None or data.user_id not in (None, user.user_id):
+            raise _error(status.HTTP_400_BAD_REQUEST, "The spawn has no owner")
+        override = True
     if data.faction_id is not None:
         _live_faction(db, data.faction_id)
         holds = holds_manage_territory(user, data.faction_id)
@@ -234,7 +281,10 @@ def create_marker(
     return marker, override
 
 
-def update_marker(db: Session, marker: MapMarker, data: MarkerUpdate) -> MapMarker:
+def update_marker(
+    db: Session, user: User, marker: MapMarker, data: MarkerUpdate
+) -> MapMarker:
+    check_spawn_rules(db, user, marker.map_name, current=marker, new_kind=data.kind)
     for name, value in data.model_dump(exclude_unset=True).items():
         setattr(marker, name, value.value if hasattr(value, "value") else value)
     db.flush()
