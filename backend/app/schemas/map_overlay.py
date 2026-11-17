@@ -120,7 +120,7 @@ class MarkerCreate(BaseModel):
     map_name: str
     label: str = Field(..., min_length=1, max_length=60)
     description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
-    kind: MarkerKind = MarkerKind.OTHER
+    kind: MarkerKind = MarkerKind.GENERIC
     x: Coordinate
     z: Coordinate
     # Exactly one owner; neither means the caller themselves

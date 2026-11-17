@@ -1,5 +1,3 @@
-import type { MarkerKind } from "../types/map";
-
 const PALETTE = [
     "#e6194b",
     "#3cb44b",
@@ -29,11 +27,3 @@ export function withAlpha(hex: string, alpha: number): string {
     const b = value & 255;
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
-
-export const MARKER_COLORS: Record<MarkerKind, string> = {
-    base: "#ffb300",
-    resource: "#2e9e5b",
-    portal: "#8e44ad",
-    landmark: "#1e88e5",
-    other: "#9e9e9e",
-};

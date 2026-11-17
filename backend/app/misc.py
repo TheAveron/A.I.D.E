@@ -68,11 +68,18 @@ class TrainService(str, Enum):
 class MarkerKind(str, Enum):
     """What a point of interest on the map is (picks its icon and legend)."""
 
-    BASE = "base"
-    RESOURCE = "resource"
-    PORTAL = "portal"
-    LANDMARK = "landmark"
-    OTHER = "other"
+    CITY = "city"  # a town or a project
+    STATION = "station"
+    TRIAL_CHAMBER = "trial_chamber"
+    VILLAGE = "village"
+    OCEAN_MONUMENT = "ocean_monument"
+    ANCIENT_CITY = "ancient_city"
+    STRONGHOLD = "stronghold"
+    NETHER_BASTION = "nether_bastion"
+    NETHER_FORTRESS = "nether_fortress"
+    END_CITY = "end_city"
+    SPAWN = "spawn"
+    GENERIC = "generic"  # a plain dot
 
 
 class FactionPermission(str, Enum):

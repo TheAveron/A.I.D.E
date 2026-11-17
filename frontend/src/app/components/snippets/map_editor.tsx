@@ -14,6 +14,7 @@ import { MARKER_KINDS } from "../../types/map";
 import type { MarkerKind, MarkerType, TerritoryType } from "../../types/map";
 import { getErrorMessage } from "../../utils/apierror";
 import { factionColor } from "../../utils/mapcolors";
+import { iconUrl } from "../../utils/mapicons";
 import type { MapGeometry } from "../../utils/unmined";
 import { useFactions } from "../hooks/factions";
 import { useMapRights } from "../hooks/maprights";
@@ -294,7 +295,7 @@ export default function MapEditor({
             id: null,
             label: "",
             description: "",
-            markerKind: "other",
+            markerKind: "generic",
             x: "",
             z: "",
             factionId: null,
@@ -641,26 +642,34 @@ export default function MapEditor({
                     </label>
                     <label>
                         Type
-                        <select
-                            value={draft.markerKind}
-                            onChange={(e) =>
-                                setDraft({
-                                    ...draft,
-                                    markerKind: e.target.value as MarkerKind,
-                                })
-                            }
-                        >
-                            {(
-                                Object.entries(MARKER_KINDS) as [
-                                    MarkerKind,
-                                    string,
-                                ][]
-                            ).map(([key, label]) => (
-                                <option key={key} value={key}>
-                                    {label}
-                                </option>
-                            ))}
-                        </select>
+                        <span className="map-kind-select">
+                            <img
+                                className="map-kind-icon"
+                                src={iconUrl(draft.markerKind)}
+                                alt=""
+                            />
+                            <select
+                                value={draft.markerKind}
+                                onChange={(e) =>
+                                    setDraft({
+                                        ...draft,
+                                        markerKind: e.target
+                                            .value as MarkerKind,
+                                    })
+                                }
+                            >
+                                {(
+                                    Object.entries(MARKER_KINDS) as [
+                                        MarkerKind,
+                                        string,
+                                    ][]
+                                ).map(([key, label]) => (
+                                    <option key={key} value={key}>
+                                        {label}
+                                    </option>
+                                ))}
+                            </select>
+                        </span>
                     </label>
                     {draft.id === null && (
                         <label>

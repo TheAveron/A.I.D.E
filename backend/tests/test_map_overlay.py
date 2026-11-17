@@ -51,7 +51,7 @@ def _territory(env, who="alice", **extra):  # noqa: F811
 
 
 def _marker(env, who="alice", **extra):  # noqa: F811
-    body = {"map_name": MAP, "label": "Mine", "kind": "resource", "x": 10, "z": -20}
+    body = {"map_name": MAP, "label": "Mine", "kind": "village", "x": 10, "z": -20}
     body.update(extra)
     return env.client.post("/map/markers", json=body, headers=env.h(who))
 
@@ -212,7 +212,7 @@ def test_deleting_a_faction_removes_what_it_drew(menv):
 
 
 def test_anybody_places_their_own_marker(menv):
-    r = _marker(menv, "newbie", label="Ma cabane", kind="base")
+    r = _marker(menv, "newbie", label="Ma cabane", kind="city")
     assert r.status_code == 201, r.text
     body = r.json()
     assert (body["owner_name"], body["user_id"], body["faction_id"]) == (
@@ -252,7 +252,7 @@ def test_only_the_owner_changes_a_marker(menv):
     assert put(mine, "newbie", label="Renommé", x=5).status_code == 200
     assert put(mine, "alice", label="vol").status_code == 403
     assert put(faction, "bob", label="vol").status_code == 403
-    assert put(faction, "alice", kind="portal").json()["kind"] == "portal"
+    assert put(faction, "alice", kind="spawn").json()["kind"] == "spawn"
     assert put(mine, "newbie", x=None).status_code == 422
     assert (
         menv.client.delete(f"/map/markers/{faction}", headers=menv.h("bob")).status_code
@@ -309,3 +309,26 @@ def test_roles_carry_the_permission(menv):
     roles = menv.client.get("/roles/faction/1", headers=menv.h("alice")).json()
     chef = next(r for r in roles if r["name"] == "Chef")
     assert chef["manage_territory"] is True
+
+
+def test_every_listed_kind_is_accepted_and_the_old_ones_are_not(menv):
+    kinds = [
+        "city",
+        "station",
+        "trial_chamber",
+        "village",
+        "ocean_monument",
+        "ancient_city",
+        "stronghold",
+        "nether_bastion",
+        "nether_fortress",
+        "end_city",
+        "spawn",
+        "generic",
+    ]
+    for kind in kinds:
+        r = _marker(menv, "newbie", label=f"p-{kind}", kind=kind)
+        assert r.status_code == 201, (kind, r.text)
+        assert r.json()["kind"] == kind
+    for old in ("base", "resource", "portal", "landmark", "other"):
+        assert _marker(menv, "newbie", label="x", kind=old).status_code == 422

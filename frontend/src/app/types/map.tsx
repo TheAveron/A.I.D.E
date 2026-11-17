@@ -1,12 +1,19 @@
-export type MarkerKind = "base" | "resource" | "portal" | "landmark" | "other";
+export const MARKER_KINDS = {
+    city: "Ville / Projet",
+    station: "Gare",
+    trial_chamber: "Trial chamber",
+    village: "Village",
+    ocean_monument: "Ocean monument",
+    ancient_city: "Ancient city",
+    stronghold: "Stronghold",
+    nether_bastion: "Bastion du Nether",
+    nether_fortress: "Forteresse du Nether",
+    end_city: "Cité de l'End",
+    spawn: "Spawn",
+    generic: "Point d'intérêt",
+} as const;
 
-export const MARKER_KINDS: Record<MarkerKind, string> = {
-    base: "Base",
-    resource: "Ressource",
-    portal: "Portail",
-    landmark: "Point de repère",
-    other: "Autre",
-};
+export type MarkerKind = keyof typeof MARKER_KINDS;
 
 export interface TerritoryType {
     territory_id: number;

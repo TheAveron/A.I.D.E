@@ -10,13 +10,21 @@ import VectorSource from "ol/source/Vector";
 import XYZ from "ol/source/XYZ";
 import MousePosition from "ol/control/MousePosition";
 import { Point, Polygon } from "ol/geom";
-import { Circle as CircleStyle, Fill, Stroke, Style, Text } from "ol/style";
+import {
+    Circle as CircleStyle,
+    Fill,
+    Icon,
+    Stroke,
+    Style,
+    Text,
+} from "ol/style";
 import type { FeatureLike } from "ol/Feature";
 
 import { MARKER_KINDS } from "../../types/map";
 import type { MarkerKind } from "../../types/map";
 import { DIMENSIONS } from "../../types/trains";
-import { factionColor, MARKER_COLORS, withAlpha } from "../../utils/mapcolors";
+import { factionColor, withAlpha } from "../../utils/mapcolors";
+import { iconUrl } from "../../utils/mapicons";
 import { buildGeometry } from "../../utils/unmined";
 import type { MapGeometry, UnminedData } from "../../utils/unmined";
 import { useMapOverlay, useUnminedData } from "../hooks/map";
@@ -55,6 +63,29 @@ function labelStyle(text: string, color = "#fff") {
     });
 }
 
+const ICON_SIZE = { station: 32, other: 40 };
+const iconCache = new Map<string, Icon>();
+
+/** The icon of a kind (built once: the image is loaded once), with a label. */
+function iconStyle(kind: MarkerKind, text: string) {
+    let icon = iconCache.get(kind);
+    if (!icon) {
+        const size = kind === "station" ? ICON_SIZE.station : ICON_SIZE.other;
+        icon = new Icon({ src: iconUrl(kind), width: size, height: size });
+        iconCache.set(kind, icon);
+    }
+    return new Style({
+        image: icon,
+        text: new Text({
+            text,
+            offsetY: kind === "station" ? 26 : 30,
+            font: "600 12px sans-serif",
+            fill: new Fill({ color: "#fff" }),
+            stroke: new Stroke({ color: "rgba(0,0,0,0.85)", width: 3 }),
+        }),
+    });
+}
+
 function dot(color: string, radius: number, text?: string) {
     return new Style({
         image: new CircleStyle({
@@ -81,6 +112,7 @@ function MapCanvas({
         null,
     );
     const hiddenFactions = useRef<Set<number>>(new Set());
+    const hiddenKinds = useRef<Set<MarkerKind>>(new Set());
     // Set by the editor: a drawing in progress ignores clicks, and a pick
     // takes the next click as coordinates.
     const busyRef = useRef(false);
@@ -98,6 +130,7 @@ function MapCanvas({
         players: true,
     });
     const [hidden, setHidden] = useState<number[]>([]);
+    const [hiddenKindList, setHiddenKindList] = useState<MarkerKind[]>([]);
     const [selection, setSelection] = useState<Selection | null>(null);
     const [coords, setCoords] = useState({ x: "", z: "" });
     const [goError, setGoError] = useState<string | null>(null);
@@ -157,16 +190,23 @@ function MapCanvas({
                 }),
             });
         });
-        vectors.stations.setStyle((feature: FeatureLike) =>
-            dot("#fff", 5, feature.get("title") as string),
-        );
-        vectors.markers.setStyle((feature: FeatureLike) =>
-            dot(
-                MARKER_COLORS[feature.get("markerKind") as MarkerKind],
-                7,
-                feature.get("title") as string,
-            ),
-        );
+        // Stations and points of interest share the kinds' icons and can be
+        // hidden kind by kind from the legend.
+        const kindStyle = (feature: FeatureLike) => {
+            const kind = feature.get("markerKind") as MarkerKind;
+            if (hiddenKinds.current.has(kind)) return undefined;
+            return iconStyle(kind, feature.get("title") as string);
+        };
+        vectors.stations.setStyle(kindStyle);
+        vectors.markers.setStyle(kindStyle);
+        // The icons are pixel art (often 16x16 textures): scale them without
+        // smoothing so that they stay crisp.
+        for (const layer of [vectors.stations, vectors.markers]) {
+            layer.on("prerender", (event) => {
+                const context = event.context as CanvasRenderingContext2D;
+                context.imageSmoothingEnabled = false;
+            });
+        }
         vectors.players.setStyle((feature: FeatureLike) =>
             dot("#e53935", 5, feature.get("title") as string),
         );
@@ -287,7 +327,8 @@ function MapCanvas({
                 return new Feature({
                     geometry: new Point(geometry.toView([s.x, s.z])),
                     title: s.name,
-                    kindLabel: "Gare",
+                    kindLabel: MARKER_KINDS.station,
+                    markerKind: "station",
                     details: [
                         `X ${s.x}   Z ${s.z}`,
                         ...(served.length
@@ -359,6 +400,21 @@ function MapCanvas({
         layers.current?.territories.changed();
     }, [hidden]);
 
+    useEffect(() => {
+        hiddenKinds.current = new Set(hiddenKindList);
+        layers.current?.stations.changed();
+        layers.current?.markers.changed();
+    }, [hiddenKindList]);
+
+    // The kinds on the map, in the order of the list of kinds
+    const kinds = useMemo(() => {
+        const present = new Set<MarkerKind>(overlay.markers.map((m) => m.kind));
+        if (overlay.stations.length > 0) present.add("station");
+        return (Object.keys(MARKER_KINDS) as MarkerKind[]).filter((k) =>
+            present.has(k),
+        );
+    }, [overlay.markers, overlay.stations]);
+
     const factions = useMemo(() => {
         const seen = new Map<number, { name: string; color: string }>();
         for (const t of overlay.territories) {
@@ -396,6 +452,14 @@ function MapCanvas({
             center: geometry.toView([x, z]),
             duration: 400,
         });
+    }
+
+    function toggleKind(kind: MarkerKind) {
+        setHiddenKindList((current) =>
+            current.includes(kind)
+                ? current.filter((k) => k !== kind)
+                : [...current, kind],
+        );
     }
 
     function toggleFaction(id: number) {
@@ -454,6 +518,33 @@ function MapCanvas({
                                             style={{ background: f.color }}
                                         />
                                         {f.name}
+                                    </label>
+                                </li>
+                            ))}
+                        </ul>
+                    </>
+                )}
+
+                {kinds.length > 0 && (
+                    <>
+                        <h3>Légende</h3>
+                        <ul className="map-layers">
+                            {kinds.map((kind) => (
+                                <li key={kind}>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={
+                                                !hiddenKindList.includes(kind)
+                                            }
+                                            onChange={() => toggleKind(kind)}
+                                        />
+                                        <img
+                                            className="map-kind-icon"
+                                            src={iconUrl(kind)}
+                                            alt=""
+                                        />
+                                        {MARKER_KINDS[kind]}
                                     </label>
                                 </li>
                             ))}

@@ -155,3 +155,24 @@
     flex-direction: column;
     gap: 0.2rem;
 }
+
+.map-kind-icon {
+    width: 1.4rem;
+    height: 1.4rem;
+    flex-shrink: 0;
+}
+
+.map-kind-select {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.map-kind-select select {
+    flex: 1;
+    min-width: 0;
+}
+
+.map-kind-icon {
+    image-rendering: pixelated;
+}

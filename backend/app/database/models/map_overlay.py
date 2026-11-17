@@ -75,7 +75,7 @@ class MapMarker(Base):
     label: Mapped[str] = mapped_column(String(60), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     # A MarkerKind value
-    kind: Mapped[str] = mapped_column(String(20), nullable=False, default="other")
+    kind: Mapped[str] = mapped_column(String(20), nullable=False, default="generic")
 
     x: Mapped[int] = mapped_column(Integer, nullable=False)
     z: Mapped[int] = mapped_column(Integer, nullable=False)
