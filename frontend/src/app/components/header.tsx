@@ -185,6 +185,9 @@ function LoggedInNav() {
                     Trains
                 </Link>
                 <MoreMenu>
+                    <Link className="link" to="/network">
+                        Réseau ferré
+                    </Link>
                     <Link className="link" to="/documentation/AgeOfSteam">
                         Documentation
                     </Link>
@@ -226,6 +229,9 @@ function LoggedOutNav() {
             <div className="nav-links">
                 <Link className="link" to="/actual">
                     Carte
+                </Link>
+                <Link className="link" to="/network">
+                    Réseau ferré
                 </Link>
                 <Link className="link" to="/documentation/AgeOfSteam">
                     Documentation

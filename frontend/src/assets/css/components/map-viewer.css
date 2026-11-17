@@ -131,3 +131,20 @@
 .map-mouse-position:empty {
     display: none;
 }
+
+.map-editor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.4rem 0;
+}
+
+.map-editor-form {
+    gap: 0.5rem;
+}
+
+.map-editor-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}

@@ -16,6 +16,9 @@ export default function LinesPage() {
             <div className="snippet-container">
                 <div className="offers-header">
                     <h2>Lignes</h2>
+                    <Link className="button" to="/network">
+                        Réseau
+                    </Link>
                     <Link className="button" to="/stations">
                         Gares
                     </Link>

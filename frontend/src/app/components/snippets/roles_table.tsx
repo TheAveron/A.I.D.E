@@ -27,7 +27,7 @@ function RolesList({
     if (!roles) {
         return (
             <tr>
-                <td colSpan={11}>Aucun Role trouvé.</td>
+                <td colSpan={12}>Aucun Role trouvé.</td>
             </tr>
         );
     }
@@ -42,6 +42,7 @@ function RolesList({
                 role.manage_roles,
                 role.manage_docs,
                 role.manage_trains,
+                role.manage_territory,
                 role.view_transactions,
             ].filter(Boolean).length;
         return countPermissions(a) - countPermissions(b);
@@ -57,6 +58,7 @@ function RolesList({
             <td>{role.manage_funds ? "✅" : "❌"}</td>
             <td>{role.manage_docs ? "✅" : "❌"}</td>
             <td>{role.manage_trains ? "✅" : "❌"}</td>
+            <td>{role.manage_territory ? "✅" : "❌"}</td>
             <td>{role.handle_members ? "✅" : "❌"}</td>
             <td>{role.manage_roles ? "✅" : "❌"}</td>
             {canManage && (
@@ -155,6 +157,7 @@ export default function RolesTable() {
                             <th>Gérer la Monnaie</th>
                             <th>Gérer les Documents</th>
                             <th>Gérer les Trains</th>
+                            <th>Gérer la Carte</th>
                             <th>Gérer les Membres</th>
                             <th>Gérer les Roles</th>
                             {canManage && <th>Action</th>}

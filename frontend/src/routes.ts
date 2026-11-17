@@ -61,6 +61,7 @@ const aideRoutes = [
     ]),
 
     route("actual", "./app/pages/archives/maps/currentmap.tsx"),
+    route("network", "./app/pages/network.tsx"),
 
     route(
         "documentation/AgeOfSteam",

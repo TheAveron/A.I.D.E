@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { Link } from "react-router";
 import OlMap from "ol/Map";
 import View from "ol/View";
 import Feature from "ol/Feature";
@@ -8,7 +9,7 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import XYZ from "ol/source/XYZ";
 import MousePosition from "ol/control/MousePosition";
-import { Point, Polygon, LineString } from "ol/geom";
+import { Point, Polygon } from "ol/geom";
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from "ol/style";
 import type { FeatureLike } from "ol/Feature";
 
@@ -19,18 +20,19 @@ import { factionColor, MARKER_COLORS, withAlpha } from "../../utils/mapcolors";
 import { buildGeometry } from "../../utils/unmined";
 import type { MapGeometry, UnminedData } from "../../utils/unmined";
 import { useMapOverlay, useUnminedData } from "../hooks/map";
+import MapEditor, { type EntityRef } from "./map_editor";
 
 interface Selection {
+    entity: EntityRef | null;
     title: string;
     kind: string;
     lines: string[];
 }
 
-type LayerKey = "territories" | "lines" | "stations" | "markers" | "players";
+type LayerKey = "territories" | "stations" | "markers" | "players";
 
 const LAYER_LABELS: Record<LayerKey, string> = {
     territories: "Territoires",
-    lines: "Lignes de train",
     stations: "Gares",
     markers: "Points d'intérêt",
     players: "Joueurs en ligne",
@@ -38,7 +40,6 @@ const LAYER_LABELS: Record<LayerKey, string> = {
 
 const Z_INDEX: Record<LayerKey, number> = {
     territories: 10,
-    lines: 20,
     stations: 30,
     markers: 40,
     players: 50,
@@ -80,10 +81,18 @@ function MapCanvas({
         null,
     );
     const hiddenFactions = useRef<Set<number>>(new Set());
+    // Set by the editor: a drawing in progress ignores clicks, and a pick
+    // takes the next click as coordinates.
+    const busyRef = useRef(false);
+    const pickRef = useRef<((block: [number, number]) => void) | null>(null);
+    const [mapState, setMapState] = useState<{
+        map: OlMap;
+        geometry: MapGeometry;
+        layers: Record<LayerKey, VectorLayer<VectorSource>>;
+    } | null>(null);
 
     const [visible, setVisible] = useState<Record<LayerKey, boolean>>({
         territories: true,
-        lines: true,
         stations: true,
         markers: true,
         players: true,
@@ -126,7 +135,6 @@ function MapCanvas({
             });
         const vectors: Record<LayerKey, VectorLayer<VectorSource>> = {
             territories: make("territories"),
-            lines: make("lines"),
             stations: make("stations"),
             markers: make("markers"),
             players: make("players"),
@@ -148,13 +156,6 @@ function MapCanvas({
                     overflow: true,
                 }),
             });
-        });
-        vectors.lines.setStyle((feature: FeatureLike) => {
-            const color = feature.get("color") as string;
-            return [
-                new Style({ stroke: new Stroke({ color: "#000", width: 6 }) }),
-                new Style({ stroke: new Stroke({ color, width: 3.5 }) }),
-            ];
         });
         vectors.stations.setStyle((feature: FeatureLike) =>
             dot("#fff", 5, feature.get("title") as string),
@@ -203,6 +204,13 @@ function MapCanvas({
         );
 
         map.on("singleclick", (event) => {
+            if (pickRef.current) {
+                const pick = pickRef.current;
+                pickRef.current = null;
+                pick(geometry.toBlocks(event.coordinate));
+                return;
+            }
+            if (busyRef.current) return;
             const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f, {
                 hitTolerance: 6,
             });
@@ -210,7 +218,12 @@ function MapCanvas({
                 setSelection(null);
                 return;
             }
+            const entity = feature.get("entity") as
+                EntityRef["type"] | undefined;
             setSelection({
+                entity: entity
+                    ? { type: entity, id: feature.get("entityId") as number }
+                    : null,
                 title: feature.get("title") as string,
                 kind: feature.get("kindLabel") as string,
                 lines: (feature.get("details") as string[]) ?? [],
@@ -218,7 +231,9 @@ function MapCanvas({
         });
 
         mapRef.current = map;
+        setMapState({ map, geometry, layers: vectors });
         return () => {
+            setMapState(null);
             map.setTarget(undefined);
             map.dispose();
             mapRef.current = null;
@@ -241,6 +256,8 @@ function MapCanvas({
                     geometry: new Polygon([ring]),
                     title: t.name,
                     kindLabel: "Territoire",
+                    entity: "territory",
+                    entityId: t.territory_id,
                     factionId: t.faction_id,
                     color: factionColor(t.faction_id, t.color),
                     details: [
@@ -252,46 +269,12 @@ function MapCanvas({
         );
     }, [overlay.territories, unmined, folder]);
 
-    // Lines and stations
+    // Stations (the lines are drawn on the network page, not here)
     useEffect(() => {
         const geometry = geometryRef.current;
-        const lineSource = layers.current?.lines.getSource();
         const stationSource = layers.current?.stations.getSource();
-        if (!geometry || !lineSource || !stationSource) return;
-        lineSource.clear();
+        if (!geometry || !stationSource) return;
         stationSource.clear();
-
-        const lineFeatures: Feature[] = [];
-        for (const line of overlay.lines) {
-            const stops = [...line.stops]
-                .sort((a, b) => a.position - b.position)
-                .filter((s) => s.station.dimension === overlay.dimension);
-            if (stops.length < 2) continue;
-            lineFeatures.push(
-                new Feature({
-                    geometry: new LineString(
-                        stops.map((s) =>
-                            geometry.toView([s.station.x, s.station.z]),
-                        ),
-                    ),
-                    title: line.name
-                        ? `${line.code} - ${line.name}`
-                        : line.code,
-                    kindLabel: "Ligne",
-                    color: /^#[0-9a-fA-F]{6}$/.test(line.color ?? "")
-                        ? line.color
-                        : "#cccccc",
-                    details: [
-                        `${stops.length} gares : ${stops
-                            .map((s) => s.station.name)
-                            .join(", ")}`,
-                        ...(line.description ? [line.description] : []),
-                    ],
-                }),
-            );
-        }
-        lineSource.addFeatures(lineFeatures);
-
         stationSource.addFeatures(
             overlay.stations.map((s) => {
                 const served = overlay.lines
@@ -315,7 +298,7 @@ function MapCanvas({
                 });
             }),
         );
-    }, [overlay.lines, overlay.stations, overlay.dimension, unmined, folder]);
+    }, [overlay.lines, overlay.stations, unmined, folder]);
 
     // Points of interest
     useEffect(() => {
@@ -329,6 +312,8 @@ function MapCanvas({
                     new Feature({
                         geometry: new Point(geometry.toView([m.x, m.z])),
                         title: m.label,
+                        entity: "marker",
+                        entityId: m.marker_id,
                         markerKind: m.kind,
                         kindLabel: MARKER_KINDS[m.kind] ?? "Point d'intérêt",
                         details: [
@@ -506,18 +491,37 @@ function MapCanvas({
                     <p className="map-error">{overlay.errors.join(" - ")}</p>
                 )}
                 <p className="map-hint">
+                    <Link to="/network">Voir les lignes de train</Link>
+                    <br />
                     {DIMENSIONS[overlay.dimension]} - cliquez sur un élément
                     pour le détail.
                 </p>
 
+                {mapState && (
+                    <MapEditor
+                        folder={folder}
+                        map={mapState.map}
+                        geometry={mapState.geometry}
+                        territories={overlay.territories}
+                        markers={overlay.markers}
+                        selected={selection?.entity ?? null}
+                        busyRef={busyRef}
+                        pickRef={pickRef}
+                        onChanged={() => {
+                            setSelection(null);
+                            overlay.refresh();
+                        }}
+                    />
+                )}
+
                 {selection && (
-                    <section className="map-selection" aria-live="polite">
+                    <div className="map-selection" aria-live="polite">
                         <h3>{selection.title}</h3>
                         <p className="map-selection-kind">{selection.kind}</p>
                         {selection.lines.map((line, i) => (
                             <p key={i}>{line}</p>
                         ))}
-                    </section>
+                    </div>
                 )}
             </aside>
         </div>

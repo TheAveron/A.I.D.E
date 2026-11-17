@@ -29,6 +29,12 @@
     grid-column: span 2;
 }
 
+/* The network page: every line takes the whole width */
+:where(.information-container) > .network-header,
+:where(.information-container) > .network-line {
+    grid-column: 1 / -1;
+}
+
 /* A lone card (notifications, forms) is centered */
 :where(.information-container) > .snippet-container:only-child {
     grid-column: 2 / span 2;

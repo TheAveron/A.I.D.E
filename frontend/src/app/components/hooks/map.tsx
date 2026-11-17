@@ -16,6 +16,7 @@ interface State<T> {
 /** GET without a login: the map is public, `useApiGet` needs a token. */
 function usePublicGet<T>(url: string, errorLabel: string) {
     const [state, setState] = useState<State<T> | null>(null);
+    const [nonce, setNonce] = useState(0);
 
     useEffect(() => {
         let cancelled = false;
@@ -37,10 +38,11 @@ function usePublicGet<T>(url: string, errorLabel: string) {
         return () => {
             cancelled = true;
         };
-    }, [url, errorLabel]);
+    }, [url, errorLabel, nonce]);
 
     const current = state && state.key === url ? state : null;
     return {
+        refresh: () => setNonce((n) => n + 1),
         data: current?.data ?? null,
         error: current?.error ?? null,
         loading: current === null,
@@ -104,6 +106,11 @@ export function useMapOverlay(folder: string) {
     );
 
     return {
+        // Read the territories and the points again, after a change
+        refresh: () => {
+            territories.refresh();
+            markers.refresh();
+        },
         territories: territories.data ?? [],
         markers: markers.data ?? [],
         stations: stations.data ?? [],
@@ -116,5 +123,18 @@ export function useMapOverlay(folder: string) {
             lines.error,
         ].filter((e): e is string => e !== null),
         dimension,
+    };
+}
+
+/** All the lines, for the public network page (no login needed). */
+export function usePublicLines() {
+    const lines = usePublicGet<LineType[]>(
+        "/lines",
+        "Erreur lors du chargement des lignes",
+    );
+    return {
+        lines: lines.data ?? [],
+        loading: lines.loading,
+        error: lines.error,
     };
 }

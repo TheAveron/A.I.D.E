@@ -13,6 +13,10 @@ export const AUDIT_LABELS: Record<string, string> = {
     line_deleted: "Ligne supprimée",
     station_changed: "Gare modifiée",
     station_deleted: "Gare supprimée",
+    territory_changed: "Territoire modifié",
+    territory_deleted: "Territoire supprimé",
+    marker_changed: "Point de carte modifié",
+    marker_deleted: "Point de carte supprimé",
     offer_cancelled: "Offre annulée",
     transaction_cancelled: "Transaction annulée",
     currency_created: "Monnaie créée",
@@ -34,6 +38,8 @@ export const TARGET_LABELS: Record<string, string> = {
     train: "Train",
     line: "Ligne",
     station: "Gare",
+    territory: "Territoire",
+    marker: "Point de carte",
     offer: "Offre",
     transaction: "Transaction",
     currency: "Monnaie",
@@ -67,6 +73,9 @@ export function targetLink(type: string, id: number | null): string | null {
             return `/station/${id}`;
         case "offer":
             return `/offers`;
+        case "territory":
+        case "marker":
+            return `/actual`;
         default:
             return null;
     }
