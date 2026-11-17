@@ -138,9 +138,11 @@ def update_marker(
 ):
     marker = crud.get_marker(db, marker_id)
     crud.check_can_manage_marker(current_user, marker)
-    override = crud.is_marker_override(current_user, marker)
+    override = crud.is_marker_override(current_user, marker) or (
+        current_user.is_admin and crud.is_spawn(body.kind)
+    )
     old_label = marker.label
-    crud.update_marker(db, marker, body)
+    crud.update_marker(db, current_user, marker, body)
     if override:
         audit.record(
             db,
@@ -164,6 +166,7 @@ def delete_marker(
 ):
     marker = crud.get_marker(db, marker_id)
     crud.check_can_manage_marker(current_user, marker)
+    crud.check_spawn_rules(db, current_user, marker.map_name, current=marker)
     if crud.is_marker_override(current_user, marker):
         audit.record(
             db,

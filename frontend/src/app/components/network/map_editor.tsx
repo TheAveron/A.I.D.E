@@ -160,6 +160,8 @@ export default function MapEditor({
     const pointsRef = useRef<Points>([]);
 
     const isAdmin = rights.isAdmin;
+    // One spawn per map, and only an admin sets it
+    const spawnExists = markers.some((m) => m.kind === "spawn");
     const canDraw = rights.loggedIn && (isAdmin || rights.factionId !== null);
 
     const territory =
@@ -288,14 +290,14 @@ export default function MapEditor({
         });
     }
 
-    function newMarker() {
+    function newMarker(markerKind: MarkerKind = "generic") {
         close();
         setDraft({
             kind: "marker",
             id: null,
-            label: "",
+            label: markerKind === "spawn" ? MARKER_KINDS.spawn : "",
             description: "",
-            markerKind: "generic",
+            markerKind,
             x: "",
             z: "",
             factionId: null,
@@ -450,10 +452,19 @@ export default function MapEditor({
                     <button
                         type="button"
                         className="button"
-                        onClick={newMarker}
+                        onClick={() => newMarker()}
                     >
                         Nouveau point
                     </button>
+                    {isAdmin && !spawnExists && (
+                        <button
+                            type="button"
+                            className="button"
+                            onClick={() => newMarker("spawn")}
+                        >
+                            Placer le spawn
+                        </button>
+                    )}
                 </div>
             )}
 
@@ -650,28 +661,46 @@ export default function MapEditor({
                             />
                             <select
                                 value={draft.markerKind}
-                                onChange={(e) =>
+                                // The spawn stays the spawn (delete it to
+                                // remove it): its position is what changes
+                                disabled={
+                                    draft.id !== null &&
+                                    draft.markerKind === "spawn"
+                                }
+                                onChange={(e) => {
+                                    const markerKind = e.target
+                                        .value as MarkerKind;
                                     setDraft({
                                         ...draft,
-                                        markerKind: e.target
-                                            .value as MarkerKind,
-                                    })
-                                }
+                                        markerKind,
+                                        factionId:
+                                            markerKind === "spawn"
+                                                ? null
+                                                : draft.factionId,
+                                    });
+                                }}
                             >
                                 {(
                                     Object.entries(MARKER_KINDS) as [
                                         MarkerKind,
                                         string,
                                     ][]
-                                ).map(([key, label]) => (
-                                    <option key={key} value={key}>
-                                        {label}
-                                    </option>
-                                ))}
+                                )
+                                    .filter(
+                                        ([key]) =>
+                                            key !== "spawn" ||
+                                            draft.markerKind === "spawn" ||
+                                            (isAdmin && !spawnExists),
+                                    )
+                                    .map(([key, label]) => (
+                                        <option key={key} value={key}>
+                                            {label}
+                                        </option>
+                                    ))}
                             </select>
                         </span>
                     </label>
-                    {draft.id === null && (
+                    {draft.id === null && draft.markerKind !== "spawn" && (
                         <label>
                             Appartient à
                             <FactionSelect

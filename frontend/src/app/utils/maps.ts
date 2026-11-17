@@ -24,6 +24,22 @@ export const LISTED_MAPS = Object.keys(MAP_LABELS).filter(
 
 export const CURRENT_MAP_FOLDER = CURRENT_MAP;
 
+export interface MapVariant {
+    folder: string;
+    label: string;
+}
+
+/**
+ * The dimensions of the current map, one uNmINeD export (one folder) each. The
+ * switch of "/actual" shows up as soon as there are two: add the folder of the
+ * Nether or of the End export here, once it is in backend/documents/maps.
+ */
+export const CURRENT_MAP_VARIANTS: MapVariant[] = [
+    { folder: CURRENT_MAP, label: "Overworld" },
+    // { folder: "NAOS_zoom", label: "Nether" },
+    // { folder: "EAOS_zoom", label: "End" },
+];
+
 export function getLabelFromFolder(folder: string): string {
     return MAP_LABELS[folder] ?? folder;
 }

@@ -37,3 +37,15 @@
     min-height: 420px;
     border: 0;
 }
+
+/* Overworld / Nether / End switch of the current map */
+.map-dimensions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.map-dimension.active {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}

@@ -359,7 +359,9 @@ function MapCanvas({
                         kindLabel: MARKER_KINDS[m.kind] ?? "Point d'intérêt",
                         details: [
                             `X ${m.x}   Z ${m.z}`,
-                            ...(m.owner_name ? [`Par : ${m.owner_name}`] : []),
+                            ...(m.owner_name && m.kind !== "spawn"
+                                ? [`Par : ${m.owner_name}`]
+                                : []),
                             ...(m.description ? [m.description] : []),
                         ],
                     }),

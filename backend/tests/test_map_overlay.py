@@ -252,7 +252,7 @@ def test_only_the_owner_changes_a_marker(menv):
     assert put(mine, "newbie", label="Renommé", x=5).status_code == 200
     assert put(mine, "alice", label="vol").status_code == 403
     assert put(faction, "bob", label="vol").status_code == 403
-    assert put(faction, "alice", kind="spawn").json()["kind"] == "spawn"
+    assert put(faction, "alice", kind="stronghold").json()["kind"] == "stronghold"
     assert put(mine, "newbie", x=None).status_code == 422
     assert (
         menv.client.delete(f"/map/markers/{faction}", headers=menv.h("bob")).status_code
@@ -323,7 +323,6 @@ def test_every_listed_kind_is_accepted_and_the_old_ones_are_not(menv):
         "nether_bastion",
         "nether_fortress",
         "end_city",
-        "spawn",
         "generic",
     ]
     for kind in kinds:
@@ -332,3 +331,57 @@ def test_every_listed_kind_is_accepted_and_the_old_ones_are_not(menv):
         assert r.json()["kind"] == kind
     for old in ("base", "resource", "portal", "landmark", "other"):
         assert _marker(menv, "newbie", label="x", kind=old).status_code == 422
+
+
+def _spawn(env, who="root", **extra):  # noqa: F811
+    return _marker(env, who, label="Spawn", kind="spawn", x=0, z=0, **extra)
+
+
+def test_only_an_admin_places_the_spawn(menv):
+    assert _spawn(menv, "newbie").status_code == 403
+    assert _spawn(menv, "alice").status_code == 403  # nor a faction leader
+    r = _spawn(menv, "root")
+    assert r.status_code == 201 and r.json()["kind"] == "spawn"
+    assert ("root", "marker_changed", "Spawn") in _audit(menv)
+
+
+def test_the_spawn_is_unique_per_map(menv):
+    assert _spawn(menv).status_code == 201
+    assert _spawn(menv).status_code == 409
+    # another map has its own
+    other = _marker(menv, "root", map_name="NAOS_zoom", kind="spawn", label="S")
+    assert other.status_code == 201
+    # nobody can make a second one by changing a marker's kind
+    mine = _marker(menv, "root", label="x").json()["marker_id"]
+    r = menv.client.put(
+        f"/map/markers/{mine}", json={"kind": "spawn"}, headers=menv.h("root")
+    )
+    assert r.status_code == 409
+
+
+def test_only_an_admin_moves_or_removes_the_spawn(menv):
+    spawn = _spawn(menv).json()["marker_id"]
+    url = f"/map/markers/{spawn}"
+    for who in ("alice", "newbie", "bob"):
+        assert (
+            menv.client.put(url, json={"x": 5}, headers=menv.h(who)).status_code == 403
+        )
+        assert menv.client.delete(url, headers=menv.h(who)).status_code == 403
+    moved = menv.client.put(url, json={"x": 5, "z": 7}, headers=menv.h("root"))
+    assert moved.status_code == 200 and (moved.json()["x"], moved.json()["z"]) == (5, 7)
+    assert menv.client.delete(url, headers=menv.h("root")).status_code == 204
+    assert ("root", "marker_deleted", "Spawn") in _audit(menv)
+    assert _spawn(menv).status_code == 201  # a new one can be placed again
+
+
+def test_a_player_cannot_turn_a_marker_into_the_spawn(menv):
+    mine = _marker(menv, "newbie").json()["marker_id"]
+    r = menv.client.put(
+        f"/map/markers/{mine}", json={"kind": "spawn"}, headers=menv.h("newbie")
+    )
+    assert r.status_code == 403
+
+
+def test_the_spawn_has_no_owner_but_the_admin_who_sets_it(menv):
+    assert _spawn(menv, faction_id=1).status_code == 400
+    assert _spawn(menv, user_id=1).status_code == 400

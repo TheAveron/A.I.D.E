@@ -48,12 +48,14 @@ const TILE_SIZE = 256;
 
 /**
  * Run an export's script and take the variable it defines. The script uses
- * `var`, a global that cannot be deleted: it is simply read, and the next
- * script, with another name, does not see it.
+ * `var`, a global that cannot be deleted: it is reset before the load and read
+ * after it.
  */
 function loadScript<T>(src: string, variable: string): Promise<T> {
     return new Promise((resolve, reject) => {
         const holder = window as unknown as Record<string, unknown>;
+        // The previous map's value must not pass for this one's
+        holder[variable] = undefined;
         const script = document.createElement("script");
         script.src = src;
         script.async = true;
