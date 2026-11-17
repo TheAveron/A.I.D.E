@@ -1,23 +1,101 @@
-p {
-    font-weight: 400;
-    font-size: 1.2em;
-    margin: 0;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-display);
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
+    /* The header is fixed: anchors from the documentation must not hide under it */
+    scroll-margin-top: calc(var(--header-height) + 1rem);
 }
 
 h1 {
-    font-weight: 900;
-    font-size: 3.7em;
+    font-weight: 700;
+    font-size: clamp(2rem, 1.35rem + 2.6vw, 3rem);
 }
 
 h2 {
-    font-weight: 700;
-    font-size: 2em;
-    min-height: 7vh;
-    justify-content: center;
-    align-content: center;
+    font-weight: 600;
+    font-size: clamp(1.4rem, 1.15rem + 1vw, 1.85rem);
 }
 
 h3 {
-    font-weight: 500;
-    font-size: 1.8em;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+h4 {
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+p {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+small {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+b,
+strong {
+    font-weight: 600;
+}
+
+/* Links: underlined in the accent colour, they turn green on hover */
+a {
+    color: inherit;
+    font-size: inherit;
+    width: fit-content;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    transition:
+        color var(--speed) var(--ease),
+        text-decoration-color var(--speed) var(--ease);
+}
+
+a:hover {
+    color: var(--success-fg);
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 2px;
+}
+
+code,
+kbd,
+samp,
+pre {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+}
+
+:not(pre) > code {
+    padding: 0.1em 0.4em;
+    background-color: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+pre {
+    padding: 1rem;
+    overflow-x: auto;
+    background-color: var(--field-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+pre code {
+    font-size: inherit;
+}
+
+blockquote {
+    padding: 0.25rem 0 0.25rem 1rem;
+    border-left: 3px solid var(--accent);
+    color: var(--text-800);
 }

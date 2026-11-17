@@ -1,37 +1,57 @@
-.pagination {
-    display: flex;
-    justify-content: center;
-    gap: 1vw;
-    align-items: center;
-    margin-top: 2vh;
-}
-
+.pagination,
 .pagination-controls {
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-    flex-direction: row;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
 }
 
+/* Bare buttons (factions table) and .button ones (shared Pagination) look the same */
+.pagination button,
 .pagination-controls button {
-    padding: 0.4em 1em;
-    font-size: 1em;
-    background-color: var(--accent-700);
-    border: none;
-    border-radius: 6px;
+    min-height: 2.25rem;
+    padding: 0.3rem 0.9rem;
+    background-color: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
-    color: var(--button-text);
+    transition:
+        background-color var(--speed) var(--ease),
+        border-color var(--speed) var(--ease);
 }
 
+.pagination button:hover:not(:disabled),
+.pagination-controls button:hover:not(:disabled) {
+    background-color: var(--hover);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.pagination button:disabled,
 .pagination-controls button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
 
+.pagination span,
 .pagination-controls span {
-    font-size: 1em;
+    font-size: 0.9rem;
     font-weight: 500;
-    color: var(--text-600);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Inside a scrolling table: a bar stuck to the bottom */
+.table-container > .pagination {
+    position: sticky;
+    bottom: 0;
+    margin: 0;
+    padding: 0.75rem;
+    background-color: var(--surface-2);
+    border-top: 1px solid var(--border);
 }

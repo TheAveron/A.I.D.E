@@ -7,7 +7,10 @@ export interface UserBase {
 export interface UserType extends UserBase {
     user_id: number;
     is_admin: boolean;
-    email: string | null;
+    // Server-wide roles ("admin", "train_admin"...), only on /users/me
+    global_roles?: string[];
+    // Only present on your own profile (/users/me)
+    email?: string | null;
     created_at: string;
     faction_id: number | null;
     role_id: number | null;
@@ -21,12 +24,13 @@ export interface UserRegisterForm extends UserLoginForm {
     cpassword: string;
 }
 
-export interface UserRegisterData extends UserLoginForm {
-    is_admin: boolean;
-}
+// What /auth/register accepts: nothing more than the credentials (admins are
+// created on the server, never through the API).
+export type UserRegisterData = UserLoginForm;
 
 export interface UserHook extends HookResult {
     user: UserType | null;
+    refresh: () => void;
 }
 
 export interface UsersHook extends HookResult {

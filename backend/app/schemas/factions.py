@@ -1,7 +1,8 @@
-from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+from .base import MAX_DESCRIPTION_LENGTH, PartialUpdate, UTCDatetime
 
 
 class FactionBase(BaseModel):
@@ -10,19 +11,29 @@ class FactionBase(BaseModel):
 
 
 class FactionCreate(FactionBase):
-    pass
+    description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
 
 
 class FactionOut(FactionBase):
     faction_id: int
-    created_at: datetime
+    created_at: UTCDatetime
     is_approved: bool
+    requires_approval: bool
+    deleted_at: Optional[UTCDatetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
-class FactionUpdate(BaseModel):
-    name: Optional[str] = Field(None, max_length=100)
-    description: Optional[str] = None
+class LeadershipTransfer(BaseModel):
+    """Body of POST /factions/transfer/{faction_id}."""
+
+    user_id: int
+
+
+class FactionUpdate(PartialUpdate):
+    non_nullable = ("name", "is_approved", "requires_approval")
+
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
     is_approved: Optional[bool] = None
+    requires_approval: Optional[bool] = None

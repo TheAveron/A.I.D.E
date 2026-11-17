@@ -1,24 +1,78 @@
 section {
-    width: 70vw;
-    min-height: calc(100vh - 2 * calc(var(--header-height) + 10vh));
-    align-content: center;
-    justify-content: center;
+    width: min(100% - 2 * var(--page-gutter), 72rem);
+    min-height: calc(100dvh - var(--header-height) - 4rem);
+    margin-inline: auto;
+    padding-block: clamp(1.5rem, 5vh, 3rem);
     display: flex;
     flex-direction: column;
-    row-gap: 2em;
-    margin: auto;
     align-items: center;
+    justify-content: center;
+    row-gap: 1.5rem;
 }
 
+/* Reading column: ~75 characters per line */
 .text-section {
-    min-height: calc(100vh - calc(var(--header-height) + 10vh));
-    max-width: 60vw;
-    align-items: start;
+    width: min(100% - 2 * var(--page-gutter), var(--text-width));
+    align-items: stretch;
+    justify-content: flex-start;
+    row-gap: 1rem;
 }
 
-@media only screen and (max-height: 1000px) {
-    section {
-        padding: 5vh;
-        min-height: calc(100vh - calc(var(--header-height) + 20vh));
-    }
+/* The back button floats over the top-left corner: leave it some room */
+#previous ~ section {
+    padding-top: 4.5rem;
+}
+
+.text-section p,
+.text-section li {
+    font-size: 1.0625rem;
+    line-height: 1.7;
+}
+
+.text-section ul,
+.text-section ol {
+    padding-left: 1.4rem;
+}
+
+.text-section li + li {
+    margin-top: 0.35rem;
+}
+
+.text-section h2:not(:first-child) {
+    margin-top: 1.5rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.text-section h3 {
+    margin-top: 0.75rem;
+}
+
+.text-section img {
+    align-self: flex-start;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+/* Home page: a heading followed by one paragraph */
+.text-section:has(> h2:first-child) {
+    width: min(100% - 2 * var(--page-gutter), 54rem);
+}
+
+/* Markdown rendered inside a card (editor preview): no page-sized frame */
+.snippet-container .text-section {
+    width: 100%;
+    min-height: 0;
+    padding: 0;
+}
+
+.text-section > h2:first-child {
+    font-size: clamp(1.9rem, 1.2rem + 3vw, 3.1rem);
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.text-section > h2:first-child + p {
+    font-size: 1.125rem;
+    color: var(--text-800);
 }

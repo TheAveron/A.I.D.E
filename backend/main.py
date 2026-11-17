@@ -7,18 +7,12 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import (
-    auth,
-    currencies,
-    documentation,
-    faction,
-    offer,
-    offer_history,
-    role,
-    transactions,
-    user,
-)
-from app.core.logger import setup_logger
+from app.api import (admin, admin_market, auth, currencies, documentation,
+                     faction, global_roles, join_requests, lines, map_overlay,
+                     notifications, offer, offer_history, preferences, role,
+                     stations, trains, transactions, user)
+from app.core.errors import register_error_handlers
+from app.core.logger import log_safe, setup_logger
 from app.core.settings import ORIGINS
 
 version = "1.2.0"
@@ -74,19 +68,23 @@ async def log_requests(request: Request, call_next):
         response = await call_next(request)
     except Exception as e:
         logger.error(
-            f"Exception handling request {request.method} {request.url.path}: {e}"
+            f"Exception handling request {request.method} "
+            f"{log_safe(request.url.path)}: {e}"
         )
         raise
 
     duration = (time.time() - start_time) * 1000  # ms
 
     logger.info(
-        f"{request.method} {request.url.path} - "
+        f"{request.method} {log_safe(request.url.path)} - "
         f"Status: {response.status_code} - "
         f"Duration: {duration:.2f}ms"
     )
 
     return response
+
+
+register_error_handlers(app)
 
 
 @app.exception_handler(Exception)
@@ -95,7 +93,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         f"Unhandled exception: {str(exc)}",
         exc_info=True,
         extra={
-            "path": request.url.path,
+            "path": log_safe(request.url.path),
             "method": request.method,
         },
     )
@@ -106,6 +104,16 @@ app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(faction.router)
 app.include_router(role.router)
+app.include_router(global_roles.router)
+app.include_router(admin.router)
+app.include_router(admin_market.router)
+app.include_router(join_requests.router)
+app.include_router(stations.router)
+app.include_router(lines.router)
+app.include_router(trains.router)
+app.include_router(notifications.router)
+app.include_router(preferences.router)
+app.include_router(map_overlay.router)
 app.include_router(currencies.router)
 app.include_router(offer.router)
 app.include_router(offer_history.router)
@@ -131,7 +139,26 @@ async def head():
     return PlainTextResponse(f"Version {version}", status_code=200)
 
 
+def _built_file(relative_path: str) -> Path | None:
+    """A file of the frontend build (images/, scripts/, favicon...), or None.
+
+    `public/` is copied to the root of the build; only /assets is mounted, so
+    without this every such file would be answered with index.html.
+    """
+    root = (frontend_dist_path / "client").resolve()
+    if not relative_path:
+        return None
+    candidate = (root / relative_path).resolve()
+    if candidate.is_file() and candidate.is_relative_to(root):
+        return candidate
+    return None
+
+
 @app.get("/{full_path:path}")
-async def root():
+async def root(full_path: str):
+    built_file = _built_file(full_path)
+    if built_file is not None:
+        return FileResponse(built_file)
+
     index_path = frontend_dist_path / "client" / "index.html"
     return FileResponse(index_path)

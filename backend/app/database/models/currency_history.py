@@ -4,6 +4,7 @@ from typing import Optional
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from ..clock import utcnow
 from ..database import Base
 
 
@@ -46,7 +47,7 @@ class CurrencyHistory(Base):
     new_total_in_circulation: Mapped[int] = mapped_column(Integer, nullable=False)
 
     timestamp: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, nullable=False
     )
 
     notes: Mapped[Optional[str]] = mapped_column(String, nullable=True)

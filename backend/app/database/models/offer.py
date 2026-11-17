@@ -1,12 +1,13 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (JSON, CheckConstraint, DateTime, Float, ForeignKey,
-                        Index, Integer, String)
+from sqlalchemy import (JSON, Boolean, CheckConstraint, DateTime, Float,
+                        ForeignKey, Index, Integer, String, false)
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ...misc import OfferStatus, OfferType
+from ..clock import utcnow
 from ..database import Base
 
 offer_type_enum = ENUM(OfferType, name="offer_type_enum", create_type=True)
@@ -58,7 +59,21 @@ class Offer(Base):
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     init_quantity: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    allowed_parties: Mapped[Optional[list[int]]] = mapped_column(JSON, nullable=True)
+    # A private offer lists who may see and accept it (besides its owner):
+    # these users, and the members of these factions. `is_private` mirrors
+    # "either list is not empty" so that listings can filter in SQL.
+    allowed_user_ids: Mapped[Optional[list[int]]] = mapped_column(JSON, nullable=True)
+    allowed_faction_ids: Mapped[Optional[list[int]]] = mapped_column(
+        JSON, nullable=True
+    )
+    is_private: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default=false(), index=True
+    )
+
+    # After this moment an open offer is cancelled (checked when offers are read)
+    expires_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime, nullable=True, index=True
+    )
 
     status: Mapped[OfferStatus] = mapped_column(
         offer_status_enum,
@@ -67,10 +82,10 @@ class Offer(Base):
         index=True,
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
     )
 
     accepted_by_user_id: Mapped[Optional[int]] = mapped_column(

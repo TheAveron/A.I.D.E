@@ -1,9 +1,12 @@
 import { useState, useMemo } from "react";
 import { NewFaction } from "./buttons/newfaction";
 import { useFactions } from "./hooks/factions";
-import { useAllMemberCounts } from "./hooks/all_member_counts";
+import { useMemberCounts } from "./hooks/member_counts";
 import { useMe } from "./hooks/me";
 import FactionTable from "./snippets/factions_table";
+import ToolbarPanels from "./snippets/toolbar_panels";
+import SortControl from "./snippets/sort_control";
+import { sortSummary } from "./snippets/sort_utils";
 import { useFaction } from "./hooks/faction";
 
 type Props = {
@@ -15,6 +18,12 @@ type Props = {
     setSortAsc: (val: boolean) => void;
 };
 
+const SORT_OPTIONS = [
+    { value: "name", label: "Nom" },
+    { value: "members", label: "Membres" },
+    { value: "approved", label: "Validation" },
+];
+
 function FactionToolbar({
     search,
     setSearch,
@@ -24,25 +33,32 @@ function FactionToolbar({
     setSortAsc,
 }: Props) {
     return (
-        <div className="toolbar">
-            <input
-                type="text"
-                placeholder="Rechercher une faction..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-            />
-            <select
-                value={sortKey}
-                onChange={(e) => setSortKey(e.target.value)}
-            >
-                <option value="name">Nom</option>
-                <option value="members">Membres</option>
-                <option value="approved">Validation</option>
-            </select>
-            <div className="button" onClick={() => setSortAsc(!sortAsc)}>
-                {sortAsc ? "⬆️" : "⬇️"}
-            </div>
-        </div>
+        <ToolbarPanels
+            sortSummary={sortSummary(
+                SORT_OPTIONS,
+                sortKey,
+                sortAsc ? "asc" : "desc",
+            )}
+            search={
+                <input
+                    type="text"
+                    placeholder="Rechercher une faction..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            }
+            sort={
+                <SortControl
+                    options={SORT_OPTIONS}
+                    value={sortKey}
+                    direction={sortAsc ? "asc" : "desc"}
+                    onChange={(key, direction) => {
+                        if (key) setSortKey(key);
+                        setSortAsc(direction === "asc");
+                    }}
+                />
+            }
+        />
     );
 }
 
@@ -59,7 +75,7 @@ export default function FactionList() {
     const [page, setPage] = useState(1);
     const pageSize = 10;
 
-    const { counts: memberCounts } = useAllMemberCounts(factions);
+    const { counts: memberCounts, refresh: refreshCounts } = useMemberCounts();
 
     const filteredFactions = useMemo(() => {
         if (!factions) return [];
@@ -93,25 +109,35 @@ export default function FactionList() {
             });
     }, [factions, search, sortKey, sortAsc, memberCounts]);
 
-    const paginated = useMemo(() => {
-        const start = (page - 1) * pageSize;
-        return filteredFactions.slice(start, start + pageSize);
-    }, [filteredFactions, page]);
-
     const totalPages = Math.ceil(filteredFactions.length / pageSize);
+    // The list can shrink under the current page (search, new data).
+    const currentPage = Math.min(page, Math.max(totalPages, 1));
+
+    const paginated = useMemo(() => {
+        const start = (currentPage - 1) * pageSize;
+        return filteredFactions.slice(start, start + pageSize);
+    }, [filteredFactions, currentPage]);
 
     return (
         <div className="snippet-container factions-container">
             <div className="factions-header">
                 <h2>Liste des factions</h2>
                 {(!UserFaction || UserFaction?.name === "Sans Faction") && (
-                    <NewFaction onCreated={refresh} />
+                    <NewFaction
+                        onCreated={() => {
+                            refresh();
+                            refreshCounts();
+                        }}
+                    />
                 )}
             </div>
 
             <FactionToolbar
                 search={search}
-                setSearch={setSearch}
+                setSearch={(value) => {
+                    setSearch(value);
+                    setPage(1);
+                }}
                 sortKey={sortKey}
                 setSortKey={setSortKey}
                 sortAsc={sortAsc}
@@ -120,10 +146,12 @@ export default function FactionList() {
 
             <FactionTable
                 factions={paginated}
+                memberCounts={memberCounts}
+                onJoined={refreshCounts}
                 loading={loading}
                 error={error}
                 totalPages={totalPages}
-                page={page}
+                page={currentPage}
                 setPage={setPage}
                 onRetry={refresh}
             />

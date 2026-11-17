@@ -1,27 +1,133 @@
-/* Offers Toolbar */
 .toolbar {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
-    justify-content: space-between;
-    align-items: center;
-    margin: 1rem 0;
     flex-wrap: wrap;
-    height: fit-content;
+    align-items: stretch;
+    gap: 0.6rem;
+    margin: 0;
 }
 
-.toolbar {
+.toolbar > input[type="text"] {
+    flex: 1 1 14rem;
+    min-width: 0;
+}
+
+.toolbar > input[type="number"] {
+    flex: 0 1 7.5rem;
+    min-width: 0;
+}
+
+.toolbar > select {
+    flex: 0 1 auto;
+}
+
+.toolbar > .button {
+    min-width: 2.5rem;
+    padding-inline: 0.75rem;
+}
+
+/* Inline labelled fields (coordinates, colour, filters as checkboxes) */
+.toolbar > label {
     display: flex;
-    gap: 1vw;
-    margin-bottom: 2vh;
+    flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0;
 }
 
-.toolbar input[type="text"] {
-    flex: 1;
+.toolbar
+    > label
+    > input:where(:not([type="checkbox"], [type="radio"], [type="color"])) {
+    width: 6.5rem;
 }
 
-.toolbar .button {
-    height: 100%;
+@media only screen and (max-width: 640px) {
+    .toolbar > input,
+    .toolbar > select {
+        flex: 1 1 100%;
+    }
+}
+
+/* ── Search stays visible, filters and sort hide behind two buttons ── */
+.toolbar-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.toolbar-toggle.button {
+    gap: 0.5rem;
+    background-color: transparent;
+    color: var(--text);
+    border-color: var(--border-strong);
+    font-weight: 500;
+}
+
+.toolbar-toggle.button:hover {
+    background-color: var(--hover);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.toolbar-toggle.button[aria-expanded="true"] {
+    background-color: var(--success-bg);
+    border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+    color: var(--success-fg);
+}
+
+/* Chevron: points down when closed, up when open */
+.toolbar-toggle::after {
+    content: "";
+    flex: none;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform var(--speed) var(--ease);
+}
+
+.toolbar-toggle[aria-expanded="true"]::after {
+    transform: translateY(1px) rotate(-135deg);
+}
+
+.toolbar-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    padding-inline: 0.3rem;
+    background-color: var(--primary);
+    color: var(--button-text);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.toolbar-summary {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.toolbar-panel {
+    align-items: center;
+    padding: 0.85rem 1rem;
+    background-color: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+@media only screen and (max-width: 640px) {
+    .toolbar-toggle {
+        flex: 1 1 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toolbar-toggle::after {
+        transition: none;
+    }
 }

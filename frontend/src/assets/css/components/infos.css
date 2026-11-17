@@ -1,29 +1,26 @@
 .info-header {
-    text-align: center;
     display: flex;
     flex-direction: row;
-    place-items: center;
-    place-content: center;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
     width: 100%;
+    min-height: 2.5rem;
 }
 
 .info-title {
-    font-size: 2.5em;
+    font-family: var(--font-display);
+    font-size: 1.45rem;
     font-weight: 600;
-    color: var(--text);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
 }
 
 .info-values {
-    width: 100%;
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    height: fit-content;
-
-    margin-top: auto;
-    margin-bottom: auto;
-
-    place-items: center;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 0;
     width: 100%;
 }
 
@@ -31,30 +28,80 @@
     width: 100%;
 }
 
-.info-values a {
-    font-size: 1em;
+.info-values > .button {
+    justify-self: start;
+    margin-top: 0.75rem;
 }
 
+/* Rows wrapped in a link (profile -> faction) */
+.info-values > a {
+    width: 100%;
+    text-decoration: none;
+}
+
+.info-values > a:hover .info-value-field {
+    color: var(--success-fg);
+}
+
+/* Label / value rows, separated by hairlines instead of stacked boxes */
 .info-row {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
-    padding: 1vh 2vw;
-    border-radius: 6px;
+    gap: 0.35rem 1rem;
     width: 100%;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border);
+}
 
-    background-color: rgba(0, 0, 0, 0.2);
+.info-values > .info-row:last-child,
+.info-values > a:last-child .info-row {
+    border-bottom: 0;
 }
 
 .info-label {
     font-weight: 500;
-    color: var(--text);
+    color: var(--muted);
 }
 
 .info-value-field {
-    color: var(--text-700);
+    min-width: 0;
+    text-align: right;
+    color: var(--text);
+    overflow-wrap: anywhere;
 }
 
 .editable {
     justify-content: space-between;
+}
+
+/* Inline edit forms in the currency card are rows made of labelled fields */
+form.info-row {
+    justify-content: flex-start;
+    align-items: flex-end;
+    gap: 0.75rem 1rem;
+    padding: 1rem 0;
+}
+
+form.info-row label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0;
+    font-size: 0.875rem;
+    color: var(--muted);
+}
+
+form.info-row input {
+    width: min(14rem, 100%);
+}
+
+form.info-row .button {
+    align-self: flex-end;
+}
+
+form.info-row [role="alert"] {
+    flex-basis: 100%;
 }

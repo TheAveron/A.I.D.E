@@ -22,7 +22,7 @@ export function UpdateRole({
         error: rolesError,
     } = useRoles(factionId?.toString() ?? null);
 
-    const { updateUser } = useUpdateUser();
+    const { updateUser, error: updateError } = useUpdateUser();
 
     const [isOpen, setIsOpen] = useState(false);
     const [selectedRole, setSelectedRole] = useState<number | "">(
@@ -86,7 +86,8 @@ export function UpdateRole({
                 role_id: selectedRole,
             });
             if (!res) {
-                throw new Error("La mise à jour du rôle a échoué.");
+                setMessage("La mise à jour du rôle a échoué.");
+                return;
             }
 
             setIsOpen(false);
@@ -204,6 +205,7 @@ export function UpdateRole({
                                         style={{ marginTop: "10px" }}
                                     >
                                         {message}
+                                        {updateError && ` (${updateError})`}
                                     </p>
                                 )}
                             </form>

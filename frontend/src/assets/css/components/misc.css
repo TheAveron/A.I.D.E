@@ -1,47 +1,3 @@
-.amount {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 0.2rem 0.6rem;
-    border-radius: 8px;
-    font-weight: bold;
-    color: var(--text);
-}
-
-.status {
-    font-size: 0.9rem;
-    padding: 1.5vh 1.5vw;
-    border-radius: 8px;
-    width: fit-content;
-    margin: auto;
-    max-height: 40px;
-    place-content: center;
-    min-width: max-content;
-}
-
-.approved {
-    color: var(--primary-50);
-    background: var(--primary-900);
-}
-
-.not-approved {
-    background: #fbeaea;
-    color: #b91c1c;
-}
-
-.status.open {
-    background-color: var(--primary-200);
-    color: var(--primary-950);
-}
-
-.status.closed {
-    background-color: var(--background-400);
-    color: var(--text-100);
-}
-
-.status.cancelled {
-    background-color: var(--accent-100);
-    color: var(--accent-950);
-}
-
 div {
     display: flex;
     flex-direction: column;
@@ -49,57 +5,138 @@ div {
 
 hr {
     width: 100%;
-    color: var(--background-300);
+    border: 0;
+    border-top: 1px solid var(--border);
 }
 
-a {
-    text-decoration: underline var(--accent-600);
-    font-size: 1.2em;
-    font-weight: 400;
+/* Chips: sharp corners, tinted background, colour carries the meaning */
+.status {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.35em;
     width: fit-content;
+    padding: 0.2rem 0.6rem;
+    background-color: var(--surface-2);
+    color: var(--muted);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
 }
 
-/* TODO: Move this in a better file */
-
-.faction-box {
-    width: 85vw;
-    margin-top: 5vh;
-    height: fit-content;
+.approved,
+.status.open {
+    background-color: var(--success-bg);
+    color: var(--success-fg);
+    border-color: color-mix(in srgb, var(--primary) 40%, transparent);
 }
 
-.factions-header {
-    max-height: 100px;
+/* "En attente": not an error, it is pending (lime) */
+.not-approved {
+    background-color: var(--pending-bg);
+    color: var(--pending-fg);
+    border-color: color-mix(in srgb, var(--secondary) 40%, transparent);
+}
+
+.status.cancelled {
+    background-color: var(--danger-bg);
+    color: var(--danger);
+    border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+}
+
+.amount {
+    padding: 0.15rem 0.5rem;
+    background-color: var(--pending-bg);
+    color: var(--pending-fg);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Feedback messages */
+[role="alert"] {
+    padding: 0.55rem 0.85rem;
+    background-color: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+    border-radius: var(--radius-md);
+    font-size: 0.925rem;
+    line-height: 1.45;
+}
+
+[role="status"] {
+    padding: 0.55rem 0.85rem;
+    background-color: var(--info-bg);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    border-radius: var(--radius-md);
+    font-size: 0.925rem;
+    line-height: 1.45;
+}
+
+.error-text {
+    color: var(--danger);
+}
+
+/* Some components colour their messages inline (red / green) */
+[style*="color: red"] {
+    color: var(--danger) !important;
+}
+
+[style*="color: green"] {
+    color: var(--success-fg) !important;
+}
+
+span[style*="color: red"] {
+    font-size: 0.85rem;
+}
+
+.empty-state {
+    color: var(--muted);
+}
+
+p.empty-state {
+    padding: 1rem;
+    text-align: center;
+}
+
+/* Loading / error states of the profile pages */
+.profile-container {
+    width: min(100%, 40rem);
+    margin: 2rem auto;
+    padding: 2rem;
+    align-items: center;
+    text-align: center;
+    color: var(--muted);
+}
+
+/* List pages (factions, offers, trains...) */
+.faction-box,
+.offer-box {
+    width: min(100%, var(--content-width));
+    margin-top: 2rem;
+    padding: 0 var(--page-gutter) clamp(2rem, 5vw, 3.5rem);
+}
+
+/* Title on the left, actions grouped on the right */
+.factions-header,
+.offers-header {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    place-items: center;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-.factions-header h2 {
-    color: var(--text);
-    font-size: 2em;
+.factions-header > :first-child,
+.offers-header > :first-child {
+    margin-right: auto;
 }
 
 .faction-description {
-    font-size: 0.95rem;
-    color: var(--text-600);
-}
-
-.offer-box {
-    width: 85vw;
-    margin-top: 5vh;
-    height: fit-content;
-}
-
-.offers-header {
-    max-height: 100px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    place-items: center;
-}
-
-.offers-header h2 {
-    color: var(--text);
-    font-size: 2em;
+    max-width: 32rem;
+    font-size: 0.9rem;
+    color: var(--muted);
 }

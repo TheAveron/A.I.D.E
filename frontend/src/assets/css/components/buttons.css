@@ -1,50 +1,165 @@
+/* Default: lime (open / navigate). Hover: green with a teal edge. */
 .button {
-    padding: min(1.5vh, 10px) min(2vw, 30px);
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    max-width: fit-content;
+    min-height: 2.5rem;
+    padding: 0.5rem 1.1rem;
+
     background-color: var(--secondary);
     color: var(--button-text);
-    border-radius: 0.4em;
-    text-decoration: none;
-    transition:
-        border-color 0.25s,
-        background-color 0.25s,
-        color 0.25s,
-        fill 0.25s;
-    border: solid 1px transparent;
-    max-width: fit-content;
+    fill: currentColor;
+    border: 1px solid var(--button-border);
+    border-radius: var(--radius-md);
 
-    display: flex;
-    flex-direction: row;
-    column-gap: 0.6vw;
-    fill: var(--background);
-    margin-top: auto;
-    margin-bottom: auto;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
     cursor: pointer;
+    user-select: none;
+
+    transition:
+        background-color var(--speed) var(--ease),
+        border-color var(--speed) var(--ease),
+        color var(--speed) var(--ease),
+        transform var(--speed) var(--ease);
 }
 
 .button:hover {
     background-color: var(--primary);
     border-color: var(--accent);
-    fill: var(--button-text);
-}
-
-.button p {
-    font-weight: 500;
-    font-size: large;
-    margin: 0;
     color: var(--button-text);
 }
 
-.button svg {
-    fill: inherit;
-    vertical-align: middle;
-    width: 24px;
-    height: 24px;
+.button:active {
+    transform: translateY(1px);
 }
 
+.button:disabled,
+.button[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.button:disabled:hover {
+    background-color: var(--secondary);
+    border-color: var(--button-border);
+}
+
+.button:disabled:active {
+    transform: none;
+}
+
+/* Confirming a form is green */
+button[type="submit"].button,
+input[type="submit"].button {
+    background-color: var(--primary);
+}
+
+button[type="submit"].button:hover:not(:disabled),
+input[type="submit"].button:hover:not(:disabled) {
+    filter: brightness(1.08);
+}
+
+/* Secondary actions inside forms (cancel...) are outlined */
+form .button[type="button"],
+.modal .button[type="button"] {
+    background-color: transparent;
+    color: var(--text);
+    border-color: var(--border-strong);
+}
+
+form .button[type="button"]:hover:not(:disabled),
+.modal .button[type="button"]:hover:not(:disabled) {
+    background-color: var(--hover);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+/* Quiet buttons: outlined, for secondary actions (no lime fill) */
+.button-quiet {
+    background-color: transparent;
+    color: var(--text);
+    border-color: var(--border-strong);
+    font-weight: 500;
+}
+
+.button-quiet:hover {
+    background-color: var(--hover);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.button-quiet:disabled:hover {
+    background-color: transparent;
+    border-color: var(--border-strong);
+}
+
+/* Square button holding only an icon (give it an aria-label) */
+.button.icon-button,
+.snippet-container li > .button.icon-button {
+    width: 2rem;
+    min-width: 2rem;
+    padding: 0;
+}
+
+.icon-button svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: currentColor;
+}
+
+/* Compact inside table cells */
+td .button {
+    min-height: 2rem;
+    margin: 0.125rem;
+    padding: 0.25rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.snippet-container > .button {
+    align-self: flex-start;
+}
+
+.button p {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+}
+
+.button svg {
+    flex: none;
+    width: 1.1em;
+    height: 1.1em;
+    fill: inherit;
+}
+
+/* Back button: top-left under the header (top is also written on map pages by hooks/fullscreen_map.ts) */
 #previous {
     position: absolute;
-    left: 4vw;
+    left: clamp(1rem, 4vw, 3rem);
     top: var(--header-height);
-
+    margin-top: 0.75rem;
+    z-index: 5;
     transition: top 0.4s ease-out;
+}
+
+#map-header #previous {
+    top: unset;
+    margin-top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .button,
+    #previous {
+        transition: none;
+    }
 }

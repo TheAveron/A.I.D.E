@@ -15,6 +15,12 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
         setIsOpen,
         forFaction,
         setForFaction,
+        audienceUsers,
+        setAudienceUsers,
+        audienceFactions,
+        setAudienceFactions,
+        expiresAt,
+        setExpiresAt,
     } = useNewOffer(onCreated);
 
     const {
@@ -24,9 +30,13 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
 
     return (
         <div>
-            <div className="button" onClick={() => setIsOpen(true)}>
+            <button
+                type="button"
+                className="button"
+                onClick={() => setIsOpen(true)}
+            >
                 Créer une offre
-            </div>
+            </button>
 
             {isOpen && (
                 <div
@@ -40,7 +50,7 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
                                 <label>Type</label>
                                 <select {...register("offer_type")}>
                                     <option value="">
-                                        Séléctioner un type
+                                        Sélectionner un type
                                     </option>
                                     <option value="BUY">Acheter</option>
                                     <option value="SELL">Vendre</option>
@@ -76,7 +86,8 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
                                 <label>Prix par unité</label>
                                 <input
                                     type="number"
-                                    step="1"
+                                    step="any"
+                                    min="0"
                                     {...register("price_per_unit")}
                                 />
                                 {errors.price_per_unit && (
@@ -88,6 +99,8 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
                                 <label>Quantité</label>
                                 <input
                                     type="number"
+                                    min="1"
+                                    step="1"
                                     {...register("quantity")}
                                 />
                                 {errors.quantity && (
@@ -112,9 +125,54 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
                                 <></>
                             )}
 
+                            <div className="modal-field">
+                                <label>
+                                    Réservée aux utilisateurs (noms séparés par
+                                    des virgules)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={audienceUsers}
+                                    onChange={(e) =>
+                                        setAudienceUsers(e.target.value)
+                                    }
+                                />
+                            </div>
+                            <div className="modal-field">
+                                <label>
+                                    Réservée aux membres des factions (noms
+                                    séparés par des virgules)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={audienceFactions}
+                                    onChange={(e) =>
+                                        setAudienceFactions(e.target.value)
+                                    }
+                                />
+                                <small>
+                                    Vide : l'offre est visible par tous.
+                                </small>
+                            </div>
+                            <div className="modal-field">
+                                <label>Expire le (facultatif)</label>
+                                <input
+                                    type="datetime-local"
+                                    value={expiresAt}
+                                    onChange={(e) =>
+                                        setExpiresAt(e.target.value)
+                                    }
+                                />
+                                <small>
+                                    Vide : l'offre reste ouverte jusqu'à son
+                                    annulation.
+                                </small>
+                            </div>
+
                             <div className="modal-buttons">
                                 <button
                                     type="submit"
+                                    disabled={loading}
                                     style={{
                                         flex: 1,
                                         backgroundColor: loading

@@ -1,8 +1,21 @@
 import logging
+import re
 import sys
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Optional
+
+_CONTROL_CHARACTERS = re.compile(r"[\x00-\x1f\x7f]")
+
+
+def log_safe(value: str) -> str:
+    """`value` with control characters made visible instead of interpreted.
+
+    A URL path is client input. The URL parser already drops line breaks, but
+    other control characters (an ESC that starts a terminal escape sequence,
+    NUL, ...) would be written to the log file and to the console as they are.
+    """
+    return _CONTROL_CHARACTERS.sub(lambda m: f"\\x{ord(m.group()):02x}", value)
 
 
 def setup_logger(

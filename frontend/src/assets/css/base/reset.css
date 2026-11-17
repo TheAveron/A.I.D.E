@@ -1,7 +1,57 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 * {
     margin: 0;
-    text-decoration: none;
-    box-sizing: border-box;
-    color: var(--text);
-    scroll-behavior: smooth;
+}
+
+/* The global `div { display: flex }` would otherwise defeat the [hidden] attribute */
+[hidden] {
+    display: none !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+img,
+svg,
+video {
+    max-width: 100%;
+}
+
+img {
+    height: auto;
+}
+
+/* Form controls do not inherit the text styles by default */
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+:disabled {
+    cursor: not-allowed;
+}
+
+:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+}
+
+::selection {
+    background: color-mix(in srgb, var(--primary) 35%, transparent);
 }

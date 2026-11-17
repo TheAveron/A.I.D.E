@@ -2,9 +2,10 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, String, Text,
-                        UniqueConstraint)
+                        UniqueConstraint, false)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from ..clock import utcnow
 from ..database import Base
 
 
@@ -30,6 +31,12 @@ class Role(Base):
     handle_members: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     manage_roles: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     manage_docs: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    manage_trains: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), nullable=False
+    )
+    manage_territory: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), nullable=False
+    )
     view_transactions: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False
     )
@@ -39,11 +46,11 @@ class Role(Base):
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, nullable=False
     )
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, onupdate=utcnow, nullable=False
     )
 
     faction = relationship("Faction", back_populates="roles")

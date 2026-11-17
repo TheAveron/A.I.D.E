@@ -1,10 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+from .base import MAX_DESCRIPTION_LENGTH, PartialUpdate
 
 
 class RoleBase(BaseModel):
-    name: str = Field(..., max_length=50)
+    name: str = Field(..., min_length=1, max_length=50)
     description: Optional[str] = None
 
     accept_offers: bool = False
@@ -13,16 +15,32 @@ class RoleBase(BaseModel):
     handle_members: bool = False
     manage_roles: bool = False
     manage_docs: bool = False
+    manage_trains: bool = False
+    manage_territory: bool = False
     view_transactions: bool = False
 
 
 class RoleCreate(RoleBase):
+    description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
     faction_id: int
 
 
-class RoleUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
+class RoleUpdate(PartialUpdate):
+    non_nullable = (
+        "name",
+        "accept_offers",
+        "create_offers",
+        "manage_funds",
+        "handle_members",
+        "manage_roles",
+        "manage_docs",
+        "manage_trains",
+        "manage_territory",
+        "view_transactions",
+    )
+
+    name: Optional[str] = Field(None, min_length=1, max_length=50)
+    description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
 
     accept_offers: Optional[bool] = None
     create_offers: Optional[bool] = None
@@ -30,6 +48,8 @@ class RoleUpdate(BaseModel):
     handle_members: Optional[bool] = None
     manage_roles: Optional[bool] = None
     manage_docs: Optional[bool] = None
+    manage_trains: Optional[bool] = None
+    manage_territory: Optional[bool] = None
     view_transactions: Optional[bool] = None
 
 
@@ -37,5 +57,4 @@ class RoleOut(RoleBase):
     role_id: int
     faction_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

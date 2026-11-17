@@ -1,12 +1,13 @@
-from typing import Optional
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from ..core import get_current_user
+from ..core import get_current_user, get_optional_user
 from ..crud import offer as offer_crud
 from ..database import Offer, User, get_db
-from ..misc import FactionPermission, OfferStatus, check_faction_permission
+from ..misc import (FactionPermission, OfferStatus, OfferType,
+                    check_faction_permission)
 from ..schemas import (OfferAccept, OfferAcceptOut, OfferCreate, OfferOut,
                        OfferUpdate)
 
@@ -30,7 +31,9 @@ def _offer_manager(current_user: User, offer: Offer) -> dict:
         return {"actor_user_id": current_user.user_id}
 
     check_faction_permission(
-        current_user, FactionPermission.CREATE_OFFERS, target_faction_id=offer.faction_id
+        current_user,
+        FactionPermission.CREATE_OFFERS,
+        target_faction_id=offer.faction_id,
     )
     return {"actor_faction_id": offer.faction_id}
 
@@ -39,12 +42,34 @@ def _offer_manager(current_user: User, offer: Offer) -> dict:
 def list_offers(
     status: Optional[OfferStatus] = Query(None),
     currency: Optional[str] = Query(None),
-    skip: int = 0,
-    limit: int = 50,
+    user_id: Optional[int] = Query(None, description="Only this user's own offers"),
+    faction_id: Optional[int] = Query(None, description="Only this faction's offers"),
+    offer_type: Optional[OfferType] = Query(None, description="BUY or SELL"),
+    q: Optional[str] = Query(None, max_length=100, description="Words in the item"),
+    min_price: Optional[float] = Query(None, ge=0),
+    max_price: Optional[float] = Query(None, ge=0),
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
     db: Session = Depends(get_db),
+    viewer: Optional[User] = Depends(get_optional_user),
 ):
+    """Offers, newest first. Paginate with `skip`/`limit` (at most 200 per page).
+
+    Private offers only appear for the people they are addressed to.
+    """
     return offer_crud.get_offers(
-        db, status=status, skip=skip, limit=limit, currency=currency
+        db,
+        status=status,
+        skip=skip,
+        limit=limit,
+        currency=currency,
+        user_id=user_id,
+        faction_id=faction_id,
+        offer_type=offer_type,
+        search=q,
+        min_price=min_price,
+        max_price=max_price,
+        viewer=viewer,
     )
 
 
@@ -76,9 +101,14 @@ def create_offer(
 
 
 @router.get("/detail/{offer_id}", response_model=OfferOut)
-def get_offer(offer_id: int, db: Session = Depends(get_db)):
+def get_offer(
+    offer_id: int,
+    db: Session = Depends(get_db),
+    viewer: Optional[User] = Depends(get_optional_user),
+):
+    offer_crud.expire_overdue(db)
     offer = offer_crud.get_offer(db, offer_id)
-    if not offer:
+    if not offer or not offer_crud.can_view_offer(offer, viewer):
         raise HTTPException(status_code=404, detail="Offer not found")
     return offer
 

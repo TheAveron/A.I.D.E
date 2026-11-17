@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../utils/authcontext";
+import { getErrorMessage } from "../../utils/apierror";
 import type { OfferAcceptPayload, OfferResponse } from "../../types/offers";
 
 export function useAcceptOffer() {
@@ -27,23 +28,12 @@ export function useAcceptOffer() {
             const res = await axios.post<OfferResponse>(
                 `/offers/accept/${offerId}`,
                 payload,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                },
             );
 
             setMessage("✅ Offre acceptée avec succès !");
             return res.data;
         } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-                setError(
-                    `❌ ${error.response?.data?.detail ?? "Erreur serveur"}`,
-                );
-            } else {
-                setError("❌ Erreur lors de l'acceptation de l'offre.");
-            }
+            setError(`❌ ${getErrorMessage(error, "Erreur serveur")}`);
         } finally {
             setLoading(false);
         }

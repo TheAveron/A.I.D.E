@@ -1,82 +1,74 @@
 import { useTransactions } from "../hooks/transactions";
 import { useOffer } from "../hooks/offers";
 import type { TransactionType } from "../../types/transactions";
-import { useUser } from "../hooks/user";
-import { useFaction } from "../hooks/faction";
+import Username from "./username";
+import Factionname from "./factionname";
+import { Pagination } from "./pagination";
+import { usePagination } from "../hooks/pagination";
+
+function Actor({
+    userId,
+    factionId,
+}: {
+    userId?: number | null;
+    factionId?: number | null;
+}) {
+    if (factionId) return <Factionname factionId={factionId.toString()} />;
+    if (userId) return <Username userId={userId.toString()} />;
+    return <>-</>;
+}
 
 export function OfferRow({ transaction }: { transaction: TransactionType }) {
     const { offer, loading, error } = useOffer(transaction.offer_id);
-    const {
-        user: creatorUser,
-        loading: creatorUserLoading,
-        error: creatorUserError,
-    } = useUser(offer?.user_id?.toString() ?? null);
-
-    const {
-        faction: creatorFaction,
-        loading: creatorFactionLoading,
-        error: creatorFactionError,
-    } = useFaction(offer?.faction_id?.toString() ?? null);
-
-    const {
-        user,
-        loading: userLoading,
-        error: userError,
-    } = useUser(transaction.buyer_user_id?.toString() ?? null);
-
-    const {
-        faction,
-        loading: factionLoading,
-        error: factionError,
-    } = useFaction(transaction.buyer_faction_id?.toString() ?? null);
 
     return (
-        <tr>
-            {!error ? (
-                !loading ? (
-                    <>
-                        <td
-                            onClick={() => {
-                                navigate(`/user/${transaction.offer_id}`);
-                            }}
-                            style={{ cursor: "pointer" }}
-                        >
-                            {offer ? offer.item_description : "Chargement..."}
-                        </td>
-                        <td>
-                            {!creatorUserLoading || !creatorFactionLoading
-                                ? (creatorUserError ??
-                                  creatorFactionError ??
-                                  creatorUser?.username ??
-                                  creatorFaction?.name)
-                                : "Chargement..."}
-                        </td>
-                        <td>
-                            {!userLoading || !factionLoading
-                                ? (userError ??
-                                  factionError ??
-                                  user?.username ??
-                                  faction?.name)
-                                : "Chargement..."}
-                        </td>
-                        <td>
-                            {new Date(
-                                transaction.timestamp,
-                            ).toLocaleDateString() +
-                                ", " +
-                                new Date(
-                                    transaction.timestamp,
-                                ).toLocaleTimeString()}
-                        </td>
-                    </>
-                ) : (
-                    <td colSpan={4}>Chargement de la transaction...</td>
-                )
-            ) : (
-                <td colSpan={4}>
+        <tr className={transaction.cancelled_at ? "train-retired" : undefined}>
+            {error ? (
+                <td colSpan={5}>
                     Erreur lors du chargement de la transaction{" "}
                     {transaction.transaction_id}: {error}
                 </td>
+            ) : loading || !offer ? (
+                <td colSpan={4}>Chargement de la transaction...</td>
+            ) : (
+                <>
+                    <td>{offer.item_description}</td>
+                    <td>
+                        <Actor
+                            userId={offer.user_id}
+                            factionId={offer.faction_id}
+                        />
+                    </td>
+                    <td>
+                        <Actor
+                            userId={transaction.buyer_user_id}
+                            factionId={transaction.buyer_faction_id}
+                        />
+                    </td>
+                    <td>
+                        {transaction.amount} {transaction.currency_name}
+                        {transaction.cancelled_at && (
+                            <>
+                                {" "}
+                                <span
+                                    className="status cancelled"
+                                    title={
+                                        transaction.cancel_reason ?? undefined
+                                    }
+                                >
+                                    Annulée
+                                </span>
+                            </>
+                        )}
+                    </td>
+                    <td>
+                        {new Date(transaction.timestamp).toLocaleDateString() +
+                            ", " +
+                            new Date(
+                                transaction.timestamp,
+                            ).toLocaleTimeString()}
+                    </td>
+                </>
             )}
         </tr>
     );
@@ -86,10 +78,14 @@ export default function TransactionsTable({
     factionId = null,
     userId = null,
     offerId = null,
+    perPage = 10,
+    title = "Transactions",
 }: {
     factionId?: string | null;
     userId?: string | null;
     offerId?: string | null;
+    perPage?: number;
+    title?: string;
 }) {
     // The server only returns what the viewer may see and applies the filters.
     const { transactions, loading, error } = useTransactions({
@@ -97,10 +93,15 @@ export default function TransactionsTable({
         userId,
         offerId,
     });
+    const { pageItems, page, totalPages, setPage } = usePagination(
+        transactions ?? [],
+        perPage,
+    );
+
     return (
         <div className="snippet-container transactions-container">
             <div className="info-header">
-                <div className="info-title">Transactions</div>
+                <div className="info-title">{title}</div>
             </div>
             <div className="info-values table-container">
                 <table>
@@ -109,14 +110,15 @@ export default function TransactionsTable({
                             <th>Offre</th>
                             <th>Créateur</th>
                             <th>Acceptant</th>
+                            <th>Montant</th>
                             <th>Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         {!error ? (
                             !loading ? (
-                                transactions && transactions.length > 0 ? (
-                                    transactions.map((transaction) => (
+                                pageItems.length > 0 ? (
+                                    pageItems.map((transaction) => (
                                         <OfferRow
                                             key={transaction.transaction_id}
                                             transaction={transaction}
@@ -144,6 +146,7 @@ export default function TransactionsTable({
                     </tbody>
                 </table>
             </div>
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </div>
     );
 }

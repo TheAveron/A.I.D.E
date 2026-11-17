@@ -6,7 +6,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
     {
-        ignores: ["dist", "node_modules/", ".react-router/"],
+        ignores: ["dist", "build", "node_modules/", ".react-router/"],
     },
     {
         extends: [js.configs.recommended, ...tseslint.configs.recommended],
@@ -23,7 +23,30 @@ export default tseslint.config(
             ...reactHooks.configs.recommended.rules,
             "react-refresh/only-export-components": [
                 "warn",
-                { allowConstantExport: true },
+                {
+                    allowConstantExport: true,
+                    // Exports a React Router route module may have besides its component
+                    allowExportNames: [
+                        "meta",
+                        "links",
+                        "headers",
+                        "loader",
+                        "action",
+                        "clientLoader",
+                        "clientAction",
+                        "handle",
+                        "shouldRevalidate",
+                    ],
+                },
+            ],
+            // `_name` marks a parameter / catch variable as intentionally unused
+            "@typescript-eslint/no-unused-vars": [
+                "error",
+                {
+                    argsIgnorePattern: "^_",
+                    varsIgnorePattern: "^_",
+                    caughtErrorsIgnorePattern: "^_",
+                },
             ],
         },
     },

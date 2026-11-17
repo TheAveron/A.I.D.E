@@ -1,9 +1,11 @@
-import { useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 
 import { useRole } from "../hooks/role";
 import { useMembers } from "../hooks/factionmembers";
 import { useMe } from "../hooks/me";
 import { UpdateRole } from "../buttons/updaterole";
+import { KickMemberButton } from "../buttons/kickmember";
+import { TransferLeadershipButton } from "../buttons/transferleadership";
 
 import type { CSSProperties } from "react";
 
@@ -11,18 +13,22 @@ function RoleElement({
     role_id,
     faction_id,
     user_id,
+    username,
     canManage,
+    isLeader,
     onRoleUpdated,
 }: {
+    username: string;
     role_id: number | null;
     faction_id: number | null;
     user_id: number;
     // Whether the *viewer* may change this member's role (not a property of
     // the member's own role).
     canManage: boolean;
+    // Whether the viewer is the leader of this faction (may hand it over)
+    isLeader: boolean;
     onRoleUpdated: () => void;
 }) {
-    const navigate = useNavigate();
     const { role } = useRole(role_id);
 
     if (!role_id) {
@@ -45,28 +51,33 @@ function RoleElement({
 
     return (
         <>
-            <td
-                onClick={() => {
-                    navigate("/user/" + user_id);
-                }}
-            >
-                {role.name}
-            </td>
+            <td>{role.name}</td>
             {canManage &&
                 role.faction_id === faction_id &&
                 role.name != "Chef" && (
-                    <td
-                        onClick={(e) => {
-                            e.preventDefault(); // prevents navigation
-                            e.stopPropagation(); // stops bubbling to Link
-                        }}
-                    >
+                    <td>
                         <UpdateRole
                             userId={user_id}
                             currentRoleId={role_id}
                             factionId={faction_id}
                             onRoleUpdated={onRoleUpdated}
+                        />{" "}
+                        <KickMemberButton
+                            userId={user_id}
+                            username={username}
+                            onKicked={onRoleUpdated}
                         />
+                        {isLeader && faction_id !== null && (
+                            <>
+                                {" "}
+                                <TransferLeadershipButton
+                                    factionId={faction_id}
+                                    userId={user_id}
+                                    username={username}
+                                    onDone={onRoleUpdated}
+                                />
+                            </>
+                        )}
                     </td>
                 )}
         </>
@@ -74,8 +85,6 @@ function RoleElement({
 }
 
 function UsersTable({ state = false }: { state: boolean }) {
-    const navigate = useNavigate();
-
     const { factionid } = useParams();
     const { users, loading, error, refresh } = useMembers(factionid ?? null);
     const { user: current_user } = useMe();
@@ -115,17 +124,16 @@ function UsersTable({ state = false }: { state: boolean }) {
                                 users && users.length > 0 ? (
                                     users.map((user) => (
                                         <tr key={user.user_id}>
-                                            <td
-                                                onClick={() => {
-                                                    navigate(
-                                                        "/user/" + user.user_id,
-                                                    );
-                                                }}
-                                            >
-                                                {user.username}
+                                            <td>
+                                                <Link
+                                                    to={`/user/${user.user_id}`}
+                                                >
+                                                    {user.username}
+                                                </Link>
                                             </td>
                                             <RoleElement
                                                 user_id={user.user_id}
+                                                username={user.username}
                                                 role_id={user.role_id}
                                                 faction_id={
                                                     current_user?.faction_id ??
@@ -136,27 +144,32 @@ function UsersTable({ state = false }: { state: boolean }) {
                                                     user.user_id !==
                                                         current_user?.user_id
                                                 }
+                                                isLeader={
+                                                    myRole?.name === "Chef" &&
+                                                    myRole.faction_id ===
+                                                        current_user?.faction_id
+                                                }
                                                 onRoleUpdated={refresh}
                                             />
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5}>
+                                        <td colSpan={3}>
                                             Aucun utilisateur trouvé.
                                         </td>
                                     </tr>
                                 )
                             ) : (
                                 <tr>
-                                    <td colSpan={5}>
+                                    <td colSpan={3}>
                                         Chargement des membres...
                                     </td>
                                 </tr>
                             )
                         ) : (
                             <tr>
-                                <td colSpan={5}>
+                                <td colSpan={3}>
                                     <p>{error}</p>
                                     <button
                                         type="button"

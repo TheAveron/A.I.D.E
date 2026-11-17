@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -6,6 +6,8 @@ import * as yup from "yup";
 import axios from "axios";
 
 import { useAuth } from "../../utils/authcontext";
+import { getErrorMessage } from "../../utils/apierror";
+import { useApiGet } from "../../utils/useapiget";
 import { useMe } from "../hooks/me";
 
 import type {
@@ -27,56 +29,19 @@ const currencySchema = yup.object().shape({
 });
 
 export function useCurrency(faction_id: string | null): CurrencyHook {
-    const { token } = useAuth();
+    // The server answers `null` (not an error) for a faction without currency.
+    const { data, loading, error, refresh } = useApiGet<CurrencyType | null>(
+        faction_id
+            ? `/currencies/faction/${encodeURIComponent(faction_id)}`
+            : null,
+        "❌ Error fetching currency",
+    );
 
-    const [currency, setCurrency] = useState<CurrencyType | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [refreshKey, setRefreshKey] = useState(0);
-
-    useEffect(() => {
-        if (!token) {
-            setError("Vous devez être connecté pour consulter la monnaie.");
-            return;
-        }
-
-        if (!faction_id) {
-            setError("Aucune faction n'a été renseignée.");
-            return;
-        }
-
-        const fetchCurrency = async () => {
-            try {
-                setLoading(true);
-                const res = await axios.get<CurrencyType>(
-                    `/currencies/faction/${faction_id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    },
-                );
-                setCurrency(res.data);
-            } catch (error) {
-                setError(`❌ Error fetching currency: ${error}`);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCurrency();
-    }, [token, faction_id, refreshKey]);
-
-    return {
-        currency,
-        loading,
-        error,
-        refresh: () => setRefreshKey((value) => value + 1),
-    };
+    return { currency: data, loading, error, refresh };
 }
 
 export function useNewCurrency(onCreated?: () => void): CurrencyFormHook {
-    const { token } = useAuth() ?? {};
+    const { token } = useAuth();
 
     const { user, loading: userLoading, error: userError } = useMe();
 
@@ -106,6 +71,7 @@ export function useNewCurrency(onCreated?: () => void): CurrencyFormHook {
 
             const payload: CurrencyCreateData = {
                 ...data,
+                symbol: data.symbol?.trim() || null,
                 faction_id: user?.faction_id,
             };
 
@@ -124,7 +90,9 @@ export function useNewCurrency(onCreated?: () => void): CurrencyFormHook {
                     "❌ Une monnaie avec ce nom ou symbole existe déjà.",
                 );
             } else {
-                setMessage("❌ Erreur lors de la création de la monnaie.");
+                setMessage(
+                    `❌ Erreur lors de la création de la monnaie : ${getErrorMessage(error)}`,
+                );
             }
         } finally {
             setLoading(false);

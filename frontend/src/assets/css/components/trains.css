@@ -1,0 +1,64 @@
+/*
+ * Station board: how a train's name looks on a display.
+ * It is a physical screen, so it stays dark in both themes.
+ */
+.train-board {
+    padding: 1.25rem 1.5rem;
+    background-color: #0b0b0b;
+    border: 1px solid #333;
+    border-radius: var(--radius-lg);
+    box-shadow: inset 0 0 0 3px #151515;
+}
+
+.train-board-name {
+    display: block;
+    font:
+        600 clamp(1.5rem, 6vw, 2.4rem) / 1.15 "Cascadia Mono",
+        "SF Mono",
+        Consolas,
+        monospace;
+    color: var(--secondary);
+    letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+}
+
+/* The prefix beats the generic list rules of the cards */
+.train-board .train-board-parts {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.75rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    color: #bdbdbd;
+    font-size: 0.85rem;
+}
+
+.train-board .train-board-parts li {
+    display: block;
+    padding: 0;
+    border: 0;
+}
+
+.train-board .train-board-parts b {
+    color: #fff;
+}
+
+.train-board .train-board-parts small {
+    color: #9a9a9a;
+}
+
+.train-line-swatch {
+    display: inline-block;
+    width: 0.8em;
+    height: 0.8em;
+    margin-right: 0.4em;
+    border-radius: 50%;
+    vertical-align: baseline;
+}
+
+.train-retired {
+    color: var(--muted);
+    text-decoration: line-through;
+}

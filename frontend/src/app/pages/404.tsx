@@ -16,7 +16,7 @@ function Error404() {
                     Oops, il semblerait que la page que vous cherchiez n'existe
                     pas
                 </p>
-                <GoBackButton label="Accueil" />
+                <GoBackButton label="Accueil" to="/" />
             </section>
         </div>
     );

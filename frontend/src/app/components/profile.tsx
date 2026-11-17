@@ -24,7 +24,8 @@ function Profile({ value }: { value: UserType }) {
                         <div
                             className="info-header"
                             style={
-                                profile.is_admin
+                                profile.is_admin ||
+                                profile.global_roles?.includes("train_admin")
                                     ? {
                                           justifyContent: "space-between",
                                       }
@@ -36,6 +37,9 @@ function Profile({ value }: { value: UserType }) {
                                 <div className="profile-role">
                                     Administrateur
                                 </div>
+                            )}
+                            {profile.global_roles?.includes("train_admin") && (
+                                <div className="profile-role">Admin trains</div>
                             )}
                         </div>
                         <div className="info-values">
@@ -66,12 +70,15 @@ function Profile({ value }: { value: UserType }) {
                                         : roleError}
                                 </span>
                             </div>
-                            <div className="info-row">
-                                <span className="info-label">Email:</span>
-                                <span className="info-value-field">
-                                    {profile.email ?? "Non"}
-                                </span>
-                            </div>
+                            {/* Only the account holder's own profile has the email (the server hides it from everyone else) */}
+                            {profile.email !== undefined && (
+                                <div className="info-row">
+                                    <span className="info-label">Email:</span>
+                                    <span className="info-value-field">
+                                        {profile.email ?? "Non"}
+                                    </span>
+                                </div>
+                            )}
                             <div className="info-row">
                                 <span className="info-label">Inscription:</span>
                                 <span className="info-value-field">

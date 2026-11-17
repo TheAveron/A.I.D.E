@@ -16,89 +16,87 @@ function Register() {
         <>
             <div className="content">
                 <section id="register">
-                    {!message ? (
-                        !loading ? (
-                            <form className="App" onSubmit={onSubmit}>
-                                <div className="imgcontainer">
-                                    <img
-                                        src={logo}
-                                        style={{
-                                            maxWidth: "20vw",
-                                            maxHeight: "20vh",
-                                            borderRadius: "100%",
-                                        }}
-                                        alt="Avatar"
-                                        className="avatar"
-                                    />
-                                </div>
-                                <div className="container">
-                                    <label htmlFor="register-username">
-                                        <b>Nom d'utilisateur</b>
-                                    </label>
-                                    <input
-                                        id="register-username"
-                                        type="text"
-                                        autoComplete="username"
-                                        {...register("username", {
-                                            required: true,
-                                        })}
-                                        placeholder="Entrez un nom"
-                                    />
-                                    {errors.username?.message && (
-                                        <span style={{ color: "red" }}>
-                                            *Nom* obligatoire,
-                                            {errors.username?.message}
-                                        </span>
-                                    )}
-                                    <label htmlFor="register-password">
-                                        <b>Mot de passe</b>
-                                    </label>
-                                    <input
-                                        id="register-password"
-                                        type="password"
-                                        autoComplete="new-password"
-                                        {...register("password")}
-                                        placeholder="Entrez un mot de passe"
-                                    />
-                                    {errors.password && (
-                                        <span style={{ color: "red" }}>
-                                            {errors.password?.message}
-                                        </span>
-                                    )}
-                                    <label htmlFor="register-confirm-password">
-                                        <b>Confirmation</b>
-                                    </label>
-                                    <input
-                                        id="register-confirm-password"
-                                        type="password"
-                                        autoComplete="new-password"
-                                        {...register("cpassword")}
-                                        placeholder="Entrez votre mot de passe"
-                                    />
-                                    {errors.cpassword && (
-                                        <span style={{ color: "red" }}>
-                                            {errors.cpassword?.message}
-                                        </span>
-                                    )}
+                    <form className="App" onSubmit={onSubmit}>
+                        <div className="imgcontainer">
+                            <img
+                                src={logo}
+                                style={{
+                                    maxWidth: "20vw",
+                                    maxHeight: "20vh",
+                                    borderRadius: "100%",
+                                }}
+                                alt="Avatar"
+                                className="avatar"
+                            />
+                        </div>
+                        <div className="container">
+                            {message && (
+                                <p role="alert" style={{ color: "red" }}>
+                                    {message}
+                                </p>
+                            )}
+                            <label htmlFor="register-username">
+                                <b>Nom d'utilisateur</b>
+                            </label>
+                            <input
+                                id="register-username"
+                                type="text"
+                                autoComplete="username"
+                                {...register("username", {
+                                    required: true,
+                                })}
+                                placeholder="Entrez un nom"
+                            />
+                            {errors.username?.message && (
+                                <span style={{ color: "red" }}>
+                                    *Nom* obligatoire,
+                                    {errors.username?.message}
+                                </span>
+                            )}
+                            <label htmlFor="register-password">
+                                <b>Mot de passe</b>
+                            </label>
+                            <input
+                                id="register-password"
+                                type="password"
+                                autoComplete="new-password"
+                                {...register("password")}
+                                placeholder="Entrez un mot de passe"
+                            />
+                            {errors.password && (
+                                <span style={{ color: "red" }}>
+                                    {errors.password?.message}
+                                </span>
+                            )}
+                            <label htmlFor="register-confirm-password">
+                                <b>Confirmation</b>
+                            </label>
+                            <input
+                                id="register-confirm-password"
+                                type="password"
+                                autoComplete="new-password"
+                                {...register("cpassword")}
+                                placeholder="Entrez votre mot de passe"
+                            />
+                            {errors.cpassword && (
+                                <span style={{ color: "red" }}>
+                                    {errors.cpassword?.message}
+                                </span>
+                            )}
 
-                                    <div className="form-end">
-                                        <input
-                                            type="submit"
-                                            className="button"
-                                            value="Register"
-                                        />
-                                        <Link to="../login">
-                                            Déjà un compte ?
-                                        </Link>
-                                    </div>
-                                </div>
-                            </form>
-                        ) : (
-                            <p>Chargement ...</p>
-                        )
-                    ) : (
-                        message
-                    )}
+                            <div className="form-end">
+                                <input
+                                    type="submit"
+                                    className="button"
+                                    value={
+                                        loading ? "Chargement ..." : "Register"
+                                    }
+                                    disabled={loading}
+                                />
+                                <Link to="../login">Déjà un compte ?</Link>
+                            </div>
+                        </div>
+                    </form>
                 </section>
             </div>
         </>

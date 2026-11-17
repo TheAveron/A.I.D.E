@@ -1,7 +1,8 @@
-from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+from .base import UTCDatetime
 
 
 class TransactionBase(BaseModel):
@@ -18,7 +19,9 @@ class TransactionCreate(TransactionBase):
 
 class TransactionOut(TransactionBase):
     transaction_id: int
-    timestamp: datetime
+    timestamp: UTCDatetime
+    quantity: Optional[int] = None
+    cancelled_at: Optional[UTCDatetime] = None
+    cancel_reason: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

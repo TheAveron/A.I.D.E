@@ -1,13 +1,12 @@
 #map-header {
     display: flex;
-    place-content: center;
-    align-items: center;
-    padding: 2vh 4vw;
-    height: 4vh;
-    min-height: 75px;
     flex-direction: row;
-    min-width: 96vw;
-    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 100%;
+    min-height: 75px;
+    padding: 1rem clamp(1rem, 4vw, 3rem);
 }
 
 #map-header.column-layout {
@@ -16,4 +15,25 @@
 
 #map-header h2 {
     height: fit-content;
+}
+
+/* On a narrow screen the title would run under the floating back button */
+@media only screen and (max-width: 700px) {
+    #map-header {
+        padding-top: 4rem;
+    }
+}
+
+/* Over the map the back button needs its own edge */
+#map-header ~ #previous,
+#map-header #previous {
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.5);
+}
+
+/* Iframe of an archived map: same rule as .map-viewer, it takes the rest of the screen */
+.map-frame {
+    flex: 1 1 0;
+    width: 100%;
+    min-height: 420px;
+    border: 0;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -6,6 +6,8 @@ import axios from "axios";
 import * as yup from "yup";
 
 import { useAuth } from "../../utils/authcontext";
+import { getErrorMessage } from "../../utils/apierror";
+import { useApiGet } from "../../utils/useapiget";
 import { useMe } from "./me";
 
 import type {
@@ -14,7 +16,6 @@ import type {
     FactionFormData,
 } from "../../types/factions";
 import type { FactionFormHook } from "../../types/factions";
-import { useUpdateUser } from "./role";
 
 const factionSchema = yup.object().shape({
     name: yup.string().required("Le nom de la faction est obligatoire"),
@@ -28,43 +29,27 @@ const factionSchema = yup.object().shape({
 });
 
 export function useFaction(faction_id: string | null): FactionHook {
-    const { token } = useAuth();
+    const { data, loading, error, refresh } = useApiGet<FactionType>(
+        faction_id
+            ? `/factions/detail/${encodeURIComponent(faction_id)}`
+            : null,
+        "Error fetching faction",
+    );
 
-    const [faction, setFaction] = useState<FactionType | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!token || !faction_id) return;
-
-        const fetchFaction = async () => {
-            try {
-                setLoading(true);
-                const res = await axios.get<FactionType>(
-                    `/factions/detail/${faction_id}`,
-                );
-                setFaction(res.data);
-            } catch (error) {
-                setError(`Error fetching faction: ${error}`);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchFaction();
-    }, [token, faction_id]);
-
-    return { faction, loading, error };
+    return { faction: data, loading, error, refresh };
 }
 
 export function useNewFaction(onCreated?: () => void): FactionFormHook {
     const { token } = useAuth();
-    const { user, loading: userLoading, error: userError } = useMe();
+    const {
+        user,
+        loading: userLoading,
+        error: userError,
+        refresh: refreshMe,
+    } = useMe();
     const { faction: UserFaction } = useFaction(
         user?.faction_id?.toString() || null,
     );
-
-    const { updateUser } = useUpdateUser();
 
     const [loading, setLoading] = useState<boolean>(false);
     const [message, setMessage] = useState<string>("");
@@ -86,10 +71,9 @@ export function useNewFaction(onCreated?: () => void): FactionFormHook {
                 );
             }
 
+            // "Sans Faction" is where new accounts start: creating a faction moves the user out of it (the server does it).
             if (UserFaction && UserFaction.name != "Sans Faction") {
                 throw new Error("Vous appartenez déjà à une faction.");
-            } else if (UserFaction && UserFaction.name == "Sans Faction") {
-                updateUser(user?.user_id || null, { faction_id: null });
             }
 
             if (userError) {
@@ -110,12 +94,16 @@ export function useNewFaction(onCreated?: () => void): FactionFormHook {
             form.reset();
             setIsOpen(false);
 
+            // The user is now the leader of the new faction
+            refreshMe();
             onCreated?.();
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 409) {
                 setMessage("❌ Une faction avec ce nom existe déjà.");
             } else {
-                setMessage("❌ Erreur lors de la création de la faction.");
+                setMessage(
+                    `❌ Erreur lors de la création de la faction : ${getErrorMessage(error)}`,
+                );
             }
         } finally {
             setLoading(false);

@@ -5,6 +5,7 @@ from sqlalchemy import (CheckConstraint, DateTime, ForeignKey, Index, Integer,
                         Numeric, String)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from ..clock import utcnow
 from ..database import Base
 
 
@@ -50,8 +51,19 @@ class Transaction(Base):
         String(50), ForeignKey("currencies.name"), nullable=False
     )
     timestamp: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=utcnow, nullable=False
     )
+
+    # How many units were bought (empty for the oldest rows, which only kept
+    # the amount)
+    quantity: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+
+    # An admin can cancel a transaction; the row stays as the record of it
+    cancelled_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime, nullable=True, index=True
+    )
+    cancelled_by_name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    cancel_reason: Mapped[Optional[str]] = mapped_column(String(300), nullable=True)
 
     def __repr__(self) -> str:
         buyer = (

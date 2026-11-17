@@ -4,12 +4,14 @@ import {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
     useState,
     type ReactNode,
 } from "react";
 
 import { useNavigate } from "react-router";
 import { jwtDecode } from "jwt-decode";
+import { applyAuthHeader } from "./authheader";
 import { AuthContext } from "./authcontext";
 
 // --- Types ---
@@ -20,10 +22,14 @@ interface DecodedToken {
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(() => {
-        if (typeof window !== "undefined") {
-            return sessionStorage.getItem("token");
-        }
-        return null;
+        if (typeof window === "undefined") return null;
+
+        const stored = sessionStorage.getItem("token");
+        // Set the header now, during the first render: the effect below runs
+        // after the children's effects, which would already have fetched
+        // without it (see applyAuthHeader).
+        applyAuthHeader(stored);
+        return stored;
     });
 
     const navigate = useNavigate();
@@ -33,7 +39,9 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             setToken(null);
             if (sessionExpired) {
                 navigate("/login", {
-                    state: { message: "Session expired, please log in again." },
+                    state: {
+                        message: "Session expirée, veuillez vous reconnecter.",
+                    },
                     replace: true,
                 });
             } else {
@@ -60,7 +68,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
                 const timeUntilExpiry = expiryTime - Date.now() - 5000; // 5s safety margin
 
                 if (timeUntilExpiry <= 0) {
-                    handleLogout();
+                    handleLogout(true);
                 } else {
                     logoutTimer = setTimeout(() => {
                         handleLogout(true);
@@ -83,6 +91,30 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (logoutTimer) clearTimeout(logoutTimer);
         };
     }, [token, handleLogout]);
+
+    const currentToken = useRef(token);
+    useEffect(() => {
+        currentToken.current = token;
+    }, [token]);
+
+    useEffect(() => {
+        const id = axios.interceptors.response.use(
+            (response) => response,
+            (error: unknown) => {
+                if (
+                    axios.isAxiosError(error) &&
+                    error.response?.status === 401 &&
+                    currentToken.current &&
+                    error.config?.headers?.Authorization ===
+                        `Bearer ${currentToken.current}`
+                ) {
+                    handleLogout(true);
+                }
+                return Promise.reject(error);
+            },
+        );
+        return () => axios.interceptors.response.eject(id);
+    }, [handleLogout]);
 
     const contextValue = useMemo(() => ({ token, setToken }), [token]);
 

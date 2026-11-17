@@ -1,75 +1,429 @@
+/*
+ * Map pages fold the header with inline styles (hooks/fullscreen_map.ts), so
+ * its size must not rely on !important. The inline styles are removed when
+ * leaving the map, which hands the size back to this stylesheet.
+ */
 header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
     width: 100%;
-    padding: 2vh 4vw;
+    height: var(--header-height);
+    min-height: var(--header-height);
+    padding: 0 var(--page-gutter);
+
     display: flex;
     flex-direction: row;
-    position: fixed;
-    left: 0;
-    top: 0;
-    justify-content: space-between;
-    place-items: center;
-    background-color: var(--background);
-    height: 4vh;
-    min-height: 100px;
-    border-bottom: 0.003mm solid var(--text);
-    transition: all 0.4s ease-out;
-    overflow: hidden;
-    z-index: 1;
+    align-items: center;
+    gap: 1.5rem;
+
+    background-color: var(--header-bg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+
+    transition:
+        height 0.4s ease-out,
+        min-height 0.4s ease-out,
+        padding 0.4s ease-out,
+        border-width 0.4s ease-out;
 }
 
+/* Visible so that the "Plus" menu can drop out of the bar, except while a map page folds it */
+header[style*="height: 0"] {
+    overflow: hidden;
+}
+
+/* Brand: the title with a small beveled block */
+header .title {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    color: var(--text);
+    text-decoration: none;
+}
+
+header .title::before {
+    content: "";
+    flex: none;
+    width: 0.9rem;
+    height: 0.9rem;
+    background-color: var(--primary);
+    box-shadow:
+        inset -0.22rem -0.22rem 0 rgb(0 0 0 / 0.28),
+        inset 0.12rem 0.12rem 0 rgb(255 255 255 / 0.4);
+}
+
+/* ── Navigation (wide screens) ── */
 nav {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: row;
-    column-gap: 2em;
-    place-items: center;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-left: clamp(0.5rem, 2.5vw, 2rem);
+}
+
+.nav-links,
+.nav-account {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(1rem, 2vw, 1.75rem);
 }
 
 header .link {
-    font-size: x-large;
+    position: relative;
+    padding-block: 0.35rem;
+    font-size: 0.95rem;
     font-weight: 500;
+    white-space: nowrap;
+    color: var(--text-800);
+    text-decoration: none;
+    transition: color var(--speed) var(--ease);
 }
 
-header .title {
-    font-weight: 800;
-    font-size: xx-large;
+header nav .link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background-color: var(--primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--speed) var(--ease);
 }
 
-header nav .link:hover {
-    color: var(--primary-700);
+header nav .link:hover,
+header nav .link:focus-visible {
+    color: var(--text);
 }
 
-header nav .link:focus-visible,
-header .title:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 4px;
+header nav .link:hover::after,
+header nav .link:focus-visible::after {
+    transform: scaleX(1);
 }
 
-@media only screen and (max-width: 700px) {
+header .button {
+    min-height: 2.25rem;
+    padding: 0.3rem 0.95rem;
+    font-size: 0.9rem;
+}
+
+/* Icons next to the label */
+.nav-notifications,
+.nav-profile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.nav-icon {
+    flex: none;
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+/* The bell is icon-only on a wide screen: the label stays for screen readers */
+.nav-notifications .nav-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.nav-badge {
+    position: absolute;
+    top: -0.2rem;
+    right: -0.65rem;
+    display: grid;
+    place-items: center;
+    min-width: 1.15rem;
+    height: 1.15rem;
+    padding-inline: 0.25rem;
+    background-color: var(--primary);
+    color: var(--button-text);
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── "Plus" menu ── */
+.nav-more {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.nav-more-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+/* Chevron (the underline of .link uses ::after, so this one is ::before) */
+.nav-more-toggle::before {
+    content: "";
+    order: 2;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform var(--speed) var(--ease);
+}
+
+.nav-more.open .nav-more-toggle::before {
+    transform: translateY(1px) rotate(-135deg);
+}
+
+.nav-more.open .nav-more-toggle {
+    color: var(--text);
+}
+
+.nav-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    /* Lines the text of the entries up with the "Plus" button */
+    margin-left: -1.15rem;
+    min-width: 13rem;
+    padding: 0.4rem;
+    gap: 0.15rem;
+    z-index: 12;
+    background-color: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
+}
+
+.nav-more.open .nav-menu {
+    display: flex;
+}
+
+/* Entries fill the whole row (links are fit-content by default) */
+.nav-menu .link {
+    width: auto;
+    padding: 0.65rem 0.75rem;
+    border-radius: var(--radius-sm);
+}
+
+header nav .nav-menu .link::after {
+    display: none;
+}
+
+header nav .nav-menu .link:hover,
+header nav .nav-menu .link:focus-visible {
+    background-color: var(--hover);
+}
+
+/* ── Menu button (narrow screens only) ── */
+.nav-toggle {
+    display: none;
+    position: relative;
+    flex: none;
+    margin-left: auto;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+.nav-toggle:hover {
+    background-color: var(--hover);
+    border-color: var(--accent);
+}
+
+.nav-toggle-bars,
+.nav-toggle-bars::before,
+.nav-toggle-bars::after {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1.1rem;
+    height: 2px;
+    background-color: currentColor;
+    transition:
+        transform var(--speed) var(--ease),
+        opacity var(--speed) var(--ease);
+}
+
+.nav-toggle-bars {
+    transform: translate(-50%, -50%);
+}
+
+.nav-toggle-bars::before,
+.nav-toggle-bars::after {
+    content: "";
+    left: 0;
+    top: 0;
+}
+
+.nav-toggle-bars::before {
+    transform: translateY(-6px);
+}
+
+.nav-toggle-bars::after {
+    transform: translateY(6px);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars {
+    background-color: transparent;
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars::before {
+    transform: rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars::after {
+    transform: rotate(-45deg);
+}
+
+.nav-dot {
+    position: absolute;
+    top: 0.3rem;
+    right: 0.3rem;
+    width: 0.55rem;
+    height: 0.55rem;
+    background-color: var(--primary);
+    border-radius: 1px;
+}
+
+/* ── Narrow screens: everything in one menu under the bar ── */
+@media only screen and (max-width: 900px) {
     header {
-        min-height: 72px;
-        padding: 1rem;
         gap: 1rem;
     }
 
-    header .title {
-        font-size: 1.35rem;
+    .nav-toggle {
+        display: block;
     }
 
-    nav {
-        column-gap: 0.75rem;
-        flex-wrap: wrap;
-        justify-content: flex-end;
+    header nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 0.75rem;
+        max-height: calc(100dvh - var(--header-height));
+        margin: 0;
+        padding: 0.75rem var(--page-gutter) 1.25rem;
+        overflow-y: auto;
+        background-color: var(--surface);
+        border-bottom: 1px solid var(--border-strong);
+        box-shadow: 0 24px 40px rgb(0 0 0 / 0.4);
+    }
+
+    header nav.open {
+        display: flex;
+    }
+
+    .nav-links,
+    .nav-account {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.15rem;
+    }
+
+    .nav-account {
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border);
     }
 
     header .link {
+        width: auto;
+        padding: 0.75rem 0.6rem;
         font-size: 1rem;
+        border-radius: var(--radius-sm);
+    }
+
+    header nav .link::after {
+        display: none;
+    }
+
+    header nav .link:hover,
+    header nav .link:focus-visible {
+        background-color: var(--hover);
+    }
+
+    /* "Plus" disappears: its pages are listed with the others */
+    .nav-more {
+        display: contents;
+    }
+
+    .nav-more-toggle {
+        display: none;
+    }
+
+    header .nav-more .nav-menu {
+        display: contents;
+    }
+
+    .nav-menu .link {
+        padding: 0.75rem 0.6rem;
+    }
+
+    /* The bell shows its label and puts the counter on the right */
+    .nav-notifications .nav-label {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip-path: none;
+    }
+
+    .nav-badge {
+        position: static;
+        margin-left: auto;
+    }
+
+    header .button {
+        justify-content: center;
+        min-height: 2.75rem;
+        max-width: none;
     }
 }
 
-@media only screen and (min-width: 1500px) {
-    header {
-        padding-left: 2vw;
-        padding-right: 2vw;
-        width: 100vw;
+@media only screen and (max-width: 700px) {
+    header .title {
+        font-size: 1.1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    header,
+    header nav .link::after,
+    .nav-more-toggle::before,
+    .nav-toggle-bars,
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+        transition: none;
     }
 }

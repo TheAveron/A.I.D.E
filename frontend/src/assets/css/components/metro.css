@@ -1,0 +1,155 @@
+.network-header,
+.network-line {
+    align-items: stretch;
+}
+
+.metro-title {
+    text-align: left;
+}
+
+.metro-title {
+    margin: 0 0 1rem;
+}
+
+.metro-scroll {
+    overflow-x: auto;
+    padding: 0.5rem 0.75rem;
+}
+
+.metro-stops {
+    --metro-bar: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: max-content;
+    min-width: 100%;
+}
+
+.metro-stop {
+    position: relative;
+    flex: 1 0 8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1.6rem;
+    text-align: center;
+}
+
+/* The bar: one segment per stop, joined to its neighbours */
+.metro-stop::before {
+    content: "";
+    position: absolute;
+    top: calc(0.75rem - var(--metro-bar) / 2);
+    left: 0;
+    right: 0;
+    height: var(--metro-bar);
+    background: var(--metro-color);
+}
+
+.metro-stop:first-child::before {
+    left: 50%;
+}
+
+.metro-stop:last-child::before {
+    right: 50%;
+}
+
+.metro-dot {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: var(--surface);
+    border: 0.3rem solid var(--metro-color);
+    box-sizing: border-box;
+}
+
+.metro-end .metro-dot {
+    width: 1.9rem;
+    height: 1.9rem;
+    top: -0.2rem;
+    background: var(--metro-color);
+    border-color: var(--surface);
+    box-shadow: 0 0 0 0.25rem var(--metro-color);
+}
+
+.metro-label {
+    padding: 0 0.4rem;
+    overflow-wrap: anywhere;
+}
+
+.metro-end .metro-label {
+    font-weight: 700;
+}
+
+.metro-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+}
+
+/* On a narrow screen the strip stands upright */
+@media only screen and (max-width: 700px) {
+    .metro-scroll {
+        overflow-x: visible;
+    }
+
+    .metro-stops {
+        flex-direction: column;
+        width: auto;
+        padding-left: 0.2rem;
+    }
+
+    .metro-stop {
+        flex: none;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.2rem 0.6rem;
+        padding: 0.5rem 0 0.5rem 2.6rem;
+        text-align: left;
+        min-height: 2.8rem;
+    }
+
+    .metro-stop::before {
+        top: 0;
+        bottom: 0;
+        left: calc(0.75rem - var(--metro-bar) / 2);
+        right: auto;
+        width: var(--metro-bar);
+        height: auto;
+    }
+
+    .metro-stop:first-child::before {
+        left: calc(0.75rem - var(--metro-bar) / 2);
+        top: 50%;
+    }
+
+    .metro-stop:last-child::before {
+        right: auto;
+        bottom: 50%;
+    }
+
+    .metro-dot {
+        top: 50%;
+        left: 0.75rem;
+        transform: translate(-50%, -50%);
+    }
+
+    .metro-end .metro-dot {
+        top: 50%;
+    }
+
+    .metro-links {
+        margin-top: 0;
+    }
+}

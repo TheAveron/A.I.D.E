@@ -17,8 +17,28 @@ const aideRoutes = [
         route("factions", "./app/pages/factions.tsx"),
         route("profile", "./app/pages/profile.tsx"),
         route("offers", "./app/pages/offers.tsx"),
+        route("transactions", "./app/pages/transactions.tsx"),
+        route("notifications", "./app/pages/notifications.tsx"),
+        route("trains", "./app/pages/trains.tsx"),
+        route("trains/new", "./app/pages/train_new.tsx"),
+        route("train/:trainid", "./app/pages/train_page.tsx"),
+        route("lines", "./app/pages/lines.tsx"),
+        route("line/:code", "./app/pages/line_page.tsx"),
+        route("stations", "./app/pages/stations.tsx"),
+        route("station/:stationid", "./app/pages/station_page.tsx"),
+        route("admin", "./app/pages/admin.tsx"),
 
         route("faction/:factionid", "./app/pages/faction_page.tsx"),
+        route(
+            "faction/:factionid/documents/new",
+            "./app/pages/document_editor.tsx",
+            { id: "document-new" },
+        ),
+        route(
+            "faction/:factionid/documents/:docname/edit",
+            "./app/pages/document_editor.tsx",
+            { id: "document-edit" },
+        ),
         route("user/:userid", "./app/pages/user_page.tsx"),
     ]),
 
@@ -41,6 +61,7 @@ const aideRoutes = [
     ]),
 
     route("actual", "./app/pages/archives/maps/currentmap.tsx"),
+    route("network", "./app/pages/network.tsx"),
 
     route(
         "documentation/AgeOfSteam",

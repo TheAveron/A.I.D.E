@@ -1,23 +1,23 @@
-# backend/app/tests/conftest.py
+"""Shared fixtures.
+
+The models tests use an in-memory SQLite database; no PostgreSQL server is
+needed to run the test suite.
+"""
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.database import Base, get_db
-import os
-
-# Use PostgreSQL for testing to match production
-POSTGRES_TEST_URL = os.getenv(
-    "TEST_DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/aide_test"
-)
+from app.api.auth import login_limiter
+from app.database import Base
 
 
-@pytest.fixture(scope="session")
-def engine():
-    engine = create_engine(POSTGRES_TEST_URL)
-    Base.metadata.create_all(bind=engine)
-    yield engine
-    Base.metadata.drop_all(bind=engine)
+@pytest.fixture(autouse=True)
+def _fresh_login_limiter():
+    """Failed-login counters are process-wide: every test starts from zero."""
+    login_limiter.clear()
+    yield
+    login_limiter.clear()
 
 
 @pytest.fixture(scope="function")

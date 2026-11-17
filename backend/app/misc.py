@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 
+from .database.models.global_role import GlobalRoleName  # noqa: F401
 from .database.models.user import User
 
 
@@ -30,6 +31,57 @@ class OfferAction(str, Enum):
     CANCELLED = "CANCELLED"
 
 
+class JoinRequestStatus(str, Enum):
+    """Life of a request to join a faction."""
+
+    PENDING = "PENDING"
+    ACCEPTED = "ACCEPTED"
+    REFUSED = "REFUSED"
+    CANCELLED = "CANCELLED"  # withdrawn by the applicant, or no longer possible
+
+
+class TrainAction(str, Enum):
+    """What a train's history records."""
+
+    CREATED = "CREATED"
+    UPDATED = "UPDATED"  # a change of line, service, name or owner
+    RETIRED = "RETIRED"
+
+
+class StationDimension(str, Enum):
+    """The world a station is built in."""
+
+    OVERWORLD = "overworld"
+    NETHER = "nether"
+    END = "end"
+
+
+class TrainService(str, Enum):
+    """What a train does; the maintenance line Z has none."""
+
+    OMNIBUS = "O"  # stops at every station of the line
+    EXPRESS = "E"  # stops at the two ends of the line only
+    FREIGHT = "F"
+    LIQUID = "L"
+
+
+class MarkerKind(str, Enum):
+    """What a point of interest on the map is (picks its icon and legend)."""
+
+    CITY = "city"  # a town or a project
+    STATION = "station"
+    TRIAL_CHAMBER = "trial_chamber"
+    VILLAGE = "village"
+    OCEAN_MONUMENT = "ocean_monument"
+    ANCIENT_CITY = "ancient_city"
+    STRONGHOLD = "stronghold"
+    NETHER_BASTION = "nether_bastion"
+    NETHER_FORTRESS = "nether_fortress"
+    END_CITY = "end_city"
+    SPAWN = "spawn"
+    GENERIC = "generic"  # a plain dot
+
+
 class FactionPermission(str, Enum):
     """Possible permissions for faction members"""
 
@@ -39,6 +91,8 @@ class FactionPermission(str, Enum):
     HANDLE_MEMBERS = "handle_members"
     MANAGE_ROLES = "manage_roles"
     MANAGE_DOCS = "manage_docs"
+    MANAGE_TRAINS = "manage_trains"
+    MANAGE_TERRITORY = "manage_territory"
     VIEW_TRANSACTIONS = "view_transactions"
 
 

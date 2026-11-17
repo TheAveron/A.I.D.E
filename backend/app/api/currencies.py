@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from ..core import get_current_user
@@ -7,7 +9,7 @@ from ..crud import currency_history as crud_currency_history
 from ..database import User, get_db
 from ..misc import FactionPermission, check_faction_permission
 from ..schemas import (CurrencyCreate, CurrencyHistoryOut, CurrencyOut,
-                       CurrencyUpdate)
+                       CurrencyPublic, CurrencyUpdate)
 
 router = APIRouter(prefix="/currencies", tags=["Currencies"])
 
@@ -23,12 +25,8 @@ def create_currency(
         FactionPermission.MANAGE_FUNDS,
         target_faction_id=currency_in.faction_id,
     )
-    existing = crud_currencies.get_currency(db, currency_in.name)
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Currency already exists"
-        )
-
+    # Duplicate name / second currency for the same faction -> 409 (raised by
+    # the crud layer, which also covers the race between two requests).
     return crud_currencies.create_currency(
         db, currency_in, actor_user_id=current_user.user_id
     )
@@ -36,7 +34,7 @@ def create_currency(
 
 @router.get(
     "/faction/{faction_id}",
-    response_model=CurrencyOut | None,
+    response_model=CurrencyOut | CurrencyPublic | None,
     status_code=status.HTTP_200_OK,
 )
 def get_currency_by_faction(
@@ -44,18 +42,20 @@ def get_currency_by_faction(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    if faction_id != current_user.faction_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only view your own faction's currency",
-        )
+    """A faction's currency.
 
+    Anyone logged in sees its name and symbol (the faction list needs them);
+    the declared total in circulation is for the faction's own members only.
+    """
     currency = crud_currencies.get_currency_by_faction(db, faction_id)
 
     if not currency:
         return None
 
-    return currency
+    if faction_id != current_user.faction_id:
+        return CurrencyPublic.model_validate(currency)
+
+    return CurrencyOut.model_validate(currency)
 
 
 @router.get(
@@ -96,8 +96,8 @@ def get_currency_by_name(
 )
 def get_currency_history(
     currency_name: str,
-    skip: int = 0,
-    limit: int = 50,
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=500)] = 50,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

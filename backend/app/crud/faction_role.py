@@ -1,11 +1,12 @@
 from typing import Optional
 
+from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..database import Role
+from ..database import Role, User
 from ..misc import FactionPermission
 from ..schemas import RoleCreate, RoleUpdate
-from .user import update_user_faction_and_role
 
 
 def create_role(db: Session, faction_id: int, role_in: RoleCreate) -> Role:
@@ -18,12 +19,27 @@ def create_role(db: Session, faction_id: int, role_in: RoleCreate) -> Role:
         manage_funds=role_in.manage_funds,
         handle_members=role_in.handle_members,
         manage_roles=role_in.manage_roles,
+        manage_docs=role_in.manage_docs,
+        manage_trains=role_in.manage_trains,
+        manage_territory=role_in.manage_territory,
         view_transactions=role_in.view_transactions,
     )
     db.add(role)
-    db.commit()
+    _commit_unique_role(db)
     db.refresh(role)
     return role
+
+
+def _commit_unique_role(db: Session) -> None:
+    """Commit, turning a (faction, name) clash into a 409 instead of a 500."""
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A role with this name already exists in this faction",
+        )
 
 
 def get_roles_by_faction(db: Session, faction_id: int) -> list[Role]:
@@ -35,22 +51,37 @@ def get_role_by_id(db: Session, role_id: int) -> Optional[Role]:
 
 
 def update_role(db: Session, role: Role, role_update: RoleUpdate) -> Role:
-    for field, value in role_update.dict(exclude_unset=True).items():
+    for field, value in role_update.model_dump(exclude_unset=True).items():
         setattr(role, field, value)
 
-    db.commit()
+    _commit_unique_role(db)
     db.refresh(role)
     return role
 
 
+def count_role_members(db: Session, role_id: int) -> int:
+    return db.query(User).filter(User.role_id == role_id).count()
+
+
 def delete_role(db: Session, role: Role) -> None:
+    if count_role_members(db, role.role_id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This role is still assigned to members",
+        )
     db.delete(role)
     db.commit()
 
 
-def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
+def create_default_faction_roles(
+    db: Session, faction_id: int, user_id: int, commit: bool = True
+):
     """
     Create a set of default roles for a newly created faction with predefined permissions.
+
+    The user `user_id` becomes the faction's leader (role "Chef"). With
+    `commit=False` nothing is committed, so the caller can make this part of a
+    larger transaction.
     """
 
     default_roles = [
@@ -64,6 +95,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
                 FactionPermission.HANDLE_MEMBERS: True,
                 FactionPermission.MANAGE_ROLES: True,
                 FactionPermission.MANAGE_DOCS: True,
+                FactionPermission.MANAGE_TRAINS: True,
+                FactionPermission.MANAGE_TERRITORY: True,
                 FactionPermission.VIEW_TRANSACTIONS: True,
             },
         },
@@ -77,6 +110,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
                 FactionPermission.HANDLE_MEMBERS: True,
                 FactionPermission.MANAGE_ROLES: True,
                 FactionPermission.MANAGE_DOCS: True,
+                FactionPermission.MANAGE_TRAINS: True,
+                FactionPermission.MANAGE_TERRITORY: True,
                 FactionPermission.VIEW_TRANSACTIONS: True,
             },
         },
@@ -90,6 +125,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
                 FactionPermission.HANDLE_MEMBERS: False,
                 FactionPermission.MANAGE_ROLES: False,
                 FactionPermission.MANAGE_DOCS: False,
+                FactionPermission.MANAGE_TRAINS: False,
+                FactionPermission.MANAGE_TERRITORY: False,
                 FactionPermission.VIEW_TRANSACTIONS: True,
             },
         },
@@ -103,6 +140,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
                 FactionPermission.HANDLE_MEMBERS: False,
                 FactionPermission.MANAGE_ROLES: False,
                 FactionPermission.MANAGE_DOCS: False,
+                FactionPermission.MANAGE_TRAINS: False,
+                FactionPermission.MANAGE_TERRITORY: False,
                 FactionPermission.VIEW_TRANSACTIONS: True,
             },
         },
@@ -116,6 +155,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
                 FactionPermission.HANDLE_MEMBERS: False,
                 FactionPermission.MANAGE_ROLES: False,
                 FactionPermission.MANAGE_DOCS: False,
+                FactionPermission.MANAGE_TRAINS: False,
+                FactionPermission.MANAGE_TERRITORY: False,
                 FactionPermission.VIEW_TRANSACTIONS: True,
             },
         },
@@ -129,6 +170,8 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
                 FactionPermission.HANDLE_MEMBERS: False,
                 FactionPermission.MANAGE_ROLES: False,
                 FactionPermission.MANAGE_DOCS: False,
+                FactionPermission.MANAGE_TRAINS: False,
+                FactionPermission.MANAGE_TERRITORY: False,
                 FactionPermission.VIEW_TRANSACTIONS: False,
             },
         },
@@ -145,12 +188,22 @@ def create_default_faction_roles(db: Session, faction_id: int, user_id: int):
             handle_members=role_data["permissions"][FactionPermission.HANDLE_MEMBERS],
             manage_roles=role_data["permissions"][FactionPermission.MANAGE_ROLES],
             manage_docs=role_data["permissions"][FactionPermission.MANAGE_DOCS],
+            manage_trains=role_data["permissions"][FactionPermission.MANAGE_TRAINS],
+            manage_territory=role_data["permissions"][
+                FactionPermission.MANAGE_TERRITORY
+            ],
             view_transactions=role_data["permissions"][
                 FactionPermission.VIEW_TRANSACTIONS
             ],
         )
         db.add(db_role)
-        db.commit()
+        db.flush()  # assigns role_id
 
         if db_role.name == "Chef":
-            update_user_faction_and_role(db, user_id, faction_id, db_role.role_id)
+            leader = db.query(User).filter(User.user_id == user_id).first()
+            if leader:
+                leader.faction_id = faction_id
+                leader.role_id = db_role.role_id
+
+    if commit:
+        db.commit()
