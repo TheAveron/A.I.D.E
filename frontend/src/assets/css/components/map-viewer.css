@@ -1,9 +1,14 @@
+/*
+ * The map fills what is left under the title (#map-header): <main> is a column
+ * that is at least one screen high, so a flex-grown child takes the rest.
+ * Nothing to compute, whatever the height of the title.
+ */
 .map-viewer {
     position: relative;
     display: flex;
     flex-direction: row;
+    flex: 1 1 0;
     width: 100%;
-    height: calc(100vh - 150px);
     min-height: 420px;
 }
 
@@ -112,8 +117,10 @@
 }
 
 @media only screen and (max-width: 800px) {
+    /* Stacked: the page scrolls, the map keeps a fixed height */
     .map-viewer {
         flex-direction: column;
+        flex: none;
         height: auto;
     }
 

@@ -18,8 +18,8 @@ function PageGenerator(page: string) {
         <iframe
             title={`Map Viewer for ${safePage}`}
             src={`/maps/${safePage}/index.html`}
+            className="map-frame"
             sandbox="allow-scripts"
-            style={{ width: "100%", height: "96vh", border: "none" }}
         />
     );
 }

@@ -3,7 +3,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    flex-grow: 1;
+    flex: none;
     width: 100%;
     min-height: 75px;
     padding: 1rem clamp(1rem, 4vw, 3rem);
@@ -28,4 +28,12 @@
 #map-header ~ #previous,
 #map-header #previous {
     box-shadow: 0 2px 10px rgb(0 0 0 / 0.5);
+}
+
+/* Iframe of an archived map: same rule as .map-viewer, it takes the rest of the screen */
+.map-frame {
+    flex: 1 1 0;
+    width: 100%;
+    min-height: 420px;
+    border: 0;
 }
