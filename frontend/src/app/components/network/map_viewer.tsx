@@ -66,13 +66,14 @@ function labelStyle(text: string, color = "#fff") {
 const ICON_SIZE = { station: 32, other: 40 };
 const iconCache = new Map<string, Icon>();
 
-/** The icon of a kind (built once: the image is loaded once), with a label. */
-function iconStyle(kind: MarkerKind, text: string) {
+/* The icon of a kind and colour(built once: the image is loaded once), with a label. */
+function iconStyle(kind: MarkerKind, text: string, color?: string) {
+    const key = color ? `${kind}:${color}` : kind;
     let icon = iconCache.get(kind);
     if (!icon) {
         const size = kind === "station" ? ICON_SIZE.station : ICON_SIZE.other;
-        icon = new Icon({ src: iconUrl(kind), width: size, height: size });
-        iconCache.set(kind, icon);
+        icon = new Icon({ src: iconUrl(kind), width: size, height: size, color });
+        iconCache.set(key, icon);
     }
     return new Style({
         image: icon,
@@ -190,17 +191,19 @@ function MapCanvas({
                 }),
             });
         });
-        // Stations and points of interest share the kinds' icons and can be
-        // hidden kind by kind from the legend.
+        // Stations and points of interest share the kinds' icons and can be hidden kind by kind from the legend.
         const kindStyle = (feature: FeatureLike) => {
             const kind = feature.get("markerKind") as MarkerKind;
             if (hiddenKinds.current.has(kind)) return undefined;
-            return iconStyle(kind, feature.get("title") as string);
+            return iconStyle(
+                kind,
+                feature.get("title") as string,
+                feature.get("color") as string | undefined,
+            );
         };
         vectors.stations.setStyle(kindStyle);
         vectors.markers.setStyle(kindStyle);
-        // The icons are pixel art (often 16x16 textures): scale them without
-        // smoothing so that they stay crisp.
+        // The icons are pixel art (often 16x16 textures): scale them without smoothing so that they stay crisp.
         for (const layer of [vectors.stations, vectors.markers]) {
             layer.on("prerender", (event) => {
                 const context = event.context as CanvasRenderingContext2D;
@@ -347,6 +350,9 @@ function MapCanvas({
         const source = layers.current?.markers.getSource();
         if (!geometry || !source) return;
         source.clear();
+        const colors = new Map<number, string | null>(
+            overlay.territories.map((t) => [t.faction_id, t.color]),
+        );
         source.addFeatures(
             overlay.markers.map(
                 (m) =>
@@ -355,6 +361,8 @@ function MapCanvas({
                         title: m.label,
                         entity: "marker",
                         entityId: m.marker_id,
+                        color:
+                        m.kind === "city" && m.faction_id != null ? factionColor(m.faction_id, colors.get(m.faction_id)) : undefined,
                         markerKind: m.kind,
                         kindLabel: MARKER_KINDS[m.kind] ?? "Point d'intérêt",
                         details: [
@@ -367,7 +375,7 @@ function MapCanvas({
                     }),
             ),
         );
-    }, [overlay.markers, unmined, folder]);
+    }, [overlay.markers, overlay.territories, unmined, folder]);
 
     // Online players, as written by the last export
     useEffect(() => {
