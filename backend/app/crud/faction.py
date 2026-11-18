@@ -92,7 +92,9 @@ def create_faction(db: Session, faction_data: FactionCreate, user_id: int) -> Fa
         raise HTTPException(status_code=409, detail="Faction name already exists")
     except SQLAlchemyError:
         db.rollback()
-        logger.exception("Database error while creating faction %s", faction_data.name)
+        # The name is client input: no line breaks in the log.
+        safe_name = faction_data.name.replace("\r", "").replace("\n", "")
+        logger.exception("Database error while creating faction %s", safe_name)
         raise HTTPException(status_code=500, detail="Database error occurred")
 
     db.refresh(faction)

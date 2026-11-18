@@ -1,15 +1,16 @@
 import os
 import sys
+from importlib import import_module
 from logging.config import fileConfig
-
-from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 
 from app.database.database import Base, engine
-from app.database.models import *
+
+# Importing the models registers every table on Base.metadata (autogenerate).
+import_module("app.database.models")
 
 config = context.config
 

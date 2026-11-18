@@ -10,7 +10,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from ..core import require_global_role
 from ..crud import audit
 from ..crud import currencies as currency_crud
 from ..crud import faction as faction_crud
