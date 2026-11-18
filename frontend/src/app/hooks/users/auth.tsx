@@ -71,7 +71,7 @@ function getNotice(state: unknown): string {
 }
 
 export function useLogin(): AuthLoginHook {
-    const { token, setToken } = useAuth() ?? {};
+    const { token, setToken } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -92,7 +92,7 @@ export function useLogin(): AuthLoginHook {
 
             const accessToken = response.data.access_token;
             applyAuthHeader(accessToken);
-            setToken?.(accessToken);
+            setToken(accessToken);
             // The effect below takes the user away from this page.
         } catch (error: unknown) {
             const status = axios.isAxiosError(error)
@@ -132,7 +132,7 @@ export function useLogin(): AuthLoginHook {
 }
 
 export function useRegister(): AuthRegisterHook {
-    const { token, setToken } = useAuth() ?? {};
+    const { token, setToken } = useAuth();
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(false);
@@ -156,7 +156,7 @@ export function useRegister(): AuthRegisterHook {
 
             const accessToken = res.data.access_token;
             applyAuthHeader(accessToken);
-            setToken?.(accessToken);
+            setToken(accessToken);
             // The effect below takes the user away from this page.
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 409) {

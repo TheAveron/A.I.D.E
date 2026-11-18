@@ -221,9 +221,6 @@ def test_an_admin_resets_a_password(aenv):
     assert login.status_code == 202, login.text
     assert ("root", "password_reset", "newbie", None) in _entries(aenv)
     assert "brand-new" not in str(_entries(aenv))
-    notes = (
-        aenv.client.get("/notifications", headers=aenv.h("newbie")) if False else None
-    )
     s = aenv.Session()
     from app.database import Notification
 
