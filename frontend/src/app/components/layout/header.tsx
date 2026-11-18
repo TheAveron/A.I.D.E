@@ -250,7 +250,7 @@ function LoggedOutNav() {
 }
 
 function Header() {
-    const { token } = useAuth() ?? {};
+    const { token } = useAuth();
 
     return (
         <header id="header">

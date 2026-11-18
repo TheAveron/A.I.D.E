@@ -26,13 +26,11 @@ def _check_can_grant(actor: User, wanted: dict[str, bool]) -> None:
     role into something more powerful than what they have.
     """
     actor_role = actor.role
-    for permission in FactionPermission:
-        if permission.value in wanted and not actor_role.has_permission(
-            permission.value
-        ):
+    for permission in wanted:
+        if not actor_role.has_permission(permission):
             raise _forbid(
                 "You can't change a permission you don't have yourself "
-                f"({permission.value})"
+                f"({permission})"
             )
 
 
