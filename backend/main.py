@@ -1,3 +1,4 @@
+import os
 import time
 from pathlib import Path
 
@@ -145,12 +146,18 @@ def _built_file(relative_path: str) -> Path | None:
     `public/` is copied to the root of the build; only /assets is mounted, so
     without this every such file would be answered with index.html.
     """
-    root = (frontend_dist_path / "client").resolve()
+    root = os.path.realpath(frontend_dist_path / "client")
     if not relative_path:
         return None
-    candidate = (root / relative_path).resolve()
-    if candidate.is_file() and candidate.is_relative_to(root):
-        return candidate
+    try:
+        candidate = os.path.realpath(os.path.join(root, relative_path))
+    except ValueError:  # embedded null byte
+        return None
+    # Containment is checked before the file system is asked anything about the path (CodeQL's py/path-injection recognises this realpath + startswith pattern as the sanitiser).
+    if not candidate.startswith(root + os.sep):
+        return None
+    if os.path.isfile(candidate):
+        return Path(candidate)
     return None
 
 
