@@ -15,7 +15,12 @@ git checkout "$TAG"
 
 # Backend
 cd backend
-source .venv/bin/activate
+# Linux/macOS : .venv/bin/activate, Windows (Git Bash) : .venv/Scripts/activate
+if [ -f .venv/Scripts/activate ]; then
+  source .venv/Scripts/activate
+else
+  source .venv/bin/activate
+fi
 pip install -r requirements.txt
 alembic upgrade head
 cd ..
@@ -23,7 +28,7 @@ cd ..
 # Frontend (build fourni par la release)
 TMP="$(mktemp -d)"
 curl -fL "https://github.com/$REPO/releases/download/$TAG/$ASSET" -o "$TMP/front.zip"
-unzip -q "$TMP/front.zip" -d "$TMP/out"
+python -m zipfile -e "$TMP/front.zip" "$TMP/out"   # python est toujours la (venv actif), contrairement a unzip
 test -f "$TMP/out/build/client/index.html"   # garde-fou avant de toucher à l'existant
 
 rm -rf frontend/build.old
@@ -33,4 +38,5 @@ rm -rf "$TMP"
 
 echo "Déploiement de $TAG terminé."
 echo "Relance maintenant le backend : arrête l'ancien processus (Ctrl+C), puis depuis backend/ :"
-echo "  source .venv/bin/activate && fastapi run main.py"
+echo "  Linux : source .venv/bin/activate && fastapi run main.py"
+echo "  Windows : .venv\\Scripts\\activate && fastapi run main.py"
