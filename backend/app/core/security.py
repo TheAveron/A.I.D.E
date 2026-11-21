@@ -1,10 +1,10 @@
 import logging
 from datetime import datetime, timedelta, timezone
 
+import bcrypt
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from ..database import User, get_db
@@ -18,8 +18,6 @@ def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
@@ -32,15 +30,27 @@ oauth2_scheme = OAuth2PasswordBearer(
 oauth2_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 
+# bcrypt only looks at the first 72 bytes and recent versions refuse more.
+BCRYPT_MAX_BYTES = 72
+
+
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    """The bcrypt hash of `password` ($2b$, as stored for existing accounts).
+
+    The schemas already refuse passwords over 72 bytes, so one that gets here
+    is a bug: fail loudly instead of silently truncating it.
+    """
+    secret = password.encode("utf-8")
+    if len(secret) > BCRYPT_MAX_BYTES:
+        raise ValueError(f"Password is longer than {BCRYPT_MAX_BYTES} bytes")
+    return bcrypt.hashpw(secret, bcrypt.gensalt()).decode("ascii")
 
 
 def verify_password(plain_password: str, hashed: str) -> bool:
     try:
-        return pwd_context.verify(plain_password, hashed)
+        return bcrypt.checkpw(plain_password.encode("utf-8"), hashed.encode("utf-8"))
     except ValueError:
-        # bcrypt refuses passwords over 72 bytes: no such password can match.
+        # Over 72 bytes, or not a bcrypt hash: no such password can match.
         return False
 
 

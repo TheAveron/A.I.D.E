@@ -171,6 +171,13 @@ header .button {
     align-items: center;
 }
 
+.nav-logout {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+}
+
 .nav-more-toggle {
     display: inline-flex;
     align-items: center;

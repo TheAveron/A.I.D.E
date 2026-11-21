@@ -1,7 +1,8 @@
+import os
 import time
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
@@ -15,7 +16,7 @@ from app.core.errors import register_error_handlers
 from app.core.logger import log_safe, setup_logger
 from app.core.settings import ORIGINS
 
-version = "1.3.0"
+version = "1.3.1"
 
 app = FastAPI(
     title="A.I.D.E API",
@@ -145,20 +146,44 @@ def _built_file(relative_path: str) -> Path | None:
     `public/` is copied to the root of the build; only /assets is mounted, so
     without this every such file would be answered with index.html.
     """
-    root = (frontend_dist_path / "client").resolve()
+    root = os.path.realpath(frontend_dist_path / "client")
     if not relative_path:
         return None
-    candidate = (root / relative_path).resolve()
-    if candidate.is_file() and candidate.is_relative_to(root):
-        return candidate
+    try:
+        candidate = os.path.realpath(os.path.join(root, relative_path))
+    except ValueError:  # embedded null byte
+        return None
+    # Containment is checked before the file system is asked anything about the path (CodeQL's py/path-injection recognises this realpath + startswith pattern as the sanitiser).
+    if not candidate.startswith(root + os.sep):
+        return None
+    if os.path.isfile(candidate):
+        return Path(candidate)
     return None
 
 
+def _is_page_request(request: Request, full_path: str) -> bool:
+    """Whether the request could be a browser opening a page of the React app.
+
+    index.html is only the answer for client-side routes. A path whose last
+    segment has an extension (login.aspx, .env, shell.php...) is never one, and
+    neither is a request that doesn't ask for HTML: an API client (axios sends
+    "application/json, text/plain, */*") or a scanner. Those get a real 404
+    instead of a 200 with the SPA, which hid unknown API routes and made
+    every probe of a bot look like a hit in the logs.
+    """
+    if "." in full_path.rsplit("/", 1)[-1]:
+        return False
+    return "text/html" in request.headers.get("accept", "")
+
+
 @app.get("/{full_path:path}")
-async def root(full_path: str):
+async def root(full_path: str, request: Request):
     built_file = _built_file(full_path)
     if built_file is not None:
         return FileResponse(built_file)
+
+    if not _is_page_request(request, full_path):
+        raise HTTPException(status_code=404, detail="Not found")
 
     index_path = frontend_dist_path / "client" / "index.html"
     return FileResponse(index_path)

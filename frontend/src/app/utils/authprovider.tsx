@@ -51,6 +51,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         [navigate],
     );
 
+    // The "Déconnexion" button: same as an expired session, without the notice.
+    const logout = useCallback(() => {
+        applyAuthHeader(null);
+        handleLogout(false);
+    }, [handleLogout]);
+
     useEffect(() => {
         let logoutTimer: number;
 
@@ -116,7 +122,10 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => axios.interceptors.response.eject(id);
     }, [handleLogout]);
 
-    const contextValue = useMemo(() => ({ token, setToken }), [token]);
+    const contextValue = useMemo(
+        () => ({ token, setToken, logout }),
+        [token, logout],
+    );
 
     return (
         <AuthContext.Provider value={contextValue}>

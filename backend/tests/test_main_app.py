@@ -123,13 +123,50 @@ def test_files_of_the_frontend_build_are_served_not_index_html(
     monkeypatch.setattr(main, "frontend_dist_path", tmp_path / "build")
 
     client = TestClient(main_app, raise_server_exceptions=False)
+    page = {"Accept": "text/html,application/xhtml+xml"}
 
     assert client.get("/images/formula.png").content == b"PNGDATA"
-    # Client-side routes and unknown paths still get the SPA
-    assert client.get("/factions").text == "<html>spa</html>"
-    assert client.get("/images/missing.png").text == "<html>spa</html>"
+    # Client-side routes opened by a browser still get the SPA
+    assert client.get("/factions", headers=page).text == "<html>spa</html>"
     # Nothing outside the build is reachable
-    assert client.get("/%2e%2e/%2e%2e/secret.txt").text == "<html>spa</html>"
-    assert client.get("/images/%2e%2e/%2e%2e/%2e%2e/secret.txt").text.startswith(
-        "<html>"
+    assert "not in the build" not in client.get("/%2e%2e/%2e%2e/secret.txt").text
+    assert "not in the build" not in client.get(
+        "/images/%2e%2e/%2e%2e/%2e%2e/secret.txt", headers=page
+    ).text
+
+
+def test_unknown_paths_are_a_404_not_the_spa(main_app, monkeypatch, tmp_path):
+    import main
+
+    client_dir = tmp_path / "build" / "client"
+    client_dir.mkdir(parents=True)
+    (client_dir / "index.html").write_text("<html>spa</html>")
+    monkeypatch.setattr(main, "frontend_dist_path", tmp_path / "build")
+
+    client = TestClient(main_app, raise_server_exceptions=False)
+    page = {"Accept": "text/html,application/xhtml+xml"}
+
+    # A missing file and a scanner's probe: never the SPA, even when the
+    # request pretends to be a browser
+    for path in (
+        "/images/missing.png",
+        "/officescan/console/html/cgi/cgiShowClientAdm.exe",
+        "/.env",
+        "/login.aspx",
+    ):
+        r = client.get(path, headers=page)
+        assert r.status_code == 404, path
+        assert "<html>" not in r.text, path
+
+    # A request that doesn't ask for HTML (API client, scanner) gets a 404 too
+    assert client.get("/owa/").status_code == 404
+    assert (
+        client.get(
+            "/no-such-route", headers={"Accept": "application/json, text/plain, */*"}
+        ).status_code
+        == 404
     )
+
+    # ... while a browser opening a client-side route gets the SPA
+    assert client.get("/owa/", headers=page).text == "<html>spa</html>"
+    assert client.get("/faction/3", headers=page).text == "<html>spa</html>"
