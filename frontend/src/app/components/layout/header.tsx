@@ -168,6 +168,7 @@ function AdminLink() {
 
 function LoggedInNav() {
     const { count } = useUnreadCount();
+    const { logout } = useAuth();
 
     return (
         <NavShell unread={count}>
@@ -218,6 +219,13 @@ function LoggedInNav() {
                     </svg>
                     <span>Profil</span>
                 </Link>
+                <button
+                    type="button"
+                    className="link nav-logout"
+                    onClick={logout}
+                >
+                    Déconnexion
+                </button>
             </div>
         </NavShell>
     );
