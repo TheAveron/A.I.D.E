@@ -232,6 +232,14 @@ Une fois le script terminé, **relancez le backend** : arrêtez l'ancien process
 fastapi run main.py
 ```
 
+> **Installation en v1.3.2b ou avant** : le `deploy.bat` de ces versions est remplacé par le `git checkout` pendant qu'il s'exécute, et `cmd` lit alors la suite au milieu du nouveau fichier (la migration de la base peut être sautée sans message). Les scripts suivants s'en protègent, mais c'est l'ancien qui lance le déploiement : la première fois, passez d'abord sur la nouvelle version à la main, puis lancez son script, qui ne change alors plus en cours de route.
+>
+> ```bash
+> git fetch --tags
+> git checkout vX.Y.Z
+> deploy.bat vX.Y.Z
+> ```
+
 ### Revenir à une version précédente
 
 ```bash

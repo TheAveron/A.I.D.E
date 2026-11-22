@@ -1,4 +1,17 @@
 @echo off
+setlocal
+REM cmd relit ce fichier ligne apres ligne pendant qu'il s'execute, a la position
+REM ou il s'etait arrete. Le git checkout plus bas remplace deploy.bat par celui
+REM de la version deployee : la suite serait lue au milieu d'un autre fichier
+REM (c'est ce qui sautait la migration). Le script s'execute donc depuis une
+REM copie dans %TEMP%, que le checkout ne touche pas. Le "& exit /b" doit rester
+REM sur la meme ligne que le call : cette ligne est lue en entier avant le call.
+if /i "%~f0"=="%TEMP%\aide_deploy_run.bat" goto :main
+set "AIDE_ROOT=%~dp0"
+copy /y "%~f0" "%TEMP%\aide_deploy_run.bat" >nul || exit /b 1
+call "%TEMP%\aide_deploy_run.bat" %* & exit /b
+
+:main
 setlocal enabledelayedexpansion
 REM Deploiement d'A.I.D.E a partir d'une release GitHub (Windows, cmd).
 REM Usage : deploy.bat            -> derniere release publiee
@@ -13,7 +26,7 @@ REM backend\app\config\database.ini et pg_dump (dans le PATH, ou son chemin
 REM complet dans la variable PG_DUMP).
 
 set REPO=TheAveron/A.I.D.E
-cd /d "%~dp0"
+cd /d "%AIDE_ROOT%"
 
 REM --- 1. Le depot : aucune modification locale qu'un checkout ecraserait ---
 git diff --quiet HEAD

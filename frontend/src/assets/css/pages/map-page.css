@@ -38,14 +38,71 @@
     border: 0;
 }
 
-/* Overworld / Nether / End switch of the current map */
-.map-dimensions {
+/* The map and what floats over it, whatever the viewer shows (map, loading,
+   error): same rule as .map-viewer, it takes the rest of the screen */
+.map-stage {
+    position: relative;
     display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    flex-direction: column;
+    flex: 1 1 0;
+    width: 100%;
+    min-height: 420px;
+}
+
+/* "Loading..." or "not available": in the middle, clear of the switch */
+.map-stage > .map-status {
+    margin: auto;
+}
+
+/* Overworld / Nether / End switch of the current map: a segmented control
+   at the top centre of the map, between the tools and the legend */
+.map-dimensions {
+    position: absolute;
+    top: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    flex-direction: row;
+    gap: 0.2rem;
+    padding: 0.25rem;
+}
+
+.map-dimension {
+    padding: 0.3rem 0.8rem;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.map-dimension:hover {
+    background: var(--hover);
+    color: var(--text);
 }
 
 .map-dimension.active {
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
+    background: var(--primary);
+    color: var(--button-text);
+}
+
+/* No room at the top between the tools and the legend: at the bottom */
+@media only screen and (max-width: 900px) {
+    .map-dimensions {
+        top: auto;
+        bottom: 0.75rem;
+    }
+}
+
+/* Same breakpoint as .map-viewer, which takes a fixed height there */
+@media only screen and (max-width: 800px) {
+    .map-stage {
+        flex: none;
+        min-height: 0;
+    }
 }
