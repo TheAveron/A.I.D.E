@@ -1,5 +1,5 @@
 from .audit_log import AuditLog
-from .currency import Currency
+from .currency import Currency, CurrencyFaction, CurrencyLinkRequest
 from .currency_history import CurrencyHistory
 from .faction import Faction
 from .faction_role import Role

@@ -19,7 +19,7 @@ def many(env):  # noqa: F811
             offer_id=1,
             offer_type=OfferType.SELL,
             item_description="x",
-            currency_name="Diamant",
+            currency_id=1,
             price_per_unit=1,
             quantity=1,
             init_quantity=1,
@@ -35,7 +35,7 @@ def many(env):  # noqa: F811
             offer_id=1,
             buyer_user_id=2,
             amount=1,
-            currency_name="Diamant",
+            currency_id=1,
             timestamp=base + timedelta(minutes=i),
         )
         for i in range(1, 8)

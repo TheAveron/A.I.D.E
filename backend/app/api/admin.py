@@ -1,7 +1,8 @@
 """The administration panel's API.
 
 Everything here is for admins, except the audit trail, which train admins may
-read for what concerns trains, lines and stations.
+read for what concerns trains, lines and stations, and money admins for what
+concerns currencies.
 """
 
 from typing import Annotated, Optional
@@ -22,9 +23,10 @@ router = APIRouter(prefix="/admin", tags=["Administration"])
 
 ADMIN = GlobalRoleName.ADMIN.value
 TRAIN_ADMIN = GlobalRoleName.TRAIN_ADMIN.value
+MONEY_ADMIN = GlobalRoleName.MONEY_ADMIN.value
 
 _admin_only = require_global_role(ADMIN)
-_staff = require_global_role(ADMIN, TRAIN_ADMIN)
+_staff = require_global_role(ADMIN, TRAIN_ADMIN, MONEY_ADMIN)
 
 
 def _escape_like(text: str) -> str:
@@ -40,10 +42,16 @@ def read_audit(
     db: Session = Depends(get_db),
     staff: User = Depends(_staff),
 ):
-    """The staff trail, newest first. A train admin only sees train matters."""
+    """The staff trail, newest first. A train admin only sees train matters,
+    a money admin currency matters (both, for somebody holding both roles)."""
     query = db.query(AuditLog)
     if not staff.has_global_role(ADMIN):
-        query = query.filter(AuditLog.target_type.in_(audit.TRAIN_TARGETS))
+        targets: list[str] = []
+        if staff.has_global_role(TRAIN_ADMIN):
+            targets += audit.TRAIN_TARGETS
+        if staff.has_global_role(MONEY_ADMIN):
+            targets += audit.MONEY_TARGETS
+        query = query.filter(AuditLog.target_type.in_(targets))
     if action:
         query = query.filter(AuditLog.action == action)
     if target_type:

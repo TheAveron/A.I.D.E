@@ -7,7 +7,7 @@ from ..database import CurrencyHistory
 
 def create_currency_history(
     db: Session,
-    currency_name: str,
+    currency_id: int,
     old_total_in_circulation: int,
     new_total_in_circulation: int,
     actor_user_id: Optional[int] = None,
@@ -21,7 +21,7 @@ def create_currency_history(
     together) - the caller is then responsible for committing.
     """
     history = CurrencyHistory(
-        currency_name=currency_name,
+        currency_id=currency_id,
         actor_user_id=actor_user_id,
         old_total_in_circulation=old_total_in_circulation,
         new_total_in_circulation=new_total_in_circulation,
@@ -36,13 +36,13 @@ def create_currency_history(
 
 def get_currency_histories(
     db: Session,
-    currency_name: str,
+    currency_id: int,
     skip: int = 0,
     limit: int = 50,
 ) -> list[CurrencyHistory]:
     return (
         db.query(CurrencyHistory)
-        .filter(CurrencyHistory.currency_name == currency_name)
+        .filter(CurrencyHistory.currency_id == currency_id)
         .order_by(CurrencyHistory.timestamp.desc(), CurrencyHistory.history_id.desc())
         .offset(skip)
         .limit(limit)

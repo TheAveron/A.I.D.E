@@ -101,13 +101,13 @@ class TestOtherBounds:
     def test_total_in_circulation_must_fit_the_integer_column(self, env):  # noqa: F811
         h = env.h("alice")
         r = env.client.put(
-            "/currencies/update/Diamant",
+            "/currencies/update/1",
             json={"total_in_circulation": INT32_MAX + 1},
             headers=h,
         )
         assert r.status_code == 422
         r = env.client.put(
-            "/currencies/update/Diamant",
+            "/currencies/update/1",
             json={"total_in_circulation": INT32_MAX},
             headers=h,
         )
@@ -148,9 +148,9 @@ class TestOtherBounds:
     def test_currency_history_pagination_is_validated(self, env):
         h = env.h("alice")
         for query in ("?limit=0", "?limit=501", "?skip=-1"):
-            r = env.client.get("/currencies/history/Diamant" + query, headers=h)
+            r = env.client.get("/currencies/history/1" + query, headers=h)
             assert r.status_code == 422, query
-        r = env.client.get("/currencies/history/Diamant?limit=500", headers=h)
+        r = env.client.get("/currencies/history/1?limit=500", headers=h)
         assert r.status_code == 200
 
     def test_faction_list_pagination_is_validated(self, env):

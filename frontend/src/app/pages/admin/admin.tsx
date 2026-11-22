@@ -28,8 +28,9 @@ export default function AdminPage() {
 
     const isAdmin = user.global_roles?.includes("admin") ?? false;
     const isTrainAdmin = user.global_roles?.includes("train_admin") ?? false;
+    const isMoneyAdmin = user.global_roles?.includes("money_admin") ?? false;
 
-    if (!isAdmin && !isTrainAdmin) {
+    if (!isAdmin && !isTrainAdmin && !isMoneyAdmin) {
         return (
             <div className="information-container">
                 <div className="snippet-container">
@@ -47,10 +48,14 @@ export default function AdminPage() {
                   ["factions", "Factions"],
                   ["offers", "Offres"],
                   ["transactions", "Transactions"],
-                  ["currencies", "Monnaies"],
               ] as [Tab, string][])
             : []),
-        ["trains", "Trains, lignes et gares"],
+        ...(isAdmin || isMoneyAdmin
+            ? ([["currencies", "Monnaies"]] as [Tab, string][])
+            : []),
+        ...(isAdmin || isTrainAdmin
+            ? ([["trains", "Trains, lignes et gares"]] as [Tab, string][])
+            : []),
         ["audit", "Journal"],
     ];
     const tab = tabs.some(([value]) => value === requested)
@@ -82,7 +87,9 @@ export default function AdminPage() {
             {tab === "factions" && isAdmin && <AdminFactions />}
             {tab === "offers" && isAdmin && <AdminOffers />}
             {tab === "transactions" && isAdmin && <AdminTransactions />}
-            {tab === "currencies" && isAdmin && <AdminCurrencies />}
+            {tab === "currencies" && (isAdmin || isMoneyAdmin) && (
+                <AdminCurrencies />
+            )}
             {tab === "trains" && (
                 <div className="snippet-container">
                     <h2>Trains, lignes et gares</h2>

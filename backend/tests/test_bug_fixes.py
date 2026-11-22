@@ -20,8 +20,8 @@ from app.api import (documentation, faction, offer, offer_history,
                      transactions, user)
 from app.core.security import create_access_token, hash_password
 from app.crud import faction as faction_crud
-from app.database import (Base, Currency, Faction, Offer, OfferHistory, Role,
-                          Transaction, User, get_db)
+from app.database import (Base, Currency, CurrencyFaction, Faction, Offer,
+                          OfferHistory, Role, Transaction, User, get_db)
 from app.misc import FactionPermission, check_faction_permission
 
 PW_HASH = hash_password("pw")  # bcrypt is slow: hash once, not once per user per test
@@ -117,7 +117,14 @@ def env():
             mk(10, "sanschef", 3, 22),
         ]
     )
-    s.add(Currency(name="Diamant", faction_id=1, total_in_circulation=0))
+    s.add(
+        Currency(
+            currency_id=1,
+            name="Diamant",
+            total_in_circulation=0,
+            links=[CurrencyFaction(faction_id=1, is_issuer=True)],
+        )
+    )
     s.commit()
     s.close()
 

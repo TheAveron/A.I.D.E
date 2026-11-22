@@ -22,15 +22,19 @@ export const AUDIT_LABELS: Record<string, string> = {
     currency_created: "Monnaie créée",
     currency_changed: "Monnaie modifiée",
     currency_deleted: "Monnaie supprimée",
+    currency_faction_added: "Faction ajoutée à une monnaie",
+    currency_faction_removed: "Faction retirée d'une monnaie",
+    currency_issuer_changed: "Émetteur de monnaie changé",
 };
 
 export const GLOBAL_ROLE_LABELS: Record<string, string> = {
     admin: "Admin",
     train_admin: "Admin trains",
+    money_admin: "Admin monnaies",
 };
 
 /** The server-wide roles an admin can hand out. */
-export const GLOBAL_ROLES = ["admin", "train_admin"] as const;
+export const GLOBAL_ROLES = ["admin", "train_admin", "money_admin"] as const;
 
 export const TARGET_LABELS: Record<string, string> = {
     user: "Compte",

@@ -22,12 +22,12 @@ class Faction(Base):
 
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    currency = relationship(
-        "Currency",
+    # The currency this faction uses (at most one), and whether it issues it
+    currency_link = relationship(
+        "CurrencyFaction",
         back_populates="faction",
-        foreign_keys="[Currency.faction_id]",
         uselist=False,
-        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     is_approved: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -75,6 +75,11 @@ class Faction(Base):
         back_populates="accepted_by_faction_obj",
         foreign_keys="[Offer.accepted_by_faction_id]",
     )
+
+    @property
+    def currency(self):
+        """The currency this faction uses, or None."""
+        return self.currency_link.currency if self.currency_link else None
 
     def __repr__(self) -> str:
         currency_name = self.currency.name if self.currency else "No currency"

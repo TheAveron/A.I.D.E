@@ -6,7 +6,9 @@ from .base import UTCDatetime
 
 
 class CurrencyHistoryBase(BaseModel):
-    currency_name: str
+    currency_id: int
+    # The current name (the entry follows the currency through renames)
+    currency_name: Optional[str] = None
     actor_user_id: Optional[int] = None
     old_total_in_circulation: int
     new_total_in_circulation: int

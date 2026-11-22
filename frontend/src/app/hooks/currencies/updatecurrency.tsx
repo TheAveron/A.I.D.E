@@ -11,7 +11,7 @@ export function useUpdateCurrency() {
 
     const updateTotal = useCallback(
         async (
-            currencyName: string,
+            currencyId: number,
             total: number,
             notes: string,
         ): Promise<CurrencyType | null> => {
@@ -19,7 +19,7 @@ export function useUpdateCurrency() {
             setError(null);
             try {
                 const res = await axios.put<CurrencyType>(
-                    `/currencies/update/${encodeURIComponent(currencyName)}`,
+                    `/currencies/update/${currencyId}`,
                     {
                         total_in_circulation: total,
                         notes: notes.trim() || null,
@@ -38,17 +38,17 @@ export function useUpdateCurrency() {
         [],
     );
 
-    /** Change the name and/or symbol (a used currency can't be renamed). */
+    /** Change the name and/or symbol (offers and transactions follow). */
     const updateInfo = useCallback(
         async (
-            currencyName: string,
+            currencyId: number,
             changes: { name?: string; symbol?: string },
         ): Promise<CurrencyType | null> => {
             setLoading(true);
             setError(null);
             try {
                 const res = await axios.put<CurrencyType>(
-                    `/currencies/update/${encodeURIComponent(currencyName)}`,
+                    `/currencies/update/${currencyId}`,
                     changes,
                 );
                 return res.data;
@@ -63,24 +63,19 @@ export function useUpdateCurrency() {
     );
 
     /** Delete a currency nothing refers to (offers, transactions) any more. */
-    const remove = useCallback(
-        async (currencyName: string): Promise<boolean> => {
-            setLoading(true);
-            setError(null);
-            try {
-                await axios.delete(
-                    `/currencies/delete/${encodeURIComponent(currencyName)}`,
-                );
-                return true;
-            } catch (err) {
-                setError(getErrorMessage(err));
-                return false;
-            } finally {
-                setLoading(false);
-            }
-        },
-        [],
-    );
+    const remove = useCallback(async (currencyId: number): Promise<boolean> => {
+        setLoading(true);
+        setError(null);
+        try {
+            await axios.delete(`/currencies/delete/${currencyId}`);
+            return true;
+        } catch (err) {
+            setError(getErrorMessage(err));
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     return { updateTotal, updateInfo, remove, loading, error };
 }

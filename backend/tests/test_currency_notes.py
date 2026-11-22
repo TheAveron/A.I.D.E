@@ -4,13 +4,11 @@ from test_hardening import env  # noqa: F401  (pytest fixture)
 
 
 def update(env, **body):  # noqa: F811
-    return env.client.put(
-        "/currencies/update/Diamant", json=body, headers=env.h("alice")
-    )
+    return env.client.put("/currencies/update/1", json=body, headers=env.h("alice"))
 
 
 def history(env):  # noqa: F811
-    r = env.client.get("/currencies/history/Diamant", headers=env.h("alice"))
+    r = env.client.get("/currencies/history/1", headers=env.h("alice"))
     assert r.status_code == 200, r.text
     return r.json()
 
@@ -45,10 +43,11 @@ def test_an_overlong_note_is_a_422(env):  # noqa: F811
 def test_a_currency_with_history_can_be_deleted(env):  # noqa: F811
     h = env.h("alice")
     r = env.client.put(
-        "/currencies/update/Diamant",
+        "/currencies/update/1",
         json={"total_in_circulation": 5, "notes": "first"},
         headers=h,
     )
     assert r.status_code == 202
-    assert env.client.delete("/currencies/delete/Diamant", headers=h).status_code == 204
+    delete_response = env.client.delete("/currencies/delete/1", headers=h)
+    assert delete_response.status_code == 204
     assert env.client.get("/currencies/faction/1", headers=h).json() is None

@@ -131,12 +131,13 @@ def archive_faction(db: Session, faction: Faction, actor: User) -> None:
       join requests withdrawn;
     - every member goes back to "Sans Faction";
     - its territories and map markers are removed;
-    - its currency is deleted unless offers or transactions use it;
+    - it stops using its currency (see below); a currency nobody else uses
+      is deleted unless offers or transactions use it;
     - the faction is renamed "<name> [supprimée #id]" - which frees the
       unique name - and stamped `deleted_at`. Its row stays because closed
       offers and transactions refer to it.
     """
-    from ..database import MapMarker, MapTerritory, Offer
+    from ..database import CurrencyLinkRequest, MapMarker, MapTerritory, Offer
     from ..misc import OfferAction, OfferStatus
     from .currencies import is_currency_referenced
     from .notification import notify
@@ -194,9 +195,25 @@ def archive_faction(db: Session, faction: Faction, actor: User) -> None:
         synchronize_session=False
     )
 
-    currency = faction.currency
-    if currency and not is_currency_referenced(db, currency.name):
-        db.delete(currency)
+    # Its currency: the faction stops using it, unless it is its last issuer
+    # (the currency would then have nobody to run it: the link stays, under
+    # the archived name, until a money admin names another issuer). A
+    # currency nobody else uses goes too, unless trades refer to it.
+    link = faction.currency_link
+    if link:
+        currency = link.currency
+        others = [f for f in currency.links if f.faction_id != faction.faction_id]
+        if not others:
+            if not is_currency_referenced(db, currency.currency_id):
+                db.delete(currency)
+        elif not link.is_issuer or any(f.is_issuer for f in others):
+            currency.links.remove(link)
+    for request in db.query(CurrencyLinkRequest).filter(
+        CurrencyLinkRequest.faction_id == faction.faction_id,
+        CurrencyLinkRequest.status == "PENDING",
+    ):
+        request.status = "CANCELLED"
+        request.decided_at = now
 
     suffix = f" [supprimée #{faction.faction_id}]"
     faction.name = faction.name[: 100 - len(suffix)] + suffix

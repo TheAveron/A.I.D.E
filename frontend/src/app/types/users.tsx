@@ -7,7 +7,8 @@ export interface UserBase {
 export interface UserType extends UserBase {
     user_id: number;
     is_admin: boolean;
-    // Server-wide roles ("admin", "train_admin"...), only on /users/me
+    // Server-wide roles ("admin", "train_admin", "money_admin"...), only on
+    // /users/me
     global_roles?: string[];
     // Only present on your own profile (/users/me)
     email?: string | null;

@@ -40,6 +40,13 @@ class JoinRequestStatus(str, Enum):
     CANCELLED = "CANCELLED"  # withdrawn by the applicant, or no longer possible
 
 
+class CurrencyLinkKind(str, Enum):
+    """Who asks for a faction to use a currency."""
+
+    REQUEST = "REQUEST"  # the faction asks; an issuer accepts
+    INVITATION = "INVITATION"  # an issuer proposes; the faction accepts
+
+
 class TrainAction(str, Enum):
     """What a train's history records."""
 

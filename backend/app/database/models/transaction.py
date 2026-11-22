@@ -47,9 +47,16 @@ class Transaction(Base):
         Numeric(precision=18, scale=2), nullable=False
     )
 
-    currency_name: Mapped[str] = mapped_column(
-        String(50), ForeignKey("currencies.name"), nullable=False
+    currency_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("currencies.currency_id"), nullable=False, index=True
     )
+    currency = relationship("Currency")
+
+    @property
+    def currency_name(self) -> Optional[str]:
+        """The currency's current name (it may have been renamed since)."""
+        return self.currency.name if self.currency else None
+
     timestamp: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, nullable=False
     )

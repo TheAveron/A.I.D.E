@@ -25,7 +25,8 @@ function Profile({ value }: { value: UserType }) {
                             className="info-header"
                             style={
                                 profile.is_admin ||
-                                profile.global_roles?.includes("train_admin")
+                                profile.global_roles?.includes("train_admin") ||
+                                profile.global_roles?.includes("money_admin")
                                     ? {
                                           justifyContent: "space-between",
                                       }
@@ -40,6 +41,11 @@ function Profile({ value }: { value: UserType }) {
                             )}
                             {profile.global_roles?.includes("train_admin") && (
                                 <div className="profile-role">Admin trains</div>
+                            )}
+                            {profile.global_roles?.includes("money_admin") && (
+                                <div className="profile-role">
+                                    Admin monnaies
+                                </div>
                             )}
                         </div>
                         <div className="info-values">

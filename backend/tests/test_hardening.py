@@ -22,7 +22,8 @@ from app.api import (auth, currencies, documentation, faction, offer,
 from app.core.errors import register_error_handlers
 from app.core.security import create_access_token, hash_password
 from app.crud import faction as faction_crud
-from app.database import Base, Currency, Faction, Offer, Role, User, get_db
+from app.database import (Base, Currency, CurrencyFaction, Faction, Offer,
+                          Role, User, get_db)
 from app.database.database import build_database_url
 from app.misc import OfferStatus, OfferType
 
@@ -83,7 +84,14 @@ def env():
             ),
         ]
     )
-    s.add(Currency(name="Diamant", faction_id=1, total_in_circulation=0))
+    s.add(
+        Currency(
+            currency_id=1,
+            name="Diamant",
+            total_in_circulation=0,
+            links=[CurrencyFaction(faction_id=1, is_issuer=True)],
+        )
+    )
     s.commit()
     s.close()
 
@@ -337,7 +345,7 @@ class TestOfferListing:
                     faction_id=None if i % 2 else 1,
                     offer_type=OfferType.SELL,
                     item_description=f"item {i}",
-                    currency_name="Diamant",
+                    currency_id=1,
                     price_per_unit=1.0,
                     quantity=1,
                     init_quantity=1,
@@ -372,7 +380,7 @@ class TestOfferListing:
                     user_id=1,
                     offer_type=OfferType.SELL,
                     item_description="x",
-                    currency_name="Diamant",
+                    currency_id=1,
                     price_per_unit=1.0,
                     quantity=1,
                     init_quantity=1,

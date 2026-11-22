@@ -1,3 +1,5 @@
+import type { CurrencyFactionType } from "./currency";
+
 export interface AuditEntryType {
     log_id: number;
     actor_user_id: number | null;
@@ -76,10 +78,10 @@ export interface AdminTransactionCancelled {
 }
 
 export interface AdminCurrencyType {
+    currency_id: number;
     name: string;
     symbol: string | null;
-    faction_id: number;
-    faction_name: string | null;
+    factions: CurrencyFactionType[];
     total_in_circulation: number;
     created_at: string;
 }

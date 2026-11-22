@@ -3,6 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .base import UTCDatetime
+from .currency import CurrencyFactionOut
 from .user import PASSWORD_MAX_BYTES
 
 
@@ -112,10 +113,10 @@ class AdminTransactionCancelled(BaseModel):
 
 
 class AdminCurrencyOut(BaseModel):
+    currency_id: int
     name: str
     symbol: Optional[str] = None
-    faction_id: int
-    faction_name: Optional[str] = None
+    factions: list[CurrencyFactionOut] = []
     total_in_circulation: int
     created_at: UTCDatetime
 
