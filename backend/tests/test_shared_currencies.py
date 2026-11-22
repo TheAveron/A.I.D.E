@@ -304,9 +304,8 @@ def test_a_faction_leaves_or_is_removed(senv):
         c.delete(f"/currencies/{DIAMANT}/factions/2", headers=senv.h("alice"))
     ).status_code == 200
     assert _links(senv) == [(1, True)]
-    assert (
-        c.delete(f"/currencies/{DIAMANT}/factions/2", headers=senv.h("alice"))
-    ).status_code == 404
+    response = c.delete(f"/currencies/{DIAMANT}/factions/2", headers=senv.h("alice"))
+    assert response.status_code == 404
 
 
 # ── The money admin ───────────────────────────────────────────────────────
