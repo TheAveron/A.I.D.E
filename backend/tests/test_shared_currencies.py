@@ -265,7 +265,8 @@ def test_a_currency_keeps_at_least_one_issuer(senv):
     assert c.delete(
         f"/currencies/{DIAMANT}/factions/1/issuer", headers=h
     ).status_code == (409)
-    assert c.delete(f"/currencies/{DIAMANT}/factions/1", headers=h).status_code == 409
+    r = c.delete(f"/currencies/{DIAMANT}/factions/1", headers=h)
+    assert r.status_code == 409
 
     _join(senv)
     r = c.put(f"/currencies/{DIAMANT}/factions/2/issuer", headers=h)
