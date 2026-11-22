@@ -8,7 +8,7 @@ A.I.D.E est une application web full-stack qui gère l'économie virtuelle d'un 
 
 - **Backend** : FastAPI + PostgreSQL (SQLAlchemy 2.0, Alembic, authentification JWT)
 - **Frontend** : React 19 + TypeScript, React Router 8 (mode SPA) et Vite
-- **Déploiement** : le backend sert lui-même le frontend compilé, les cartes et la documentation
+- **Déploiement** : le backend sert lui-même le frontend compilé, les cartes et la documentation ; chaque release GitHub fournit le build du frontend, installé par `deploy.bat` / `deploy.sh`
 
 ## Sommaire
 
@@ -41,6 +41,7 @@ A.I.D.E/
 ├── backend/
 │   ├── main.py              # Point d'entrée FastAPI (routes, CORS, logs, service du frontend)
 │   ├── alembic/             # Migrations de base de données
+│   ├── alembic.ini          # Réglages d'Alembic (sans identifiants : ils sont dans database.ini)
 │   ├── app/
 │   │   ├── api/             # Routeurs (auth, faction, offer, currencies, trains, ...)
 │   │   ├── core/            # Paramètres, sécurité, erreurs, logs, limitation de débit
@@ -48,7 +49,7 @@ A.I.D.E/
 │   │   ├── database/        # Connexion et modèles SQLAlchemy
 │   │   └── schemas/         # Schémas Pydantic
 │   ├── documents/           # Documentation Markdown (AgeOfSteam, CubeCrusaders)
-│   ├── scripts/             # Utilitaires en ligne de commande (create_admin.py)
+│   ├── scripts/             # Utilitaires en ligne de commande (create_admin.py, deploy_helper.py)
 │   └── tests/               # Tests pytest
 ├── frontend/
 │   └── src/
@@ -59,7 +60,8 @@ A.I.D.E/
 │           ├── pages/       # Pages (admin, factions, offers, network, archives, auth, users)
 │           ├── types/       # Types TypeScript
 │           └── utils/       # Utilitaires (dont la garde d'authentification)
-└── .github/                 # CodeQL et Dependabot
+├── deploy.bat / deploy.sh   # Mise à jour d'une installation à partir d'une release
+└── .github/                 # CodeQL, Dependabot et build du frontend des releases
 ```
 
 ## Prérequis
@@ -112,7 +114,7 @@ user=aide
 password=mot_de_passe
 ```
 
-Créez la base PostgreSQL correspondante, puis appliquez les migrations :
+Créez la base PostgreSQL correspondante, puis appliquez les migrations. Elles se connectent avec `database.ini`, comme l'application : `backend/alembic.ini` ne contient aucun identifiant.
 
 ```bash
 alembic upgrade head
@@ -185,11 +187,86 @@ npm run lint
 
 ## Déploiement
 
-1. Définir `ENV=production` dans `backend/app/config/.env` (la liste CORS est alors vide, le frontend étant servi par le même domaine que l'API).
-2. Utiliser une `SECRET_KEY` longue et unique, jamais partagée.
-3. Construire le frontend (`npm run build`) puis lancer `fastapi run main.py` derrière un reverse proxy HTTPS.
-4. Appliquer les migrations (`alembic upgrade head`) à chaque mise à jour.
-5. Les journaux sont écrits dans `backend/logs/aide.log`.
+Une installation de production se met à jour à partir des **releases GitHub** : le code vient du tag de la release, le frontend déjà compilé vient du zip attaché à la release. La machine de déploiement n'a donc besoin ni de Node.js ni de npm.
+
+### Publier une version
+
+1. Fusionnez les changements dans `main`.
+2. Publiez une release GitHub avec un tag `vX.Y.Z` (par exemple `v1.4.0`). Un tag avec un tiret (`v1.4.0-rc1`) est une pré-version : il n'est jamais déployé automatiquement.
+3. Le workflow `.github/workflows/release-build.yml` compile le frontend et attache `AIDE_Front_X.Y.Z.zip` à la release. Comptez une à deux minutes : tant que le zip n'est pas là, le script de déploiement s'arrête sans rien modifier.
+
+### Préparer la machine (une seule fois)
+
+Suivez l'[installation](#installation) du backend (le frontend n'est pas nécessaire), puis :
+
+- dans `backend/app/config/.env`, mettez `ENV=production` (la liste CORS est alors vide, le frontend étant servi par le même domaine que l'API) et une `SECRET_KEY` longue et unique, jamais partagée ;
+- installez les outils clients de PostgreSQL : le déploiement sauvegarde la base avec `pg_dump`. Le script utilise, dans l'ordre : la variable d'environnement `PG_DUMP` (chemin complet de l'exécutable), le `PATH`, puis `C:\Program Files\PostgreSQL\*\bin` ;
+- créez `backend/documents/maps` et déposez-y les exports de carte (voir [Cartes](#cartes)) ;
+- lancez le backend derrière un reverse proxy HTTPS. Les journaux sont écrits dans `backend/logs/aide.log`.
+
+### Mettre à jour
+
+Depuis la racine du dépôt :
+
+```bash
+deploy.bat              # Windows (cmd) : dernière release publiée
+./deploy.sh             # Linux, macOS ou Git Bash
+```
+
+Les scripts ne modifient rien tant que tout ce qui peut échouer n'a pas été vérifié :
+
+| Étape | Ce que fait le script | Si elle échoue |
+|---|---|---|
+| 1 | Refuse de continuer si des fichiers suivis par git sont modifiés localement | rien n'est modifié |
+| 2 | Prend la dernière **release publiée** (API GitHub), ou la version donnée en argument | rien n'est modifié |
+| 3 | Vérifie `backend/.venv` et `backend/alembic.ini` | rien n'est modifié |
+| 4 | Télécharge le zip du frontend et le prépare dans `frontend/build.new` | rien n'est modifié |
+| 5 | Sauvegarde la base dans `backend/backups/` | rien n'est modifié |
+| 6 | Pour un retour en arrière : redescend la base (voir ci-dessous) | le script indique la sauvegarde |
+| 7 | `git checkout` du tag, `pip install`, `alembic upgrade head` | le script indique la sauvegarde |
+| 8 | Remplace `frontend/build` par le nouveau build (l'ancien reste dans `frontend/build.old`) | le script dit quoi faire |
+
+Une fois le script terminé, **relancez le backend** : arrêtez l'ancien processus, puis depuis `backend/`, venv activé :
+
+```bash
+fastapi run main.py
+```
+
+### Revenir à une version précédente
+
+```bash
+deploy.bat v1.3.2       # ou ./deploy.sh v1.3.2
+```
+
+Si la base contient des migrations que cette version ne connaît pas, le script la fait redescendre **avant** de changer de code (seul le code récent sait défaire ses propres migrations), puis installe l'ancienne version. Les migrations qui transforment des données ne sont pas toutes réversibles : par exemple, la 0019 transforme les marqueurs « gare » en vraies gares, et son retour en arrière ne recrée pas ces marqueurs. Pour retrouver exactement l'état d'avant, restaurez la sauvegarde.
+
+### Sauvegardes
+
+Chaque déploiement écrit `backend/backups/aide_<version>_<date>.dump` (format personnalisé de `pg_dump`, dossier ignoré par git). Ces fichiers ne sont jamais supprimés automatiquement : faites le ménage de temps en temps.
+
+Pour restaurer une sauvegarde, backend arrêté :
+
+```bash
+pg_restore --clean --if-exists -h HOTE -p PORT -U UTILISATEUR -d BASE backend/backups/aide_v1.4.0_20261122-120000.dump
+```
+
+Une sauvegarde peut aussi être prise à la main, depuis `backend/` avec le venv activé :
+
+```bash
+python -m scripts.deploy_helper backup manuel
+```
+
+### Cartes
+
+La carte du serveur actuel (`/actual`) est un export web de [uNmINeD](https://unmined.net/), déposé dans `backend/documents/maps/<dossier>`. Ce dossier n'est pas versionné : il faut le copier sur la machine de déploiement.
+
+```bash
+unmined-cli web render --world="chemin/du/monde" --output="backend/documents/maps/OAOS_zoom" --zoomin="2" --zoomout="7" --shadows="3d" --background="#313338"
+```
+
+- `--background` colore les chunks non générés ; sans lui ils sont noirs, et les tuiles étant en JPEG, cette couleur ne peut pas être changée après coup. Le site reprend la même couleur comme fond de carte.
+- La première lettre du dossier donne la dimension : `O` pour l'Overworld, `N` pour le Nether, `E` pour l'End. Les gares affichées sont celles de cette dimension.
+- Un nouveau dossier se déclare dans `frontend/src/app/utils/maps.ts` : `MAP_LABELS` pour son nom, et `CURRENT_MAP_VARIANTS` pour ajouter une dimension à `/actual` (le sélecteur de dimension apparaît dès qu'il y en a deux).
 
 ## Sécurité
 
