@@ -9,7 +9,7 @@ export const MARKER_KINDS = {
     nether_bastion: "Bastion du Nether",
     nether_fortress: "Forteresse du Nether",
     end_city: "Cité de l'End",
-    woodland_mansion: "Manoir des bois",
+    woodland_mansion: "Manoir",
     spawn: "Spawn",
     generic: "Point d'intérêt",
 } as const;
