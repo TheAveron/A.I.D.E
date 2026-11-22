@@ -501,7 +501,8 @@ def test_a_players_territory_is_theirs_alone(menv):
         menv.client.put(url, json={"name": "x"}, headers=menv.h("alice")).status_code
         == 403
     )
-    assert menv.client.delete(url, headers=menv.h("alice")).status_code == 403
+    r = menv.client.delete(url, headers=menv.h("alice"))
+    assert r.status_code == 403
     r = menv.client.put(url, json={"name": "Verger"}, headers=menv.h("bob"))
     assert (r.status_code, r.json()["name"]) == (200, "Verger")
     assert menv.client.delete(url, headers=menv.h("bob")).status_code == 204
