@@ -24,5 +24,9 @@ class TransactionOut(TransactionBase):
     quantity: Optional[int] = None
     cancelled_at: Optional[UTCDatetime] = None
     cancel_reason: Optional[str] = None
+    # The offer it came from: what was traded, and by whom it was offered
+    offer_item_description: Optional[str] = None
+    offer_user_id: Optional[int] = None
+    offer_faction_id: Optional[int] = None
 
     model_config = ConfigDict(from_attributes=True)

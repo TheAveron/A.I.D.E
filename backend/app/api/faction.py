@@ -11,7 +11,8 @@ from ..crud import faction_role as faction_role_crud
 from ..crud import normalize
 from ..crud.notification import notify
 from ..database import User, get_db
-from ..misc import FactionPermission, check_faction_permission
+from ..misc import (DEPUTY_ROLE_NAME, GUEST_ROLE_NAME, LEADER_ROLE_NAME,
+                    FactionPermission, check_faction_permission)
 from ..schemas import (FactionCreate, FactionOut, FactionUpdate,
                        LeadershipTransfer)
 from .documentation import archive_faction_folder, move_faction_folder
@@ -19,9 +20,6 @@ from .documentation import archive_faction_folder, move_faction_folder
 logger = logging.getLogger("aide")
 
 NO_FACTION_NAME = "Sans Faction"
-LEADER_ROLE_NAME = "Chef"
-GUEST_ROLE_NAME = "Invité"
-DEPUTY_ROLE_NAME = "Chef Adjoint"
 
 router = APIRouter(
     prefix="/factions",

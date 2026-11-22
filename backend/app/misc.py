@@ -72,6 +72,14 @@ class TrainService(str, Enum):
     LIQUID = "L"
 
 
+# The roles every faction is created with, recognized by their name: the
+# leader's can't be changed, the guest's (what joining relies on) can't be
+# renamed or deleted, and nobody else may take these two names (api/role.py).
+LEADER_ROLE_NAME = "Chef"
+DEPUTY_ROLE_NAME = "Chef Adjoint"
+GUEST_ROLE_NAME = "Invité"
+
+
 # The maps of the current server, Age of Steam (folders of documents/maps):
 # the only ones whose territories and markers may change. Every other map is
 # an archive of a former server, frozen. Same list as CURRENT_MAP_VARIANTS in

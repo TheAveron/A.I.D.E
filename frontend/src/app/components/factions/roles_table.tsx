@@ -8,8 +8,7 @@ import { useMe } from "../../hooks/users/me";
 import { useRole } from "../../hooks/factions/role";
 import { useRoles } from "../../hooks/factions/factionroles";
 import RoleEditor from "./role_editor";
-
-const LEADER_ROLE = "Chef";
+import { isGuestRole, isLeaderRole } from "../../utils/roles";
 
 function RolesList({
     roles,
@@ -63,25 +62,30 @@ function RolesList({
             <td>{role.manage_roles ? "✅" : "❌"}</td>
             {canManage && (
                 <td>
-                    {role.name !== LEADER_ROLE &&
-                        role.role_id !== ownRoleId && (
-                            <>
-                                <button
-                                    type="button"
-                                    className="button"
-                                    onClick={() => onEdit(role)}
-                                >
-                                    Modifier
-                                </button>{" "}
-                                <button
-                                    type="button"
-                                    className="button"
-                                    onClick={() => onDelete(role)}
-                                >
-                                    Supprimer
-                                </button>
-                            </>
-                        )}
+                    {!isLeaderRole(role) && role.role_id !== ownRoleId && (
+                        <>
+                            <button
+                                type="button"
+                                className="button"
+                                onClick={() => onEdit(role)}
+                            >
+                                Modifier
+                            </button>
+                            {/* Joining relies on it: the server keeps it */}
+                            {!isGuestRole(role) && (
+                                <>
+                                    {" "}
+                                    <button
+                                        type="button"
+                                        className="button"
+                                        onClick={() => onDelete(role)}
+                                    >
+                                        Supprimer
+                                    </button>
+                                </>
+                            )}
+                        </>
+                    )}
                 </td>
             )}
         </tr>

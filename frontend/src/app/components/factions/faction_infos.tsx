@@ -5,6 +5,7 @@ import { ApprovalToggle } from "./approvaltoggle";
 import { DeleteFactionButton } from "./deletefaction";
 import { FactionEditor } from "./faction_editor";
 import { useState } from "react";
+import { isLeaderRole } from "../../utils/roles";
 
 function FactionHead({
     faction_name,
@@ -34,11 +35,11 @@ export default function FactionInfo({
     const { user } = useMe();
     const { faction, loading, error, refresh } = useFaction(factionId ?? null);
     const { role } = useRole(user?.role_id ?? null);
-    // Same rule as the API: managing roles of one's own faction
     const archived = !!faction?.deleted_at;
+    // The leader of this very faction (being "Chef" elsewhere gives nothing)
     const isLeader =
-        role?.name === "Chef" &&
-        role.faction_id === user?.faction_id &&
+        isLeaderRole(role) &&
+        role?.faction_id === user?.faction_id &&
         user?.faction_id === faction?.faction_id;
     const [editing, setEditing] = useState(false);
     // Same rule as the API (PUT /factions/update): manage_roles in this faction

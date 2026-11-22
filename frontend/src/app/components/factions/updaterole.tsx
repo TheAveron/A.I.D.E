@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from "react";
 
 import { useRoles } from "../../hooks/factions/factionroles";
 import { useUpdateUser } from "../../hooks/factions/role";
+import { isLeaderRole } from "../../utils/roles";
 
 interface UpdateRoleProps {
     userId: number;
@@ -35,7 +36,7 @@ export function UpdateRole({
 
     const availableRoles =
         roles?.filter(
-            (role) => role.name !== "Chef" && role.faction_id === factionId,
+            (role) => !isLeaderRole(role) && role.faction_id === factionId,
         ) ?? [];
 
     useEffect(() => {

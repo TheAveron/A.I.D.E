@@ -7,13 +7,12 @@ from ..crud import faction_role as crud_role
 from ..crud import user as crud_user
 from ..crud.notification import notify
 from ..database import User, get_db
-from ..misc import FactionPermission, check_faction_permission
+from ..misc import (GUEST_ROLE_NAME, LEADER_ROLE_NAME, FactionPermission,
+                    check_faction_permission)
 from ..schemas import UserFull, UserOut, UserPublic, UserUpdate
 
 NO_FACTION_NAME = "Sans Faction"
-GUEST_ROLE_NAME = "Invité"
 MEMBER_ROLE_NAME = "Membre"
-LEADER_ROLE_NAME = "Chef"
 
 router = APIRouter(prefix="/users", tags=["Users"])
 

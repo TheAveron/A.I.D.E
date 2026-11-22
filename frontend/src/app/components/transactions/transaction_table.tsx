@@ -1,5 +1,4 @@
 import { useTransactions } from "../../hooks/transactions/transactions";
-import { useOffer } from "../../hooks/offers/offers";
 import type { TransactionType } from "../../types/transactions";
 import Username from "../users/username";
 import Factionname from "../factions/factionname";
@@ -19,57 +18,41 @@ function Actor({
 }
 
 export function OfferRow({ transaction }: { transaction: TransactionType }) {
-    const { offer, loading, error } = useOffer(transaction.offer_id);
-
     return (
         <tr className={transaction.cancelled_at ? "train-retired" : undefined}>
-            {error ? (
-                <td colSpan={5}>
-                    Erreur lors du chargement de la transaction{" "}
-                    {transaction.transaction_id}: {error}
-                </td>
-            ) : loading || !offer ? (
-                <td colSpan={5}>Chargement de la transaction...</td>
-            ) : (
-                <>
-                    <td>{offer.item_description}</td>
-                    <td>
-                        <Actor
-                            userId={offer.user_id}
-                            factionId={offer.faction_id}
-                        />
-                    </td>
-                    <td>
-                        <Actor
-                            userId={transaction.buyer_user_id}
-                            factionId={transaction.buyer_faction_id}
-                        />
-                    </td>
-                    <td>
-                        {transaction.amount} {transaction.currency_name}
-                        {transaction.cancelled_at && (
-                            <>
-                                {" "}
-                                <span
-                                    className="status cancelled"
-                                    title={
-                                        transaction.cancel_reason ?? undefined
-                                    }
-                                >
-                                    Annulée
-                                </span>
-                            </>
-                        )}
-                    </td>
-                    <td>
-                        {new Date(transaction.timestamp).toLocaleDateString() +
-                            ", " +
-                            new Date(
-                                transaction.timestamp,
-                            ).toLocaleTimeString()}
-                    </td>
-                </>
-            )}
+            {/* The server sends what the row shows of the offer */}
+            <td>{transaction.offer_item_description ?? "-"}</td>
+            <td>
+                <Actor
+                    userId={transaction.offer_user_id}
+                    factionId={transaction.offer_faction_id}
+                />
+            </td>
+            <td>
+                <Actor
+                    userId={transaction.buyer_user_id}
+                    factionId={transaction.buyer_faction_id}
+                />
+            </td>
+            <td>
+                {transaction.amount} {transaction.currency_name}
+                {transaction.cancelled_at && (
+                    <>
+                        {" "}
+                        <span
+                            className="status cancelled"
+                            title={transaction.cancel_reason ?? undefined}
+                        >
+                            Annulée
+                        </span>
+                    </>
+                )}
+            </td>
+            <td>
+                {new Date(transaction.timestamp).toLocaleDateString() +
+                    ", " +
+                    new Date(transaction.timestamp).toLocaleTimeString()}
+            </td>
         </tr>
     );
 }

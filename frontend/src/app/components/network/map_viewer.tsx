@@ -23,11 +23,7 @@ import type { FeatureLike } from "ol/Feature";
 import { MARKER_KINDS, toNetherCoords } from "../../types/map";
 import type { MarkerKind } from "../../types/map";
 import { DIMENSIONS } from "../../types/trains";
-import {
-    factionColor,
-    territoryColor,
-    withAlpha,
-} from "../../utils/mapcolors";
+import { factionColor, territoryColor, withAlpha } from "../../utils/mapcolors";
 import { iconUrl } from "../../utils/mapicons";
 import { buildGeometry } from "../../utils/unmined";
 import type { MapGeometry, UnminedData } from "../../utils/unmined";
@@ -415,10 +411,7 @@ function MapCanvas({
                     entityId: t.territory_id,
                     factionId: t.faction_id,
                     color: territoryColor(t),
-                    details: [
-                        owner,
-                        ...(t.description ? [t.description] : []),
-                    ],
+                    details: [owner, ...(t.description ? [t.description] : [])],
                 });
             }),
         );
@@ -812,7 +805,9 @@ function MapCanvas({
 
                         {factions.length > 0 && (
                             <details>
-                                <summary>Propriétaires ({factions.length})</summary>
+                                <summary>
+                                    Propriétaires ({factions.length})
+                                </summary>
                                 <ul className="map-layers">
                                     {factions.map(([id, f]) => (
                                         <li key={id ?? "players"}>

@@ -5,7 +5,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..database import Role, User
-from ..misc import FactionPermission
+from ..misc import (DEPUTY_ROLE_NAME, GUEST_ROLE_NAME, LEADER_ROLE_NAME,
+                    FactionPermission)
 from ..schemas import RoleCreate, RoleUpdate
 
 
@@ -86,7 +87,7 @@ def create_default_faction_roles(
 
     default_roles = [
         {
-            "name": "Chef",
+            "name": LEADER_ROLE_NAME,
             "description": "Chef de la faction avec toutes les permissions.",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: True,
@@ -101,7 +102,7 @@ def create_default_faction_roles(
             },
         },
         {
-            "name": "Chef Adjoint",
+            "name": DEPUTY_ROLE_NAME,
             "description": "Adjoint du chef, l'aide à administrer la faction",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: True,
@@ -161,7 +162,7 @@ def create_default_faction_roles(
             },
         },
         {
-            "name": "Invité",
+            "name": GUEST_ROLE_NAME,
             "description": "Souhaite rejoindre la faction",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: False,
@@ -199,7 +200,7 @@ def create_default_faction_roles(
         db.add(db_role)
         db.flush()  # assigns role_id
 
-        if db_role.name == "Chef":
+        if db_role.name == LEADER_ROLE_NAME:
             leader = db.query(User).filter(User.user_id == user_id).first()
             if leader:
                 leader.faction_id = faction_id

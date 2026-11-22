@@ -16,13 +16,11 @@ from ..crud import faction_role as crud_role
 from ..crud.notification import members_with_permission, notify, notify_many
 from ..database import JoinRequest, User, get_db
 from ..database.clock import utcnow
-from ..misc import (FactionPermission, JoinRequestStatus,
-                    check_faction_permission)
+from ..misc import (GUEST_ROLE_NAME, LEADER_ROLE_NAME, FactionPermission,
+                    JoinRequestStatus, check_faction_permission)
 from ..schemas import JoinRequestCreate, JoinRequestOut
 
 NO_FACTION_NAME = "Sans Faction"
-GUEST_ROLE_NAME = "Invité"
-LEADER_ROLE_NAME = "Chef"
 
 router = APIRouter(prefix="/join_requests", tags=["Join requests"])
 

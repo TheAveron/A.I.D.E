@@ -4,12 +4,9 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import faction_role as crud_role
 from ..database import Role, User, get_db
-from ..misc import (FactionPermission, check_faction_permission,
-                    require_faction_permission)
+from ..misc import (GUEST_ROLE_NAME, LEADER_ROLE_NAME, FactionPermission,
+                    check_faction_permission, require_faction_permission)
 from ..schemas import RoleCreate, RoleOut, RoleUpdate
-
-LEADER_ROLE_NAME = "Chef"
-GUEST_ROLE_NAME = "Invité"
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
 
