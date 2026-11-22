@@ -30,11 +30,27 @@ import type { MapGeometry, UnminedData } from "../../utils/unmined";
 import { useMapOverlay, useUnminedData } from "../../hooks/network/map";
 import MapEditor, { type EntityRef } from "./map_editor";
 
-interface Selection {
+export interface Selection {
     entity: EntityRef | null;
+    stationId: number | null;
+    /** The icon shown in the card, if the element has one. */
+    iconKind: MarkerKind | null;
     title: string;
     kind: string;
     lines: string[];
+}
+
+const LEGEND_KEY = "aide.map.legendOpen";
+
+/** The legend starts as the viewer left it; folded on a small screen. */
+function initialLegendOpen(): boolean {
+    try {
+        const saved = localStorage.getItem(LEGEND_KEY);
+        if (saved !== null) return saved === "1";
+    } catch {
+        // No storage (private window...): the default below
+    }
+    return !window.matchMedia("(max-width: 800px)").matches;
 }
 
 type LayerKey = "territories" | "stations" | "markers" | "players";
@@ -66,13 +82,53 @@ function labelStyle(text: string, color = "#fff") {
 const ICON_SIZE = { station: 32, other: 40 };
 const iconCache = new Map<string, Icon>();
 
-/* The icon of a kind and colour(built once: the image is loaded once), with a label. */
-function iconStyle(kind: MarkerKind, text: string, color?: string) {
-    const key = color ? `${kind}:${color}` : kind;
-    let icon = iconCache.get(kind);
+const dotCache = new Map<string, CircleStyle>();
+
+function pointDot(color: string): CircleStyle {
+    let circle = dotCache.get(color);
+    if (!circle) {
+        circle = new CircleStyle({
+            radius: 10,
+            fill: new Fill({ color }),
+            stroke: new Stroke({ color: "#1b1b1b", width: 3 }),
+        });
+        dotCache.set(color, circle);
+    }
+    return circle;
+}
+
+/* The icon of a kind and colour (built once: the image is loaded once), with
+   a label. An explored structure is faded: nothing left to take there. */
+function iconStyle(
+    kind: MarkerKind,
+    text: string,
+    color?: string,
+    explored = false,
+) {
+    if (kind === "generic" && color) {
+        // A generic point with a chosen colour: a dot like generic.svg
+        return new Style({
+            image: pointDot(color),
+            text: new Text({
+                text,
+                offsetY: 22,
+                font: "600 12px sans-serif",
+                fill: new Fill({ color: "#fff" }),
+                stroke: new Stroke({ color: "rgba(0,0,0,0.85)", width: 3 }),
+            }),
+        });
+    }
+    const key = `${kind}:${color ?? ""}:${explored ? "x" : ""}`;
+    let icon = iconCache.get(key);
     if (!icon) {
         const size = kind === "station" ? ICON_SIZE.station : ICON_SIZE.other;
-        icon = new Icon({ src: iconUrl(kind), width: size, height: size, color });
+        icon = new Icon({
+            src: iconUrl(kind),
+            width: size,
+            height: size,
+            color,
+            opacity: explored ? 0.45 : 1,
+        });
         iconCache.set(key, icon);
     }
     return new Style({
@@ -135,6 +191,19 @@ function MapCanvas({
     const [selection, setSelection] = useState<Selection | null>(null);
     const [coords, setCoords] = useState({ x: "", z: "" });
     const [goError, setGoError] = useState<string | null>(null);
+    const [gotoOpen, setGotoOpen] = useState(false);
+    const [legendOpen, setLegendOpen] = useState(initialLegendOpen);
+
+    function toggleLegend() {
+        setLegendOpen((open) => {
+            try {
+                localStorage.setItem(LEGEND_KEY, open ? "0" : "1");
+            } catch {
+                // Not remembered, still toggled
+            }
+            return !open;
+        });
+    }
 
     // The map itself: tiles and empty layers, created once per export.
     useEffect(() => {
@@ -199,6 +268,7 @@ function MapCanvas({
                 kind,
                 feature.get("title") as string,
                 feature.get("color") as string | undefined,
+                feature.get("explored") === true,
             );
         };
         vectors.stations.setStyle(kindStyle);
@@ -247,10 +317,9 @@ function MapCanvas({
         );
 
         map.on("singleclick", (event) => {
+            // While a point is being placed, every click moves it
             if (pickRef.current) {
-                const pick = pickRef.current;
-                pickRef.current = null;
-                pick(geometry.toBlocks(event.coordinate));
+                pickRef.current(geometry.toBlocks(event.coordinate));
                 return;
             }
             if (busyRef.current) return;
@@ -267,6 +336,8 @@ function MapCanvas({
                 entity: entity
                     ? { type: entity, id: feature.get("entityId") as number }
                     : null,
+                stationId: (feature.get("stationId") as number) ?? null,
+                iconKind: (feature.get("markerKind") as MarkerKind) ?? null,
                 title: feature.get("title") as string,
                 kind: feature.get("kindLabel") as string,
                 lines: (feature.get("details") as string[]) ?? [],
@@ -332,6 +403,7 @@ function MapCanvas({
                     title: s.name,
                     kindLabel: MARKER_KINDS.station,
                     markerKind: "station",
+                    stationId: s.station_id,
                     details: [
                         `X ${s.x}   Z ${s.z}`,
                         ...(served.length
@@ -362,8 +434,16 @@ function MapCanvas({
                         entity: "marker",
                         entityId: m.marker_id,
                         color:
-                        m.kind === "city" && m.faction_id != null ? factionColor(m.faction_id, colors.get(m.faction_id)) : undefined,
+                            m.kind === "city" && m.faction_id != null
+                                ? factionColor(
+                                      m.faction_id,
+                                      colors.get(m.faction_id),
+                                  )
+                                : m.kind === "generic"
+                                  ? (m.color ?? undefined)
+                                  : undefined,
                         markerKind: m.kind,
+                        explored: m.explored,
                         kindLabel: MARKER_KINDS[m.kind] ?? "Point d'intérêt",
                         details: [
                             `X ${m.x}   Z ${m.z}`,
@@ -416,14 +496,15 @@ function MapCanvas({
         layers.current?.markers.changed();
     }, [hiddenKindList]);
 
-    // The kinds on the map, in the order of the list of kinds
+    // The kinds of the points on the map, in the order of the list of kinds.
+    // Stations are not among them: their own layer ("Gares") shows or hides
+    // them.
     const kinds = useMemo(() => {
         const present = new Set<MarkerKind>(overlay.markers.map((m) => m.kind));
-        if (overlay.stations.length > 0) present.add("station");
         return (Object.keys(MARKER_KINDS) as MarkerKind[]).filter((k) =>
             present.has(k),
         );
-    }, [overlay.markers, overlay.stations]);
+    }, [overlay.markers]);
 
     const factions = useMemo(() => {
         const seen = new Map<number, { name: string; color: string }>();
@@ -458,6 +539,7 @@ function MapCanvas({
             return;
         }
         setGoError(null);
+        setGotoOpen(false);
         map.getView().animate({
             center: geometry.toView([x, z]),
             duration: 400,
@@ -480,6 +562,60 @@ function MapCanvas({
         );
     }
 
+    // Going to coordinates is rare: a small button, opened into a form
+    const gotoControl = gotoOpen ? (
+        <form
+            className="map-goto"
+            onSubmit={goTo}
+            onKeyDown={(e) => {
+                if (e.key === "Escape") setGotoOpen(false);
+            }}
+        >
+            <input
+                type="text"
+                inputMode="numeric"
+                placeholder="X"
+                aria-label="Aller à X"
+                autoFocus
+                value={coords.x}
+                onChange={(e) => setCoords({ ...coords, x: e.target.value })}
+            />
+            <input
+                type="text"
+                inputMode="numeric"
+                placeholder="Z"
+                aria-label="Aller à Z"
+                value={coords.z}
+                onChange={(e) => setCoords({ ...coords, z: e.target.value })}
+            />
+            <button type="submit" className="map-icon-button" title="Aller">
+                →
+            </button>
+            <button
+                type="button"
+                className="map-close"
+                aria-label="Fermer"
+                onClick={() => {
+                    setGotoOpen(false);
+                    setGoError(null);
+                }}
+            >
+                ×
+            </button>
+            {goError && <p className="map-error">{goError}</p>}
+        </form>
+    ) : (
+        <button
+            type="button"
+            className="map-icon-button"
+            title="Aller aux coordonnées"
+            aria-label="Aller aux coordonnées"
+            onClick={() => setGotoOpen(true)}
+        >
+            ⌖
+        </button>
+    );
+
     return (
         <div className="map-viewer">
             <div
@@ -489,115 +625,8 @@ function MapCanvas({
                 aria-label="Carte du serveur"
             />
 
-            <aside className="map-panel">
-                <h3>Calques</h3>
-                <ul className="map-layers">
-                    {(Object.keys(LAYER_LABELS) as LayerKey[]).map((key) => (
-                        <li key={key}>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={visible[key]}
-                                    onChange={() =>
-                                        setVisible((v) => ({
-                                            ...v,
-                                            [key]: !v[key],
-                                        }))
-                                    }
-                                />
-                                {LAYER_LABELS[key]}
-                            </label>
-                        </li>
-                    ))}
-                </ul>
-
-                {factions.length > 0 && (
-                    <>
-                        <h3>Factions</h3>
-                        <ul className="map-layers">
-                            {factions.map(([id, f]) => (
-                                <li key={id}>
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            checked={!hidden.includes(id)}
-                                            onChange={() => toggleFaction(id)}
-                                        />
-                                        <span
-                                            className="map-swatch"
-                                            style={{ background: f.color }}
-                                        />
-                                        {f.name}
-                                    </label>
-                                </li>
-                            ))}
-                        </ul>
-                    </>
-                )}
-
-                {kinds.length > 0 && (
-                    <>
-                        <h3>Légende</h3>
-                        <ul className="map-layers">
-                            {kinds.map((kind) => (
-                                <li key={kind}>
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            checked={
-                                                !hiddenKindList.includes(kind)
-                                            }
-                                            onChange={() => toggleKind(kind)}
-                                        />
-                                        <img
-                                            className="map-kind-icon"
-                                            src={iconUrl(kind)}
-                                            alt=""
-                                        />
-                                        {MARKER_KINDS[kind]}
-                                    </label>
-                                </li>
-                            ))}
-                        </ul>
-                    </>
-                )}
-
-                <h3>Aller aux coordonnées</h3>
-                <form className="map-goto" onSubmit={goTo}>
-                    <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="X"
-                        aria-label="X"
-                        value={coords.x}
-                        onChange={(e) =>
-                            setCoords({ ...coords, x: e.target.value })
-                        }
-                    />
-                    <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="Z"
-                        aria-label="Z"
-                        value={coords.z}
-                        onChange={(e) =>
-                            setCoords({ ...coords, z: e.target.value })
-                        }
-                    />
-                    <button type="submit">Aller</button>
-                </form>
-                {goError && <p className="map-error">{goError}</p>}
-
-                {overlay.errors.length > 0 && (
-                    <p className="map-error">{overlay.errors.join(" - ")}</p>
-                )}
-                <p className="map-hint">
-                    <Link to="/network">Voir les lignes de train</Link>
-                    <br />
-                    {DIMENSIONS[overlay.dimension]} - cliquez sur un élément
-                    pour le détail.
-                </p>
-
+            {/* Left: where to go, what to add, what is selected */}
+            <div className="map-left">
                 {mapState && (
                     <MapEditor
                         folder={folder}
@@ -605,26 +634,137 @@ function MapCanvas({
                         geometry={mapState.geometry}
                         territories={overlay.territories}
                         markers={overlay.markers}
-                        selected={selection?.entity ?? null}
+                        selection={selection}
+                        onCloseSelection={() => setSelection(null)}
                         busyRef={busyRef}
                         pickRef={pickRef}
+                        onRefresh={overlay.refresh}
                         onChanged={() => {
                             setSelection(null);
                             overlay.refresh();
                         }}
+                        leading={gotoControl}
                     />
                 )}
+            </div>
 
-                {selection && (
-                    <div className="map-selection" aria-live="polite">
-                        <h3>{selection.title}</h3>
-                        <p className="map-selection-kind">{selection.kind}</p>
-                        {selection.lines.map((line, i) => (
-                            <p key={i}>{line}</p>
-                        ))}
+            {/* Right: what is shown, folded into a button when not needed */}
+            <aside
+                className={`map-float map-legend${legendOpen ? " open" : ""}`}
+                aria-label="Légende de la carte"
+            >
+                <button
+                    type="button"
+                    className="map-legend-toggle"
+                    aria-expanded={legendOpen}
+                    onClick={toggleLegend}
+                >
+                    <span aria-hidden="true">☰</span> Légende
+                </button>
+
+                {legendOpen && (
+                    <div className="map-legend-body">
+                        <details open>
+                            <summary>Calques</summary>
+                            <ul className="map-layers">
+                                {(Object.keys(LAYER_LABELS) as LayerKey[]).map(
+                                    (key) => (
+                                        <li key={key}>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={visible[key]}
+                                                    onChange={() =>
+                                                        setVisible((v) => ({
+                                                            ...v,
+                                                            [key]: !v[key],
+                                                        }))
+                                                    }
+                                                />
+                                                {LAYER_LABELS[key]}
+                                            </label>
+                                        </li>
+                                    ),
+                                )}
+                            </ul>
+                        </details>
+
+                        {kinds.length > 0 && (
+                            <details open>
+                                <summary>Types de points</summary>
+                                <div className="map-kind-chips">
+                                    {kinds.map((kind) => {
+                                        const shown =
+                                            !hiddenKindList.includes(kind);
+                                        return (
+                                            <button
+                                                key={kind}
+                                                type="button"
+                                                className="map-chip"
+                                                aria-pressed={shown}
+                                                title={
+                                                    shown
+                                                        ? "Cliquer pour masquer"
+                                                        : "Cliquer pour afficher"
+                                                }
+                                                onClick={() => toggleKind(kind)}
+                                            >
+                                                <img
+                                                    className="map-kind-icon"
+                                                    src={iconUrl(kind)}
+                                                    alt=""
+                                                />
+                                                {MARKER_KINDS[kind]}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </details>
+                        )}
+
+                        {factions.length > 0 && (
+                            <details>
+                                <summary>Factions ({factions.length})</summary>
+                                <ul className="map-layers">
+                                    {factions.map(([id, f]) => (
+                                        <li key={id}>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={
+                                                        !hidden.includes(id)
+                                                    }
+                                                    onChange={() =>
+                                                        toggleFaction(id)
+                                                    }
+                                                />
+                                                <span
+                                                    className="map-swatch"
+                                                    style={{
+                                                        background: f.color,
+                                                    }}
+                                                />
+                                                {f.name}
+                                            </label>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </details>
+                        )}
+
+                        <p className="map-hint">
+                            {DIMENSIONS[overlay.dimension]} ·{" "}
+                            <Link to="/network">Lignes de train</Link>
+                        </p>
                     </div>
                 )}
             </aside>
+
+            {overlay.errors.length > 0 && (
+                <p className="map-float map-errors map-error" role="alert">
+                    {overlay.errors.join(" - ")}
+                </p>
+            )}
         </div>
     );
 }

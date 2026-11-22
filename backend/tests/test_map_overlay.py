@@ -314,7 +314,6 @@ def test_roles_carry_the_permission(menv):
 def test_every_listed_kind_is_accepted_and_the_old_ones_are_not(menv):
     kinds = [
         "city",
-        "station",
         "trial_chamber",
         "village",
         "ocean_monument",
@@ -385,3 +384,80 @@ def test_a_player_cannot_turn_a_marker_into_the_spawn(menv):
 def test_the_spawn_has_no_owner_but_the_admin_who_sets_it(menv):
     assert _spawn(menv, faction_id=1).status_code == 400
     assert _spawn(menv, user_id=1).status_code == 400
+
+
+# ── stations and explored structures ─────────────────────────────────────
+
+
+def test_a_station_is_not_a_bare_marker(menv):
+    # It would show on the map but not among the stations
+    assert _marker(menv, "newbie", kind="station").status_code == 400
+    mid = _marker(menv, "newbie").json()["marker_id"]
+    r = menv.client.put(
+        f"/map/markers/{mid}", json={"kind": "station"}, headers=menv.h("newbie")
+    )
+    assert r.status_code == 400
+
+
+def _explored(env, mid, who, value=True):  # noqa: F811
+    return env.client.put(
+        f"/map/markers/{mid}/explored", json={"explored": value}, headers=env.h(who)
+    )
+
+
+def test_a_structure_is_marked_explored_by_anybody(menv):
+    mid = _marker(menv, "newbie", kind="trial_chamber").json()["marker_id"]
+    listed = menv.client.get(f"/map/{MAP}/markers").json()
+    assert (listed[0]["explored"], listed[0]["explored_by_name"]) == (False, None)
+    # bob does not own it: looting is anybody's business
+    r = _explored(menv, mid, "bob")
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert (body["explored"], body["explored_by_name"]) == (True, "bob")
+    assert body["explored_at"] is not None
+    # saying it again keeps the first explorer
+    assert _explored(menv, mid, "alice").json()["explored_by_name"] == "bob"
+    back = _explored(menv, mid, "alice", False).json()
+    assert (back["explored"], back["explored_by_name"], back["explored_at"]) == (
+        False,
+        None,
+        None,
+    )
+    assert _audit(menv) == []
+    assert menv.client.put(
+        f"/map/markers/{mid}/explored", json={"explored": True}
+    ).status_code == 401
+    assert _explored(menv, 999, "newbie").status_code == 404
+
+
+def test_only_a_structure_can_be_explored(menv):
+    city = _marker(menv, "newbie", kind="city").json()["marker_id"]
+    assert _explored(menv, city, "newbie").status_code == 400
+
+
+def test_leaving_the_structure_kinds_forgets_explored(menv):
+    mid = _marker(menv, "newbie", kind="village").json()["marker_id"]
+    _explored(menv, mid, "newbie")
+    r = menv.client.put(
+        f"/map/markers/{mid}", json={"kind": "city"}, headers=menv.h("newbie")
+    )
+    assert (r.json()["explored"], r.json()["explored_by_name"]) == (False, None)
+
+
+def test_a_generic_point_has_a_colour(menv):
+    r = _marker(menv, "newbie", kind="generic", color="#1A2B3C")
+    assert r.status_code == 201, r.text
+    assert r.json()["color"] == "#1a2b3c"
+    mid = r.json()["marker_id"]
+    assert _marker(menv, "newbie", label="x", color="rouge").status_code == 422
+    put = lambda **b: menv.client.put(  # noqa: E731
+        f"/map/markers/{mid}", json=b, headers=menv.h("newbie")
+    )
+    assert put(color="#00ff00").json()["color"] == "#00ff00"
+    assert put(color=None).json()["color"] is None
+    # the other kinds have their icon, not a colour
+    assert _marker(menv, "newbie", label="v", kind="village", color="#ff0000").json()[
+        "color"
+    ] is None
+    put(color="#00ff00")
+    assert put(kind="city").json()["color"] is None

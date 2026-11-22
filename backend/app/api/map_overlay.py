@@ -10,8 +10,8 @@ from ..core import get_current_user
 from ..crud import audit
 from ..crud import map_overlay as crud
 from ..database import User, get_db
-from ..schemas import (MarkerCreate, MarkerOut, MarkerUpdate, TerritoryCreate,
-                       TerritoryOut, TerritoryUpdate)
+from ..schemas import (MarkerCreate, MarkerExplored, MarkerOut, MarkerUpdate,
+                       TerritoryCreate, TerritoryOut, TerritoryUpdate)
 from ..schemas.map_overlay import MAP_NAME_RE
 
 router = APIRouter(prefix="/map", tags=["Map"])
@@ -153,6 +153,20 @@ def update_marker(
             old_label,
             f"Appartient à {marker.owner_name}",
         )
+    db.commit()
+    db.refresh(marker)
+    return marker
+
+
+@router.put("/markers/{marker_id}/explored", response_model=MarkerOut)
+def set_marker_explored(
+    marker_id: int,
+    body: MarkerExplored,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    marker = crud.get_marker(db, marker_id)
+    crud.set_explored(db, current_user, marker, body.explored)
     db.commit()
     db.refresh(marker)
     return marker

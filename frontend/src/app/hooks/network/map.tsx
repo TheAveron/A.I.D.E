@@ -106,10 +106,11 @@ export function useMapOverlay(folder: string) {
     );
 
     return {
-        // Read the territories and the points again, after a change
+        // Read the territories, the points and the stations again
         refresh: () => {
             territories.refresh();
             markers.refresh();
+            stations.refresh();
         },
         territories: territories.data ?? [],
         markers: markers.data ?? [],

@@ -2,14 +2,19 @@
  * The map fills what is left under the title (#map-header): <main> is a column
  * that is at least one screen high, so a flex-grown child takes the rest.
  * Nothing to compute, whatever the height of the title.
+ *
+ * (layout.css makes every div a column: the rows below say `row` again.)
+ *
+ * Everything else floats over the map: the tools and the selected element on
+ * the left, the legend (folded into a button when not needed) on the right.
  */
 .map-viewer {
     position: relative;
     display: flex;
-    flex-direction: row;
     flex: 1 1 0;
     width: 100%;
     min-height: 420px;
+    overflow: hidden;
 }
 
 .map-canvas {
@@ -18,24 +23,467 @@
     position: relative;
 }
 
-.map-panel {
-    width: 280px;
-    flex-shrink: 0;
-    overflow-y: auto;
-    padding: 0.75rem 1rem;
-    background: var(--surface);
-    color: var(--text);
-    border-left: 1px solid var(--border-strong);
+.map-canvas.map-picking,
+.map-canvas.map-picking canvas {
+    cursor: crosshair;
 }
 
-.map-panel h3 {
-    margin: 0.75rem 0 0.4rem;
-    font-size: 1rem;
+/* ---- floating panels ---- */
+
+.map-float {
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.35);
+    backdrop-filter: blur(4px);
+    text-align: left;
+}
+
+.map-left {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    bottom: 2.75rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: min(320px, calc(100% - 5.5rem));
+    /* Clicks between the panels reach the map */
+    pointer-events: none;
+}
+
+.map-left > * {
+    pointer-events: auto;
+    flex-shrink: 0;
+}
+
+/* The toolbar: "go to" as a small button, then what can be added */
+.map-tools {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem;
+    /* As wide as its buttons, not as the column */
+    align-self: flex-start;
+    max-width: 100%;
+}
+
+.map-tools .button {
+    min-height: 2rem;
+    padding: 0.2rem 0.65rem;
+}
+
+.map-tools .map-hint {
+    margin: 0 0.3rem;
+    opacity: 1;
+    color: var(--muted);
+}
+
+.map-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: inherit;
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.map-icon-button:hover {
+    background: var(--hover);
+    border-color: var(--accent);
+}
+
+/* Opened, it takes its own line in the toolbar */
+.map-goto {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    flex-basis: 100%;
+}
+
+.map-goto input {
+    width: 4.5rem;
+    min-width: 0;
+    padding: 0.25rem 0.4rem;
+}
+
+.map-goto .map-error {
+    flex-basis: 100%;
+    margin: 0;
+}
+
+/* The selected element, and the forms: they scroll inside, never the page */
+.map-card,
+.map-drawer {
+    flex-shrink: 1 !important;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0.65rem 0.85rem 0.75rem;
+}
+
+.map-card p {
+    margin: 0.2rem 0;
+    overflow-wrap: anywhere;
+}
+
+.map-card-header {
+    flex-direction: row;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-bottom: 0.35rem;
+}
+
+.map-card-title {
+    flex: 1;
+    min-width: 0;
+}
+
+.map-card-title h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    overflow-wrap: anywhere;
+}
+
+.map-card-icon {
+    width: 2rem;
+    height: 2rem;
+}
+
+.map-card-dot {
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin: 0.2rem 0.45rem;
+    border: 2px solid #1b1b1b;
+    border-radius: 50%;
+}
+
+.map-close {
+    flex-shrink: 0;
+    width: 1.8rem;
+    height: 1.8rem;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--muted);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.map-close:hover {
+    background: var(--hover);
+    color: var(--text);
+}
+
+.map-selection-kind {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.map-explored {
+    margin: 0.45rem 0 !important;
+    padding: 0.35rem 0.55rem;
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    background: var(--hover);
+    font-size: 0.9rem;
+}
+
+.map-explored.done {
+    border-left-color: var(--muted);
+    color: var(--muted);
+}
+
+.map-danger:hover {
+    background-color: var(--danger) !important;
+    border-color: var(--danger) !important;
+    color: #fff !important;
+}
+
+/* ---- forms ---- */
+
+.map-editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.map-editor-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.9rem;
+}
+
+.map-form-row {
+    flex-direction: row;
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+}
+
+.map-grow {
+    flex: 1;
+    min-width: 0;
+}
+
+.map-step {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+}
+
+.map-step .map-hint {
+    margin: 0;
+}
+
+.map-coords {
+    flex-direction: row;
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.map-coords label {
+    flex: 1;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 0.35rem !important;
+}
+
+.map-coords input {
+    width: 0;
+    flex: 1;
+    min-width: 0;
+}
+
+/* The kinds as a grid of icons: what a point is, at a glance */
+.map-kind-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr));
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.map-kind-grid legend {
+    padding: 0;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.map-editor-form .map-kind-option {
+    position: relative;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.35rem 0.2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 0.72rem;
+    line-height: 1.15;
+    text-align: center;
+    cursor: pointer;
+    transition:
+        border-color var(--speed) var(--ease),
+        background var(--speed) var(--ease);
+}
+
+.map-kind-option:hover {
+    background: var(--hover);
+}
+
+.map-kind-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.map-kind-option:has(input:checked) {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    font-weight: 600;
+}
+
+.map-kind-option:has(input:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+}
+
+.map-kind-option .map-kind-icon {
+    width: 1.8rem;
+    height: 1.8rem;
+}
+
+/* A generic point's colour: picker, hex code, ready-made swatches */
+.map-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.map-color-inputs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.map-color-inputs input[type="color"] {
+    width: 2.4rem;
+    height: 2rem;
+    padding: 0.1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.map-hex {
+    width: 6.5rem;
+    font-family: var(--font-mono, monospace);
+}
+
+.map-hex[aria-invalid="true"] {
+    border-color: var(--danger);
+}
+
+.map-swatches {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.map-swatch-button {
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: 1px solid rgb(0 0 0 / 0.6);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.map-swatch-button[aria-pressed="true"] {
+    outline: 2px solid var(--text);
+    outline-offset: 1px;
+}
+
+.map-kind-fixed {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.map-form-actions {
+    position: sticky;
+    bottom: -0.75rem;
+    margin: 0 -0.85rem -0.75rem !important;
+    padding: 0.5rem 0.85rem 0.6rem;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+}
+
+.map-primary {
+    background-color: var(--primary);
+    color: var(--button-text);
+    font-weight: 600;
+}
+
+.map-editor-actions {
+    flex-direction: row;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.5rem 0 0;
+}
+
+/* ---- legend ---- */
+
+.map-legend {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100% - 3.5rem);
+    max-width: calc(100% - 1.5rem);
+}
+
+.map-legend.open {
+    width: 250px;
+}
+
+.map-legend-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    border: none;
+    border-radius: var(--radius-lg);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.map-legend.open .map-legend-toggle {
+    border-bottom: 1px solid var(--border);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.map-legend-toggle:hover {
+    background: var(--hover);
+}
+
+.map-legend-body {
+    overflow-y: auto;
+    padding: 0.25rem 0.75rem 0.5rem;
+}
+
+.map-legend details {
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.map-legend summary {
+    padding: 0.2rem 0;
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+}
+
+.map-legend .map-hint {
+    margin: 0.5rem 0 0;
 }
 
 .map-layers {
     list-style: none;
-    margin: 0;
+    margin: 0.2rem 0 0;
     padding: 0;
 }
 
@@ -43,9 +491,51 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.15rem 0;
+    padding: 0.12rem 0;
+    font-size: 0.9rem;
     cursor: pointer;
 }
+
+/* A kind shown or hidden: one click on its chip */
+.map-kind-chips {
+    flex-direction: row;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+}
+
+.map-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.15rem 0.5rem 0.15rem 0.25rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: inherit;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.map-chip[aria-pressed="false"] {
+    border-color: var(--border);
+    background: transparent;
+    color: var(--muted);
+    text-decoration: line-through;
+}
+
+.map-chip[aria-pressed="false"] img {
+    opacity: 0.4;
+}
+
+.map-chip .map-kind-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+/* ---- misc ---- */
 
 .map-swatch {
     display: inline-block;
@@ -55,26 +545,24 @@
     border: 1px solid rgb(0 0 0 / 0.6);
 }
 
-.map-goto {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.map-goto input {
-    width: 0;
-    flex: 1;
-    min-width: 0;
-}
-
 .map-hint {
     font-size: 0.85rem;
     opacity: 0.75;
 }
 
 .map-error {
-    color: #e53935;
+    color: var(--danger);
     font-size: 0.9rem;
+}
+
+.map-errors {
+    position: absolute;
+    bottom: 2.75rem;
+    right: 0.75rem;
+    z-index: 2;
+    max-width: min(360px, calc(100% - 1.5rem));
+    margin: 0;
+    padding: 0.4rem 0.7rem;
 }
 
 .map-status {
@@ -82,31 +570,10 @@
     text-align: center;
 }
 
-.map-selection {
-    margin-top: 1rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border-strong);
-    border-radius: 6px;
-}
-
-.map-selection h3 {
-    margin-top: 0;
-}
-
-.map-selection p {
-    margin: 0.2rem 0;
-    overflow-wrap: anywhere;
-}
-
-.map-selection-kind {
-    opacity: 0.7;
-    font-size: 0.85rem;
-}
-
 .map-mouse-position {
     position: absolute;
-    left: 0.5rem;
-    bottom: 0.5rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
     background: rgb(0 0 0 / 0.65);
@@ -116,63 +583,43 @@
     white-space: pre;
 }
 
-@media only screen and (max-width: 800px) {
-    /* Stacked: the page scrolls, the map keeps a fixed height */
-    .map-viewer {
-        flex-direction: column;
-        flex: none;
-        height: auto;
-    }
-
-    .map-canvas {
-        height: 60vh;
-    }
-
-    .map-panel {
-        width: auto;
-        border-left: none;
-        border-top: 1px solid var(--border-strong);
-    }
-}
-
 .map-mouse-position:empty {
     display: none;
-}
-
-.map-editor-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin: 0.4rem 0;
-}
-
-.map-editor-form {
-    gap: 0.5rem;
-}
-
-.map-editor-form label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
 }
 
 .map-kind-icon {
     width: 1.4rem;
     height: 1.4rem;
     flex-shrink: 0;
-}
-
-.map-kind-select {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.map-kind-select select {
-    flex: 1;
-    min-width: 0;
-}
-
-.map-kind-icon {
     image-rendering: pixelated;
+}
+
+@media only screen and (max-width: 800px) {
+    /* The map keeps a fixed height, the page scrolls around it */
+    .map-viewer {
+        flex: none;
+        height: 75vh;
+    }
+
+    .map-left {
+        top: 0.5rem;
+        left: 0.5rem;
+        bottom: 0.5rem;
+        width: calc(100% - 9.5rem);
+    }
+
+    .map-legend {
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+
+    .map-legend.open {
+        width: calc(100% - 1rem);
+        max-height: 70%;
+        z-index: 3;
+    }
+
+    .map-mouse-position {
+        display: none;
+    }
 }

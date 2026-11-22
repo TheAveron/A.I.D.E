@@ -82,6 +82,22 @@ class MarkerKind(str, Enum):
     GENERIC = "generic"  # a plain dot
 
 
+# Generated structures: their loot is either still there or already taken,
+# which the map tells with the `explored` flag.
+STRUCTURE_KINDS = frozenset(
+    {
+        MarkerKind.TRIAL_CHAMBER.value,
+        MarkerKind.VILLAGE.value,
+        MarkerKind.OCEAN_MONUMENT.value,
+        MarkerKind.ANCIENT_CITY.value,
+        MarkerKind.STRONGHOLD.value,
+        MarkerKind.NETHER_BASTION.value,
+        MarkerKind.NETHER_FORTRESS.value,
+        MarkerKind.END_CITY.value,
+    }
+)
+
+
 class FactionPermission(str, Enum):
     """Possible permissions for faction members"""
 

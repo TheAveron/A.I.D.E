@@ -15,7 +15,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..database import Faction, MapMarker, MapTerritory, User
-from ..misc import FactionPermission, MarkerKind, check_faction_permission
+from ..database.clock import utcnow
+from ..misc import (STRUCTURE_KINDS, FactionPermission, MarkerKind,
+                    check_faction_permission)
 from ..schemas import (MarkerCreate, MarkerUpdate, TerritoryCreate,
                        TerritoryUpdate)
 
@@ -212,6 +214,16 @@ def check_spawn_rules(
             )
 
 
+def check_not_a_station(kind) -> None:
+    """A station is a real station (crud/station.py), never a bare marker:
+    otherwise it would show on the map but not in the index of stations."""
+    if getattr(kind, "value", kind) == MarkerKind.STATION.value:
+        raise _error(
+            status.HTTP_400_BAD_REQUEST,
+            "A station is registered as a station, not as a marker",
+        )
+
+
 def is_marker_override(user: User, marker: MapMarker) -> bool:
     if not user.is_admin:
         return False
@@ -228,6 +240,7 @@ def create_marker(
     """Returns the marker and whether an admin made it for somebody else."""
     fields = data.model_dump(exclude={"faction_id", "user_id"})
     override = False
+    check_not_a_station(data.kind)
     check_spawn_rules(db, user, data.map_name, new_kind=data.kind)
     if is_spawn(data.kind):
         # Nobody owns the spawn: it is stored under the admin who sets it
@@ -276,6 +289,8 @@ def create_marker(
             )
         owner = {"user_id": owner_id}
     marker = MapMarker(**fields, **owner)
+    if marker.kind != MarkerKind.GENERIC.value:
+        marker.color = None  # the icon says what it is
     db.add(marker)
     db.flush()
     return marker, override
@@ -285,7 +300,41 @@ def update_marker(
     db: Session, user: User, marker: MapMarker, data: MarkerUpdate
 ) -> MapMarker:
     check_spawn_rules(db, user, marker.map_name, current=marker, new_kind=data.kind)
+    check_not_a_station(data.kind)
     for name, value in data.model_dump(exclude_unset=True).items():
         setattr(marker, name, value.value if hasattr(value, "value") else value)
+    if marker.kind not in STRUCTURE_KINDS:
+        _forget_explored(marker)  # only a structure has loot to take
+    if marker.kind != MarkerKind.GENERIC.value:
+        marker.color = None  # only a generic point is a coloured dot
+    db.flush()
+    return marker
+
+
+# ---- explored structures ----
+
+
+def _forget_explored(marker: MapMarker) -> None:
+    marker.explored = False
+    marker.explored_by_user_id = None
+    marker.explored_at = None
+
+
+def set_explored(
+    db: Session, user: User, marker: MapMarker, explored: bool
+) -> MapMarker:
+    """Anybody logged in may tell that a structure was looted (whoever placed
+    it is rarely the one who loots it); the map shows who said so, and when."""
+    if marker.kind not in STRUCTURE_KINDS:
+        raise _error(
+            status.HTTP_400_BAD_REQUEST, "Only a structure can be marked as explored"
+        )
+    if not explored:
+        _forget_explored(marker)
+    elif not marker.explored:
+        # Marking it again keeps the first explorer
+        marker.explored = True
+        marker.explored_by_user_id = user.user_id
+        marker.explored_at = utcnow()
     db.flush()
     return marker

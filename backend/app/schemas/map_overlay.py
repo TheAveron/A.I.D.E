@@ -123,11 +123,14 @@ class MarkerCreate(BaseModel):
     kind: MarkerKind = MarkerKind.GENERIC
     x: Coordinate
     z: Coordinate
+    # Only a generic point has a colour (the others have their icon)
+    color: Optional[str] = None
     # Exactly one owner; neither means the caller themselves
     faction_id: Optional[int] = None
     user_id: Optional[int] = None
 
     _map = field_validator("map_name")(_map_name)
+    _col = field_validator("color")(_color)
 
     @field_validator("label")
     @classmethod
@@ -152,6 +155,9 @@ class MarkerUpdate(PartialUpdate):
     kind: Optional[MarkerKind] = None
     x: Optional[Coordinate] = None
     z: Optional[Coordinate] = None
+    color: Optional[str] = None
+
+    _col = field_validator("color")(_color)
 
     @field_validator("label")
     @classmethod
@@ -172,9 +178,17 @@ class MarkerOut(BaseModel):
     kind: str
     x: int
     z: int
+    color: Optional[str] = None
+    explored: bool = False
+    explored_by_name: Optional[str] = None
+    explored_at: Optional[UTCDatetime] = None
     faction_id: Optional[int] = None
     user_id: Optional[int] = None
     owner_name: Optional[str] = None
     created_at: UTCDatetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class MarkerExplored(BaseModel):
+    explored: bool

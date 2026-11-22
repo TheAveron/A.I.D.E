@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import (JSON, CheckConstraint, DateTime, ForeignKey, Index,
-                        Integer, String, Text, UniqueConstraint, text)
+from sqlalchemy import (JSON, Boolean, CheckConstraint, DateTime, ForeignKey,
+                        Index, Integer, String, Text, UniqueConstraint, false,
+                        text)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..clock import utcnow
@@ -88,6 +89,20 @@ class MapMarker(Base):
     x: Mapped[int] = mapped_column(Integer, nullable=False)
     z: Mapped[int] = mapped_column(Integer, nullable=False)
 
+    # "#rrggbb" of a generic point's dot; empty: the default one
+    color: Mapped[Optional[str]] = mapped_column(String(7), nullable=True)
+
+    # For a structure (misc.STRUCTURE_KINDS): its valuable loot was taken,
+    # by whom (as they say) and when. Anybody logged in may tell.
+    explored: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default=false()
+    )
+    explored_by_user_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("users.user_id", ondelete="SET NULL"), nullable=True
+    )
+    explored_by = relationship("User", foreign_keys=[explored_by_user_id])
+    explored_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
     faction_id: Mapped[Optional[int]] = mapped_column(
         Integer,
         ForeignKey("factions.faction_id", ondelete="CASCADE"),
@@ -101,7 +116,7 @@ class MapMarker(Base):
         nullable=True,
         index=True,
     )
-    user = relationship("User")
+    user = relationship("User", foreign_keys=[user_id])
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, nullable=False
@@ -115,3 +130,7 @@ class MapMarker(Base):
         if self.faction_id is not None:
             return self.faction.name if self.faction else None
         return self.user.username if self.user else None
+
+    @property
+    def explored_by_name(self) -> Optional[str]:
+        return self.explored_by.username if self.explored_by else None
