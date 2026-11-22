@@ -383,7 +383,8 @@ def test_deleting_a_faction_keeps_its_currency_run(senv):
     _join(senv)
     # Alpha is the last issuer: its (archived) link stays, so the currency is
     # never left without one; a money admin can name another issuer later
-    assert c.delete("/factions/delete/1", headers=senv.h("alice")).status_code == 204
+    r = c.delete("/factions/delete/1", headers=senv.h("alice"))
+    assert r.status_code == 204
     assert _links(senv) == [(1, True), (2, False)]
 
 
