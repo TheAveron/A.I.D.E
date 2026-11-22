@@ -37,7 +37,7 @@ def test_a_faction_can_only_hold_so_many_documents(
     assert r.status_code == 400
     assert "at most 2" in r.json()["detail"]
     # Existing documents stay readable and nothing was written for the refused one
-    assert not (tmp_path / "documents" / "AOS" / "alpha" / "gamma.md").exists()
+    assert not (tmp_path / "documents" / "AgeOfSteam" / "factions" / "alpha" / "gamma.md").exists()
 
 
 def test_a_faction_lists_its_documents(env, monkeypatch, tmp_path):  # noqa: F811
@@ -75,13 +75,13 @@ def test_renaming_a_faction_moves_its_documents(
         "/documents/create", json={"title": "Règles", "content": "x"}, headers=h
     )
     assert r.status_code == 201
-    old = tmp_path / "documents" / "AOS" / "alpha"
+    old = tmp_path / "documents" / "AgeOfSteam" / "factions" / "alpha"
     assert (old / "regles.md").is_file()
 
     r = env.client.put("/factions/update/1", json={"name": "Omega"}, headers=h)
     assert r.status_code == 202
     assert not old.exists()
-    assert (tmp_path / "documents" / "AOS" / "omega" / "regles.md").is_file()
+    assert (tmp_path / "documents" / "AgeOfSteam" / "factions" / "omega" / "regles.md").is_file()
     docs = env.client.get("/documents/faction/1").json()
     assert [d["doc_name"] for d in docs] == ["regles"]
 
@@ -96,7 +96,7 @@ def test_a_rename_that_keeps_the_folder_name_moves_nothing(
     )
     r = env.client.put("/factions/update/1", json={"name": "ALPHA!"}, headers=h)
     assert r.status_code == 202
-    assert (tmp_path / "documents" / "AOS" / "alpha" / "regles.md").is_file()
+    assert (tmp_path / "documents" / "AgeOfSteam" / "factions" / "alpha" / "regles.md").is_file()
 
 
 def test_a_rename_onto_an_existing_folder_is_refused(
@@ -107,12 +107,12 @@ def test_a_rename_onto_an_existing_folder_is_refused(
     env.client.post(
         "/documents/create", json={"title": "Règles", "content": "x"}, headers=h
     )
-    leftover = tmp_path / "documents" / "AOS" / "omega"
+    leftover = tmp_path / "documents" / "AgeOfSteam" / "factions" / "omega"
     leftover.mkdir(parents=True)
     r = env.client.put("/factions/update/1", json={"name": "Omega"}, headers=h)
     assert r.status_code == 409
     # Nothing moved, and the name did not change
-    assert (tmp_path / "documents" / "AOS" / "alpha" / "regles.md").is_file()
+    assert (tmp_path / "documents" / "AgeOfSteam" / "factions" / "alpha" / "regles.md").is_file()
     assert env.client.get("/factions/detail/1").json()["name"] == "Alpha"
 
 
@@ -133,8 +133,8 @@ def test_a_failed_rename_in_the_database_puts_the_folder_back(
     monkeypatch.setattr(faction_api.faction_crud, "update_faction_validation", boom)
     r = env.client.put("/factions/update/1", json={"name": "Omega"}, headers=h)
     assert r.status_code == 400
-    assert (tmp_path / "documents" / "AOS" / "alpha" / "regles.md").is_file()
-    assert not (tmp_path / "documents" / "AOS" / "omega").exists()
+    assert (tmp_path / "documents" / "AgeOfSteam" / "factions" / "alpha" / "regles.md").is_file()
+    assert not (tmp_path / "documents" / "AgeOfSteam" / "factions" / "omega").exists()
 
 
 def _create(env, title, content="x"):  # noqa: F811
@@ -164,7 +164,7 @@ def test_a_document_can_be_rewritten(env, monkeypatch, tmp_path):  # noqa: F811
     )
     assert r.status_code == 200
     assert env.client.get("/documents/faction/1/regles").json()["content"] == "nouveau"
-    folder = tmp_path / "documents" / "AOS" / "alpha"
+    folder = tmp_path / "documents" / "AgeOfSteam" / "factions" / "alpha"
     assert [p.name for p in folder.iterdir()] == ["regles.md"]  # no temp file left
 
 

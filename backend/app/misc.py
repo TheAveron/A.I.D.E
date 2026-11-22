@@ -73,11 +73,11 @@ class TrainService(str, Enum):
 
 
 # The roles every faction is created with, recognized by their name: the
-# leader's can't be changed, the guest's (what joining relies on) can't be
+# leader's can't be changed, the member's (the role new members get) can't be
 # renamed or deleted, and nobody else may take these two names (api/role.py).
 LEADER_ROLE_NAME = "Chef"
 DEPUTY_ROLE_NAME = "Chef Adjoint"
-GUEST_ROLE_NAME = "Invité"
+MEMBER_ROLE_NAME = "Membre"
 
 
 # The maps of the current server, Age of Steam (folders of documents/maps):

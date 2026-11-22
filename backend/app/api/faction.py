@@ -11,8 +11,8 @@ from ..crud import faction_role as faction_role_crud
 from ..crud import normalize
 from ..crud.notification import notify
 from ..database import User, get_db
-from ..misc import (DEPUTY_ROLE_NAME, GUEST_ROLE_NAME, LEADER_ROLE_NAME,
-                    FactionPermission, check_faction_permission)
+from ..misc import (DEPUTY_ROLE_NAME, LEADER_ROLE_NAME, FactionPermission,
+                    check_faction_permission)
 from ..schemas import (FactionCreate, FactionOut, FactionUpdate,
                        LeadershipTransfer)
 from .documentation import archive_faction_folder, move_faction_folder
@@ -230,7 +230,7 @@ def transfer_leadership(
     def power(role) -> int:
         return sum(role.has_permission(p.value) for p in FactionPermission)
 
-    others = [r for r in roles if r.name not in (LEADER_ROLE_NAME, GUEST_ROLE_NAME)]
+    others = [r for r in roles if r.name != LEADER_ROLE_NAME]
     former_role = next((r for r in others if r.name == DEPUTY_ROLE_NAME), None) or (
         max(others, key=power, default=None)
     )

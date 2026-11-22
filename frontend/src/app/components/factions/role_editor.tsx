@@ -7,7 +7,7 @@ import {
     type RolePermission,
     type RoleType,
 } from "../../types/roles";
-import { isGuestRole } from "../../utils/roles";
+import { isMemberRole } from "../../utils/roles";
 
 type Draft = {
     name: string;
@@ -85,8 +85,8 @@ export default function RoleEditor({
                     id="role-name"
                     type="text"
                     maxLength={50}
-                    // The guest role keeps its name: joining relies on it
-                    readOnly={isGuestRole(role)}
+                    // The member role keeps its name: joining relies on it
+                    readOnly={isMemberRole(role)}
                     value={draft.name}
                     onChange={(e) =>
                         setDraft({ ...draft, name: e.target.value })

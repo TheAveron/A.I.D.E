@@ -8,7 +8,7 @@ import { useMe } from "../../hooks/users/me";
 import { useRole } from "../../hooks/factions/role";
 import { useRoles } from "../../hooks/factions/factionroles";
 import RoleEditor from "./role_editor";
-import { isGuestRole, isLeaderRole } from "../../utils/roles";
+import { isMemberRole, isLeaderRole } from "../../utils/roles";
 
 function RolesList({
     roles,
@@ -72,7 +72,7 @@ function RolesList({
                                 Modifier
                             </button>
                             {/* Joining relies on it: the server keeps it */}
-                            {!isGuestRole(role) && (
+                            {!isMemberRole(role) && (
                                 <>
                                     {" "}
                                     <button

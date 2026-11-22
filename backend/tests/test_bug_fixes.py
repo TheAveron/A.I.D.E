@@ -76,7 +76,7 @@ def env():
             manage_roles=True,
             view_transactions=True,
         ),
-        Role(role_id=5, name="Invité", faction_id=1),
+        Role(role_id=5, name="Recrue", faction_id=1),
         Role(
             role_id=6,
             name="Recruteur",
@@ -85,9 +85,9 @@ def env():
             view_transactions=True,
         ),
         Role(role_id=10, name="Chef", faction_id=2, **ALL),
-        Role(role_id=11, name="Invité", faction_id=2),
+        Role(role_id=11, name="Membre", faction_id=2),
         Role(role_id=20, name="Membre", faction_id=3, view_transactions=True),
-        Role(role_id=21, name="Invité", faction_id=3),
+        Role(role_id=21, name="Recrue", faction_id=3),
         Role(role_id=22, name="Chef", faction_id=3, **ALL),
     ]
     s.add_all(roles)
@@ -463,16 +463,16 @@ class TestOfferModificationAndCancellation:
 
 
 class TestJoiningAFaction:
-    def test_joining_gives_the_guest_role_of_that_faction(self, env):
+    def test_joining_gives_the_member_role_of_that_faction(self, env):
         r = env.client.patch(
             "/users/update/7",
-            json={"faction_id": 1, "role_id": 5},
+            json={"faction_id": 1, "role_id": 3},
             headers=env.h("newbie"),
         )
         assert r.status_code == 200, r.text
         s = env.Session()
         u = s.get(User, 7)
-        assert (u.faction_id, u.role_id) == (1, 5)
+        assert (u.faction_id, u.role_id) == (1, 3)
         s.close()
 
     def test_role_is_not_up_to_the_client(self, env):

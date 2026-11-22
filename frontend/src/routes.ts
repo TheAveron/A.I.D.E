@@ -35,10 +35,6 @@ const aideRoutes = [
             { id: "document-new" },
         ),
         route(
-            "faction/:factionid/documents/:docname",
-            "./app/pages/factions/faction_document.tsx",
-        ),
-        route(
             "faction/:factionid/documents/:docname/edit",
             "./app/pages/factions/document_editor.tsx",
             { id: "document-edit" },
@@ -65,9 +61,16 @@ const aideRoutes = [
         ]),
     ]),
 
+    // The factions' documents are public, like the API that serves them
+    route(
+        "faction/:factionid/documents/:docname",
+        "./app/pages/factions/faction_document.tsx",
+    ),
+
     route("actual", "./app/pages/archives/maps/currentmap.tsx"),
     route("network", "./app/pages/network/network.tsx"),
 
+    route("documentation", "./app/pages/documentation/documentation.tsx"),
     ...prefix("documentation/AgeOfSteam", [
         index("./app/pages/documentation/aos_document.tsx", {
             id: "aos-doc-index",

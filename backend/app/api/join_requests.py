@@ -3,7 +3,7 @@
 A faction with `requires_approval` can't be joined directly (PATCH
 /users/update/{id}); the applicant asks here and a member holding
 `handle_members` accepts or refuses. Accepting is what moves the applicant
-into the faction, as a guest, exactly like a direct join would.
+into the faction, as a member, exactly like a direct join would.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -16,7 +16,7 @@ from ..crud import faction_role as crud_role
 from ..crud.notification import members_with_permission, notify, notify_many
 from ..database import JoinRequest, User, get_db
 from ..database.clock import utcnow
-from ..misc import (GUEST_ROLE_NAME, LEADER_ROLE_NAME, FactionPermission,
+from ..misc import (LEADER_ROLE_NAME, MEMBER_ROLE_NAME, FactionPermission,
                     JoinRequestStatus, check_faction_permission)
 from ..schemas import JoinRequestCreate, JoinRequestOut
 
@@ -162,17 +162,17 @@ def accept_join_request(
     )
 
     applicant = join_request.user
-    guest_role = next(
+    member_role = next(
         (
             role
             for role in crud_role.get_roles_by_faction(db, join_request.faction_id)
-            if role.name == GUEST_ROLE_NAME
+            if role.name == MEMBER_ROLE_NAME
         ),
         None,
     )
-    if not guest_role:
+    if not member_role:
         raise HTTPException(
-            status_code=400, detail="This faction has no guest role to join with"
+            status_code=400, detail="This faction has no member role to join with"
         )
 
     if _is_leader_of_a_real_faction(applicant):
@@ -186,7 +186,7 @@ def accept_join_request(
 
     # The move and the closing of the request are one transaction.
     applicant.faction_id = join_request.faction_id
-    applicant.role_id = guest_role.role_id
+    applicant.role_id = member_role.role_id
     _close(join_request, JoinRequestStatus.ACCEPTED, current_user)
     notify(
         db,

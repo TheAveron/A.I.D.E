@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..database import Role, User
-from ..misc import (DEPUTY_ROLE_NAME, GUEST_ROLE_NAME, LEADER_ROLE_NAME,
+from ..misc import (DEPUTY_ROLE_NAME, LEADER_ROLE_NAME, MEMBER_ROLE_NAME,
                     FactionPermission)
 from ..schemas import RoleCreate, RoleUpdate
 
@@ -147,7 +147,7 @@ def create_default_faction_roles(
             },
         },
         {
-            "name": "Membre",
+            "name": MEMBER_ROLE_NAME,
             "description": "Membre normal",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: False,
@@ -159,21 +159,6 @@ def create_default_faction_roles(
                 FactionPermission.MANAGE_TRAINS: False,
                 FactionPermission.MANAGE_TERRITORY: False,
                 FactionPermission.VIEW_TRANSACTIONS: True,
-            },
-        },
-        {
-            "name": GUEST_ROLE_NAME,
-            "description": "Souhaite rejoindre la faction",
-            "permissions": {
-                FactionPermission.ACCEPT_OFFERS: False,
-                FactionPermission.CREATE_OFFERS: False,
-                FactionPermission.MANAGE_FUNDS: False,
-                FactionPermission.HANDLE_MEMBERS: False,
-                FactionPermission.MANAGE_ROLES: False,
-                FactionPermission.MANAGE_DOCS: False,
-                FactionPermission.MANAGE_TRAINS: False,
-                FactionPermission.MANAGE_TERRITORY: False,
-                FactionPermission.VIEW_TRANSACTIONS: False,
             },
         },
     ]

@@ -189,7 +189,7 @@ function LoggedInNav() {
                     <Link className="link" to="/network">
                         Réseau ferré
                     </Link>
-                    <Link className="link" to="/documentation/AgeOfSteam">
+                    <Link className="link" to="/documentation">
                         Documentation
                     </Link>
                     <Link className="link" to="/archives">
@@ -244,7 +244,7 @@ function LoggedOutNav() {
                 <Link className="link" to="/network">
                     Réseau ferré
                 </Link>
-                <Link className="link" to="/documentation/AgeOfSteam">
+                <Link className="link" to="/documentation">
                     Documentation
                 </Link>
                 <Link className="link" to="/archives">
