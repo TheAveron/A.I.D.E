@@ -2,7 +2,8 @@
 
 - a faction's territories and markers are changed by members holding
   `manage_territory` in that faction, and by admins, who may change anything;
-- a player's own markers are theirs to change (and admins');
+- a player's own territories and markers are theirs to change (and admins'):
+  anybody logged in may draw land for themselves;
 - anybody can read all of it.
 
 The audit trail only records an admin acting on what is not theirs.
@@ -22,6 +23,7 @@ from ..schemas import (MarkerCreate, MarkerUpdate, TerritoryCreate,
                        TerritoryUpdate)
 
 MAX_TERRITORIES_PER_FACTION = 20
+MAX_TERRITORIES_PER_USER = 5
 MAX_MARKERS_PER_FACTION = 200
 MAX_MARKERS_PER_USER = 50
 
@@ -59,8 +61,11 @@ def _live_faction(db: Session, faction_id: int) -> Faction:
 def list_territories(db: Session, map_name: str) -> list[MapTerritory]:
     return (
         db.query(MapTerritory)
-        .join(Faction, Faction.faction_id == MapTerritory.faction_id)
-        .filter(MapTerritory.map_name == map_name, Faction.deleted_at.is_(None))
+        .outerjoin(Faction, Faction.faction_id == MapTerritory.faction_id)
+        .filter(
+            MapTerritory.map_name == map_name,
+            (MapTerritory.faction_id.is_(None)) | (Faction.deleted_at.is_(None)),
+        )
         .order_by(MapTerritory.territory_id)
         .all()
     )
@@ -73,54 +78,80 @@ def get_territory(db: Session, territory_id: int) -> MapTerritory:
     return territory
 
 
+def _owns_territory(user: User, territory: MapTerritory) -> bool:
+    """The rights that come from owning it, without the admin's."""
+    if territory.user_id is not None:
+        return territory.user_id == user.user_id
+    return holds_manage_territory(user, territory.faction_id)
+
+
 def can_manage_territory(user: User, territory: MapTerritory) -> bool:
-    return user.is_admin or holds_manage_territory(user, territory.faction_id)
+    return user.is_admin or _owns_territory(user, territory)
 
 
 def check_can_manage_territory(user: User, territory: MapTerritory) -> None:
     if not can_manage_territory(user, territory):
         raise _error(
             status.HTTP_403_FORBIDDEN,
-            "Changing a faction's territory needs manage_territory in it",
+            "A faction's territory needs manage_territory in it; "
+            "a player's is theirs alone",
         )
 
 
 def is_territory_override(user: User, territory: MapTerritory) -> bool:
-    return user.is_admin and not holds_manage_territory(user, territory.faction_id)
+    return user.is_admin and not _owns_territory(user, territory)
+
+
+def _name_taken() -> HTTPException:
+    return _error(
+        status.HTTP_409_CONFLICT, "This owner already has a territory of that name"
+    )
 
 
 def create_territory(
     db: Session, user: User, data: TerritoryCreate
 ) -> tuple[MapTerritory, bool]:
-    """Returns the territory and whether an admin made it for another faction."""
-    _live_faction(db, data.faction_id)
-    holds = holds_manage_territory(user, data.faction_id)
-    if not user.is_admin and not holds:
-        raise _error(
-            status.HTTP_403_FORBIDDEN,
-            "Drawing a faction's territory needs manage_territory in it",
-        )
-    count = (
-        db.query(MapTerritory)
-        .filter_by(map_name=data.map_name, faction_id=data.faction_id)
-        .count()
-    )
-    if count >= MAX_TERRITORIES_PER_FACTION:
-        raise _error(
-            status.HTTP_409_CONFLICT,
-            f"A faction has at most {MAX_TERRITORIES_PER_FACTION} territories per map",
-        )
-    territory = MapTerritory(**data.model_dump(), created_by_user_id=user.user_id)
+    """Returns the territory and whether an admin made it for somebody else.
+
+    A faction's needs manage_territory in it; without that, a member (like
+    anybody logged in) draws only for themselves.
+    """
+    fields = data.model_dump(exclude={"faction_id", "user_id"})
+    if data.faction_id is not None:
+        _live_faction(db, data.faction_id)
+        holds = holds_manage_territory(user, data.faction_id)
+        if not user.is_admin and not holds:
+            raise _error(
+                status.HTTP_403_FORBIDDEN,
+                "Drawing a faction's territory needs manage_territory in it",
+            )
+        override = user.is_admin and not holds
+        owner, limit = {"faction_id": data.faction_id}, MAX_TERRITORIES_PER_FACTION
+        too_many = f"A faction has at most {limit} territories per map"
+    else:
+        owner_id = data.user_id if data.user_id is not None else user.user_id
+        override = owner_id != user.user_id
+        if override:
+            if not user.is_admin:
+                raise _error(
+                    status.HTTP_403_FORBIDDEN,
+                    "You can only draw your own territories",
+                )
+            if not db.get(User, owner_id):
+                raise _error(status.HTTP_404_NOT_FOUND, "User not found")
+        owner, limit = {"user_id": owner_id}, MAX_TERRITORIES_PER_USER
+        too_many = f"A player has at most {limit} territories per map"
+    count = db.query(MapTerritory).filter_by(map_name=data.map_name, **owner).count()
+    if count >= limit:
+        raise _error(status.HTTP_409_CONFLICT, too_many)
+    territory = MapTerritory(**fields, **owner, created_by_user_id=user.user_id)
     db.add(territory)
     try:
         db.flush()
     except IntegrityError:
         db.rollback()
-        raise _error(
-            status.HTTP_409_CONFLICT,
-            "This faction already has a territory of that name",
-        )
-    return territory, user.is_admin and not holds
+        raise _name_taken()
+    return territory, override
 
 
 def update_territory(
@@ -132,10 +163,7 @@ def update_territory(
         db.flush()
     except IntegrityError:
         db.rollback()
-        raise _error(
-            status.HTTP_409_CONFLICT,
-            "This faction already has a territory of that name",
-        )
+        raise _name_taken()
     return territory
 
 

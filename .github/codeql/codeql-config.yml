@@ -1,0 +1,7 @@
+# Configuration of the CodeQL analysis (.github/workflows/codeql.yml)
+
+paths-ignore:
+  # Alembic migrations: `revision`, `down_revision`, `branch_labels` and
+  # `depends_on` are read by Alembic, never by our code, which CodeQL reports
+  # as unused global variables in every file.
+  - backend/alembic/versions

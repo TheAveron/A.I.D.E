@@ -17,7 +17,7 @@ import { getErrorMessage } from "../../utils/apierror";
 import {
     DEFAULT_POINT_COLOR,
     PALETTE,
-    factionColor,
+    territoryColor,
     normalizeHex,
 } from "../../utils/mapcolors";
 import { iconUrl } from "../../utils/mapicons";
@@ -239,7 +239,6 @@ export default function MapEditor({
     const isAdmin = rights.isAdmin;
     // One spawn per map, and only an admin sets it
     const spawnExists = markers.some((m) => m.kind === "spawn");
-    const canDraw = rights.loggedIn && (isAdmin || rights.factionId !== null);
 
     const territory =
         selected?.type === "territory"
@@ -339,7 +338,7 @@ export default function MapEditor({
     }
 
     function newTerritory() {
-        const factionId = isAdmin ? null : rights.factionId;
+        // Your own land first: drawing for a faction is a choice
         close();
         pointsRef.current = [];
         setDraft({
@@ -347,8 +346,12 @@ export default function MapEditor({
             id: null,
             name: "",
             description: "",
-            color: factionColor(factionId ?? 0),
-            factionId,
+            color: territoryColor({
+                faction_id: null,
+                user_id: rights.user?.user_id ?? null,
+                color: null,
+            }),
+            factionId: null,
         });
     }
 
@@ -361,7 +364,7 @@ export default function MapEditor({
             id: t.territory_id,
             name: t.name,
             description: t.description ?? "",
-            color: factionColor(t.faction_id, t.color),
+            color: territoryColor(t),
             factionId: t.faction_id,
         });
     }
@@ -442,10 +445,6 @@ export default function MapEditor({
                     setError("Tracez d'abord le contour (3 points au moins).");
                     return;
                 }
-                if (draft.id === null && draft.factionId === null) {
-                    setError("Choisissez une faction.");
-                    return;
-                }
                 const body = {
                     name: draft.name,
                     description: draft.description.trim() || null,
@@ -456,7 +455,9 @@ export default function MapEditor({
                     await axios.post("/map/territories", {
                         ...body,
                         map_name: folder,
-                        faction_id: draft.factionId,
+                        ...(draft.factionId !== null
+                            ? { faction_id: draft.factionId }
+                            : {}),
                     });
                 } else {
                     await axios.put(`/map/territories/${draft.id}`, body);
@@ -587,16 +588,14 @@ export default function MapEditor({
             >
                 ＋ Point
             </button>
-            {canDraw && (
-                <button
-                    type="button"
-                    className="button"
-                    title="Dessiner le territoire d'une faction"
-                    onClick={newTerritory}
-                >
-                    ＋ Territoire
-                </button>
-            )}
+            <button
+                type="button"
+                className="button"
+                title="Dessiner votre territoire ou celui de votre faction"
+                onClick={newTerritory}
+            >
+                ＋ Territoire
+            </button>
             {isAdmin && !spawnExists && (
                 <button
                     type="button"
@@ -794,24 +793,32 @@ export default function MapEditor({
                             }
                         />
                     </label>
-                    {draft.id === null && (
-                        <label>
-                            Faction
-                            <FactionSelect
-                                value={draft.factionId}
-                                includeMe={false}
-                                isAdmin={isAdmin}
-                                ownFactionId={rights.factionId}
-                                onChange={(id) =>
-                                    setDraft({
-                                        ...draft,
-                                        factionId: id,
-                                        color: factionColor(id ?? 0),
-                                    })
-                                }
-                            />
-                        </label>
-                    )}
+                    {/* Without manage_territory there is only "Moi" */}
+                    {draft.id === null &&
+                        (isAdmin || rights.factionId !== null) && (
+                            <label>
+                                Pour
+                                <FactionSelect
+                                    value={draft.factionId}
+                                    includeMe
+                                    isAdmin={isAdmin}
+                                    ownFactionId={rights.factionId}
+                                    onChange={(id) =>
+                                        setDraft({
+                                            ...draft,
+                                            factionId: id,
+                                            color: territoryColor({
+                                                faction_id: id,
+                                                user_id:
+                                                    rights.user?.user_id ??
+                                                    null,
+                                                color: null,
+                                            }),
+                                        })
+                                    }
+                                />
+                            </label>
+                        )}
                     <div className="map-form-row">
                         <label className="map-grow">
                             Description

@@ -20,14 +20,19 @@ import {
 } from "ol/style";
 import type { FeatureLike } from "ol/Feature";
 
-import { MARKER_KINDS } from "../../types/map";
+import { MARKER_KINDS, toNetherCoords } from "../../types/map";
 import type { MarkerKind } from "../../types/map";
 import { DIMENSIONS } from "../../types/trains";
-import { factionColor, withAlpha } from "../../utils/mapcolors";
+import {
+    factionColor,
+    territoryColor,
+    withAlpha,
+} from "../../utils/mapcolors";
 import { iconUrl } from "../../utils/mapicons";
 import { buildGeometry } from "../../utils/unmined";
 import type { MapGeometry, UnminedData } from "../../utils/unmined";
 import { useMapOverlay, useUnminedData } from "../../hooks/network/map";
+import { useSavedMapDisplay } from "../../hooks/network/mapdisplay";
 import MapEditor, { type EntityRef } from "./map_editor";
 
 export interface Selection {
@@ -168,7 +173,8 @@ function MapCanvas({
     const layers = useRef<Record<LayerKey, VectorLayer<VectorSource>> | null>(
         null,
     );
-    const hiddenFactions = useRef<Set<number>>(new Set());
+    // null: the players' own territories
+    const hiddenFactions = useRef<Set<number | null>>(new Set());
     const hiddenKinds = useRef<Set<MarkerKind>>(new Set());
     // Set by the editor: a drawing in progress ignores clicks, and a pick
     // takes the next click as coordinates.
@@ -186,13 +192,45 @@ function MapCanvas({
         markers: true,
         players: true,
     });
-    const [hidden, setHidden] = useState<number[]>([]);
+    const [hidden, setHidden] = useState<(number | null)[]>([]);
     const [hiddenKindList, setHiddenKindList] = useState<MarkerKind[]>([]);
     const [selection, setSelection] = useState<Selection | null>(null);
     const [coords, setCoords] = useState({ x: "", z: "" });
     const [goError, setGoError] = useState<string | null>(null);
     const [gotoOpen, setGotoOpen] = useState(false);
     const [legendOpen, setLegendOpen] = useState(initialLegendOpen);
+
+    // What was shown last time: put back once known, then saved on each
+    // change, silently (hooks/network/mapdisplay.tsx)
+    const saved = useSavedMapDisplay();
+    const [restored, setRestored] = useState(false);
+    useEffect(() => {
+        if (!saved.ready || restored) return;
+        const d = saved.initial;
+        if (d) {
+            setVisible({
+                territories: !d.hidden_layers.includes("territories"),
+                stations: !d.hidden_layers.includes("stations"),
+                markers: !d.hidden_layers.includes("markers"),
+                players: !d.hidden_layers.includes("players"),
+            });
+            setHidden(d.hidden_factions);
+            setHiddenKindList(d.hidden_kinds as MarkerKind[]);
+        }
+        setRestored(true);
+    }, [saved.ready, saved.initial, restored]);
+    const { save } = saved;
+    useEffect(() => {
+        // Not before it was put back: the defaults would replace it
+        if (!restored) return;
+        save({
+            hidden_layers: (Object.keys(visible) as LayerKey[]).filter(
+                (key) => !visible[key],
+            ),
+            hidden_kinds: hiddenKindList,
+            hidden_factions: hidden,
+        });
+    }, [restored, visible, hidden, hiddenKindList, save]);
 
     function toggleLegend() {
         setLegendOpen((open) => {
@@ -245,7 +283,7 @@ function MapCanvas({
         layers.current = vectors;
 
         vectors.territories.setStyle((feature: FeatureLike) => {
-            const factionId = feature.get("factionId") as number;
+            const factionId = feature.get("factionId") as number | null;
             if (hiddenFactions.current.has(factionId)) return undefined;
             const color = feature.get("color") as string;
             return new Style({
@@ -365,7 +403,10 @@ function MapCanvas({
             overlay.territories.map((t) => {
                 const ring = t.points.map((p) => geometry.toView(p));
                 ring.push(ring[0]);
-                const faction = t.faction_name ?? `Faction ${t.faction_id}`;
+                const owner =
+                    t.faction_id !== null
+                        ? `Faction : ${t.faction_name ?? `n°${t.faction_id}`}`
+                        : `Joueur : ${t.owner_name ?? "?"}`;
                 return new Feature({
                     geometry: new Polygon([ring]),
                     title: t.name,
@@ -373,9 +414,9 @@ function MapCanvas({
                     entity: "territory",
                     entityId: t.territory_id,
                     factionId: t.faction_id,
-                    color: factionColor(t.faction_id, t.color),
+                    color: territoryColor(t),
                     details: [
-                        `Faction : ${faction}`,
+                        owner,
                         ...(t.description ? [t.description] : []),
                     ],
                 });
@@ -423,7 +464,9 @@ function MapCanvas({
         if (!geometry || !source) return;
         source.clear();
         const colors = new Map<number, string | null>(
-            overlay.territories.map((t) => [t.faction_id, t.color]),
+            overlay.territories
+                .filter((t) => t.faction_id !== null)
+                .map((t) => [t.faction_id as number, t.color]),
         );
         source.addFeatures(
             overlay.markers.map(
@@ -455,7 +498,39 @@ function MapCanvas({
                     }),
             ),
         );
-    }, [overlay.markers, overlay.territories, unmined, folder]);
+        // In the Nether: the Overworld's projects where their portal would
+        // be. Read only here, they are changed on the Overworld map.
+        source.addFeatures(
+            overlay.overworldProjects.map((m) => {
+                const [nx, nz] = toNetherCoords(m.x, m.z);
+                return new Feature({
+                    geometry: new Point(geometry.toView([nx, nz])),
+                    title: m.label,
+                    color:
+                        m.faction_id != null
+                            ? factionColor(
+                                  m.faction_id,
+                                  colors.get(m.faction_id),
+                              )
+                            : undefined,
+                    markerKind: m.kind,
+                    kindLabel: `${MARKER_KINDS.city} (Overworld)`,
+                    details: [
+                        `Nether : X ${nx}   Z ${nz}`,
+                        `Overworld : X ${m.x}   Z ${m.z}`,
+                        ...(m.owner_name ? [`Par : ${m.owner_name}`] : []),
+                        ...(m.description ? [m.description] : []),
+                    ],
+                });
+            }),
+        );
+    }, [
+        overlay.markers,
+        overlay.overworldProjects,
+        overlay.territories,
+        unmined,
+        folder,
+    ]);
 
     // Online players, as written by the last export
     useEffect(() => {
@@ -500,24 +575,37 @@ function MapCanvas({
     // Stations are not among them: their own layer ("Gares") shows or hides
     // them.
     const kinds = useMemo(() => {
-        const present = new Set<MarkerKind>(overlay.markers.map((m) => m.kind));
+        const present = new Set<MarkerKind>(
+            [...overlay.markers, ...overlay.overworldProjects].map(
+                (m) => m.kind,
+            ),
+        );
         return (Object.keys(MARKER_KINDS) as MarkerKind[]).filter((k) =>
             present.has(k),
         );
-    }, [overlay.markers]);
+    }, [overlay.markers, overlay.overworldProjects]);
 
+    // The owners of territories: each faction, and the players as one entry
+    // (null), last
     const factions = useMemo(() => {
-        const seen = new Map<number, { name: string; color: string }>();
+        const seen = new Map<number | null, { name: string; color: string }>();
         for (const t of overlay.territories) {
             if (!seen.has(t.faction_id)) {
                 seen.set(t.faction_id, {
-                    name: t.faction_name ?? `Faction ${t.faction_id}`,
-                    color: factionColor(t.faction_id, t.color),
+                    name:
+                        t.faction_id === null
+                            ? "Territoires des joueurs"
+                            : (t.faction_name ?? `Faction ${t.faction_id}`),
+                    color: territoryColor(t),
                 });
             }
         }
         return [...seen.entries()].sort((a, b) =>
-            a[1].name.localeCompare(b[1].name),
+            a[0] === null
+                ? 1
+                : b[0] === null
+                  ? -1
+                  : a[1].name.localeCompare(b[1].name),
         );
     }, [overlay.territories]);
 
@@ -554,7 +642,7 @@ function MapCanvas({
         );
     }
 
-    function toggleFaction(id: number) {
+    function toggleFaction(id: number | null) {
         setHidden((current) =>
             current.includes(id)
                 ? current.filter((f) => f !== id)
@@ -724,10 +812,10 @@ function MapCanvas({
 
                         {factions.length > 0 && (
                             <details>
-                                <summary>Factions ({factions.length})</summary>
+                                <summary>Propriétaires ({factions.length})</summary>
                                 <ul className="map-layers">
                                     {factions.map(([id, f]) => (
-                                        <li key={id}>
+                                        <li key={id ?? "players"}>
                                             <label>
                                                 <input
                                                     type="checkbox"

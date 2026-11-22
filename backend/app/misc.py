@@ -85,6 +85,7 @@ class MarkerKind(str, Enum):
     NETHER_BASTION = "nether_bastion"
     NETHER_FORTRESS = "nether_fortress"
     END_CITY = "end_city"
+    WOODLAND_MANSION = "woodland_mansion"
     SPAWN = "spawn"
     GENERIC = "generic"  # a plain dot
 
@@ -101,6 +102,7 @@ STRUCTURE_KINDS = frozenset(
         MarkerKind.NETHER_BASTION.value,
         MarkerKind.NETHER_FORTRESS.value,
         MarkerKind.END_CITY.value,
+        MarkerKind.WOODLAND_MANSION.value,
     }
 )
 
