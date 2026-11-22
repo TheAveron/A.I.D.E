@@ -1,4 +1,4 @@
-fastapi==0.165.1
+fastapi==0.165.0
 fastapi-cli==0.0.8
 fastapi-cloud-cli==0.1.5
 pydantic==2.11.7
