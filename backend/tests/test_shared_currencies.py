@@ -225,9 +225,10 @@ def test_refusing_and_withdrawing(senv):
         "request_id"
     ]
     # only the asking side withdraws
-    assert c.delete(
+    r = c.delete(
         f"/currencies/links/{rid}", headers=senv.h("alice")
-    ).status_code == (403)
+    )
+    assert r.status_code == 403
     r = c.delete(f"/currencies/links/{rid}", headers=senv.h("bob"))
     assert r.status_code == 204
     assert _links(senv) == [(1, True)]
