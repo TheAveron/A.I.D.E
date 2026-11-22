@@ -295,7 +295,6 @@ def test_a_faction_leaves_or_is_removed(senv):
     _join(senv)
     response = c.delete(f"/currencies/{DIAMANT}/factions/2", headers=senv.h("carl"))
     assert response.status_code == 403
-    ).status_code == 403
     response = c.delete(f"/currencies/{DIAMANT}/factions/2", headers=senv.h("bob"))
     assert response.status_code == 200
     assert _links(senv) == [(1, True)]
