@@ -337,7 +337,8 @@ def test_a_money_admin_runs_every_currency_and_is_audited(senv):
     assert c.put(f"/currencies/{DIAMANT}/factions/2/issuer", headers=h).status_code == (
         200
     )
-    assert c.delete(f"/currencies/{DIAMANT}/factions/1", headers=h).status_code == 200
+    delete_resp = c.delete(f"/currencies/{DIAMANT}/factions/1", headers=h)
+    assert delete_resp.status_code == 200
     assert _links(senv) == [(2, True)]
 
     assert [a for a in _audit(senv)] == [
