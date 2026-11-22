@@ -7,6 +7,9 @@ interface UpdateFactionButtonProps {
     currentFactionId: number | null;
     currentRoleId: number | null;
     factionId: number;
+    factionName: string;
+    // The faction (and role) the user leaves by joining, if any
+    currentFactionName: string | null;
     onUpdate?: () => void;
 }
 
@@ -15,6 +18,8 @@ export function UpdateFactionButton({
     currentFactionId,
     currentRoleId,
     factionId,
+    factionName,
+    currentFactionName,
     onUpdate,
 }: UpdateFactionButtonProps) {
     const {
@@ -58,6 +63,11 @@ export function UpdateFactionButton({
             return;
         }
 
+        const question = currentFactionName
+            ? `Rejoindre « ${factionName} » ? Vous quitterez « ${currentFactionName} » et votre rôle actuel.`
+            : `Rejoindre « ${factionName} » ?`;
+        if (!window.confirm(question)) return;
+
         try {
             const updatedUser = await updateUser(userId, {
                 faction_id: factionId,
@@ -65,8 +75,8 @@ export function UpdateFactionButton({
             });
 
             if (updatedUser) {
-                setMessage("Faction et rôles mis à jour avec succès.");
-                if (onUpdate) onUpdate();
+                // The row loses its button once the user is in the faction
+                onUpdate?.();
             } else {
                 setMessage("Erreur lors de la mise à jour de l'utilisateur.");
             }

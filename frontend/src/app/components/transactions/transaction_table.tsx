@@ -29,7 +29,7 @@ export function OfferRow({ transaction }: { transaction: TransactionType }) {
                     {transaction.transaction_id}: {error}
                 </td>
             ) : loading || !offer ? (
-                <td colSpan={4}>Chargement de la transaction...</td>
+                <td colSpan={5}>Chargement de la transaction...</td>
             ) : (
                 <>
                     <td>{offer.item_description}</td>
@@ -80,12 +80,16 @@ export default function TransactionsTable({
     offerId = null,
     perPage = 10,
     title = "Transactions",
+    hideWhenEmpty = false,
 }: {
     factionId?: string | null;
     userId?: string | null;
     offerId?: string | null;
     perPage?: number;
     title?: string;
+    // On another player's page the server returns only what the viewer took
+    // part in, usually nothing: no empty table then
+    hideWhenEmpty?: boolean;
 }) {
     // The server only returns what the viewer may see and applies the filters.
     const { transactions, loading, error } = useTransactions({
@@ -97,6 +101,10 @@ export default function TransactionsTable({
         transactions ?? [],
         perPage,
     );
+
+    if (hideWhenEmpty && !loading && !error && !transactions?.length) {
+        return null;
+    }
 
     return (
         <div className="snippet-container transactions-container">

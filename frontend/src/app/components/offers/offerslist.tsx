@@ -69,7 +69,9 @@ function OfferRow({
             <td>
                 {offer.status === "OPEN" ? offer.quantity : offer.init_quantity}
             </td>
-            <td>{offer.price_per_unit}</td>
+            <td>
+                {offer.price_per_unit} {offer.currency_name}
+            </td>
             <td>
                 {new Date(offer.created_at).toLocaleDateString("fr-FR", {
                     day: "2-digit",
@@ -85,6 +87,7 @@ function OfferRow({
                     <AcceptOfferButton
                         offerId={offer.offer_id}
                         offerQuantity={offer.quantity}
+                        offerType={offer.offer_type}
                         offerUserId={offer.user_id}
                         offerFactionId={offer.faction_id}
                         onAccepted={onAccepted}
@@ -113,10 +116,14 @@ export default function OfferList({
     userId,
     factionId,
     offersPerPage = 10,
+    canCreate = true,
 }: {
     userId?: string | null;
     factionId?: string | null;
     offersPerPage?: number;
+    // Whether to offer creating one here: not on another player's or
+    // another faction's page, where the new offer wouldn't show up
+    canCreate?: boolean;
 }) {
     const [search, setSearch] = useState("");
     // The text is sent to the server once typing pauses
@@ -194,7 +201,7 @@ export default function OfferList({
         <div className="snippet-container offers-container">
             <div className="offers-header">
                 <h2>Liste des offres</h2>
-                <NewOffer onCreated={refresh} />
+                {canCreate && <NewOffer onCreated={refresh} />}
             </div>
 
             <ToolbarPanels

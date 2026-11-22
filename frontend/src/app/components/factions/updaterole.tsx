@@ -107,7 +107,7 @@ export function UpdateRole({
     return (
         <div>
             <button type="button" className="button" onClick={openModal}>
-                edit
+                Changer le rôle
             </button>
 
             {isOpen && (

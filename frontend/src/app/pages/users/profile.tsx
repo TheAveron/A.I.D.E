@@ -34,7 +34,7 @@ function ProfileComponent() {
                         height: "calc(100vh - var(--header-height))",
                     }}
                 >
-                    Error: No profile data found.
+                    Profil introuvable.
                 </div>
             )
         ) : (

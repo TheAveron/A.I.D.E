@@ -52,7 +52,7 @@ export const offerSchema = yup.object().shape({
 export function useOffer(offer_id?: number): OfferHook {
     const { data, loading, error } = useApiGet<OfferType>(
         offer_id != null ? `/offers/detail/${offer_id}` : null,
-        "Failed to fetch offer",
+        "Impossible de charger l'offre",
     );
 
     return { offer: data, loading, error };
@@ -111,7 +111,7 @@ export function useOffersList(filters: OffersFilters): OffersHook {
 
     const { data, loading, error, refresh } = useApiGet<OfferType[]>(
         `/offers/list?${query}`,
-        "Failed to fetch offers",
+        "Impossible de charger les offres",
     );
 
     return { offers: data ?? [], loading, error, refresh };

@@ -53,7 +53,7 @@ function DocuLoader({ url, linkBase, withTitle = false }: DocParams) {
                     return;
                 }
                 console.error(err);
-                setError("Error loading content.");
+                setError("Impossible de charger le document.");
             });
 
         return () => controller.abort();

@@ -8,7 +8,7 @@ const FACTIONS_URL = "/factions/list?limit=500";
 export function useFactions(): FactionsHook {
     const { data, loading, error, refresh } = useApiGet<FactionType[]>(
         FACTIONS_URL,
-        "Failed to fetch factions",
+        "Impossible de charger les factions",
     );
 
     return { factions: data, loading, error, refresh };

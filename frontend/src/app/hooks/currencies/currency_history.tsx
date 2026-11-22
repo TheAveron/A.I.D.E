@@ -22,7 +22,7 @@ export function useCurrencyHistory(
         currencyId !== null
             ? `/currencies/history/${currencyId}?limit=${MAX_ENTRIES}`
             : null,
-        "Error fetching currency history",
+        "Impossible de charger l'historique de la monnaie",
     );
 
     return { histories: data, loading, error, refresh };

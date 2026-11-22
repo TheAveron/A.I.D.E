@@ -9,7 +9,7 @@ import type { JoinRequestType } from "../../types/joinrequests";
 export function useMyJoinRequest() {
     const { data, loading, error, refresh } = useApiGet<JoinRequestType | null>(
         "/join_requests/mine",
-        "Error fetching your join request",
+        "Impossible de charger votre demande d'adhésion",
     );
 
     return { request: data, loading, error, refresh };
@@ -24,7 +24,7 @@ export function useFactionJoinRequests(factionId: string | null) {
         factionId
             ? `/join_requests/faction/${encodeURIComponent(factionId)}`
             : null,
-        "Error fetching join requests",
+        "Impossible de charger les demandes d'adhésion",
     );
 
     return { requests: data ?? [], loading, error, refresh };

@@ -8,7 +8,7 @@ export function useMemberCounts(): {
 } {
     const { data, loading, refresh } = useApiGet<Record<string, number>>(
         "/factions/member_counts",
-        "Error fetching member counts",
+        "Impossible de charger le nombre de membres",
     );
 
     return { counts: data ?? {}, loading, refresh };

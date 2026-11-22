@@ -1,4 +1,7 @@
-import { useJoinRequestActions, useMyJoinRequest } from "../../hooks/factions/joinrequests";
+import {
+    useJoinRequestActions,
+    useMyJoinRequest,
+} from "../../hooks/factions/joinrequests";
 
 /**
  * For a faction that takes members on request only: ask to join it, or
@@ -40,17 +43,17 @@ export function RequestJoinButton({
         );
     }
 
+    // One open request at a time: nothing to click while another is pending
+    if (request) {
+        return <small>Demande en cours dans une autre faction</small>;
+    }
+
     return (
         <>
             <button
                 type="button"
                 className="button"
-                disabled={loading || request !== null}
-                title={
-                    request
-                        ? "Vous avez déjà une demande en attente dans une autre faction"
-                        : undefined
-                }
+                disabled={loading}
                 onClick={async () => {
                     if (await create(factionId)) done();
                 }}

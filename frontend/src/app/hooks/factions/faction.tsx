@@ -33,7 +33,7 @@ export function useFaction(faction_id: string | null): FactionHook {
         faction_id
             ? `/factions/detail/${encodeURIComponent(faction_id)}`
             : null,
-        "Error fetching faction",
+        "Impossible de charger la faction",
     );
 
     return { faction: data, loading, error, refresh };

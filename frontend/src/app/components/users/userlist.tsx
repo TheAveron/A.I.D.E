@@ -43,7 +43,7 @@ function RoleElement({
     if (!role) {
         return (
             <>
-                <td>No role found with this id</td>
+                <td>Rôle introuvable</td>
                 <td></td>
             </>
         );
@@ -115,7 +115,7 @@ function UsersTable({ state = false }: { state: boolean }) {
                     <thead>
                         <tr>
                             <th>Nom</th>
-                            <th colSpan={2}>Role</th>
+                            <th colSpan={2}>Rôle</th>
                         </tr>
                     </thead>
                     <tbody>

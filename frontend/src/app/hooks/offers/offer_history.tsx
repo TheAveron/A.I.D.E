@@ -28,7 +28,7 @@ export function useOfferHistoriesByActor({
 
     const { data, loading, error } = useApiGet<OfferHistoryType[]>(
         `/history?${query}`,
-        "Error fetching offer histories",
+        "Impossible de charger l'historique des offres",
     );
 
     return { offerHistories: data, loading, error };

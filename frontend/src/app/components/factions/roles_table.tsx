@@ -27,7 +27,7 @@ function RolesList({
     if (!roles) {
         return (
             <tr>
-                <td colSpan={12}>Aucun Role trouvé.</td>
+                <td colSpan={12}>Aucun rôle trouvé.</td>
             </tr>
         );
     }
@@ -114,15 +114,15 @@ export default function RolesTable() {
     };
 
     if (!factionid) {
-        return <p>No faction id provided</p>;
+        return <p>Faction introuvable.</p>;
     }
 
-    if (loading) return <p>Chargement des roles...</p>;
+    if (loading) return <p>Chargement des rôles...</p>;
     if (error) return <p role="alert">{error}</p>;
 
     return (
         <div className="snippet-container roles-container">
-            <h2>Roles</h2>
+            <h2>Rôles</h2>
             {canManage && !editing && (
                 <button
                     type="button"
@@ -159,7 +159,7 @@ export default function RolesTable() {
                             <th>Gérer les Trains</th>
                             <th>Gérer la Carte</th>
                             <th>Gérer les Membres</th>
-                            <th>Gérer les Roles</th>
+                            <th>Gérer les Rôles</th>
                             {canManage && <th>Action</th>}
                         </tr>
                     </thead>

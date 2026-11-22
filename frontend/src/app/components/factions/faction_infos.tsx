@@ -4,25 +4,10 @@ import { useRole } from "../../hooks/factions/role";
 import { ApprovalToggle } from "./approvaltoggle";
 import { DeleteFactionButton } from "./deletefaction";
 
-function FactionHead({
-    faction_name,
-    faction_id,
-    user_faction_id,
-    role_id,
-}: {
-    faction_name: string;
-    faction_id: number;
-    user_faction_id: number | null;
-    role_id: number | null;
-}) {
-    const { role } = useRole(role_id ?? null);
-    // Being "Chef" of another faction gives no right on this one.
-    const canEdit = role?.name === "Chef" && user_faction_id === faction_id;
-
+function FactionHead({ faction_name }: { faction_name: string }) {
     return (
-        <div className={"info-header" + (canEdit ? " editable" : "")}>
+        <div className="info-header">
             <div className="info-title">{faction_name}</div>
-            {canEdit && <div className="button">Edit</div>}
         </div>
     );
 }
@@ -53,12 +38,7 @@ export default function FactionInfo({
                 !loading ? (
                     faction ? (
                         <>
-                            <FactionHead
-                                faction_name={faction.name}
-                                faction_id={faction.faction_id}
-                                user_faction_id={user?.faction_id ?? null}
-                                role_id={user?.role_id ?? null}
-                            />
+                            <FactionHead faction_name={faction.name} />
 
                             {archived && (
                                 <p role="status">
@@ -123,7 +103,7 @@ export default function FactionInfo({
                             </div>
                         </>
                     ) : (
-                        <p>No faction data</p>
+                        <p>Faction introuvable.</p>
                     )
                 ) : (
                     <p>Chargement de la faction...</p>

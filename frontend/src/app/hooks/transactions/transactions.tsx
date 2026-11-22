@@ -17,7 +17,7 @@ export function useTransaction(transactionId: string | null): TransactionHook {
         transactionId
             ? `/transactions/${encodeURIComponent(transactionId)}`
             : null,
-        "Error fetching transaction",
+        "Impossible de charger la transaction",
     );
 
     return { transaction: data, loading, error };
@@ -42,7 +42,7 @@ export function useTransactions({
 
     const { data, loading, error } = useApiGet<TransactionType[]>(
         `/transactions/?${query}`,
-        "Error fetching transactions",
+        "Impossible de charger les transactions",
     );
 
     return { transactions: data, loading, error };
