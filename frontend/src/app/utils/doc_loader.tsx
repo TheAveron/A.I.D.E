@@ -14,9 +14,12 @@ import {
 } from "./safe_markdown_link";
 
 type DocParams = {
-    server: string;
-    page: string;
-    folder?: string;
+    /** The API route of the document (it answers { title, content }). */
+    url: string;
+    /** The page route under which its "doc://" links are opened. */
+    linkBase: string;
+    /** Whether `content` lacks the "# title" heading, to put back. */
+    withTitle?: boolean;
 };
 
 function slugPreserveAccents(value: string) {
@@ -26,7 +29,7 @@ function slugPreserveAccents(value: string) {
         .replace(/\s+/g, "-");
 }
 
-function DocuLoader({ server, page, folder }: DocParams) {
+function DocuLoader({ url, linkBase, withTitle = false }: DocParams) {
     const [content, setContent] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [retryKey, setRetryKey] = useState(0);
@@ -35,16 +38,15 @@ function DocuLoader({ server, page, folder }: DocParams) {
         const controller = new AbortController();
         setContent("");
         setError("");
-        fetch(
-            folder
-                ? `/documents/${server}/faction_doc/${folder}/${page}`
-                : `/documents/${server}/doc/${page}`,
-            { signal: controller.signal },
-        )
+        fetch(url, { signal: controller.signal })
             .then(async (response) => {
                 if (!response.ok) throw new Error("Failed to load markdown");
-                const text = await response.json();
-                setContent(text.content);
+                const doc = await response.json();
+                setContent(
+                    withTitle
+                        ? `# ${doc.title}\n\n${doc.content}`
+                        : doc.content,
+                );
             })
             .catch((err) => {
                 if (err instanceof DOMException && err.name === "AbortError") {
@@ -55,7 +57,7 @@ function DocuLoader({ server, page, folder }: DocParams) {
             });
 
         return () => controller.abort();
-    }, [server, folder, page, retryKey]);
+    }, [url, withTitle, retryKey]);
 
     const components: Components = {
         a: ({ href, children }) => {
@@ -67,7 +69,7 @@ function DocuLoader({ server, page, folder }: DocParams) {
             if (href.startsWith("doc://")) {
                 const docName = href.replace("doc://", "");
                 return (
-                    <RouterLink to={getDocumentRoute(docName)}>
+                    <RouterLink to={getDocumentRoute(docName, linkBase)}>
                         {children}
                     </RouterLink>
                 );

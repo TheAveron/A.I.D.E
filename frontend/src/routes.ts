@@ -35,6 +35,10 @@ const aideRoutes = [
             { id: "document-new" },
         ),
         route(
+            "faction/:factionid/documents/:docname",
+            "./app/pages/factions/faction_document.tsx",
+        ),
+        route(
             "faction/:factionid/documents/:docname/edit",
             "./app/pages/factions/document_editor.tsx",
             { id: "document-edit" },
@@ -42,16 +46,17 @@ const aideRoutes = [
         route("user/:userid", "./app/pages/users/user_page.tsx"),
     ]),
 
+    // The archives: former servers, frozen (read only). Everything about the
+    // current server, Age of Steam, lives outside of them.
     ...prefix("archives", [
         index("./app/pages/archives/archives.tsx"),
 
         ...prefix("documentation", [
             route("CubeCrusaders", "./app/pages/archives/docs/cc_docslist.tsx"),
-            route("AgeOfSteam", "./app/pages/archives/docs/aos_doclist.tsx"),
             route("/:server/:page", "./app/pages/archives/docs/document.tsx"),
             route(
                 "/:server/:folder/:page",
-                "./app/pages/archives/docs/faction_document.tsx",
+                "./app/pages/archives/docs/folder_document.tsx",
             ),
         ]),
 
@@ -63,10 +68,14 @@ const aideRoutes = [
     route("actual", "./app/pages/archives/maps/currentmap.tsx"),
     route("network", "./app/pages/network/network.tsx"),
 
-    route(
-        "documentation/AgeOfSteam",
-        "./app/pages/archives/docs/currentdoc.tsx",
-    ),
+    ...prefix("documentation/AgeOfSteam", [
+        index("./app/pages/documentation/aos_document.tsx", {
+            id: "aos-doc-index",
+        }),
+        route(":page", "./app/pages/documentation/aos_document.tsx", {
+            id: "aos-doc-page",
+        }),
+    ]),
 
     route("*", "./app/pages/404.tsx"),
 ];

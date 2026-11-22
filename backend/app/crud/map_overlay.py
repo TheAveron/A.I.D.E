@@ -4,7 +4,8 @@
   `manage_territory` in that faction, and by admins, who may change anything;
 - a player's own territories and markers are theirs to change (and admins'):
   anybody logged in may draw land for themselves;
-- anybody can read all of it.
+- anybody can read all of it;
+- only the current server's maps change: the archived ones are frozen.
 
 The audit trail only records an admin acting on what is not theirs.
 """
@@ -17,8 +18,8 @@ from sqlalchemy.orm import Session
 
 from ..database import Faction, MapMarker, MapTerritory, User
 from ..database.clock import utcnow
-from ..misc import (STRUCTURE_KINDS, FactionPermission, MarkerKind,
-                    check_faction_permission)
+from ..misc import (CURRENT_MAPS, STRUCTURE_KINDS, FactionPermission,
+                    MarkerKind, check_faction_permission)
 from ..schemas import (MarkerCreate, MarkerUpdate, TerritoryCreate,
                        TerritoryUpdate)
 
@@ -30,6 +31,14 @@ MAX_MARKERS_PER_USER = 50
 
 def _error(code: int, detail: str) -> HTTPException:
     return HTTPException(status_code=code, detail=detail)
+
+
+def check_map_is_current(map_name: str) -> None:
+    """Refuse any change on a map of the archives (a former server's)."""
+    if map_name not in CURRENT_MAPS:
+        raise _error(
+            status.HTTP_403_FORBIDDEN, "The maps of the archives can't be changed"
+        )
 
 
 def holds_manage_territory(user: User, faction_id: Optional[int]) -> bool:
@@ -90,6 +99,7 @@ def can_manage_territory(user: User, territory: MapTerritory) -> bool:
 
 
 def check_can_manage_territory(user: User, territory: MapTerritory) -> None:
+    check_map_is_current(territory.map_name)
     if not can_manage_territory(user, territory):
         raise _error(
             status.HTTP_403_FORBIDDEN,
@@ -116,6 +126,7 @@ def create_territory(
     A faction's needs manage_territory in it; without that, a member (like
     anybody logged in) draws only for themselves.
     """
+    check_map_is_current(data.map_name)
     fields = data.model_dump(exclude={"faction_id", "user_id"})
     if data.faction_id is not None:
         _live_faction(db, data.faction_id)
@@ -199,6 +210,7 @@ def can_manage_marker(user: User, marker: MapMarker) -> bool:
 
 
 def check_can_manage_marker(user: User, marker: MapMarker) -> None:
+    check_map_is_current(marker.map_name)
     if not can_manage_marker(user, marker):
         raise _error(status.HTTP_403_FORBIDDEN, "You can't change this marker")
 
@@ -266,6 +278,7 @@ def create_marker(
     db: Session, user: User, data: MarkerCreate
 ) -> tuple[MapMarker, bool]:
     """Returns the marker and whether an admin made it for somebody else."""
+    check_map_is_current(data.map_name)
     fields = data.model_dump(exclude={"faction_id", "user_id"})
     override = False
     check_not_a_station(data.kind)
@@ -353,6 +366,7 @@ def set_explored(
 ) -> MapMarker:
     """Anybody logged in may tell that a structure was looted (whoever placed
     it is rarely the one who loots it); the map shows who said so, and when."""
+    check_map_is_current(marker.map_name)
     if marker.kind not in STRUCTURE_KINDS:
         raise _error(
             status.HTTP_400_BAD_REQUEST, "Only a structure can be marked as explored"

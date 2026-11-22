@@ -724,10 +724,12 @@ class TestDocuments:
         probe = Path(documentation.DOCS_DIR).parent / "zz_probe_doc.md"
         probe.write_text("# outside the documents folder")
         try:
-            r = env.client.get("/documents/%2e%2e/doc/zz_probe_doc")
-            assert r.status_code == 404
-            r = env.client.get("/documents/%2e%2e/faction_doc/%2e%2e/zz_probe_doc")
-            assert r.status_code == 404
+            for url in (
+                "/documents/aos/%2e%2e%2fzz_probe_doc",
+                "/documents/archives/%2e%2e/zz_probe_doc",
+                "/documents/archives/CubeCrusaders/%2e%2e/zz_probe_doc",
+            ):
+                assert env.client.get(url).status_code == 404, url
         finally:
             probe.unlink()
 
@@ -735,15 +737,23 @@ class TestDocuments:
         self, env, monkeypatch, tmp_path
     ):
         monkeypatch.chdir(tmp_path)
-        r = env.client.get("/documents/CubeCrusaders/faction_doc/lois/territoires")
+        r = env.client.get("/documents/archives/CubeCrusaders/lois/territoires")
         assert r.status_code == 200 and "Territoires" in r.json()["content"]
 
     def test_nta_contract_page_resolves_despite_normalize_lowercasing(self, env):
-        r = env.client.get("/documents/CubeCrusaders/faction_doc/marches/contractNTA")
+        r = env.client.get("/documents/archives/CubeCrusaders/marches/contractNTA")
         assert r.status_code == 200 and "slot" in r.json()["content"]
 
     def test_unknown_document_is_404(self, env):
-        assert env.client.get("/documents/CubeCrusaders/doc/nope").status_code == 404
+        assert env.client.get("/documents/archives/CubeCrusaders/nope").status_code == 404
+
+    def test_the_archives_only_serve_former_servers(self, env):
+        # The current server's pages and the factions' documents are not
+        # archives, even though they sit in the same documents folder.
+        assert env.client.get("/documents/aos/index").status_code == 200
+        assert env.client.get("/documents/archives/AgeOfSteam/index").status_code == 404
+        assert env.client.get("/documents/archives/AOS/x/y").status_code == 404
+        assert env.client.get("/documents/archives/maps/x").status_code == 404
 
     def test_creating_a_document_needs_manage_docs(self, env, monkeypatch, tmp_path):
         monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")

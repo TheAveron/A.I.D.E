@@ -123,7 +123,33 @@ def test_bad_colors_and_map_names_are_refused(menv, bad):
 def test_a_name_is_unique_for_a_faction_on_a_map(menv):
     assert _territory(menv).status_code == 201
     assert _territory(menv).status_code == 409
-    assert _territory(menv, map_name="Other").status_code == 201
+    assert _territory(menv, map_name="NAOS_zoom").status_code == 201
+
+
+def test_the_maps_of_the_archives_are_frozen(menv):
+    # Nothing new on a former server's map, even for an admin...
+    for who in ("alice", "root"):
+        assert _territory(menv, who, map_name="OUtopia_zoom").status_code == 403
+        assert _marker(menv, who, map_name="OUtopia_zoom").status_code == 403
+    # ...and what is already there stays as it is (rows from before the rule)
+    s = menv.Session()
+    s.add(MapTerritory(territory_id=900, map_name="OUtopia_zoom", faction_id=1,
+                       name="Vieux", points=SQUARE))
+    s.add(MapMarker(marker_id=900, map_name="OUtopia_zoom", faction_id=1,
+                    label="Vieux", kind="village", x=0, z=0))
+    s.commit()
+    s.close()
+    h = menv.h("root")
+    assert menv.client.put("/map/territories/900", json={"name": "Neuf"},
+                           headers=h).status_code == 403
+    assert menv.client.delete("/map/territories/900", headers=h).status_code == 403
+    assert menv.client.put("/map/markers/900", json={"label": "Neuf"},
+                           headers=h).status_code == 403
+    assert menv.client.put("/map/markers/900/explored", json={"explored": True},
+                           headers=h).status_code == 403
+    assert menv.client.delete("/map/markers/900", headers=h).status_code == 403
+    # Reading them is still fine
+    assert [t["name"] for t in menv.client.get("/map/OUtopia_zoom/territories").json()] == ["Vieux"]
 
 
 def test_territories_are_limited_per_faction(menv):

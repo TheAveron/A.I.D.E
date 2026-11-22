@@ -72,6 +72,13 @@ class TrainService(str, Enum):
     LIQUID = "L"
 
 
+# The maps of the current server, Age of Steam (folders of documents/maps):
+# the only ones whose territories and markers may change. Every other map is
+# an archive of a former server, frozen. Same list as CURRENT_MAP_VARIANTS in
+# frontend/src/app/utils/maps.ts.
+CURRENT_MAPS = frozenset({"OAOS_zoom", "NAOS_zoom", "EAOS_zoom"})
+
+
 class MarkerKind(str, Enum):
     """What a point of interest on the map is (picks its icon and legend)."""
 

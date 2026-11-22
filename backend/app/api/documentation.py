@@ -27,7 +27,13 @@ MAX_CONTENT_LENGTH = 100_000
 MAX_FILENAME_BYTES = 200  # most file systems refuse names over 255 bytes
 MAX_DOCUMENTS_PER_FACTION = 200
 
-# Faction documents are written under this server's folder.
+# Two kinds of documents, kept apart:
+# - the archives: the rules of former servers, frozen. They are only read, and
+#   only from the folders listed here;
+# - the current server, Age of Steam: its own pages (CURRENT_DOCS_FOLDER) and
+#   the documents its factions write (FACTION_DOCS_SERVER/<faction>/).
+ARCHIVED_SERVERS = frozenset({"CubeCrusaders"})
+CURRENT_DOCS_FOLDER = "AgeOfSteam"
 FACTION_DOCS_SERVER = "AOS"
 
 logger = logging.getLogger("aide")
@@ -41,10 +47,8 @@ class DocBase(BaseModel):
 
 
 class DocSummary(BaseModel):
-    """A faction document in a listing: where to open it, and its title."""
+    """A faction document in a listing: its name in the URLs, and its title."""
 
-    server: str
-    folder: str
     doc_name: str
     title: str
 
@@ -250,8 +254,6 @@ def list_faction_documents(faction_id: int, db: Session = Depends(get_db)):
     files = sorted(directory.glob("*.md"))[:MAX_DOCUMENTS_PER_FACTION]
     return [
         DocSummary(
-            server=FACTION_DOCS_SERVER,
-            folder=folder,
             doc_name=path.stem,
             title=_title_of(path),
         )
@@ -400,53 +402,46 @@ def delete_document(
     return None
 
 
-@router.get(
-    "/{server}/doc/{doc_name}",
-    response_model=DocBase,
-    status_code=status.HTTP_200_OK,
-)
-def get_document(server: str, doc_name: str):
-    file_path = _document_path(server, doc_name=doc_name)
-
-    if not file_path.is_file():
+def _read_document(path: Path) -> DocBase:
+    """A whole markdown document (title included), or 404 / 500."""
+    if not path.is_file():
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
         )
-
     try:
-        content = file_path.read_text(encoding="utf-8")
+        content = path.read_text(encoding="utf-8")
     except OSError:
-        logger.exception("Could not read document %s", file_path)
+        logger.exception("Could not read document %s", path)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Could not read the document",
         )
+    return DocBase(title=path.stem, content=content)
 
-    return DocBase(title=doc_name, content=content)
+
+@router.get("/aos/{doc_name}", response_model=DocBase)
+def get_current_document(doc_name: str):
+    """A page of the current server's documentation."""
+    return _read_document(_document_path(CURRENT_DOCS_FOLDER, doc_name=doc_name))
 
 
-@router.get(
-    "/{server}/faction_doc/{faction}/{doc_name}",
-    response_model=DocBase,
-    status_code=status.HTTP_200_OK,
-)
-def get_faction_document(server: str, faction: str, doc_name: str):
-    file_path = _document_path(server, normalize(faction), doc_name=doc_name)
-
-    if not file_path.is_file():
+def _archived_server(server: str) -> str:
+    """The folder of a former server, or 404: nothing else is an archive."""
+    if server not in ARCHIVED_SERVERS:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
         )
+    return server
 
-    try:
-        content = file_path.read_text(encoding="utf-8")
-    except OSError:
-        logger.exception("Could not read document %s", file_path)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Could not read the document",
-        )
 
-    return DocBase(title=doc_name, content=content)
+# The archives are only read: there is, on purpose, no route writing to them.
+@router.get("/archives/{server}/{doc_name}", response_model=DocBase)
+def get_archived_document(server: str, doc_name: str):
+    return _read_document(_document_path(_archived_server(server), doc_name=doc_name))
+
+
+@router.get("/archives/{server}/{folder}/{doc_name}", response_model=DocBase)
+def get_archived_document_in_folder(server: str, folder: str, doc_name: str):
+    return _read_document(
+        _document_path(_archived_server(server), folder, doc_name=doc_name)
+    )

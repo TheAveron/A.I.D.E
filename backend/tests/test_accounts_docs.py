@@ -57,11 +57,9 @@ def test_a_faction_lists_its_documents(env, monkeypatch, tmp_path):  # noqa: F81
     assert [d["title"] for d in docs] == ["alpha", "Règles du jeu"]
     first = docs[0]
     # The listing gives what the document routes need
-    r = env.client.get(
-        f"/documents/{first['server']}/faction_doc/{first['folder']}/{first['doc_name']}"
-    )
+    r = env.client.get(f"/documents/faction/{faction_id}/{first['doc_name']}")
     assert r.status_code == 200
-    assert r.json()["content"].startswith("# alpha")
+    assert r.json()["title"] == "alpha"
 
 
 def test_listing_the_documents_of_an_unknown_faction_is_a_404(env):  # noqa: F811

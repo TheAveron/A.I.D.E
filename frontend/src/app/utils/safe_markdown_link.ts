@@ -14,12 +14,16 @@ export function isSafeInternalHref(href: string): boolean {
     return href.startsWith("/") && !href.startsWith("//");
 }
 
-export function getDocumentRoute(documentName: string): string {
+/**
+ * The in-app route of a "doc://" link, under `base`: the archives' links stay
+ * in the archives, and the current server's in the current server's pages.
+ */
+export function getDocumentRoute(documentName: string, base: string): string {
     const segments = documentName
         .split("/")
         .filter((segment) => segment && segment !== "." && segment !== "..");
 
-    return `/archives/documentation/${segments
+    return `${base.replace(/\/?$/, "/")}${segments
         .map((segment) => encodeURIComponent(segment))
         .join("/")}`;
 }
