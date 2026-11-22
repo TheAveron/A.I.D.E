@@ -409,7 +409,8 @@ def test_deleting_a_faction_drops_its_link_and_invitations(senv):
     s.commit()
     s.close()
     assert c.delete("/factions/delete/4", headers=senv.h("gus")).status_code == 204
-    assert c.delete("/factions/delete/2", headers=senv.h("bob")).status_code == 204
+    delete_beta = c.delete("/factions/delete/2", headers=senv.h("bob"))
+    assert delete_beta.status_code == 204
     assert c.get(f"/currencies/{DIAMANT}/links", headers=senv.h("alice")).json() == []
     assert _links(senv) == [(1, True)]
 
