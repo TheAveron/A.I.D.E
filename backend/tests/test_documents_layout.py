@@ -24,7 +24,8 @@ def test_old_folders_are_moved_into_age_of_steam(tmp_path, monkeypatch):
     assert (docs / "AgeOfSteam" / "index.md").is_file()  # pages untouched
     assert len(moved) == 3
     # Once is enough: running it again changes nothing
-    assert documentation.migrate_legacy_folders() == []
+    again = documentation.migrate_legacy_folders()
+    assert again == []
 
 
 def test_nothing_is_overwritten(tmp_path, monkeypatch):
