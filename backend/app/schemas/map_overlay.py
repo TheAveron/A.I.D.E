@@ -172,9 +172,16 @@ class MarkerOut(BaseModel):
     kind: str
     x: int
     z: int
+    explored: bool = False
+    explored_by_name: Optional[str] = None
+    explored_at: Optional[UTCDatetime] = None
     faction_id: Optional[int] = None
     user_id: Optional[int] = None
     owner_name: Optional[str] = None
     created_at: UTCDatetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class MarkerExplored(BaseModel):
+    explored: bool

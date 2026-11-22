@@ -34,6 +34,9 @@ export function useMapRights() {
         );
     };
 
+    // Anybody logged in tells that a structure was looted (crud set_explored)
+    const canMarkExplored = (_marker: MarkerType): boolean => !!user;
+
     return {
         user,
         loggedIn: !!user,
@@ -41,6 +44,7 @@ export function useMapRights() {
         factionId,
         canEditTerritory,
         canEditMarker,
+        canMarkExplored,
         loading: userLoading || roleLoading,
     };
 }

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
 import type { MutableRefObject } from "react";
 import type OlMap from "ol/Map";
 import Feature from "ol/Feature";
@@ -10,7 +11,7 @@ import VectorSource from "ol/source/Vector";
 import { Point, Polygon } from "ol/geom";
 import { Circle as CircleStyle, Fill, Stroke, Style } from "ol/style";
 
-import { MARKER_KINDS } from "../../types/map";
+import { MARKER_KINDS, dimensionOfFolder, isStructure } from "../../types/map";
 import type { MarkerKind, MarkerType, TerritoryType } from "../../types/map";
 import { getErrorMessage } from "../../utils/apierror";
 import { factionColor } from "../../utils/mapcolors";
@@ -18,6 +19,7 @@ import { iconUrl } from "../../utils/mapicons";
 import type { MapGeometry } from "../../utils/unmined";
 import { useFactions } from "../../hooks/factions/factions";
 import { useMapRights } from "../../hooks/network/maprights";
+import type { Selection } from "./map_viewer";
 
 export interface EntityRef {
     type: "territory" | "marker";
@@ -133,9 +135,11 @@ export default function MapEditor({
     geometry,
     territories,
     markers,
-    selected,
+    selection,
+    onCloseSelection,
     busyRef,
     pickRef,
+    onRefresh,
     onChanged,
 }: {
     folder: string;
@@ -143,18 +147,22 @@ export default function MapEditor({
     geometry: MapGeometry;
     territories: TerritoryType[];
     markers: MarkerType[];
-    selected: EntityRef | null;
+    selection: Selection | null;
+    onCloseSelection: () => void;
     busyRef: MutableRefObject<boolean>;
     pickRef: MutableRefObject<((block: [number, number]) => void) | null>;
+    /** Read the overlay again, keeping the selection. */
+    onRefresh: () => void;
+    /** Read it again after a change that ends the selection. */
     onChanged: () => void;
 }) {
+    const selected = selection?.entity ?? null;
     const rights = useMapRights();
     const [draft, setDraft] = useState<Draft | null>(null);
     // The outline being edited: replaced on load and redraw, never on a
     // modification (the Modify interaction owns it then).
     const [shape, setShape] = useState<{ points: Points } | null>(null);
     const [drawing, setDrawing] = useState(false);
-    const [picking, setPicking] = useState(false);
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
     const pointsRef = useRef<Points>([]);
@@ -257,7 +265,6 @@ export default function MapEditor({
         setDraft(null);
         setShape(null);
         setDrawing(false);
-        setPicking(false);
         setError("");
         setSaving(false);
     }
@@ -318,10 +325,11 @@ export default function MapEditor({
         });
     }
 
-    function pickOnMap() {
-        setPicking(true);
-        pickRef.current = ([x, z]) => {
-            setPicking(false);
+    // While a point's form is open, a click on the map moves it there
+    const placing = draft?.kind === "marker";
+    useEffect(() => {
+        if (!placing) return;
+        pickRef.current = ([x, z]) =>
             setDraft((d) =>
                 d && d.kind === "marker"
                     ? {
@@ -331,7 +339,25 @@ export default function MapEditor({
                       }
                     : d,
             );
+        const target = map.getTargetElement();
+        target?.classList.add("map-picking");
+        return () => {
+            pickRef.current = null;
+            target?.classList.remove("map-picking");
         };
+    }, [placing, map, pickRef]);
+
+    /** The kinds a point's form offers. */
+    function kindChoices(d: MarkerDraft): MarkerKind[] {
+        return (Object.keys(MARKER_KINDS) as MarkerKind[]).filter(
+            (key) =>
+                // One spawn per map, placed by an admin
+                (key !== "spawn" ||
+                    d.markerKind === "spawn" ||
+                    (isAdmin && !spawnExists)) &&
+                // A point cannot become a station: a station is made new
+                (key !== "station" || d.id === null),
+        );
     }
 
     async function save() {
@@ -376,6 +402,20 @@ export default function MapEditor({
                     setError("X et Z doivent être des nombres entiers.");
                     return;
                 }
+                if (draft.markerKind === "station") {
+                    // A station is a real station, listed on the stations
+                    // page like one made there (the map shows those).
+                    await axios.post("/stations", {
+                        name: draft.label,
+                        description: draft.description.trim() || null,
+                        x,
+                        z,
+                        dimension: dimensionOfFolder(folder),
+                    });
+                    close();
+                    onChanged();
+                    return;
+                }
                 const body = {
                     label: draft.label,
                     description: draft.description.trim() || null,
@@ -404,6 +444,18 @@ export default function MapEditor({
         }
     }
 
+    async function toggleExplored(m: MarkerType) {
+        setError("");
+        try {
+            await axios.put(`/map/markers/${m.marker_id}/explored`, {
+                explored: !m.explored,
+            });
+            onRefresh(); // the card stays open and shows the new state
+        } catch (err) {
+            setError(getErrorMessage(err, "Modification impossible"));
+        }
+    }
+
     async function remove(entity: EntityRef, name: string) {
         if (!window.confirm(`Supprimer « ${name} » ?`)) return;
         setError("");
@@ -420,68 +472,132 @@ export default function MapEditor({
         }
     }
 
-    if (rights.loading) return null;
-    if (!rights.loggedIn) {
-        return (
-            <p className="map-hint">
-                Connectez-vous pour ajouter vos points sur la carte.
-            </p>
-        );
-    }
-
     const editable =
         !draft &&
-        ((territory && rights.canEditTerritory(territory)) ||
-            (marker && rights.canEditMarker(marker)));
+        ((territory !== null && rights.canEditTerritory(territory)) ||
+            (marker !== null && rights.canEditMarker(marker)));
+    const explorable =
+        marker !== null &&
+        isStructure(marker.kind) &&
+        rights.canMarkExplored(marker);
 
-    return (
-        <div className="map-editor">
-            <h3>Édition</h3>
-
-            {!draft && (
-                <div className="map-editor-actions">
-                    {canDraw && (
-                        <button
-                            type="button"
-                            className="button"
-                            onClick={newTerritory}
-                        >
-                            Nouveau territoire
-                        </button>
-                    )}
+    const tools = rights.loading ? null : !rights.loggedIn ? (
+        <p className="map-float map-tools map-hint">
+            <Link to="/login">Connectez-vous</Link> pour ajouter vos points.
+        </p>
+    ) : (
+        !draft && (
+            <div className="map-float map-tools" role="toolbar">
+                <span className="map-tools-label">Ajouter</span>
+                <button
+                    type="button"
+                    className="button"
+                    onClick={() => newMarker()}
+                >
+                    ＋ Point
+                </button>
+                {canDraw && (
                     <button
                         type="button"
                         className="button"
-                        onClick={() => newMarker()}
+                        onClick={newTerritory}
                     >
-                        Nouveau point
+                        ＋ Territoire
                     </button>
-                    {isAdmin && !spawnExists && (
+                )}
+                {isAdmin && !spawnExists && (
+                    <button
+                        type="button"
+                        className="button"
+                        onClick={() => newMarker("spawn")}
+                    >
+                        ＋ Spawn
+                    </button>
+                )}
+            </div>
+        )
+    );
+
+    const card = !draft && selection && (
+        <div className="map-float map-card" aria-live="polite">
+            <div className="map-card-header">
+                {selection.iconKind && (
+                    <img
+                        className="map-kind-icon map-card-icon"
+                        src={iconUrl(selection.iconKind)}
+                        alt=""
+                    />
+                )}
+                <div className="map-card-title">
+                    <h3>{selection.title}</h3>
+                    <p className="map-selection-kind">{selection.kind}</p>
+                </div>
+                <button
+                    type="button"
+                    className="map-close"
+                    aria-label="Fermer"
+                    onClick={onCloseSelection}
+                >
+                    ×
+                </button>
+            </div>
+
+            {selection.lines.map((line, i) => (
+                <p key={i}>{line}</p>
+            ))}
+
+            {marker && isStructure(marker.kind) && (
+                <p className={`map-explored${marker.explored ? " done" : ""}`}>
+                    {marker.explored
+                        ? `Explorée${
+                              marker.explored_by_name
+                                  ? ` par ${marker.explored_by_name}`
+                                  : ""
+                          }${
+                              marker.explored_at
+                                  ? ` le ${new Date(
+                                        marker.explored_at,
+                                    ).toLocaleDateString("fr-FR")}`
+                                  : ""
+                          } : les ressources ont été récupérées.`
+                        : "Pas encore explorée : les ressources sont sur place."}
+                </p>
+            )}
+
+            {selection.stationId !== null && (
+                <p>
+                    <Link to={`/station/${selection.stationId}`}>
+                        Voir la fiche de la gare →
+                    </Link>
+                </p>
+            )}
+
+            {(editable || explorable) && (
+                <div className="map-editor-actions">
+                    {explorable && marker && (
                         <button
                             type="button"
                             className="button"
-                            onClick={() => newMarker("spawn")}
+                            aria-pressed={marker.explored}
+                            onClick={() => void toggleExplored(marker)}
                         >
-                            Placer le spawn
+                            {marker.explored
+                                ? "Annuler « exploré »"
+                                : "✓ Marquer exploré"}
                         </button>
                     )}
-                </div>
-            )}
-
-            {editable && (
-                <div className="map-editor-actions">
-                    {territory && (
+                    {territory && rights.canEditTerritory(territory) && (
                         <>
                             <button
                                 type="button"
                                 className="button"
                                 onClick={() => editTerritory(territory)}
                             >
-                                Modifier « {territory.name} »
+                                Modifier
                             </button>
                             <button
                                 type="button"
-                                className="button"
+                                className="button map-danger"
                                 onClick={() =>
                                     remove(
                                         {
@@ -496,18 +612,18 @@ export default function MapEditor({
                             </button>
                         </>
                     )}
-                    {marker && (
+                    {marker && rights.canEditMarker(marker) && (
                         <>
                             <button
                                 type="button"
                                 className="button"
                                 onClick={() => editMarker(marker)}
                             >
-                                Modifier « {marker.label} »
+                                Modifier
                             </button>
                             <button
                                 type="button"
-                                className="button"
+                                className="button map-danger"
                                 onClick={() =>
                                     remove(
                                         {
@@ -524,15 +640,50 @@ export default function MapEditor({
                     )}
                 </div>
             )}
+        </div>
+    );
+
+    const drawerHeader = (title: string) => (
+        <div className="map-card-header">
+            <div className="map-card-title">
+                <h3>{title}</h3>
+            </div>
+            <button
+                type="button"
+                className="map-close"
+                aria-label="Annuler"
+                onClick={close}
+            >
+                ×
+            </button>
+        </div>
+    );
+
+    const errorLine = error && (
+        <p className="map-error" role="alert">
+            {error}
+        </p>
+    );
+
+    return (
+        <>
+            {tools}
+            {card}
+            {!draft && !selection && errorLine}
 
             {draft?.kind === "territory" && (
                 <form
-                    className="map-editor-form"
+                    className="map-float map-drawer map-editor-form"
                     onSubmit={(e) => {
                         e.preventDefault();
                         void save();
                     }}
                 >
+                    {drawerHeader(
+                        draft.id === null
+                            ? "Nouveau territoire"
+                            : "Modifier le territoire",
+                    )}
                     <label>
                         Nom
                         <input
@@ -563,44 +714,50 @@ export default function MapEditor({
                             />
                         </label>
                     )}
-                    <label>
-                        Description
-                        <textarea
-                            rows={2}
-                            value={draft.description}
-                            onChange={(e) =>
-                                setDraft({
-                                    ...draft,
-                                    description: e.target.value,
-                                })
-                            }
-                        />
-                    </label>
-                    <label>
-                        Couleur
-                        <input
-                            type="color"
-                            value={draft.color}
-                            onChange={(e) =>
-                                setDraft({ ...draft, color: e.target.value })
-                            }
-                        />
-                    </label>
+                    <div className="map-form-row">
+                        <label className="map-grow">
+                            Description
+                            <textarea
+                                rows={2}
+                                value={draft.description}
+                                onChange={(e) =>
+                                    setDraft({
+                                        ...draft,
+                                        description: e.target.value,
+                                    })
+                                }
+                            />
+                        </label>
+                        <label>
+                            Couleur
+                            <input
+                                type="color"
+                                value={draft.color}
+                                onChange={(e) =>
+                                    setDraft({
+                                        ...draft,
+                                        color: e.target.value,
+                                    })
+                                }
+                            />
+                        </label>
+                    </div>
 
-                    {drawing ? (
-                        <p className="map-hint">
-                            Cliquez pour poser les coins, double-clic pour
-                            terminer.
-                        </p>
-                    ) : shape ? (
-                        <p className="map-hint">
-                            {shape.points.length} coins. Glissez les coins
-                            jaunes pour ajuster le contour.
-                        </p>
-                    ) : (
-                        <p className="map-hint">Contour pas encore tracé.</p>
-                    )}
-                    <div className="map-editor-actions">
+                    <div className="map-step">
+                        <strong>Contour</strong>
+                        {drawing ? (
+                            <p className="map-hint">
+                                Cliquez sur la carte pour poser les coins,
+                                double-cliquez pour terminer.
+                            </p>
+                        ) : shape ? (
+                            <p className="map-hint">
+                                {shape.points.length} coins. Glissez les coins
+                                jaunes pour ajuster.
+                            </p>
+                        ) : (
+                            <p className="map-hint">Pas encore tracé.</p>
+                        )}
                         <button
                             type="button"
                             className="button"
@@ -613,9 +770,13 @@ export default function MapEditor({
                         >
                             {shape ? "Redessiner" : "Tracer le contour"}
                         </button>
+                    </div>
+
+                    {errorLine}
+                    <div className="map-editor-actions map-form-actions">
                         <button
                             type="submit"
-                            className="button"
+                            className="button map-primary"
                             disabled={saving || drawing}
                         >
                             Enregistrer
@@ -633,91 +794,103 @@ export default function MapEditor({
 
             {draft?.kind === "marker" && (
                 <form
-                    className="map-editor-form"
+                    className="map-float map-drawer map-editor-form"
                     onSubmit={(e) => {
                         e.preventDefault();
                         void save();
                     }}
                 >
+                    {drawerHeader(
+                        draft.id === null
+                            ? "Nouveau point"
+                            : "Modifier le point",
+                    )}
+
+                    {/* The spawn stays the spawn (delete it to remove it):
+                        its position is what changes */}
+                    {draft.id !== null && draft.markerKind === "spawn" ? (
+                        <p className="map-kind-fixed">
+                            <img
+                                className="map-kind-icon"
+                                src={iconUrl("spawn")}
+                                alt=""
+                            />
+                            {MARKER_KINDS.spawn}
+                        </p>
+                    ) : (
+                        <fieldset className="map-kind-grid">
+                            <legend>Type</legend>
+                            {kindChoices(draft).map((key) => (
+                                <label
+                                    key={key}
+                                    className="map-kind-option"
+                                    title={MARKER_KINDS[key]}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="marker-kind"
+                                        value={key}
+                                        checked={draft.markerKind === key}
+                                        onChange={() =>
+                                            setDraft({
+                                                ...draft,
+                                                markerKind: key,
+                                                factionId:
+                                                    key === "spawn"
+                                                        ? null
+                                                        : draft.factionId,
+                                            })
+                                        }
+                                    />
+                                    <img
+                                        className="map-kind-icon"
+                                        src={iconUrl(key)}
+                                        alt=""
+                                    />
+                                    <span>{MARKER_KINDS[key]}</span>
+                                </label>
+                            ))}
+                        </fieldset>
+                    )}
+
                     <label>
                         Nom
                         <input
                             type="text"
                             required
                             maxLength={60}
+                            placeholder={
+                                draft.markerKind === "station"
+                                    ? "Gare du Nord"
+                                    : MARKER_KINDS[draft.markerKind]
+                            }
                             value={draft.label}
                             onChange={(e) =>
                                 setDraft({ ...draft, label: e.target.value })
                             }
                         />
                     </label>
-                    <label>
-                        Type
-                        <span className="map-kind-select">
-                            <img
-                                className="map-kind-icon"
-                                src={iconUrl(draft.markerKind)}
-                                alt=""
-                            />
-                            <select
-                                value={draft.markerKind}
-                                // The spawn stays the spawn (delete it to
-                                // remove it): its position is what changes
-                                disabled={
-                                    draft.id !== null &&
-                                    draft.markerKind === "spawn"
-                                }
-                                onChange={(e) => {
-                                    const markerKind = e.target
-                                        .value as MarkerKind;
-                                    setDraft({
-                                        ...draft,
-                                        markerKind,
-                                        factionId:
-                                            markerKind === "spawn"
-                                                ? null
-                                                : draft.factionId,
-                                    });
-                                }}
-                            >
-                                {(
-                                    Object.entries(MARKER_KINDS) as [
-                                        MarkerKind,
-                                        string,
-                                    ][]
-                                )
-                                    .filter(
-                                        ([key]) =>
-                                            key !== "spawn" ||
-                                            draft.markerKind === "spawn" ||
-                                            (isAdmin && !spawnExists),
-                                    )
-                                    .map(([key, label]) => (
-                                        <option key={key} value={key}>
-                                            {label}
-                                        </option>
-                                    ))}
-                            </select>
-                        </span>
-                    </label>
-                    {draft.id === null && draft.markerKind !== "spawn" && (
-                        <label>
-                            Appartient à
-                            <FactionSelect
-                                value={draft.factionId}
-                                includeMe
-                                isAdmin={isAdmin}
-                                ownFactionId={rights.factionId}
-                                onChange={(id) =>
-                                    setDraft({ ...draft, factionId: id })
-                                }
-                            />
-                        </label>
-                    )}
+                    {draft.id === null &&
+                        draft.markerKind !== "spawn" &&
+                        draft.markerKind !== "station" && (
+                            <label>
+                                Appartient à
+                                <FactionSelect
+                                    value={draft.factionId}
+                                    includeMe
+                                    isAdmin={isAdmin}
+                                    ownFactionId={rights.factionId}
+                                    onChange={(id) =>
+                                        setDraft({ ...draft, factionId: id })
+                                    }
+                                />
+                            </label>
+                        )}
                     <label>
                         Description
                         <textarea
                             rows={2}
+                            placeholder="Facultatif"
                             value={draft.description}
                             onChange={(e) =>
                                 setDraft({
@@ -727,42 +900,59 @@ export default function MapEditor({
                             }
                         />
                     </label>
-                    <div className="map-goto">
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            placeholder="X"
-                            aria-label="X"
-                            value={draft.x}
-                            onChange={(e) =>
-                                setDraft({ ...draft, x: e.target.value })
-                            }
-                        />
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            placeholder="Z"
-                            aria-label="Z"
-                            value={draft.z}
-                            onChange={(e) =>
-                                setDraft({ ...draft, z: e.target.value })
-                            }
-                        />
+
+                    <div className="map-step">
+                        <strong>Position</strong>
+                        <p className="map-hint">
+                            Cliquez sur la carte pour placer le point, ou tapez
+                            ses coordonnées.
+                        </p>
+                        <div className="map-coords">
+                            <label>
+                                X
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    required
+                                    value={draft.x}
+                                    onChange={(e) =>
+                                        setDraft({
+                                            ...draft,
+                                            x: e.target.value,
+                                        })
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Z
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    required
+                                    value={draft.z}
+                                    onChange={(e) =>
+                                        setDraft({
+                                            ...draft,
+                                            z: e.target.value,
+                                        })
+                                    }
+                                />
+                            </label>
+                        </div>
                     </div>
-                    {picking && (
-                        <p className="map-hint">Cliquez sur la carte...</p>
+
+                    {draft.markerKind === "station" && (
+                        <p className="map-hint">
+                            La gare rejoindra la liste des gares, où vous
+                            pourrez ajouter ses quais.
+                        </p>
                     )}
-                    <div className="map-editor-actions">
-                        <button
-                            type="button"
-                            className="button"
-                            onClick={pickOnMap}
-                        >
-                            Choisir sur la carte
-                        </button>
+
+                    {errorLine}
+                    <div className="map-editor-actions map-form-actions">
                         <button
                             type="submit"
-                            className="button"
+                            className="button map-primary"
                             disabled={saving}
                         >
                             Enregistrer
@@ -777,12 +967,6 @@ export default function MapEditor({
                     </div>
                 </form>
             )}
-
-            {error && (
-                <p className="map-error" role="alert">
-                    {error}
-                </p>
-            )}
-        </div>
+        </>
     );
 }

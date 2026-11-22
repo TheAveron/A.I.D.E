@@ -15,6 +15,22 @@ export const MARKER_KINDS = {
 
 export type MarkerKind = keyof typeof MARKER_KINDS;
 
+/** Generated structures: their loot can be marked as taken ("explored"). */
+export const STRUCTURE_KINDS: ReadonlySet<MarkerKind> = new Set<MarkerKind>([
+    "trial_chamber",
+    "village",
+    "ocean_monument",
+    "ancient_city",
+    "stronghold",
+    "nether_bastion",
+    "nether_fortress",
+    "end_city",
+]);
+
+export function isStructure(kind: MarkerKind): boolean {
+    return STRUCTURE_KINDS.has(kind);
+}
+
 export interface TerritoryType {
     territory_id: number;
     map_name: string;
@@ -37,6 +53,10 @@ export interface MarkerType {
     kind: MarkerKind;
     x: number;
     z: number;
+    /** For a structure: its valuable loot was already taken. */
+    explored: boolean;
+    explored_by_name: string | null;
+    explored_at: string | null;
     faction_id: number | null;
     user_id: number | null;
     owner_name: string | null;
