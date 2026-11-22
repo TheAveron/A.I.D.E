@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import { getErrorMessage } from "../../utils/apierror";
-import { dimensionOfFolder } from "../../types/map";
+import { dimensionOfFolder, overworldFolderOf } from "../../types/map";
 import type { MarkerType, TerritoryType } from "../../types/map";
 import type { LineType, StationType } from "../../types/trains";
 import { loadUnminedData, type UnminedData } from "../../utils/unmined";
@@ -13,12 +13,14 @@ interface State<T> {
     error: string | null;
 }
 
-/** GET without a login: the map is public, `useApiGet` needs a token. */
-function usePublicGet<T>(url: string, errorLabel: string) {
+/** GET without a login: the map is public, `useApiGet` needs a token.
+ *  A null url fetches nothing (a hook cannot be called conditionally). */
+function usePublicGet<T>(url: string | null, errorLabel: string) {
     const [state, setState] = useState<State<T> | null>(null);
     const [nonce, setNonce] = useState(0);
 
     useEffect(() => {
+        if (url === null) return;
         let cancelled = false;
         axios
             .get<T>(url)
@@ -45,7 +47,8 @@ function usePublicGet<T>(url: string, errorLabel: string) {
         refresh: () => setNonce((n) => n + 1),
         data: current?.data ?? null,
         error: current?.error ?? null,
-        loading: current === null,
+        // Nothing to load is not loading
+        loading: url !== null && current === null,
     };
 }
 
@@ -104,6 +107,12 @@ export function useMapOverlay(folder: string) {
         "/lines",
         "Erreur lors du chargement des lignes",
     );
+    // In the Nether, the projects of the Overworld are shown too (at /8)
+    const overworld = overworldFolderOf(folder);
+    const overworldMarkers = usePublicGet<MarkerType[]>(
+        overworld ? `/map/${encodeURIComponent(overworld)}/markers` : null,
+        "Erreur lors du chargement des projets de l'Overworld",
+    );
 
     return {
         // Read the territories, the points and the stations again
@@ -111,17 +120,23 @@ export function useMapOverlay(folder: string) {
             territories.refresh();
             markers.refresh();
             stations.refresh();
+            overworldMarkers.refresh();
         },
         territories: territories.data ?? [],
         markers: markers.data ?? [],
         stations: stations.data ?? [],
         lines: lines.data ?? [],
+        // The Overworld's projects, still in Overworld coordinates
+        overworldProjects: (overworldMarkers.data ?? []).filter(
+            (m) => m.kind === "city",
+        ),
         // A layer that fails to load must not hide the map itself.
         errors: [
             territories.error,
             markers.error,
             stations.error,
             lines.error,
+            overworldMarkers.error,
         ].filter((e): e is string => e !== null),
         dimension,
     };

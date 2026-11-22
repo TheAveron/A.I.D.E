@@ -78,3 +78,16 @@ export function dimensionOfFolder(
     if (folder.startsWith("E")) return "end";
     return "overworld";
 }
+
+/** The Overworld map a Nether map goes with ("NAOS_zoom" -> "OAOS_zoom"), or
+ *  null for a map that is not a Nether. */
+export function overworldFolderOf(folder: string): string | null {
+    return dimensionOfFolder(folder) === "nether" ? `O${folder.slice(1)}` : null;
+}
+
+/** Where an Overworld block is in the Nether: one Nether block for eight.
+ *  As in the game: the position is divided by 8, then floored to its block
+ *  (overworld -13 is nether -2, not -1 as a truncation would say). */
+export function toNetherCoords(x: number, z: number): [number, number] {
+    return [Math.floor(x / 8), Math.floor(z / 8)];
+}

@@ -20,7 +20,7 @@ import {
 } from "ol/style";
 import type { FeatureLike } from "ol/Feature";
 
-import { MARKER_KINDS } from "../../types/map";
+import { MARKER_KINDS, toNetherCoords } from "../../types/map";
 import type { MarkerKind } from "../../types/map";
 import { DIMENSIONS } from "../../types/trains";
 import {
@@ -465,7 +465,39 @@ function MapCanvas({
                     }),
             ),
         );
-    }, [overlay.markers, overlay.territories, unmined, folder]);
+        // In the Nether: the Overworld's projects where their portal would
+        // be. Read only here, they are changed on the Overworld map.
+        source.addFeatures(
+            overlay.overworldProjects.map((m) => {
+                const [nx, nz] = toNetherCoords(m.x, m.z);
+                return new Feature({
+                    geometry: new Point(geometry.toView([nx, nz])),
+                    title: m.label,
+                    color:
+                        m.faction_id != null
+                            ? factionColor(
+                                  m.faction_id,
+                                  colors.get(m.faction_id),
+                              )
+                            : undefined,
+                    markerKind: m.kind,
+                    kindLabel: `${MARKER_KINDS.city} (Overworld)`,
+                    details: [
+                        `Nether : X ${nx}   Z ${nz}`,
+                        `Overworld : X ${m.x}   Z ${m.z}`,
+                        ...(m.owner_name ? [`Par : ${m.owner_name}`] : []),
+                        ...(m.description ? [m.description] : []),
+                    ],
+                });
+            }),
+        );
+    }, [
+        overlay.markers,
+        overlay.overworldProjects,
+        overlay.territories,
+        unmined,
+        folder,
+    ]);
 
     // Online players, as written by the last export
     useEffect(() => {
@@ -510,11 +542,15 @@ function MapCanvas({
     // Stations are not among them: their own layer ("Gares") shows or hides
     // them.
     const kinds = useMemo(() => {
-        const present = new Set<MarkerKind>(overlay.markers.map((m) => m.kind));
+        const present = new Set<MarkerKind>(
+            [...overlay.markers, ...overlay.overworldProjects].map(
+                (m) => m.kind,
+            ),
+        );
         return (Object.keys(MARKER_KINDS) as MarkerKind[]).filter((k) =>
             present.has(k),
         );
-    }, [overlay.markers]);
+    }, [overlay.markers, overlay.overworldProjects]);
 
     // The owners of territories: each faction, and the players as one entry
     // (null), last
