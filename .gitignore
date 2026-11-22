@@ -221,7 +221,11 @@ cython_debug/
 .cursorindexingignore
 
 *.ini
+# Holds no secret: the database settings are in app/config/database.ini
+!backend/alembic.ini
 
 .react-router
 
 backend/documents/maps/
+# Database dumps taken by deploy.bat / deploy.sh
+backend/backups/
