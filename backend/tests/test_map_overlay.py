@@ -505,7 +505,8 @@ def test_a_players_territory_is_theirs_alone(menv):
     assert r.status_code == 403
     r = menv.client.put(url, json={"name": "Verger"}, headers=menv.h("bob"))
     assert (r.status_code, r.json()["name"]) == (200, "Verger")
-    assert menv.client.delete(url, headers=menv.h("bob")).status_code == 204
+    r = menv.client.delete(url, headers=menv.h("bob"))
+    assert r.status_code == 204
 
 
 def test_nobody_draws_for_another_player_but_an_admin(menv):
