@@ -21,8 +21,18 @@ function ActualMap() {
                 <div id="map-title">
                     <h2>{getLabelFromFolder(CURRENT_MAP_FOLDER)}</h2>
                 </div>
+            </div>
+            {/* The switch floats over the map, outside the viewer: it stays
+                there while a dimension loads, or if its export is missing */}
+            <div className="map-stage">
+                {/* One viewer per export: the view starts again on the new map */}
+                <MapViewer key={folder} folder={folder} />
                 {CURRENT_MAP_VARIANTS.length > 1 && (
-                    <div className="map-dimensions" role="tablist">
+                    <div
+                        className="map-dimensions map-float"
+                        role="tablist"
+                        aria-label="Dimension"
+                    >
                         {CURRENT_MAP_VARIANTS.map((variant) => (
                             <button
                                 key={variant.folder}
@@ -31,8 +41,8 @@ function ActualMap() {
                                 aria-selected={variant.folder === folder}
                                 className={
                                     variant.folder === folder
-                                        ? "button map-dimension active"
-                                        : "button map-dimension"
+                                        ? "map-dimension active"
+                                        : "map-dimension"
                                 }
                                 onClick={() => setFolder(variant.folder)}
                             >
@@ -42,8 +52,6 @@ function ActualMap() {
                     </div>
                 )}
             </div>
-            {/* One viewer per export: the view starts again on the new map */}
-            <MapViewer key={folder} folder={folder} />
         </>
     );
 }

@@ -12,6 +12,12 @@
 # complet dans la variable PG_DUMP).
 set -euo pipefail
 
+# Tout le script est dans main(), appelée à la dernière ligne : bash lit la
+# fonction en entier avant de l'exécuter. Le git checkout plus bas remplace
+# deploy.sh par celui de la version déployée ; sans cela, la suite pourrait
+# être lue dans le nouveau fichier, à la mauvaise position.
+main() {
+
 REPO="TheAveron/A.I.D.E"
 cd "$(dirname "$0")"
 
@@ -102,3 +108,7 @@ echo "Déploiement de $TAG terminé. Sauvegarde de la base : $BACKUP"
 echo "Relance maintenant le backend : arrête l'ancien processus (Ctrl+C), puis depuis backend/ :"
 echo "  Linux : source .venv/bin/activate && fastapi run main.py"
 echo "  Windows : .venv\\Scripts\\activate && fastapi run main.py"
+}
+
+main "$@"
+exit
