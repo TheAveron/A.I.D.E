@@ -165,7 +165,9 @@ def get_offers(
         query = query.filter(Offer.status == status)
 
     if currency:
-        query = query.filter(Offer.currency_name == currency)
+        query = query.join(Currency, Currency.currency_id == Offer.currency_id).filter(
+            Currency.name == currency
+        )
 
     if user_id is not None:
         query = query.filter(Offer.user_id == user_id)
@@ -204,13 +206,19 @@ def create_offer(db: Session, offer_in: OfferCreate) -> Offer:
     caller. `init_quantity` is always derived from `quantity` here: it is the
     record of the original amount, not something a client gets to choose.
     """
-    if not db.query(Currency).filter(Currency.name == offer_in.currency_name).first():
+    currency = (
+        db.query(Currency).filter(Currency.name == offer_in.currency_name).first()
+    )
+    if not currency:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Unknown currency: {offer_in.currency_name}",
         )
 
     data = offer_in.model_dump()
+    # Stored by id, so that the currency can be renamed later
+    del data["currency_name"]
+    data["currency_id"] = currency.currency_id
     data["init_quantity"] = offer_in.quantity
     data["allowed_user_ids"] = _clean_ids(offer_in.allowed_user_ids)
     data["allowed_faction_ids"] = _clean_ids(offer_in.allowed_faction_ids)
@@ -401,7 +409,7 @@ def accept_offer(db: Session, current_user: User, offer_id: int, request: OfferA
     transaction = Transaction(
         offer_id=offer.offer_id,
         amount=quantity * offer.price_per_unit,
-        currency_name=offer.currency_name,
+        currency_id=offer.currency_id,
         timestamp=utcnow(),
         quantity=quantity,
         **buyer_identity,

@@ -8,7 +8,6 @@ from .base import INT32_MAX, PartialUpdate, UTCDatetime
 class CurrencyBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=50)
     symbol: Optional[str] = Field(None, max_length=10)
-    faction_id: int
     total_in_circulation: int = Field(
         0,
         ge=0,
@@ -18,7 +17,8 @@ class CurrencyBase(BaseModel):
 
 
 class CurrencyCreate(CurrencyBase):
-    pass
+    # The faction that creates the currency becomes its (first) issuer
+    faction_id: int
 
 
 class CurrencyUpdate(PartialUpdate):
@@ -35,21 +35,51 @@ class CurrencyUpdate(PartialUpdate):
     )
 
 
-class CurrencyPublic(BaseModel):
-    """What any logged-in user may know about a faction's currency.
+class CurrencyFactionOut(BaseModel):
+    """A faction using a currency."""
 
-    The declared total in circulation is only meant for the faction itself.
+    faction_id: int
+    faction_name: Optional[str] = None
+    is_issuer: bool
+    joined_at: UTCDatetime
+
+
+class CurrencyPublic(BaseModel):
+    """What any logged-in user may know about a currency.
+
+    The declared total in circulation is only meant for the factions that use
+    it.
     """
 
+    currency_id: int
     name: str
     symbol: Optional[str] = None
-    faction_id: Optional[int] = None
+    factions: list[CurrencyFactionOut] = []
+    # Whether the caller may change the currency (issuer manager, money admin)
+    can_manage: bool = False
 
-    model_config = {"from_attributes": True}
 
-
-class CurrencyOut(CurrencyBase):
+class CurrencyOut(CurrencyPublic):
+    total_in_circulation: int
     created_at: UTCDatetime
     updated_at: UTCDatetime
+
+
+class CurrencyInvite(BaseModel):
+    """An issuer proposes to a faction to use its currency."""
+
+    faction_id: int
+
+
+class CurrencyLinkRequestOut(BaseModel):
+    request_id: int
+    currency_id: int
+    currency_name: Optional[str] = None
+    faction_id: int
+    faction_name: Optional[str] = None
+    kind: str  # "REQUEST" | "INVITATION"
+    status: str
+    created_by_user_id: Optional[int] = None
+    created_at: UTCDatetime
 
     model_config = {"from_attributes": True}

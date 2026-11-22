@@ -3,7 +3,7 @@
 from test_hardening import PW_HASH, env  # noqa: F401  (pytest fixture)
 
 from app.api import documentation, join_requests
-from app.database import Currency, Faction, Offer, Role, User
+from app.database import Currency, CurrencyFaction, Faction, Offer, Role, User
 from app.misc import OfferStatus
 
 
@@ -137,7 +137,8 @@ def test_pending_join_requests_are_withdrawn(env):  # noqa: F811
 def test_the_currency_goes_unless_trades_use_it(env):  # noqa: F811
     assert _delete(env).status_code == 204
     s = env.Session()
-    assert s.query(Currency).filter_by(faction_id=1).count() == 0
+    assert s.query(Currency).count() == 0
+    assert s.query(CurrencyFaction).count() == 0
     s.close()
 
 

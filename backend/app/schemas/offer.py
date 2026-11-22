@@ -67,6 +67,7 @@ class OfferUpdate(PartialUpdate):
 
 class OfferOut(OfferBase):
     offer_id: int
+    currency_id: int
     user_id: Optional[int]
     faction_id: Optional[int]
     is_private: bool = False

@@ -18,25 +18,33 @@ class CurrencyHistory(Base):
     not as balances this app can compute). This table doesn't try to
     derive that figure automatically; it only adds accountability for
     who changed the declared figure, when, and from/to what value.
+
+    A rename is logged here as well (with the total unchanged and the old
+    and new names in `notes`), so the trail stays readable afterwards.
     """
 
     __tablename__ = "currency_history"
     __table_args__ = (
         Index(
-            "ix_currency_history_currency_name_timestamp",
-            "currency_name",
+            "ix_currency_history_currency_id_timestamp",
+            "currency_id",
             "timestamp",
         ),
     )
 
     history_id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
-    currency_name: Mapped[str] = mapped_column(
-        String(50), ForeignKey("currencies.name"), nullable=False, index=True
+    currency_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("currencies.currency_id"), nullable=False, index=True
     )
     currency = relationship(
-        "Currency", back_populates="history", foreign_keys=[currency_name]
+        "Currency", back_populates="history", foreign_keys=[currency_id]
     )
+
+    @property
+    def currency_name(self) -> Optional[str]:
+        """The currency's current name (it may have been renamed since)."""
+        return self.currency.name if self.currency else None
 
     actor_user_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("users.user_id"), nullable=True, index=True

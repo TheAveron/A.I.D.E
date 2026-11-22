@@ -10,22 +10,43 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from ..core import require_global_role
 from ..crud import audit
 from ..crud import currencies as currency_crud
 from ..crud import faction as faction_crud
 from ..crud import offer as offer_crud
 from ..crud.notification import members_with_permission, notify_many
 from ..crud.offer_history import create_offer_history
-from ..database import (Currency, Faction, JoinRequest, Notification, Offer,
-                        Role, Train, Transaction, User, get_db)
+from ..database import (
+    Currency,
+    Faction,
+    GlobalRoleName,
+    JoinRequest,
+    Notification,
+    Offer,
+    Role,
+    Train,
+    Transaction,
+    User,
+    get_db,
+)
 from ..database.clock import utcnow
 from ..misc import FactionPermission, OfferAction, OfferStatus
-from ..schemas import (AdminCurrencyOut, AdminFactionOut, AdminFactionState,
-                       AdminOfferOut, AdminReason, AdminRoleState,
-                       AdminTransactionCancelled, AdminTransactionOut,
-                       AdminUserState, CurrencyCreate, CurrencyUpdate)
-from .admin import (LEADER_ROLE_NAME, _admin_only, _escape_like, _target_user,
-                    _user_out)
+from ..schemas import (
+    AdminCurrencyOut,
+    AdminFactionOut,
+    AdminFactionState,
+    AdminOfferOut,
+    AdminReason,
+    AdminRoleState,
+    AdminTransactionCancelled,
+    AdminTransactionOut,
+    AdminUserState,
+    CurrencyCreate,
+    CurrencyFactionOut,
+    CurrencyUpdate,
+)
+from .admin import LEADER_ROLE_NAME, _admin_only, _escape_like, _target_user, _user_out
 
 router = APIRouter(prefix="/admin", tags=["Administration"])
 
@@ -283,13 +304,26 @@ def cancel_transaction(
 
 # ── Currencies ────────────────────────────────────────────────────────────
 
+# A money admin runs every currency: these tools are theirs as well
+_currency_staff = require_global_role(
+    GlobalRoleName.ADMIN.value, GlobalRoleName.MONEY_ADMIN.value
+)
+
 
 def _currency_out(currency: Currency) -> AdminCurrencyOut:
     return AdminCurrencyOut(
+        currency_id=currency.currency_id,
         name=currency.name,
         symbol=currency.symbol,
-        faction_id=currency.faction_id,
-        faction_name=currency.faction.name if currency.faction else None,
+        factions=[
+            CurrencyFactionOut(
+                faction_id=link.faction_id,
+                faction_name=link.faction.name if link.faction else None,
+                is_issuer=link.is_issuer,
+                joined_at=link.joined_at,
+            )
+            for link in currency.links
+        ],
         total_in_circulation=currency.total_in_circulation,
         created_at=currency.created_at,
     )
@@ -298,7 +332,7 @@ def _currency_out(currency: Currency) -> AdminCurrencyOut:
 @router.get("/currencies", response_model=list[AdminCurrencyOut])
 def list_all_currencies(
     db: Session = Depends(get_db),
-    _: User = Depends(_admin_only),
+    _: User = Depends(_currency_staff),
 ):
     """Every faction's currency, with its declared total in circulation."""
     return [_currency_out(c) for c in db.query(Currency).order_by(Currency.name)]
@@ -321,7 +355,7 @@ def _recording(db: Session, action):
 def create_currency(
     body: CurrencyCreate,
     db: Session = Depends(get_db),
-    admin: User = Depends(_admin_only),
+    admin: User = Depends(_currency_staff),
 ):
     """Create a currency for any faction."""
     faction = faction_crud.get_faction(db, body.faction_id)
@@ -343,15 +377,15 @@ def create_currency(
     return _currency_out(currency)
 
 
-@router.put("/currencies/{currency_name}", response_model=AdminCurrencyOut)
+@router.put("/currencies/{currency_id}", response_model=AdminCurrencyOut)
 def update_currency(
-    currency_name: str,
+    currency_id: int,
     body: CurrencyUpdate,
     db: Session = Depends(get_db),
-    admin: User = Depends(_admin_only),
+    admin: User = Depends(_currency_staff),
 ):
     """Rename a currency, change its symbol or its declared total."""
-    currency = currency_crud.get_currency(db, currency_name)
+    currency = currency_crud.get_currency(db, currency_id)
     if not currency:
         raise HTTPException(status_code=404, detail="Currency not found")
     changes = []
@@ -371,27 +405,27 @@ def update_currency(
         admin,
         audit.AuditAction.CURRENCY_CHANGED,
         "currency",
-        None,
+        currency.currency_id,
         currency.name,
         ", ".join(changes) or "aucun changement",
     )
     updated = _recording(
         db,
         lambda: currency_crud.update_currency(
-            db, currency_name, body, actor_user_id=admin.user_id
+            db, currency_id, body, actor_user_id=admin.user_id
         ),
     )
     return _currency_out(updated)
 
 
-@router.delete("/currencies/{currency_name}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/currencies/{currency_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_currency(
-    currency_name: str,
+    currency_id: int,
     db: Session = Depends(get_db),
-    admin: User = Depends(_admin_only),
+    admin: User = Depends(_currency_staff),
 ):
     """Delete a currency nothing uses yet."""
-    currency = currency_crud.get_currency(db, currency_name)
+    currency = currency_crud.get_currency(db, currency_id)
     if not currency:
         raise HTTPException(status_code=404, detail="Currency not found")
     audit.record(
@@ -399,11 +433,11 @@ def delete_currency(
         admin,
         audit.AuditAction.CURRENCY_DELETED,
         "currency",
-        None,
+        currency.currency_id,
         currency.name,
-        f"De {currency.faction.name}" if currency.faction else None,
+        None,
     )
-    _recording(db, lambda: currency_crud.delete_currency(db, currency_name))
+    _recording(db, lambda: currency_crud.delete_currency(db, currency_id))
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

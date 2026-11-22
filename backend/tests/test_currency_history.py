@@ -6,8 +6,9 @@ from sqlalchemy.orm import sessionmaker
 from app.api import currencies as api
 from app.crud import currencies as crud
 from app.crud import currency_history as crud_hist
-from app.database import (Base, Currency, CurrencyHistory, Faction, GlobalRole,
-                          Offer, OfferHistory, Role, Transaction, User,
+from app.database import (Base, Currency, CurrencyFaction, CurrencyHistory,
+                          CurrencyLinkRequest, Faction, GlobalRole, Offer,
+                          OfferHistory, Role, Transaction, User,
                           UserPreferences)
 from app.database.models import (currency, currency_history, faction,
                                  faction_role, user)
@@ -19,6 +20,8 @@ TABLES = [
     User.__table__,
     GlobalRole.__table__,
     Currency.__table__,
+    CurrencyFaction.__table__,
+    CurrencyLinkRequest.__table__,
     CurrencyHistory.__table__,
     Offer.__table__,
     OfferHistory.__table__,
@@ -54,7 +57,8 @@ def db():
 
 
 def hist(db, name="Diamant"):
-    return crud_hist.get_currency_histories(db, name)
+    currency = crud.get_currency_by_name(db, name)
+    return crud_hist.get_currency_histories(db, currency.currency_id)
 
 
 def test_creation_logs_initial_value(db):
@@ -85,7 +89,7 @@ def test_update_logs_change_with_actor(db):
         actor_user_id=1,
     )
     crud.update_currency(
-        db, "Diamant", CurrencyUpdate(total_in_circulation=250), actor_user_id=1
+        db, 1, CurrencyUpdate(total_in_circulation=250), actor_user_id=1
     )
     h = hist(db)
     assert len(h) == 2
@@ -95,7 +99,7 @@ def test_update_logs_change_with_actor(db):
         250,
     )
     assert latest.actor_user_id == 1
-    assert db.get(Currency, "Diamant").total_in_circulation == 250
+    assert db.get(Currency, 1).total_in_circulation == 250
 
 
 def test_same_value_or_symbol_only_update_not_logged(db):
@@ -105,11 +109,11 @@ def test_same_value_or_symbol_only_update_not_logged(db):
         actor_user_id=1,
     )
     crud.update_currency(
-        db, "Diamant", CurrencyUpdate(total_in_circulation=100), actor_user_id=1
+        db, 1, CurrencyUpdate(total_in_circulation=100), actor_user_id=1
     )
-    crud.update_currency(db, "Diamant", CurrencyUpdate(symbol="D"), actor_user_id=1)
+    crud.update_currency(db, 1, CurrencyUpdate(symbol="D"), actor_user_id=1)
     assert len(hist(db)) == 1
-    assert db.get(Currency, "Diamant").symbol == "D"
+    assert db.get(Currency, 1).symbol == "D"
 
 
 def test_history_scoped_per_currency_and_newest_first(db):
@@ -125,7 +129,7 @@ def test_history_scoped_per_currency_and_newest_first(db):
     )
     for v in (2, 3, 4):
         crud.update_currency(
-            db, "Diamant", CurrencyUpdate(total_in_circulation=v), actor_user_id=1
+            db, 1, CurrencyUpdate(total_in_circulation=v), actor_user_id=1
         )
     d = hist(db, "Diamant")
     assert [x.new_total_in_circulation for x in d] == [4, 3, 2, 1]
@@ -138,10 +142,8 @@ def test_delete_currency_removes_history(db):
         CurrencyCreate(name="Diamant", faction_id=1, total_in_circulation=1),
         actor_user_id=1,
     )
-    crud.update_currency(
-        db, "Diamant", CurrencyUpdate(total_in_circulation=9), actor_user_id=1
-    )
-    crud.delete_currency(db, "Diamant")
+    crud.update_currency(db, 1, CurrencyUpdate(total_in_circulation=9), actor_user_id=1)
+    crud.delete_currency(db, 1)
     assert db.query(CurrencyHistory).count() == 0
 
 
@@ -153,7 +155,7 @@ def test_api_history_allowed_for_treasurer(db):
         actor_user_id=1,
     )
     treasurer = db.get(User, 1)
-    out = api.get_currency_history("Diamant", db=db, current_user=treasurer)
+    out = api.get_currency_history(1, db=db, current_user=treasurer)
     assert len(out) == 1
 
 
@@ -164,7 +166,7 @@ def test_api_history_denied_without_manage_funds(db):
         actor_user_id=1,
     )
     with pytest.raises(HTTPException) as e:
-        api.get_currency_history("Diamant", db=db, current_user=db.get(User, 2))
+        api.get_currency_history(1, db=db, current_user=db.get(User, 2))
     assert e.value.status_code == 403
 
 
@@ -178,13 +180,13 @@ def test_api_history_denied_for_other_faction(db):
     other.role = Role(role_id=9, name="T2", faction_id=2, manage_funds=True)
     db.commit()
     with pytest.raises(HTTPException) as e:
-        api.get_currency_history("Diamant", db=db, current_user=other)
+        api.get_currency_history(1, db=db, current_user=other)
     assert e.value.status_code == 403
 
 
 def test_api_history_404_unknown_currency(db):
     with pytest.raises(HTTPException) as e:
-        api.get_currency_history("Nope", db=db, current_user=db.get(User, 1))
+        api.get_currency_history(999, db=db, current_user=db.get(User, 1))
     assert e.value.status_code == 404
 
 
@@ -195,7 +197,7 @@ def test_api_update_records_authenticated_actor(db):
         actor_user_id=1,
     )
     api.update_currency(
-        "Diamant",
+        1,
         CurrencyUpdate(total_in_circulation=7),
         db=db,
         current_user=db.get(User, 1),

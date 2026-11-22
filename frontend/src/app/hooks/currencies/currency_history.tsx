@@ -10,16 +10,17 @@ import type {
 const MAX_ENTRIES = 500;
 
 /**
- * The audit trail of a currency's total in circulation, newest first. Only
- * the holders of manage_funds in the currency's faction may read it (anybody
- * else gets a 403): pass `null` for the others to not ask at all.
+ * The audit trail of a currency's total in circulation (and of its renames),
+ * newest first. Only the holders of manage_funds in a faction using the
+ * currency, and money admins, may read it (anybody else gets a 403): pass
+ * `null` for the others to not ask at all.
  */
 export function useCurrencyHistory(
-    currencyName: string | null,
+    currencyId: number | null,
 ): CurrencyHistoryHook {
     const { data, loading, error, refresh } = useApiGet<CurrencyHistoryType[]>(
-        currencyName
-            ? `/currencies/history/${encodeURIComponent(currencyName)}?limit=${MAX_ENTRIES}`
+        currencyId !== null
+            ? `/currencies/history/${currencyId}?limit=${MAX_ENTRIES}`
             : null,
         "Error fetching currency history",
     );

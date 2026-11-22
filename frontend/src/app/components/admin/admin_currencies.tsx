@@ -48,7 +48,7 @@ function CurrencyEditor({
         setBusy(true);
         try {
             await axios.put(
-                `/admin/currencies/${encodeURIComponent(currency.name)}`,
+                `/admin/currencies/${currency.currency_id}`,
                 changes,
             );
             onDone(`✅ Monnaie « ${currency.name} » modifiée`, true);
@@ -70,9 +70,7 @@ function CurrencyEditor({
         }
         setBusy(true);
         try {
-            await axios.delete(
-                `/admin/currencies/${encodeURIComponent(currency.name)}`,
-            );
+            await axios.delete(`/admin/currencies/${currency.currency_id}`);
             onDone(`✅ Monnaie « ${currency.name} » supprimée`, true);
         } catch (err) {
             onDone(`❌ ${getErrorMessage(err)}`, false);
@@ -155,7 +153,11 @@ function CurrencyEditor({
     );
 }
 
-/** Every faction's currency: create, rename, correct the declared total, delete. */
+/**
+ * Every currency: create, rename, correct the declared total, delete (for
+ * admins and money admins). Who uses or issues a currency is managed from
+ * the faction pages.
+ */
 export default function AdminCurrencies() {
     const { currencies, loading, error, refresh } = useAdminCurrencies();
     const { factions } = useFactions();
@@ -166,7 +168,10 @@ export default function AdminCurrencies() {
     const [factionId, setFactionId] = useState("");
     const [busy, setBusy] = useState(false);
 
-    const taken = new Set(currencies.map((c) => c.faction_id));
+    // A faction uses one currency at most
+    const taken = new Set(
+        currencies.flatMap((c) => c.factions.map((f) => f.faction_id)),
+    );
     const free = (factions ?? []).filter((f) => !taken.has(f.faction_id));
 
     const create = async (event: FormEvent) => {
@@ -238,7 +243,7 @@ export default function AdminCurrencies() {
                     <thead>
                         <tr>
                             <th>Monnaie</th>
-                            <th>Faction</th>
+                            <th>Factions</th>
                             <th>Total en circulation</th>
                             <th>Actions</th>
                         </tr>
@@ -258,7 +263,7 @@ export default function AdminCurrencies() {
                             </tr>
                         ) : (
                             currencies.map((c) => (
-                                <tr key={c.name}>
+                                <tr key={c.currency_id}>
                                     <td>
                                         {c.name}
                                         {c.symbol && (
@@ -266,10 +271,25 @@ export default function AdminCurrencies() {
                                         )}
                                     </td>
                                     <td>
-                                        <Link to={`/faction/${c.faction_id}`}>
-                                            {c.faction_name ??
-                                                `#${c.faction_id}`}
-                                        </Link>
+                                        {c.factions.length === 0
+                                            ? "-"
+                                            : c.factions.map((f, i) => (
+                                                  <span key={f.faction_id}>
+                                                      {i > 0 && ", "}
+                                                      <Link
+                                                          to={`/faction/${f.faction_id}`}
+                                                      >
+                                                          {f.faction_name ??
+                                                              `#${f.faction_id}`}
+                                                      </Link>
+                                                      {f.is_issuer && (
+                                                          <small>
+                                                              {" "}
+                                                              (émettrice)
+                                                          </small>
+                                                      )}
+                                                  </span>
+                                              ))}
                                     </td>
                                     <td>{c.total_in_circulation}</td>
                                     <td>

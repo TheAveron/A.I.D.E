@@ -4,7 +4,8 @@ from .admin import (AdminCurrencyOut, AdminFactionOut, AdminFactionState,
                     AdminTransactionOut, AdminUserOut, AdminUserState,
                     AuditLogOut)
 from .auth import Auth
-from .currency import (CurrencyBase, CurrencyCreate, CurrencyOut,
+from .currency import (CurrencyBase, CurrencyCreate, CurrencyFactionOut,
+                       CurrencyInvite, CurrencyLinkRequestOut, CurrencyOut,
                        CurrencyPublic, CurrencyUpdate)
 from .currency_history import CurrencyHistoryBase, CurrencyHistoryOut
 from .faction_member import (FactionMemberBase, FactionMemberCreate,

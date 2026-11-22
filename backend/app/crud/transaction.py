@@ -23,7 +23,11 @@ def create_transaction(
             status_code=400, detail="Offer is not open for transactions"
         )
 
-    transaction = Transaction(**transaction_in.dict(), timestamp=datetime.utcnow())
+    data = transaction_in.model_dump()
+    data.pop("currency_name", None)  # the offer's currency is the one paid in
+    transaction = Transaction(
+        **data, currency_id=offer.currency_id, timestamp=datetime.utcnow()
+    )
     db.add(transaction)
 
     offer.status = OfferStatus.CLOSED

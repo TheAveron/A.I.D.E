@@ -5,11 +5,11 @@ import { useUpdateCurrency } from "../../hooks/currencies/updatecurrency";
 const MAX_TOTAL = 2147483647; // same bound as the server
 
 export function UpdateCurrencyTotal({
-    currencyName,
+    currencyId,
     currentTotal,
     onUpdated,
 }: {
-    currencyName: string;
+    currencyId: number;
     currentTotal: number;
     onUpdated: () => void;
 }) {
@@ -25,7 +25,7 @@ export function UpdateCurrencyTotal({
         event.preventDefault();
         if (!valid || unchanged) return;
 
-        if (await updateTotal(currencyName, value, notes)) {
+        if (await updateTotal(currencyId, value, notes)) {
             setNotes("");
             onUpdated();
         }

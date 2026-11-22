@@ -19,6 +19,7 @@ class TransactionCreate(TransactionBase):
 
 class TransactionOut(TransactionBase):
     transaction_id: int
+    currency_id: int
     timestamp: UTCDatetime
     quantity: Optional[int] = None
     cancelled_at: Optional[UTCDatetime] = None

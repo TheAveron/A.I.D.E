@@ -50,10 +50,15 @@ class Offer(Base):
     )
     item_description: Mapped[str] = mapped_column(String, nullable=False)
 
-    currency_name: Mapped[str] = mapped_column(
-        String(50), ForeignKey("currencies.name"), nullable=False, index=True
+    currency_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("currencies.currency_id"), nullable=False, index=True
     )
     currency = relationship("Currency", back_populates="offers", passive_deletes=True)
+
+    @property
+    def currency_name(self) -> Optional[str]:
+        """The currency's current name (it may have been renamed since)."""
+        return self.currency.name if self.currency else None
 
     price_per_unit: Mapped[float] = mapped_column(Float, nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)

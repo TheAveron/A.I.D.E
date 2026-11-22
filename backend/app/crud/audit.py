@@ -26,6 +26,10 @@ class AuditAction(str, Enum):
     CURRENCY_CREATED = "currency_created"
     CURRENCY_CHANGED = "currency_changed"
     CURRENCY_DELETED = "currency_deleted"
+    # Money admins acting on currencies their faction does not issue
+    CURRENCY_FACTION_ADDED = "currency_faction_added"
+    CURRENCY_FACTION_REMOVED = "currency_faction_removed"
+    CURRENCY_ISSUER_CHANGED = "currency_issuer_changed"
     # Admins acting on the territories and markers of others
     TERRITORY_CHANGED = "territory_changed"
     TERRITORY_DELETED = "territory_deleted"
@@ -42,6 +46,8 @@ class AuditAction(str, Enum):
 
 # What a train admin (who is not an admin) is allowed to read in the trail
 TRAIN_TARGETS = ("train", "line", "station")
+# ... and a money admin
+MONEY_TARGETS = ("currency",)
 
 
 def record(

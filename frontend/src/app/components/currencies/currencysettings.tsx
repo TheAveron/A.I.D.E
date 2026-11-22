@@ -6,16 +6,18 @@ const NAME_MAX = 50;
 const SYMBOL_MAX = 10;
 
 /**
- * Rename a currency, change its symbol, or delete it. The server refuses to
- * rename or delete a currency that offers, transactions or history refer to,
- * and says so: its message is shown as is.
+ * Rename a currency, change its symbol, or delete it. A rename carries the
+ * offers and transactions along; the server refuses to delete a currency
+ * they refer to, and says so: its message is shown as is.
  */
 export function CurrencySettings({
+    currencyId,
     name,
     symbol,
     onChanged,
     onDeleted,
 }: {
+    currencyId: number;
     name: string;
     symbol: string | null;
     onChanged: () => void;
@@ -42,12 +44,12 @@ export function CurrencySettings({
         const changes: { name?: string; symbol?: string } = {};
         if (nameChanged) changes.name = trimmedName;
         if (symbolChanged) changes.symbol = trimmedSymbol;
-        if (await updateInfo(name, changes)) onChanged();
+        if (await updateInfo(currencyId, changes)) onChanged();
     };
 
     const onDelete = async () => {
         if (!window.confirm(`Supprimer la monnaie « ${name} » ?`)) return;
-        if (await remove(name)) onDeleted();
+        if (await remove(currencyId)) onDeleted();
     };
 
     return (

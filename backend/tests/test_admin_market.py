@@ -342,18 +342,21 @@ def test_an_admin_manages_any_currency(menv):
 
     r = c.post("/admin/currencies", json={"name": "Or", "faction_id": 3}, headers=h)
     assert r.status_code == 201
-    assert r.json()["faction_name"] == "Sans Faction"
+    assert [(f["faction_name"], f["is_issuer"]) for f in r.json()["factions"]] == [
+        ("Sans Faction", True)
+    ]
+    or_id = r.json()["currency_id"]
 
     r = c.put(
-        "/admin/currencies/Or",
+        f"/admin/currencies/{or_id}",
         json={"symbol": "$", "total_in_circulation": 50, "notes": "départ"},
         headers=h,
     )
     assert r.status_code == 200
     assert (r.json()["symbol"], r.json()["total_in_circulation"]) == ("$", 50)
 
-    assert c.delete("/admin/currencies/Or", headers=h).status_code == 204
-    assert c.delete("/admin/currencies/Or", headers=h).status_code == 404
+    assert c.delete(f"/admin/currencies/{or_id}", headers=h).status_code == 204
+    assert c.delete(f"/admin/currencies/{or_id}", headers=h).status_code == 404
     assert [a[1] for a in _audit(menv)] == [
         "currency_created",
         "currency_changed",
@@ -363,7 +366,7 @@ def test_an_admin_manages_any_currency(menv):
 
 def test_a_used_currency_cannot_be_deleted_even_by_an_admin(menv):
     _offer(menv)
-    r = menv.client.delete("/admin/currencies/Diamant", headers=menv.h("root"))
+    r = menv.client.delete("/admin/currencies/1", headers=menv.h("root"))
     assert r.status_code == 409
     assert _audit(menv) == []
 
@@ -373,8 +376,8 @@ def test_currencies_are_for_admins_only(menv):
         lambda h: menv.client.post(
             "/admin/currencies", json={"name": "Or", "faction_id": 3}, headers=h
         ),
-        lambda h: menv.client.put("/admin/currencies/Diamant", json={}, headers=h),
-        lambda h: menv.client.delete("/admin/currencies/Diamant", headers=h),
+        lambda h: menv.client.put("/admin/currencies/1", json={}, headers=h),
+        lambda h: menv.client.delete("/admin/currencies/1", headers=h),
     ):
         assert call(menv.h("alice")).status_code == 403
 

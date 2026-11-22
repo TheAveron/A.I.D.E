@@ -6,13 +6,13 @@ import Username from "../users/username";
 const COLUMNS = 5;
 
 export default function CurrencyHistoryTable({
-    currencyName,
+    currencyId,
     perPage = 10,
 }: {
-    currencyName: string;
+    currencyId: number;
     perPage?: number;
 }) {
-    const { histories, loading, error } = useCurrencyHistory(currencyName);
+    const { histories, loading, error } = useCurrencyHistory(currencyId);
     const { pageItems, page, totalPages, setPage } = usePagination(
         histories ?? [],
         perPage,

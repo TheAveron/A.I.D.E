@@ -13,14 +13,15 @@ class GlobalRoleName(str, Enum):
 
     ADMIN = "admin"  # everything an admin may do (approve factions, ...)
     TRAIN_ADMIN = "train_admin"  # manages every train, line and station
+    MONEY_ADMIN = "money_admin"  # manages every currency
 
 
 class GlobalRole(Base):
     """A server-wide role held by a user, outside any faction.
 
-    One row per (user, role): "admin", "train_admin", and whatever comes next
-    (moderators...). Keeping them here, rather than as columns of `users`,
-    means a new role is a new value, not a migration.
+    One row per (user, role): "admin", "train_admin", "money_admin", and
+    whatever comes next (moderators...). Keeping them here, rather than as
+    columns of `users`, means a new role is a new value, not a migration.
     """
 
     __tablename__ = "user_global_roles"

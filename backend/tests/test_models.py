@@ -3,7 +3,7 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from app.database import Currency, Faction, Offer, User
+from app.database import Currency, CurrencyFaction, Faction, Offer, User
 from app.misc import OfferStatus, OfferType
 
 
@@ -41,19 +41,24 @@ def test_currency_belongs_to_a_faction(session):
     session.add(faction)
     session.commit()
 
-    session.add(Currency(name="Diamant", faction_id=faction.faction_id))
+    currency = Currency(name="Diamant")
+    currency.links.append(
+        CurrencyFaction(faction_id=faction.faction_id, is_issuer=True)
+    )
+    session.add(currency)
     session.commit()
 
     result = session.query(Currency).first()
     assert result.name == "Diamant"
-    assert result.faction_id == faction.faction_id
+    assert result.issuer_faction_ids == [faction.faction_id]
+    assert faction.currency is result
 
 
 def _offer(**over) -> Offer:
     data = dict(
         offer_type=OfferType.SELL,
         item_description="Laser Gun",
-        currency_name="Gold",
+        currency_id=1,
         price_per_unit=500.0,
         quantity=1,
         init_quantity=1,
@@ -66,7 +71,7 @@ def _offer(**over) -> Offer:
 def test_offer_creation_and_user_relationships(session):
     creator = User(username="creator", hashed_password="x")
     accepter = User(username="accepter", hashed_password="x")
-    session.add_all([creator, accepter, Currency(name="Gold")])
+    session.add_all([creator, accepter, Currency(currency_id=1, name="Gold")])
     session.commit()
 
     session.add(_offer(user_id=creator.user_id, accepted_by_user_id=accepter.user_id))
@@ -80,7 +85,7 @@ def test_offer_creation_and_user_relationships(session):
 
 
 def test_an_offer_needs_exactly_one_owner(session):
-    session.add(Currency(name="Gold"))
+    session.add(Currency(currency_id=1, name="Gold"))
     session.commit()
     session.add(_offer())  # neither user nor faction
     with pytest.raises(IntegrityError):
