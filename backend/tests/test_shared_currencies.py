@@ -293,9 +293,8 @@ def test_a_currency_keeps_at_least_one_issuer(senv):
 def test_a_faction_leaves_or_is_removed(senv):
     c = senv.client
     _join(senv)
-    # carl can't make his faction leave; bob can
-    assert (
-        c.delete(f"/currencies/{DIAMANT}/factions/2", headers=senv.h("carl"))
+    response = c.delete(f"/currencies/{DIAMANT}/factions/2", headers=senv.h("carl"))
+    assert response.status_code == 403
     ).status_code == 403
     response = c.delete(f"/currencies/{DIAMANT}/factions/2", headers=senv.h("bob"))
     assert response.status_code == 200
