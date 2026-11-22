@@ -8,6 +8,7 @@ import { ADMIN_PAGE, useAdminUsers } from "../../hooks/admin/admin";
 import { getErrorMessage } from "../../utils/apierror";
 import { GLOBAL_ROLES, GLOBAL_ROLE_LABELS } from "../../utils/audit";
 import type { AdminUserType } from "../../types/admin";
+import { LEADER_ROLE } from "../../utils/roles";
 
 const PASSWORD_MIN = 4;
 const PASSWORD_MAX = 40;
@@ -253,9 +254,11 @@ export default function AdminUsers() {
                                                 user={u}
                                                 onDone={setMessage}
                                             />{" "}
+                                            {/* A leader hands over first (409) */}
                                             {u.faction_name &&
                                                 u.faction_name !==
-                                                    "Sans Faction" && (
+                                                    "Sans Faction" &&
+                                                u.role_name !== LEADER_ROLE && (
                                                     <button
                                                         type="button"
                                                         className="button"

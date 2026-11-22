@@ -34,16 +34,16 @@ export function CurrencySettings({
     const valid =
         trimmedName.length > 0 &&
         trimmedName.length <= NAME_MAX &&
-        trimmedSymbol.length > 0 &&
+        // No symbol is fine (the server stores none)
         trimmedSymbol.length <= SYMBOL_MAX;
 
     const submit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!valid || (!nameChanged && !symbolChanged)) return;
 
-        const changes: { name?: string; symbol?: string } = {};
+        const changes: { name?: string; symbol?: string | null } = {};
         if (nameChanged) changes.name = trimmedName;
-        if (symbolChanged) changes.symbol = trimmedSymbol;
+        if (symbolChanged) changes.symbol = trimmedSymbol || null;
         if (await updateInfo(currencyId, changes)) onChanged();
     };
 
