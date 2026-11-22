@@ -32,8 +32,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-BACKEND = Path(__file__).resolve().parent.parent
+# The deploy scripts may run a copy of this file taken from the target tag
+# (when the installed version predates it): AIDE_BACKEND then says where the
+# backend is, and the app modules are imported from there.
+BACKEND = Path(
+    os.environ.get("AIDE_BACKEND") or Path(__file__).resolve().parent.parent
+).resolve()
 REPO = BACKEND.parent
+if str(BACKEND) not in sys.path:
+    sys.path.insert(0, str(BACKEND))
 VERSIONS = "backend/alembic/versions"
 
 
