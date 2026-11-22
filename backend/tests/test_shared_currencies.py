@@ -276,9 +276,10 @@ def test_a_currency_keeps_at_least_one_issuer(senv):
         f"/currencies/update/{DIAMANT}", json={"symbol": "D"}, headers=senv.h("bob")
     )
     assert r.status_code == 202
-    assert c.delete(
+    response = c.delete(
         f"/currencies/{DIAMANT}/factions/1/issuer", headers=h
-    ).status_code == (200)
+    )
+    assert response.status_code == 200
     assert _links(senv) == [(1, False), (2, True)]
     # alice's faction no longer issues it
     assert (
