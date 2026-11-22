@@ -373,8 +373,8 @@ def update_currency(
     changes = []
     if body.name is not None and body.name != currency.name:
         changes.append(f"nom → {body.name}")
-    if body.symbol is not None and body.symbol != currency.symbol:
-        changes.append(f"symbole → {body.symbol}")
+    if "symbol" in body.model_fields_set and body.symbol != currency.symbol:
+        changes.append(f"symbole → {body.symbol or 'aucun'}")
     if (
         body.total_in_circulation is not None
         and body.total_in_circulation != currency.total_in_circulation

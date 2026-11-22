@@ -187,8 +187,9 @@ def update_currency(
 
     old_total = db_currency.total_in_circulation
 
-    if currency_in.symbol is not None:
-        db_currency.symbol = currency_in.symbol
+    # A symbol sent as null removes it (left out: unchanged)
+    if "symbol" in currency_in.model_fields_set:
+        db_currency.symbol = currency_in.symbol or None
     if currency_in.total_in_circulation is not None:
         db_currency.total_in_circulation = currency_in.total_in_circulation
 

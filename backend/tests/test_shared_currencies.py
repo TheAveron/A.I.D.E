@@ -430,3 +430,14 @@ def test_a_money_admin_has_the_currency_admin_tools(senv):
     # the rest of the admin tools stay for admins
     assert c.get("/admin/offers", headers=senv.h("mona")).status_code == 403
     assert c.get("/admin/currencies", headers=senv.h("bob")).status_code == 403
+
+
+def test_a_symbol_can_be_removed(senv):
+    c, h = senv.client, senv.h("alice")
+    r = c.put(f"/currencies/update/{DIAMANT}", json={"symbol": "D"}, headers=h)
+    assert r.status_code == 202 and r.json()["symbol"] == "D"
+    # Left out: unchanged; sent as null: removed
+    r = c.put(f"/currencies/update/{DIAMANT}", json={"name": "Rubis"}, headers=h)
+    assert r.json()["symbol"] == "D"
+    r = c.put(f"/currencies/update/{DIAMANT}", json={"symbol": None}, headers=h)
+    assert r.status_code == 202 and r.json()["symbol"] is None
