@@ -355,8 +355,10 @@ def test_an_admin_manages_any_currency(menv):
     assert r.status_code == 200
     assert (r.json()["symbol"], r.json()["total_in_circulation"]) == ("$", 50)
 
-    assert c.delete(f"/admin/currencies/{or_id}", headers=h).status_code == 204
-    assert c.delete(f"/admin/currencies/{or_id}", headers=h).status_code == 404
+    r = c.delete(f"/admin/currencies/{or_id}", headers=h)
+    assert r.status_code == 204
+    r = c.delete(f"/admin/currencies/{or_id}", headers=h)
+    assert r.status_code == 404
     assert [a[1] for a in _audit(menv)] == [
         "currency_created",
         "currency_changed",
