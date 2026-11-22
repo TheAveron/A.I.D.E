@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, ForeignKey, Integer, String, true
+from typing import Optional
+
+from sqlalchemy import JSON, Boolean, ForeignKey, Integer, String, true
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..database import Base
@@ -27,3 +29,7 @@ class UserPreferences(Base):
     notify_faction: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default=true()
     )
+
+    # What the map shows, as the person left it (layers, kinds, factions
+    # hidden): the front's own shape, kept as given. Empty: everything shown.
+    map_display: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)

@@ -56,7 +56,9 @@ def _polygon(points: list[list[int]]) -> list[list[int]]:
 
 class TerritoryCreate(BaseModel):
     map_name: str
-    faction_id: int
+    # Exactly one owner; neither means the caller themselves
+    faction_id: Optional[int] = None
+    user_id: Optional[int] = None
     name: str = Field(..., min_length=1, max_length=80)
     description: Optional[str] = Field(None, max_length=MAX_DESCRIPTION_LENGTH)
     color: Optional[str] = None
@@ -73,6 +75,14 @@ class TerritoryCreate(BaseModel):
         if not value:
             raise ValueError("The name cannot be empty")
         return value
+
+    @model_validator(mode="after")
+    def _one_owner(self):
+        if self.faction_id is not None and self.user_id is not None:
+            raise ValueError(
+                "A territory belongs to a faction or to a player, not both"
+            )
+        return self
 
 
 class TerritoryUpdate(PartialUpdate):
@@ -107,8 +117,10 @@ class TerritoryOut(BaseModel):
     name: str
     description: Optional[str] = None
     color: Optional[str] = None
-    faction_id: int
+    faction_id: Optional[int] = None
     faction_name: Optional[str] = None
+    user_id: Optional[int] = None
+    owner_name: Optional[str] = None
     points: list[list[int]]
     created_at: UTCDatetime
     updated_at: UTCDatetime

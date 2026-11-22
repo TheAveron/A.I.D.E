@@ -27,6 +27,7 @@ def test_the_defaults_when_nothing_was_saved(penv):
         "theme": "dark",
         "notify_market": True,
         "notify_faction": True,
+        "map_display": None,
     }
     s = penv.Session()
     assert s.query(UserPreferences).count() == 0  # reading creates nothing
@@ -42,17 +43,28 @@ def test_a_change_only_touches_what_was_sent(penv):
     h = penv.h("alice")
     r = penv.client.put("/preferences", json={"theme": "light"}, headers=h)
     assert r.status_code == 200
-    assert r.json() == {"theme": "light", "notify_market": True, "notify_faction": True}
+    assert r.json() == {
+        "theme": "light",
+        "notify_market": True,
+        "notify_faction": True,
+        "map_display": None,
+    }
     r = penv.client.put("/preferences", json={"notify_market": False}, headers=h)
     assert r.json() == {
         "theme": "light",
         "notify_market": False,
         "notify_faction": True,
+        "map_display": None,
     }
     assert penv.client.get("/preferences", headers=h).json()["theme"] == "light"
     # somebody else's are their own
     other = penv.client.get("/preferences", headers=penv.h("newbie")).json()
-    assert other == {"theme": "dark", "notify_market": True, "notify_faction": True}
+    assert other == {
+        "theme": "dark",
+        "notify_market": True,
+        "notify_faction": True,
+        "map_display": None,
+    }
 
 
 @pytest.mark.parametrize(
@@ -120,3 +132,38 @@ def test_switching_a_category_back_on_restores_it(penv):
     s.commit()
     s.close()
     assert _notes(penv, "alice") == ["join_request"]
+
+
+def test_the_map_display_is_saved_and_given_back(penv):
+    shown = {
+        "hidden_layers": ["players"],
+        "hidden_kinds": ["village", "woodland_mansion"],
+        "hidden_factions": [2, None],
+    }
+    h = penv.h("alice")
+    r = penv.client.put("/preferences", json={"map_display": shown}, headers=h)
+    assert r.status_code == 200
+    assert penv.client.get("/preferences", headers=h).json()["map_display"] == shown
+    # The theme is left alone, and another change leaves the map alone
+    assert r.json()["theme"] == "dark"
+    penv.client.put("/preferences", json={"theme": "light"}, headers=h)
+    assert penv.client.get("/preferences", headers=h).json()["map_display"] == shown
+    # Each account has its own
+    assert penv.client.get("/preferences", headers=penv.h("newbie")).json()[
+        "map_display"
+    ] is None
+
+
+@pytest.mark.parametrize(
+    "shown",
+    [
+        {"hidden_layers": ["the_sky"]},
+        {"hidden_kinds": ["x" * 31]},
+        {"hidden_factions": list(range(501))},
+    ],
+)
+def test_a_strange_map_display_is_refused(penv, shown):
+    r = penv.client.put(
+        "/preferences", json={"map_display": shown}, headers=penv.h("alice")
+    )
+    assert r.status_code == 422

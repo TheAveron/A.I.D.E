@@ -11,14 +11,24 @@ from ..database import Base
 
 
 class MapTerritory(Base):
-    """The outline of a faction's land on one of the maps.
+    """The outline of some land on one of the maps, owned by a faction or by
+    a player (never both).
 
     `points` is the polygon: a list of [x, z] block coordinates, in order.
     """
 
     __tablename__ = "map_territories"
     __table_args__ = (
+        CheckConstraint(
+            "(faction_id IS NOT NULL AND user_id IS NULL) OR "
+            "(faction_id IS NULL AND user_id IS NOT NULL)",
+            name="ck_map_territory_one_owner",
+        ),
+        # NULLs never collide: each constraint only binds its own kind of owner
         UniqueConstraint("map_name", "faction_id", "name", name="uq_territory_name"),
+        UniqueConstraint(
+            "map_name", "user_id", "name", name="uq_territory_user_name"
+        ),
     )
 
     territory_id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -31,13 +41,20 @@ class MapTerritory(Base):
     # "#rrggbb"; empty: the front picks one from the faction
     color: Mapped[Optional[str]] = mapped_column(String(7), nullable=True)
 
-    faction_id: Mapped[int] = mapped_column(
+    faction_id: Mapped[Optional[int]] = mapped_column(
         Integer,
         ForeignKey("factions.faction_id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True,
     )
     faction = relationship("Faction")
+    user_id: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        ForeignKey("users.user_id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+    user = relationship("User", foreign_keys=[user_id])
 
     points: Mapped[list] = mapped_column(JSON, nullable=False)
 
@@ -54,6 +71,12 @@ class MapTerritory(Base):
     @property
     def faction_name(self) -> Optional[str]:
         return self.faction.name if self.faction else None
+
+    @property
+    def owner_name(self) -> Optional[str]:
+        if self.faction_id is not None:
+            return self.faction_name
+        return self.user.username if self.user else None
 
 
 class MapMarker(Base):

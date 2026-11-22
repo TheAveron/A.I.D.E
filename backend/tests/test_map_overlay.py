@@ -469,6 +469,66 @@ def test_a_generic_point_has_a_colour(menv):
     assert put(kind="city").json()["color"] is None
 
 
+# ── players' own territories ─────────────────────────────────────────────
+
+
+def _own_territory(env, who, **extra):  # noqa: F811
+    return _territory(env, who, faction_id=None, **extra)
+
+
+def test_anybody_draws_a_territory_for_themselves(menv):
+    # bob is in Alpha without manage_territory: his own land only
+    r = _own_territory(menv, "bob", name="Ma ferme")
+    assert r.status_code == 201, r.text
+    body = r.json()
+    assert (body["faction_id"], body["user_id"], body["owner_name"]) == (
+        None,
+        3,
+        "bob",
+    )
+    assert _territory(menv, "bob").status_code == 403  # not Alpha's
+    # A player in no faction too
+    assert _own_territory(menv, "newbie", name="Cabane").status_code == 201
+    listed = menv.client.get(f"/map/{MAP}/territories").json()
+    assert sorted(t["name"] for t in listed) == ["Cabane", "Ma ferme"]
+
+
+def test_a_players_territory_is_theirs_alone(menv):
+    tid = _own_territory(menv, "bob").json()["territory_id"]
+    url = f"/map/territories/{tid}"
+    # alice manages Alpha's land, not bob's
+    assert (
+        menv.client.put(url, json={"name": "x"}, headers=menv.h("alice")).status_code
+        == 403
+    )
+    assert menv.client.delete(url, headers=menv.h("alice")).status_code == 403
+    r = menv.client.put(url, json={"name": "Verger"}, headers=menv.h("bob"))
+    assert (r.status_code, r.json()["name"]) == (200, "Verger")
+    assert menv.client.delete(url, headers=menv.h("bob")).status_code == 204
+
+
+def test_nobody_draws_for_another_player_but_an_admin(menv):
+    assert _own_territory(menv, "alice", user_id=3).status_code == 403
+    assert (
+        _territory(menv, "alice", faction_id=1, user_id=3).status_code == 422
+    )  # two owners
+    r = _own_territory(menv, "root", user_id=3, name="Offert")
+    assert (r.status_code, r.json()["user_id"]) == (201, 3)
+    assert _own_territory(menv, "root", user_id=999).status_code == 404
+    assert ("root", "territory_changed", "Offert") in _audit(menv)
+
+
+def test_a_players_territories_have_their_own_names_and_limit(menv):
+    # Same name as a faction's, or as another player's: no clash
+    assert _territory(menv, "alice").status_code == 201
+    assert _own_territory(menv, "alice").status_code == 201
+    assert _own_territory(menv, "bob").status_code == 201
+    assert _own_territory(menv, "bob").status_code == 409
+    for i in range(4):
+        assert _own_territory(menv, "bob", name=f"T{i}").status_code == 201
+    assert _own_territory(menv, "bob", name="one too many").status_code == 409
+
+
 def test_the_woodland_mansion_is_a_structure(menv):
     mid = _marker(menv, "bob", kind="woodland_mansion").json()["marker_id"]
     r = menv.client.put(

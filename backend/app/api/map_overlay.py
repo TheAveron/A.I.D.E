@@ -45,7 +45,7 @@ def create_territory(
             "territory",
             territory.territory_id,
             territory.name,
-            f"Création pour la faction {territory.faction_name}",
+            f"Création pour {territory.owner_name}",
         )
     db.commit()
     db.refresh(territory)
@@ -72,7 +72,7 @@ def update_territory(
             "territory",
             territory.territory_id,
             old_name,
-            f"Faction {territory.faction_name}",
+            f"Appartient à {territory.owner_name}",
         )
     db.commit()
     db.refresh(territory)
@@ -95,7 +95,7 @@ def delete_territory(
             "territory",
             territory.territory_id,
             territory.name,
-            f"Faction {territory.faction_name}",
+            f"Appartenait à {territory.owner_name}",
         )
     db.delete(territory)
     db.commit()
