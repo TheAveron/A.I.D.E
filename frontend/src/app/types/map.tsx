@@ -39,8 +39,11 @@ export interface TerritoryType {
     name: string;
     description: string | null;
     color: string | null;
-    faction_id: number;
+    /** Exactly one owner: a faction, or a player (user_id). */
+    faction_id: number | null;
     faction_name: string | null;
+    user_id: number | null;
+    owner_name: string | null;
     /** [x, z] in blocks, the ring is stored open. */
     points: [number, number][];
     created_at: string;

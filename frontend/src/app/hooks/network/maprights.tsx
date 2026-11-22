@@ -5,7 +5,8 @@ import { useRole } from "../factions/role";
 /**
  * What the logged-in user may change on the map, by the same rules as the API:
  * a faction's territories and points need manage_territory in that faction,
- * a player's own points need nothing, and admins can change everything.
+ * a player's own territories and points need nothing, and admins can change
+ * everything.
  */
 export function useMapRights() {
     const { user, loading: userLoading } = useMe();
@@ -19,8 +20,17 @@ export function useMapRights() {
     const canManageFaction = (id: number): boolean =>
         isAdmin || (factionId !== null && factionId === id);
 
-    const canEditTerritory = (territory: TerritoryType): boolean =>
-        canManageFaction(territory.faction_id);
+    // A player's territory is theirs; a faction's needs manage_territory
+    const canEditTerritory = (territory: TerritoryType): boolean => {
+        if (!user) return false;
+        if (territory.user_id !== null) {
+            return isAdmin || territory.user_id === user.user_id;
+        }
+        return (
+            territory.faction_id !== null &&
+            canManageFaction(territory.faction_id)
+        );
+    };
 
     const canEditMarker = (marker: MarkerType): boolean => {
         if (!user) return false;

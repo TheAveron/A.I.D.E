@@ -23,7 +23,11 @@ import type { FeatureLike } from "ol/Feature";
 import { MARKER_KINDS } from "../../types/map";
 import type { MarkerKind } from "../../types/map";
 import { DIMENSIONS } from "../../types/trains";
-import { factionColor, withAlpha } from "../../utils/mapcolors";
+import {
+    factionColor,
+    territoryColor,
+    withAlpha,
+} from "../../utils/mapcolors";
 import { iconUrl } from "../../utils/mapicons";
 import { buildGeometry } from "../../utils/unmined";
 import type { MapGeometry, UnminedData } from "../../utils/unmined";
@@ -168,7 +172,8 @@ function MapCanvas({
     const layers = useRef<Record<LayerKey, VectorLayer<VectorSource>> | null>(
         null,
     );
-    const hiddenFactions = useRef<Set<number>>(new Set());
+    // null: the players' own territories
+    const hiddenFactions = useRef<Set<number | null>>(new Set());
     const hiddenKinds = useRef<Set<MarkerKind>>(new Set());
     // Set by the editor: a drawing in progress ignores clicks, and a pick
     // takes the next click as coordinates.
@@ -186,7 +191,7 @@ function MapCanvas({
         markers: true,
         players: true,
     });
-    const [hidden, setHidden] = useState<number[]>([]);
+    const [hidden, setHidden] = useState<(number | null)[]>([]);
     const [hiddenKindList, setHiddenKindList] = useState<MarkerKind[]>([]);
     const [selection, setSelection] = useState<Selection | null>(null);
     const [coords, setCoords] = useState({ x: "", z: "" });
@@ -245,7 +250,7 @@ function MapCanvas({
         layers.current = vectors;
 
         vectors.territories.setStyle((feature: FeatureLike) => {
-            const factionId = feature.get("factionId") as number;
+            const factionId = feature.get("factionId") as number | null;
             if (hiddenFactions.current.has(factionId)) return undefined;
             const color = feature.get("color") as string;
             return new Style({
@@ -365,7 +370,10 @@ function MapCanvas({
             overlay.territories.map((t) => {
                 const ring = t.points.map((p) => geometry.toView(p));
                 ring.push(ring[0]);
-                const faction = t.faction_name ?? `Faction ${t.faction_id}`;
+                const owner =
+                    t.faction_id !== null
+                        ? `Faction : ${t.faction_name ?? `n°${t.faction_id}`}`
+                        : `Joueur : ${t.owner_name ?? "?"}`;
                 return new Feature({
                     geometry: new Polygon([ring]),
                     title: t.name,
@@ -373,9 +381,9 @@ function MapCanvas({
                     entity: "territory",
                     entityId: t.territory_id,
                     factionId: t.faction_id,
-                    color: factionColor(t.faction_id, t.color),
+                    color: territoryColor(t),
                     details: [
-                        `Faction : ${faction}`,
+                        owner,
                         ...(t.description ? [t.description] : []),
                     ],
                 });
@@ -423,7 +431,9 @@ function MapCanvas({
         if (!geometry || !source) return;
         source.clear();
         const colors = new Map<number, string | null>(
-            overlay.territories.map((t) => [t.faction_id, t.color]),
+            overlay.territories
+                .filter((t) => t.faction_id !== null)
+                .map((t) => [t.faction_id as number, t.color]),
         );
         source.addFeatures(
             overlay.markers.map(
@@ -506,18 +516,27 @@ function MapCanvas({
         );
     }, [overlay.markers]);
 
+    // The owners of territories: each faction, and the players as one entry
+    // (null), last
     const factions = useMemo(() => {
-        const seen = new Map<number, { name: string; color: string }>();
+        const seen = new Map<number | null, { name: string; color: string }>();
         for (const t of overlay.territories) {
             if (!seen.has(t.faction_id)) {
                 seen.set(t.faction_id, {
-                    name: t.faction_name ?? `Faction ${t.faction_id}`,
-                    color: factionColor(t.faction_id, t.color),
+                    name:
+                        t.faction_id === null
+                            ? "Territoires des joueurs"
+                            : (t.faction_name ?? `Faction ${t.faction_id}`),
+                    color: territoryColor(t),
                 });
             }
         }
         return [...seen.entries()].sort((a, b) =>
-            a[1].name.localeCompare(b[1].name),
+            a[0] === null
+                ? 1
+                : b[0] === null
+                  ? -1
+                  : a[1].name.localeCompare(b[1].name),
         );
     }, [overlay.territories]);
 
@@ -554,7 +573,7 @@ function MapCanvas({
         );
     }
 
-    function toggleFaction(id: number) {
+    function toggleFaction(id: number | null) {
         setHidden((current) =>
             current.includes(id)
                 ? current.filter((f) => f !== id)
@@ -724,10 +743,10 @@ function MapCanvas({
 
                         {factions.length > 0 && (
                             <details>
-                                <summary>Factions ({factions.length})</summary>
+                                <summary>Propriétaires ({factions.length})</summary>
                                 <ul className="map-layers">
                                     {factions.map(([id, f]) => (
-                                        <li key={id}>
+                                        <li key={id ?? "players"}>
                                             <label>
                                                 <input
                                                     type="checkbox"

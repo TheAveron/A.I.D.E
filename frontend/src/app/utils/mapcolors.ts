@@ -19,6 +19,18 @@ export function factionColor(factionId: number, chosen?: string | null) {
     return PALETTE[Math.abs(factionId) % PALETTE.length];
 }
 
+/** A territory's colour: the chosen one, else its faction's, else one
+ *  stable per player (shifted so it differs from the faction of same id). */
+export function territoryColor(t: {
+    faction_id: number | null;
+    user_id: number | null;
+    color: string | null;
+}): string {
+    return t.faction_id !== null
+        ? factionColor(t.faction_id, t.color)
+        : factionColor((t.user_id ?? 0) + 5, t.color);
+}
+
 /** "#rrggbb" and an opacity as "rgba(...)". */
 export function withAlpha(hex: string, alpha: number): string {
     const value = parseInt(hex.slice(1), 16);
