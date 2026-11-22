@@ -26,27 +26,27 @@ import type {
 export const offerSchema = yup.object().shape({
     offer_type: yup
         .mixed<OfferTypeLiteral>()
-        .oneOf(["BUY", "SELL"], "Offer type must be BUY or SELL")
-        .required("Offer type is required"),
+        .oneOf(["BUY", "SELL"], "Choisissez achat ou vente")
+        .required("Choisissez achat ou vente"),
     item_description: yup
         .string()
-        .required("Item description is required")
-        .max(255, "Max 255 characters"),
-    currency_name: yup.string().required("Currency name is required"),
+        .required("La description est obligatoire")
+        .max(255, "255 caractères au maximum"),
+    currency_name: yup.string().required("Choisissez une monnaie"),
     price_per_unit: yup
         .number()
-        .typeError("Price must be a number")
-        .positive("Price must be positive")
+        .typeError("Le prix doit être un nombre")
+        .positive("Le prix doit être positif")
 
-        .max(1e12, "Price is too high")
-        .required("Price per unit is required"),
+        .max(1e12, "Le prix est trop élevé")
+        .required("Le prix par unité est obligatoire"),
     quantity: yup
         .number()
-        .typeError("Quantity must be a number")
-        .integer("Quantity must be an integer")
-        .positive("Quantity must be positive")
-        .max(2147483647, "Quantity is too high")
-        .required("Quantity is required"),
+        .typeError("La quantité doit être un nombre")
+        .integer("La quantité doit être un nombre entier")
+        .positive("La quantité doit être positive")
+        .max(2147483647, "La quantité est trop élevée")
+        .required("La quantité est obligatoire"),
 });
 
 export function useOffer(offer_id?: number): OfferHook {

@@ -5,12 +5,13 @@ import { GoBackButton } from "../components/common/return";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 
-import { Link as RouterLink } from "react-router";
+import { Link as RouterLink, useLocation } from "react-router";
 import {
     decodeMarkdownHref,
     getDocumentRoute,
     isSafeExternalHref,
     isSafeInternalHref,
+    resolveRelativeDocumentLink,
 } from "./safe_markdown_link";
 
 type DocParams = {
@@ -30,6 +31,7 @@ function slugPreserveAccents(value: string) {
 }
 
 function DocuLoader({ url, linkBase, withTitle = false }: DocParams) {
+    const { pathname } = useLocation();
     const [content, setContent] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [retryKey, setRetryKey] = useState(0);
@@ -104,6 +106,16 @@ function DocuLoader({ url, linkBase, withTitle = false }: DocParams) {
 
             if (isSafeInternalHref(href)) {
                 return <a href={href}>{children}</a>;
+            }
+
+            // "../zones/spawn", "ursa": another document of the same section
+            const relative = resolveRelativeDocumentLink(
+                href,
+                pathname,
+                linkBase,
+            );
+            if (relative) {
+                return <RouterLink to={relative}>{children}</RouterLink>;
             }
 
             return <span>{children}</span>;

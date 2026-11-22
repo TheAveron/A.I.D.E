@@ -192,6 +192,9 @@ function LoggedInNav() {
                     <Link className="link" to="/documentation/AgeOfSteam">
                         Documentation
                     </Link>
+                    <Link className="link" to="/archives">
+                        Archives
+                    </Link>
                     <Link className="link" to="/transactions">
                         Transactions
                     </Link>
