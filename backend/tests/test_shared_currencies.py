@@ -262,9 +262,10 @@ def test_a_faction_uses_one_currency_at_most(senv):
 
 def test_a_currency_keeps_at_least_one_issuer(senv):
     c, h = senv.client, senv.h("alice")
-    assert c.delete(
+    delete_issuer_response = c.delete(
         f"/currencies/{DIAMANT}/factions/1/issuer", headers=h
-    ).status_code == (409)
+    )
+    assert delete_issuer_response.status_code == 409
     r = c.delete(f"/currencies/{DIAMANT}/factions/1", headers=h)
     assert r.status_code == 409
 
