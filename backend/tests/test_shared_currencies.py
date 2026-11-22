@@ -228,9 +228,8 @@ def test_refusing_and_withdrawing(senv):
     assert c.delete(
         f"/currencies/links/{rid}", headers=senv.h("alice")
     ).status_code == (403)
-    assert (
-        c.delete(f"/currencies/links/{rid}", headers=senv.h("bob")).status_code == 204
-    )
+    r = c.delete(f"/currencies/links/{rid}", headers=senv.h("bob"))
+    assert r.status_code == 204
     assert _links(senv) == [(1, True)]
 
 
