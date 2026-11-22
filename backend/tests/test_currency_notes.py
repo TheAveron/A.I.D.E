@@ -48,5 +48,6 @@ def test_a_currency_with_history_can_be_deleted(env):  # noqa: F811
         headers=h,
     )
     assert r.status_code == 202
-    assert env.client.delete("/currencies/delete/1", headers=h).status_code == 204
+    delete_response = env.client.delete("/currencies/delete/1", headers=h)
+    assert delete_response.status_code == 204
     assert env.client.get("/currencies/faction/1", headers=h).json() is None
