@@ -36,8 +36,8 @@ export interface MapVariant {
  */
 export const CURRENT_MAP_VARIANTS: MapVariant[] = [
     { folder: CURRENT_MAP, label: "Overworld" },
-    // { folder: "NAOS_zoom", label: "Nether" },
-    // { folder: "EAOS_zoom", label: "End" },
+    { folder: "NAOS_zoom", label: "Nether" },
+    { folder: "EAOS_zoom", label: "End" },
 ];
 
 export function getLabelFromFolder(folder: string): string {
