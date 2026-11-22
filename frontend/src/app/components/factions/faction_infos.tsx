@@ -3,11 +3,25 @@ import { useMe } from "../../hooks/users/me";
 import { useRole } from "../../hooks/factions/role";
 import { ApprovalToggle } from "./approvaltoggle";
 import { DeleteFactionButton } from "./deletefaction";
+import { FactionEditor } from "./faction_editor";
+import { useState } from "react";
 
-function FactionHead({ faction_name }: { faction_name: string }) {
+function FactionHead({
+    faction_name,
+    onEdit,
+}: {
+    faction_name: string;
+    // Shown only to those who may change the faction (null: nobody here)
+    onEdit: (() => void) | null;
+}) {
     return (
-        <div className="info-header">
+        <div className={"info-header" + (onEdit ? " editable" : "")}>
             <div className="info-title">{faction_name}</div>
+            {onEdit && (
+                <button type="button" className="button" onClick={onEdit}>
+                    Modifier
+                </button>
+            )}
         </div>
     );
 }
@@ -26,7 +40,9 @@ export default function FactionInfo({
         role?.name === "Chef" &&
         role.faction_id === user?.faction_id &&
         user?.faction_id === faction?.faction_id;
-    const canToggle =
+    const [editing, setEditing] = useState(false);
+    // Same rule as the API (PUT /factions/update): manage_roles in this faction
+    const canEdit =
         !!faction &&
         !archived &&
         user?.faction_id === faction.faction_id &&
@@ -38,7 +54,26 @@ export default function FactionInfo({
                 !loading ? (
                     faction ? (
                         <>
-                            <FactionHead faction_name={faction.name} />
+                            <FactionHead
+                                faction_name={faction.name}
+                                onEdit={
+                                    canEdit && !editing
+                                        ? () => setEditing(true)
+                                        : null
+                                }
+                            />
+
+                            {editing && canEdit && (
+                                <FactionEditor
+                                    factionId={faction.faction_id}
+                                    name={faction.name}
+                                    description={faction.description}
+                                    onDone={(changed) => {
+                                        setEditing(false);
+                                        if (changed) refresh();
+                                    }}
+                                />
+                            )}
 
                             {archived && (
                                 <p role="status">
@@ -70,7 +105,7 @@ export default function FactionInfo({
                                         factionName={faction.name}
                                     />
                                 )}
-                                {canToggle ? (
+                                {canEdit ? (
                                     <ApprovalToggle
                                         factionId={faction.faction_id}
                                         requiresApproval={
