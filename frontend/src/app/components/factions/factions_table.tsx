@@ -1,16 +1,18 @@
 import { Link } from "react-router";
-import CurrencyCell from "../currencies/currency_cell";
 import type { FactionType } from "../../types/factions";
 import { useMe } from "../../hooks/users/me";
 import { useRole } from "../../hooks/factions/role";
 import { UpdateFactionButton } from "./joinfaction";
 import { RequestJoinButton } from "./requestjoin";
-
-const NO_FACTION = "Sans Faction";
+import { isLeaderRole } from "../../utils/roles";
 
 type Props = {
     factions: FactionType[];
     memberCounts: Record<string, number>;
+    // The name of each faction's currency (null: still loading)
+    currencyByFaction: Record<number, string> | null;
+    // The viewer's faction, left when joining another (null: none to leave)
+    currentFactionName: string | null;
     // Called once the user has joined a faction
     onJoined: () => void;
     loading: boolean;
@@ -24,6 +26,8 @@ type Props = {
 export default function FactionTable({
     factions,
     memberCounts,
+    currencyByFaction,
+    currentFactionName,
     onJoined,
     loading,
     error,
@@ -38,7 +42,8 @@ export default function FactionTable({
     const { user, refresh: refreshMe } = useMe();
     const { role } = useRole(user?.role_id ?? null);
 
-    const showActions = role?.name != "Chef";
+    // A leader can't leave their faction (hand it over first): nothing to join
+    const showActions = !isLeaderRole(role);
     const columns = showActions ? 6 : 5;
 
     return (
@@ -78,19 +83,14 @@ export default function FactionTable({
                         </tr>
                     ) : (
                         factions.map((faction) => {
-                            const isNoFaction = faction.name === NO_FACTION;
                             return (
                                 <tr key={faction.faction_id}>
                                     <td>
-                                        {isNoFaction ? (
-                                            faction.name
-                                        ) : (
-                                            <Link
-                                                to={`/faction/${faction.faction_id}`}
-                                            >
-                                                {faction.name}
-                                            </Link>
-                                        )}
+                                        <Link
+                                            to={`/faction/${faction.faction_id}`}
+                                        >
+                                            {faction.name}
+                                        </Link>
                                     </td>
                                     <td className="faction-description">
                                         {faction.description?.trim() ||
@@ -100,9 +100,11 @@ export default function FactionTable({
                                         {memberCounts[faction.faction_id] ?? 0}
                                     </td>
                                     <td>
-                                        <CurrencyCell
-                                            factionId={faction.faction_id.toString()}
-                                        />
+                                        {currencyByFaction === null
+                                            ? "Chargement..."
+                                            : (currencyByFaction[
+                                                  faction.faction_id
+                                              ] ?? "Pas de monnaie")}
                                     </td>
                                     <td>
                                         <div
@@ -120,7 +122,6 @@ export default function FactionTable({
                                     {showActions && (
                                         <td>
                                             {user &&
-                                                !isNoFaction &&
                                                 user.faction_id !=
                                                     faction.faction_id &&
                                                 (faction.requires_approval ? (
@@ -132,14 +133,14 @@ export default function FactionTable({
                                                 ) : (
                                                     <UpdateFactionButton
                                                         userId={user.user_id}
-                                                        currentFactionId={
-                                                            user.faction_id
-                                                        }
-                                                        currentRoleId={
-                                                            user.role_id
-                                                        }
                                                         factionId={
                                                             faction.faction_id
+                                                        }
+                                                        factionName={
+                                                            faction.name
+                                                        }
+                                                        currentFactionName={
+                                                            currentFactionName
                                                         }
                                                         onUpdate={() => {
                                                             refreshMe();

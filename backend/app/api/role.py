@@ -4,12 +4,9 @@ from sqlalchemy.orm import Session
 from ..core import get_current_user
 from ..crud import faction_role as crud_role
 from ..database import Role, User, get_db
-from ..misc import (FactionPermission, check_faction_permission,
-                    require_faction_permission)
+from ..misc import (LEADER_ROLE_NAME, MEMBER_ROLE_NAME, FactionPermission,
+                    check_faction_permission, require_faction_permission)
 from ..schemas import RoleCreate, RoleOut, RoleUpdate
-
-LEADER_ROLE_NAME = "Chef"
-GUEST_ROLE_NAME = "Invité"
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
 
@@ -55,7 +52,7 @@ def create_role(
         require_faction_permission(FactionPermission.MANAGE_ROLES)
     ),
 ):
-    if role_in.name in (LEADER_ROLE_NAME, GUEST_ROLE_NAME):
+    if role_in.name in (LEADER_ROLE_NAME, MEMBER_ROLE_NAME):
         raise _forbid(f"The '{role_in.name}' role is created with the faction")
 
     granted = {
@@ -105,10 +102,10 @@ def update_role(
 
     new_name = changes.get("name")
     if new_name is not None and new_name != role.name:
-        # The guest role is what joining a faction relies on.
-        if role.name == GUEST_ROLE_NAME:
-            raise _forbid(f"The '{GUEST_ROLE_NAME}' role can't be renamed")
-        if new_name in (LEADER_ROLE_NAME, GUEST_ROLE_NAME):
+        # The member role is what joining a faction relies on.
+        if role.name == MEMBER_ROLE_NAME:
+            raise _forbid(f"The '{MEMBER_ROLE_NAME}' role can't be renamed")
+        if new_name in (LEADER_ROLE_NAME, MEMBER_ROLE_NAME):
             raise _forbid(f"The name '{new_name}' is reserved")
 
     changed_permissions = {
@@ -132,7 +129,7 @@ def delete_role(
         raise HTTPException(status_code=404, detail="Role not found")
 
     _check_can_edit(current_user, role)
-    if role.name == GUEST_ROLE_NAME:
-        raise _forbid(f"The '{GUEST_ROLE_NAME}' role can't be deleted")
+    if role.name == MEMBER_ROLE_NAME:
+        raise _forbid(f"The '{MEMBER_ROLE_NAME}' role can't be deleted")
 
     crud_role.delete_role(db, role)

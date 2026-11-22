@@ -57,6 +57,19 @@ class Transaction(Base):
         """The currency's current name (it may have been renamed since)."""
         return self.currency.name if self.currency else None
 
+    # What a listing shows of the offer, so that it needn't fetch every offer
+    @property
+    def offer_item_description(self) -> Optional[str]:
+        return self.offer.item_description if self.offer else None
+
+    @property
+    def offer_user_id(self) -> Optional[int]:
+        return self.offer.user_id if self.offer else None
+
+    @property
+    def offer_faction_id(self) -> Optional[int]:
+        return self.offer.faction_id if self.offer else None
+
     timestamp: Mapped[datetime] = mapped_column(
         DateTime, default=utcnow, nullable=False
     )

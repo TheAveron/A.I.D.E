@@ -34,9 +34,11 @@ function CurrencyEditor({
     const save = async (event: FormEvent) => {
         event.preventDefault();
         if (!valid) return;
-        const changes: Record<string, string | number> = {};
+        const changes: Record<string, string | number | null> = {};
         if (name.trim() !== currency.name) changes.name = name.trim();
-        if (symbol !== (currency.symbol ?? "")) changes.symbol = symbol;
+        if (symbol.trim() !== (currency.symbol ?? "")) {
+            changes.symbol = symbol.trim() || null;
+        }
         if (totalValue !== currency.total_in_circulation) {
             changes.total_in_circulation = totalValue;
             if (notes.trim()) changes.notes = notes.trim();

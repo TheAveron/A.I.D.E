@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useAcceptOffer } from "../../hooks/offers/acceptoffer";
 import { useMe } from "../../hooks/users/me";
 import { useRole } from "../../hooks/factions/role";
+import type { OfferTypeLiteral } from "../../types/offers";
 
 interface AcceptOfferButtonProps {
     offerId: number;
     offerQuantity: number;
+    // A BUY offer is accepted by selling to its author, a SELL one by buying
+    offerType: OfferTypeLiteral;
     offerUserId?: number | null;
     offerFactionId?: number | null;
     onAccepted?: () => void;
@@ -14,6 +17,7 @@ interface AcceptOfferButtonProps {
 export function AcceptOfferButton({
     offerId,
     offerQuantity,
+    offerType,
     offerUserId,
     offerFactionId,
     onAccepted,
@@ -80,9 +84,13 @@ export function AcceptOfferButton({
 
     return (
         <div>
-            <div className="button" onClick={() => setIsOpen(true)}>
+            <button
+                type="button"
+                className="button"
+                onClick={() => setIsOpen(true)}
+            >
                 Accepter
-            </div>
+            </button>
 
             {isOpen && (
                 <div
@@ -116,7 +124,9 @@ export function AcceptOfferButton({
                             {hasChoice && (
                                 <div className="modal-field">
                                     <label className="field-head">
-                                        Acheter pour
+                                        {offerType === "BUY"
+                                            ? "Vendre pour"
+                                            : "Acheter pour"}
                                     </label>
                                     <div
                                         style={{

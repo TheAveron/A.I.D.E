@@ -8,6 +8,9 @@ import { useAdminFactions } from "../../hooks/admin/admin";
 import { getErrorMessage } from "../../utils/apierror";
 import type { AdminFactionType, FactionState } from "../../types/admin";
 
+const NO_FACTION = "Sans Faction";
+const DEFAULT_STATE: FactionState = "pending";
+
 const STATES: [FactionState, string][] = [
     ["all", "Toutes"],
     ["pending", "En attente d'approbation"],
@@ -17,7 +20,7 @@ const STATES: [FactionState, string][] = [
 
 /** Every faction: approve them, review the archived ones, delete a faction. */
 export default function AdminFactions() {
-    const [state, setState] = useState<FactionState>("pending");
+    const [state, setState] = useState<FactionState>(DEFAULT_STATE);
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
     const [detailsOf, setDetailsOf] = useState<number | null>(null);
@@ -64,7 +67,7 @@ export default function AdminFactions() {
         <div className="snippet-container">
             <h2>Factions</h2>
             <ToolbarPanels
-                activeFilters={state !== STATES[0][0] ? 1 : 0}
+                activeFilters={state !== DEFAULT_STATE ? 1 : 0}
                 search={
                     <input
                         type="text"
@@ -158,33 +161,35 @@ export default function AdminFactions() {
                                             >
                                                 État
                                             </button>{" "}
-                                            {!f.deleted_at && (
-                                                <>
-                                                    <button
-                                                        type="button"
-                                                        className="button"
-                                                        onClick={() =>
-                                                            setApproved(
-                                                                f,
-                                                                !f.is_approved,
-                                                            )
-                                                        }
-                                                    >
-                                                        {f.is_approved
-                                                            ? "Retirer l'approbation"
-                                                            : "Approuver"}
-                                                    </button>{" "}
-                                                    <button
-                                                        type="button"
-                                                        className="button"
-                                                        onClick={() =>
-                                                            remove(f)
-                                                        }
-                                                    >
-                                                        Supprimer
-                                                    </button>
-                                                </>
-                                            )}
+                                            {/* Where members wait: never deleted */}
+                                            {!f.deleted_at &&
+                                                f.name !== NO_FACTION && (
+                                                    <>
+                                                        <button
+                                                            type="button"
+                                                            className="button"
+                                                            onClick={() =>
+                                                                setApproved(
+                                                                    f,
+                                                                    !f.is_approved,
+                                                                )
+                                                            }
+                                                        >
+                                                            {f.is_approved
+                                                                ? "Retirer l'approbation"
+                                                                : "Approuver"}
+                                                        </button>{" "}
+                                                        <button
+                                                            type="button"
+                                                            className="button"
+                                                            onClick={() =>
+                                                                remove(f)
+                                                            }
+                                                        >
+                                                            Supprimer
+                                                        </button>
+                                                    </>
+                                                )}
                                         </td>
                                     </tr>
                                     {detailsOf === f.faction_id && (

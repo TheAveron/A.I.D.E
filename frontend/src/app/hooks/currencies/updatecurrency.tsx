@@ -42,7 +42,7 @@ export function useUpdateCurrency() {
     const updateInfo = useCallback(
         async (
             currencyId: number,
-            changes: { name?: string; symbol?: string },
+            changes: { name?: string; symbol?: string | null },
         ): Promise<CurrencyType | null> => {
             setLoading(true);
             setError(null);

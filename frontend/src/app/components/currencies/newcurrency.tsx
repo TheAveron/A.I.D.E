@@ -11,9 +11,13 @@ export function NewCurrency({ onCreated }: { onCreated?: () => void }) {
 
     return (
         <div className="info-values">
-            <div className="button" onClick={() => setIsOpen(true)}>
+            <button
+                type="button"
+                className="button"
+                onClick={() => setIsOpen(true)}
+            >
                 Créer une monnaie
-            </div>
+            </button>
 
             {isOpen && (
                 <div

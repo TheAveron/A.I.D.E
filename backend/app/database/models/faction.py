@@ -31,7 +31,7 @@ class Faction(Base):
     )
     is_approved: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    # False: anybody may join (as a guest). True: only through a join request
+    # False: anybody may join (as a member). True: only through a join request
     # that a member with handle_members accepts.
     requires_approval: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default=expression.false(), nullable=False

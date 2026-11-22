@@ -13,7 +13,7 @@ import type {
 export function useCurrencies(enabled: boolean) {
     const { data, loading, error, refresh } = useApiGet<CurrencyType[]>(
         enabled ? "/currencies" : null,
-        "Error fetching currencies",
+        "Impossible de charger les monnaies",
     );
     return { currencies: data ?? [], loading, error, refresh };
 }
@@ -24,7 +24,7 @@ export function useCurrencyLinkRequests(currencyId: number | null) {
         CurrencyLinkRequestType[]
     >(
         currencyId !== null ? `/currencies/${currencyId}/links` : null,
-        "Error fetching currency requests",
+        "Impossible de charger les demandes de monnaie",
     );
     return { requests: data ?? [], loading, error, refresh };
 }
@@ -40,7 +40,7 @@ export function useFactionLinkRequests(factionId: string | null) {
         factionId
             ? `/currencies/links/faction/${encodeURIComponent(factionId)}`
             : null,
-        "Error fetching currency requests",
+        "Impossible de charger les demandes de monnaie",
     );
     return { requests: data ?? [], loading, error, refresh };
 }

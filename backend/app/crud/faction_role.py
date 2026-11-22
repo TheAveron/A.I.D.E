@@ -5,7 +5,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..database import Role, User
-from ..misc import FactionPermission
+from ..misc import (DEPUTY_ROLE_NAME, LEADER_ROLE_NAME, MEMBER_ROLE_NAME,
+                    FactionPermission)
 from ..schemas import RoleCreate, RoleUpdate
 
 
@@ -86,7 +87,7 @@ def create_default_faction_roles(
 
     default_roles = [
         {
-            "name": "Chef",
+            "name": LEADER_ROLE_NAME,
             "description": "Chef de la faction avec toutes les permissions.",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: True,
@@ -101,7 +102,7 @@ def create_default_faction_roles(
             },
         },
         {
-            "name": "Chef Adjoint",
+            "name": DEPUTY_ROLE_NAME,
             "description": "Adjoint du chef, l'aide à administrer la faction",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: True,
@@ -146,7 +147,7 @@ def create_default_faction_roles(
             },
         },
         {
-            "name": "Membre",
+            "name": MEMBER_ROLE_NAME,
             "description": "Membre normal",
             "permissions": {
                 FactionPermission.ACCEPT_OFFERS: False,
@@ -158,21 +159,6 @@ def create_default_faction_roles(
                 FactionPermission.MANAGE_TRAINS: False,
                 FactionPermission.MANAGE_TERRITORY: False,
                 FactionPermission.VIEW_TRANSACTIONS: True,
-            },
-        },
-        {
-            "name": "Invité",
-            "description": "Souhaite rejoindre la faction",
-            "permissions": {
-                FactionPermission.ACCEPT_OFFERS: False,
-                FactionPermission.CREATE_OFFERS: False,
-                FactionPermission.MANAGE_FUNDS: False,
-                FactionPermission.HANDLE_MEMBERS: False,
-                FactionPermission.MANAGE_ROLES: False,
-                FactionPermission.MANAGE_DOCS: False,
-                FactionPermission.MANAGE_TRAINS: False,
-                FactionPermission.MANAGE_TERRITORY: False,
-                FactionPermission.VIEW_TRANSACTIONS: False,
             },
         },
     ]
@@ -199,7 +185,7 @@ def create_default_faction_roles(
         db.add(db_role)
         db.flush()  # assigns role_id
 
-        if db_role.name == "Chef":
+        if db_role.name == LEADER_ROLE_NAME:
             leader = db.query(User).filter(User.user_id == user_id).first()
             if leader:
                 leader.faction_id = faction_id

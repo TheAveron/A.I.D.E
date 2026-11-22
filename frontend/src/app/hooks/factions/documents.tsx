@@ -7,7 +7,7 @@ export function useFactionDocuments(factionId: string | null) {
         factionId
             ? `/documents/faction/${encodeURIComponent(factionId)}`
             : null,
-        "Error fetching documents",
+        "Impossible de charger les documents",
     );
 
     return { documents: data ?? [], loading, error, refresh };

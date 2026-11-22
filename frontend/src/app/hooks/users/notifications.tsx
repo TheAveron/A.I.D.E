@@ -11,7 +11,7 @@ const POLL_MS = 60_000;
 export function useUnreadCount(poll = true) {
     const { data, refresh } = useApiGet<{ count: number }>(
         "/notifications/unread_count",
-        "Error fetching notifications",
+        "Impossible de charger les notifications",
     );
 
     useEffect(() => {
@@ -28,7 +28,7 @@ export function useUnreadCount(poll = true) {
 export function useNotifications() {
     const { data, loading, error, refresh } = useApiGet<NotificationType[]>(
         "/notifications?limit=100",
-        "Error fetching notifications",
+        "Impossible de charger les notifications",
     );
     return { notifications: data ?? [], loading, error, refresh };
 }

@@ -56,21 +56,23 @@ export function FactionCurrencyRequests({
                     <span className="info-value-field">
                         {r.kind === "INVITATION" ? (
                             <>
-                                <button
-                                    type="button"
-                                    className="button"
-                                    disabled={actions.loading || hasCurrency}
-                                    title={
-                                        hasCurrency
-                                            ? "Quittez d'abord votre monnaie actuelle"
-                                            : undefined
-                                    }
-                                    onClick={() =>
-                                        after(actions.accept(r.request_id))
-                                    }
-                                >
-                                    Accepter
-                                </button>{" "}
+                                {hasCurrency ? (
+                                    <small>
+                                        Quittez d&apos;abord votre monnaie
+                                        actuelle pour l&apos;accepter.
+                                    </small>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        className="button"
+                                        disabled={actions.loading}
+                                        onClick={() =>
+                                            after(actions.accept(r.request_id))
+                                        }
+                                    >
+                                        Accepter
+                                    </button>
+                                )}{" "}
                                 <button
                                     type="button"
                                     className="button"

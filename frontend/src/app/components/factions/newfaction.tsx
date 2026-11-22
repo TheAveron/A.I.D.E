@@ -11,9 +11,13 @@ export function NewFaction({ onCreated }: { onCreated?: () => void }) {
 
     return (
         <div>
-            <div className="button" onClick={() => setIsOpen(true)}>
+            <button
+                type="button"
+                className="button"
+                onClick={() => setIsOpen(true)}
+            >
                 Créer une faction
-            </div>
+            </button>
 
             {isOpen && (
                 <div

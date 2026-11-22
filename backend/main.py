@@ -126,6 +126,13 @@ app.mount("/maps", StaticFiles(directory=maps_path, html=True), name="maps")
 
 app.include_router(documentation.router)
 
+# Faction documents moved to documents/AgeOfSteam/factions/: bring the old
+# folders there once. A failure is logged and doesn't stop the server.
+try:
+    documentation.migrate_legacy_folders()
+except OSError:
+    logger.exception("Could not move the old faction documents folders")
+
 frontend_dist_path = Path(__file__).parent.parent / "frontend" / "build"
 
 app.mount(

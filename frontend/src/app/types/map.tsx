@@ -82,7 +82,9 @@ export function dimensionOfFolder(
 /** The Overworld map a Nether map goes with ("NAOS_zoom" -> "OAOS_zoom"), or
  *  null for a map that is not a Nether. */
 export function overworldFolderOf(folder: string): string | null {
-    return dimensionOfFolder(folder) === "nether" ? `O${folder.slice(1)}` : null;
+    return dimensionOfFolder(folder) === "nether"
+        ? `O${folder.slice(1)}`
+        : null;
 }
 
 /** Where an Overworld block is in the Nether: one Nether block for eight.

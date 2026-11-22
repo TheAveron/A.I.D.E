@@ -76,7 +76,7 @@ def env():
             manage_roles=True,
             view_transactions=True,
         ),
-        Role(role_id=5, name="Invité", faction_id=1),
+        Role(role_id=5, name="Recrue", faction_id=1),
         Role(
             role_id=6,
             name="Recruteur",
@@ -85,9 +85,9 @@ def env():
             view_transactions=True,
         ),
         Role(role_id=10, name="Chef", faction_id=2, **ALL),
-        Role(role_id=11, name="Invité", faction_id=2),
+        Role(role_id=11, name="Membre", faction_id=2),
         Role(role_id=20, name="Membre", faction_id=3, view_transactions=True),
-        Role(role_id=21, name="Invité", faction_id=3),
+        Role(role_id=21, name="Recrue", faction_id=3),
         Role(role_id=22, name="Chef", faction_id=3, **ALL),
     ]
     s.add_all(roles)
@@ -463,16 +463,16 @@ class TestOfferModificationAndCancellation:
 
 
 class TestJoiningAFaction:
-    def test_joining_gives_the_guest_role_of_that_faction(self, env):
+    def test_joining_gives_the_member_role_of_that_faction(self, env):
         r = env.client.patch(
             "/users/update/7",
-            json={"faction_id": 1, "role_id": 5},
+            json={"faction_id": 1, "role_id": 3},
             headers=env.h("newbie"),
         )
         assert r.status_code == 200, r.text
         s = env.Session()
         u = s.get(User, 7)
-        assert (u.faction_id, u.role_id) == (1, 5)
+        assert (u.faction_id, u.role_id) == (1, 3)
         s.close()
 
     def test_role_is_not_up_to_the_client(self, env):
@@ -724,10 +724,12 @@ class TestDocuments:
         probe = Path(documentation.DOCS_DIR).parent / "zz_probe_doc.md"
         probe.write_text("# outside the documents folder")
         try:
-            r = env.client.get("/documents/%2e%2e/doc/zz_probe_doc")
-            assert r.status_code == 404
-            r = env.client.get("/documents/%2e%2e/faction_doc/%2e%2e/zz_probe_doc")
-            assert r.status_code == 404
+            for url in (
+                "/documents/aos/%2e%2e%2fzz_probe_doc",
+                "/documents/archives/%2e%2e/zz_probe_doc",
+                "/documents/archives/CubeCrusaders/%2e%2e/zz_probe_doc",
+            ):
+                assert env.client.get(url).status_code == 404, url
         finally:
             probe.unlink()
 
@@ -735,15 +737,23 @@ class TestDocuments:
         self, env, monkeypatch, tmp_path
     ):
         monkeypatch.chdir(tmp_path)
-        r = env.client.get("/documents/CubeCrusaders/faction_doc/lois/territoires")
+        r = env.client.get("/documents/archives/CubeCrusaders/lois/territoires")
         assert r.status_code == 200 and "Territoires" in r.json()["content"]
 
     def test_nta_contract_page_resolves_despite_normalize_lowercasing(self, env):
-        r = env.client.get("/documents/CubeCrusaders/faction_doc/marches/contractNTA")
+        r = env.client.get("/documents/archives/CubeCrusaders/marches/contractNTA")
         assert r.status_code == 200 and "slot" in r.json()["content"]
 
     def test_unknown_document_is_404(self, env):
-        assert env.client.get("/documents/CubeCrusaders/doc/nope").status_code == 404
+        assert env.client.get("/documents/archives/CubeCrusaders/nope").status_code == 404
+
+    def test_the_archives_only_serve_former_servers(self, env):
+        # The current server's pages and the factions' documents are not
+        # archives, even though they sit in the same documents folder.
+        assert env.client.get("/documents/aos/index").status_code == 200
+        assert env.client.get("/documents/archives/AgeOfSteam/index").status_code == 404
+        assert env.client.get("/documents/archives/AOS/x/y").status_code == 404
+        assert env.client.get("/documents/archives/maps/x").status_code == 404
 
     def test_creating_a_document_needs_manage_docs(self, env, monkeypatch, tmp_path):
         monkeypatch.setattr(documentation, "DOCS_DIR", tmp_path / "documents")

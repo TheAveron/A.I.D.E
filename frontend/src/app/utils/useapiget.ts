@@ -83,7 +83,7 @@ export function useApiGet<T>(
                         key,
                         refreshKey,
                         data: null,
-                        error: `${errorLabel}: ${getErrorMessage(err)}`,
+                        error: `${errorLabel} : ${getErrorMessage(err)}`,
                     });
                 }
             },

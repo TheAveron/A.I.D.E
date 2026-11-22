@@ -21,6 +21,12 @@ export default function FactionDashboard() {
     const { roles } = useRoles(factionid ?? null);
 
     const active = role?.view_transactions ?? false;
+    // Same rule as the API (crud/offer_history): view_transactions in this faction
+    const canSeeHistory =
+        !!factionid &&
+        !!role?.view_transactions &&
+        role.faction_id === Number(factionid) &&
+        user?.faction_id === Number(factionid);
     const canHandleRequests =
         !!factionid &&
         !!role?.handle_members &&
@@ -40,18 +46,18 @@ export default function FactionDashboard() {
             )}
             {canHandleRequests && <JoinRequestsPanel factionId={factionid} />}
             {factionid && <FactionDocuments factionId={factionid} />}
-            <OfferList factionId={factionid} offersPerPage={7} />
+            <OfferList
+                factionId={factionid}
+                offersPerPage={7}
+                canCreate={user?.faction_id === Number(factionid)}
+            />
             {role?.view_transactions ? (
                 <TransactionsTable factionId={factionid} />
             ) : (
                 <></>
             )}
-            {role &&
-            roles?.map((r) => r.role_id).includes(role.role_id) &&
-            ["Chef", "Chef Adjoint"].includes(role?.name ?? "") ? (
+            {canSeeHistory && (
                 <HistoryTable factionId={factionid} HistoriesPerPage={7} />
-            ) : (
-                <></>
             )}
         </div>
     );

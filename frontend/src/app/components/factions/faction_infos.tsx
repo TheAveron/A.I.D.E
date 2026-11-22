@@ -3,26 +3,26 @@ import { useMe } from "../../hooks/users/me";
 import { useRole } from "../../hooks/factions/role";
 import { ApprovalToggle } from "./approvaltoggle";
 import { DeleteFactionButton } from "./deletefaction";
+import { FactionEditor } from "./faction_editor";
+import { useState } from "react";
+import { isLeaderRole } from "../../utils/roles";
 
 function FactionHead({
     faction_name,
-    faction_id,
-    user_faction_id,
-    role_id,
+    onEdit,
 }: {
     faction_name: string;
-    faction_id: number;
-    user_faction_id: number | null;
-    role_id: number | null;
+    // Shown only to those who may change the faction (null: nobody here)
+    onEdit: (() => void) | null;
 }) {
-    const { role } = useRole(role_id ?? null);
-    // Being "Chef" of another faction gives no right on this one.
-    const canEdit = role?.name === "Chef" && user_faction_id === faction_id;
-
     return (
-        <div className={"info-header" + (canEdit ? " editable" : "")}>
+        <div className={"info-header" + (onEdit ? " editable" : "")}>
             <div className="info-title">{faction_name}</div>
-            {canEdit && <div className="button">Edit</div>}
+            {onEdit && (
+                <button type="button" className="button" onClick={onEdit}>
+                    Modifier
+                </button>
+            )}
         </div>
     );
 }
@@ -35,13 +35,15 @@ export default function FactionInfo({
     const { user } = useMe();
     const { faction, loading, error, refresh } = useFaction(factionId ?? null);
     const { role } = useRole(user?.role_id ?? null);
-    // Same rule as the API: managing roles of one's own faction
     const archived = !!faction?.deleted_at;
+    // The leader of this very faction (being "Chef" elsewhere gives nothing)
     const isLeader =
-        role?.name === "Chef" &&
-        role.faction_id === user?.faction_id &&
+        isLeaderRole(role) &&
+        role?.faction_id === user?.faction_id &&
         user?.faction_id === faction?.faction_id;
-    const canToggle =
+    const [editing, setEditing] = useState(false);
+    // Same rule as the API (PUT /factions/update): manage_roles in this faction
+    const canEdit =
         !!faction &&
         !archived &&
         user?.faction_id === faction.faction_id &&
@@ -55,10 +57,24 @@ export default function FactionInfo({
                         <>
                             <FactionHead
                                 faction_name={faction.name}
-                                faction_id={faction.faction_id}
-                                user_faction_id={user?.faction_id ?? null}
-                                role_id={user?.role_id ?? null}
+                                onEdit={
+                                    canEdit && !editing
+                                        ? () => setEditing(true)
+                                        : null
+                                }
                             />
+
+                            {editing && canEdit && (
+                                <FactionEditor
+                                    factionId={faction.faction_id}
+                                    name={faction.name}
+                                    description={faction.description}
+                                    onDone={(changed) => {
+                                        setEditing(false);
+                                        if (changed) refresh();
+                                    }}
+                                />
+                            )}
 
                             {archived && (
                                 <p role="status">
@@ -90,7 +106,7 @@ export default function FactionInfo({
                                         factionName={faction.name}
                                     />
                                 )}
-                                {canToggle ? (
+                                {canEdit ? (
                                     <ApprovalToggle
                                         factionId={faction.faction_id}
                                         requiresApproval={
@@ -123,7 +139,7 @@ export default function FactionInfo({
                             </div>
                         </>
                     ) : (
-                        <p>No faction data</p>
+                        <p>Faction introuvable.</p>
                     )
                 ) : (
                     <p>Chargement de la faction...</p>

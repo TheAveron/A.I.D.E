@@ -48,7 +48,7 @@ A.I.D.E/
 │   │   ├── crud/            # Accès aux données
 │   │   ├── database/        # Connexion et modèles SQLAlchemy
 │   │   └── schemas/         # Schémas Pydantic
-│   ├── documents/           # Documentation Markdown (AgeOfSteam, CubeCrusaders)
+│   ├── documents/           # Markdown : archives figées (CubeCrusaders), pages d'Age of Steam (AgeOfSteam), documents des factions (AOS/, non versionné)
 │   ├── scripts/             # Utilitaires en ligne de commande (create_admin.py, deploy_helper.py)
 │   └── tests/               # Tests pytest
 ├── frontend/

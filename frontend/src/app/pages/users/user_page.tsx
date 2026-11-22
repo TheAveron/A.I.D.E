@@ -1,6 +1,7 @@
 import { useParams } from "react-router";
 
 import { useUser } from "../../hooks/users/user";
+import { useMe } from "../../hooks/users/me";
 
 import Profile from "../../components/users/profile";
 import OfferList from "../../components/offers/offerslist";
@@ -11,6 +12,7 @@ function UserPage() {
     // the logged-in user's own page, whoever's name was clicked).
     const { userid } = useParams();
     const { user, loading, error } = useUser(userid ?? null);
+    const { user: me } = useMe();
 
     return (
         <div className="information-container">
@@ -31,8 +33,14 @@ function UserPage() {
             )}
             {user && (
                 <>
-                    <TransactionsTable userId={user.user_id.toString()} />
-                    <OfferList userId={user.user_id.toString()} />
+                    <TransactionsTable
+                        userId={user.user_id.toString()}
+                        hideWhenEmpty={me?.user_id !== user.user_id}
+                    />
+                    <OfferList
+                        userId={user.user_id.toString()}
+                        canCreate={me?.user_id === user.user_id}
+                    />
                 </>
             )}
         </div>

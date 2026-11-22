@@ -7,13 +7,11 @@ from ..crud import faction_role as crud_role
 from ..crud import user as crud_user
 from ..crud.notification import notify
 from ..database import User, get_db
-from ..misc import FactionPermission, check_faction_permission
+from ..misc import (LEADER_ROLE_NAME, MEMBER_ROLE_NAME, FactionPermission,
+                    check_faction_permission)
 from ..schemas import UserFull, UserOut, UserPublic, UserUpdate
 
 NO_FACTION_NAME = "Sans Faction"
-GUEST_ROLE_NAME = "Invité"
-MEMBER_ROLE_NAME = "Membre"
-LEADER_ROLE_NAME = "Chef"
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -64,7 +62,7 @@ def _join_faction(
     """A user asking to join a faction for themselves.
 
     The role is never chosen by the client: joining always lands on the
-    target faction's guest role, whatever role_id was sent (a different
+    target faction's member role, whatever role_id was sent (a different
     role_id is refused rather than silently ignored).
     """
     if faction_id is None:
@@ -108,28 +106,28 @@ def _join_faction(
             detail="A faction leader can't leave their faction",
         )
 
-    guest_role = next(
+    member_role = next(
         (
             r
             for r in crud_role.get_roles_by_faction(db, faction.faction_id)
-            if r.name == GUEST_ROLE_NAME
+            if r.name == MEMBER_ROLE_NAME
         ),
         None,
     )
-    if not guest_role:
+    if not member_role:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="This faction has no guest role to join with",
+            detail="This faction has no member role to join with",
         )
 
-    if role_id is not None and role_id != guest_role.role_id:
+    if role_id is not None and role_id != member_role.role_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only join a faction as a guest",
+            detail="You can only join a faction as a member",
         )
 
     return crud_user.update_user_faction_and_role(
-        db, user.user_id, faction.faction_id, guest_role.role_id
+        db, user.user_id, faction.faction_id, member_role.role_id
     )
 
 
@@ -208,7 +206,7 @@ def update_role_faction(
 ):
     """Join a faction (own account) or change a member's role.
 
-    - own account: `faction_id` = join that faction as a guest; `role_id`
+    - own account: `faction_id` = join that faction as a member; `role_id`
       can't be chosen.
     - another member: requires `handle_members` in the same faction; only
       `role_id` (a non-leader role of that faction, with no more powers than

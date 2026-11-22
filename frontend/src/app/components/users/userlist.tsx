@@ -8,6 +8,7 @@ import { KickMemberButton } from "../factions/kickmember";
 import { TransferLeadershipButton } from "../factions/transferleadership";
 
 import type { CSSProperties } from "react";
+import { isLeaderRole } from "../../utils/roles";
 
 function RoleElement({
     role_id,
@@ -43,7 +44,7 @@ function RoleElement({
     if (!role) {
         return (
             <>
-                <td>No role found with this id</td>
+                <td>Rôle introuvable</td>
                 <td></td>
             </>
         );
@@ -54,7 +55,7 @@ function RoleElement({
             <td>{role.name}</td>
             {canManage &&
                 role.faction_id === faction_id &&
-                role.name != "Chef" && (
+                !isLeaderRole(role) && (
                     <td>
                         <UpdateRole
                             userId={user_id}
@@ -115,7 +116,7 @@ function UsersTable({ state = false }: { state: boolean }) {
                     <thead>
                         <tr>
                             <th>Nom</th>
-                            <th colSpan={2}>Role</th>
+                            <th colSpan={2}>Rôle</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -145,8 +146,8 @@ function UsersTable({ state = false }: { state: boolean }) {
                                                         current_user?.user_id
                                                 }
                                                 isLeader={
-                                                    myRole?.name === "Chef" &&
-                                                    myRole.faction_id ===
+                                                    isLeaderRole(myRole) &&
+                                                    myRole?.faction_id ===
                                                         current_user?.faction_id
                                                 }
                                                 onRoleUpdated={refresh}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 
 import {
+    useCurrencies,
     useCurrencyLinkActions,
     useCurrencyLinkRequests,
 } from "../../hooks/currencies/currency_links";
@@ -34,10 +35,20 @@ export function CurrencyFactions({
         manager ? currency.currency_id : null,
     );
     const { factions } = useFactions();
+    // A faction uses one currency at most: the others can't be invited
+    const { currencies } = useCurrencies(manager);
     const [inviteId, setInviteId] = useState("");
 
     const issuers = currency.factions.filter((f) => f.is_issuer).length;
-    const using = new Set(currency.factions.map((f) => f.faction_id));
+    // Managers act on every row; a faction's funds holders only on their own
+    const anyAction =
+        manager ||
+        (viewerHoldsFunds &&
+            currency.factions.some((f) => f.faction_id === viewerFactionId));
+    const using = new Set(
+        currencies.flatMap((c) => c.factions.map((f) => f.faction_id)),
+    );
+    currency.factions.forEach((f) => using.add(f.faction_id));
     const invited = new Set(requests.map((r) => r.faction_id));
     const candidates = (factions ?? []).filter(
         (f) =>
@@ -80,7 +91,7 @@ export function CurrencyFactions({
                             <th>Faction</th>
                             <th>Rôle</th>
                             <th>Depuis</th>
-                            <th>Actions</th>
+                            {anyAction && <th>Actions</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -108,42 +119,47 @@ export function CurrencyFactions({
                                             f.joined_at,
                                         ).toLocaleDateString()}
                                     </td>
-                                    <td>
-                                        {manager && !lastIssuer && (
-                                            <button
-                                                type="button"
-                                                className="button"
-                                                disabled={actions.loading}
-                                                onClick={() =>
-                                                    after(
-                                                        actions.setIssuer(
-                                                            currency.currency_id,
+                                    {anyAction && (
+                                        <td>
+                                            {manager && !lastIssuer && (
+                                                <button
+                                                    type="button"
+                                                    className="button"
+                                                    disabled={actions.loading}
+                                                    onClick={() =>
+                                                        after(
+                                                            actions.setIssuer(
+                                                                currency.currency_id,
+                                                                f.faction_id,
+                                                                !f.is_issuer,
+                                                            ),
+                                                        )
+                                                    }
+                                                >
+                                                    {f.is_issuer
+                                                        ? "Retirer l'émission"
+                                                        : "Rendre émettrice"}
+                                                </button>
+                                            )}{" "}
+                                            {canRemove && (
+                                                <button
+                                                    type="button"
+                                                    className="button"
+                                                    disabled={actions.loading}
+                                                    onClick={() =>
+                                                        leave(
                                                             f.faction_id,
-                                                            !f.is_issuer,
-                                                        ),
-                                                    )
-                                                }
-                                            >
-                                                {f.is_issuer
-                                                    ? "Retirer l'émission"
-                                                    : "Rendre émettrice"}
-                                            </button>
-                                        )}{" "}
-                                        {canRemove && (
-                                            <button
-                                                type="button"
-                                                className="button"
-                                                disabled={actions.loading}
-                                                onClick={() =>
-                                                    leave(f.faction_id, name)
-                                                }
-                                            >
-                                                {own && !manager
-                                                    ? "Quitter la monnaie"
-                                                    : "Retirer"}
-                                            </button>
-                                        )}
-                                    </td>
+                                                            name,
+                                                        )
+                                                    }
+                                                >
+                                                    {own && !manager
+                                                        ? "Quitter la monnaie"
+                                                        : "Retirer"}
+                                                </button>
+                                            )}
+                                        </td>
+                                    )}
                                 </tr>
                             );
                         })}

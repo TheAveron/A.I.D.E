@@ -17,36 +17,18 @@ from ..crud import faction as faction_crud
 from ..crud import offer as offer_crud
 from ..crud.notification import members_with_permission, notify_many
 from ..crud.offer_history import create_offer_history
-from ..database import (
-    Currency,
-    Faction,
-    GlobalRoleName,
-    JoinRequest,
-    Notification,
-    Offer,
-    Role,
-    Train,
-    Transaction,
-    User,
-    get_db,
-)
+from ..database import (Currency, Faction, GlobalRoleName, JoinRequest,
+                        Notification, Offer, Role, Train, Transaction, User,
+                        get_db)
 from ..database.clock import utcnow
 from ..misc import FactionPermission, OfferAction, OfferStatus
-from ..schemas import (
-    AdminCurrencyOut,
-    AdminFactionOut,
-    AdminFactionState,
-    AdminOfferOut,
-    AdminReason,
-    AdminRoleState,
-    AdminTransactionCancelled,
-    AdminTransactionOut,
-    AdminUserState,
-    CurrencyCreate,
-    CurrencyFactionOut,
-    CurrencyUpdate,
-)
-from .admin import LEADER_ROLE_NAME, _admin_only, _escape_like, _target_user, _user_out
+from ..schemas import (AdminCurrencyOut, AdminFactionOut, AdminFactionState,
+                       AdminOfferOut, AdminReason, AdminRoleState,
+                       AdminTransactionCancelled, AdminTransactionOut,
+                       AdminUserState, CurrencyCreate, CurrencyFactionOut,
+                       CurrencyUpdate)
+from .admin import (LEADER_ROLE_NAME, _admin_only, _escape_like, _target_user,
+                    _user_out)
 
 router = APIRouter(prefix="/admin", tags=["Administration"])
 
@@ -391,8 +373,8 @@ def update_currency(
     changes = []
     if body.name is not None and body.name != currency.name:
         changes.append(f"nom → {body.name}")
-    if body.symbol is not None and body.symbol != currency.symbol:
-        changes.append(f"symbole → {body.symbol}")
+    if "symbol" in body.model_fields_set and body.symbol != currency.symbol:
+        changes.append(f"symbole → {body.symbol or 'aucun'}")
     if (
         body.total_in_circulation is not None
         and body.total_in_circulation != currency.total_in_circulation

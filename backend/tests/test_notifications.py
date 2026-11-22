@@ -27,7 +27,7 @@ def _members(env):  # noqa: F811
         [
             Role(role_id=30, name="Chef Adjoint", faction_id=1, handle_members=True),
             Role(role_id=31, name="Recrue", faction_id=1),
-            Role(role_id=32, name="Invité", faction_id=1),
+            Role(role_id=32, name="Membre", faction_id=1),
         ]
     )
     s.commit()

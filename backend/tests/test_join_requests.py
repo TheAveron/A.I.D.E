@@ -18,9 +18,9 @@ def world(env):  # noqa: F811
     s.commit()
     s.add_all(
         [
-            Role(role_id=30, name="Invité", faction_id=1),
+            Role(role_id=30, name="Membre", faction_id=1),
             Role(role_id=31, name="Chef", faction_id=2, handle_members=True),
-            Role(role_id=32, name="Invité", faction_id=2),
+            Role(role_id=32, name="Membre", faction_id=2),
             User(user_id=3, username="bob", hashed_password=PW_HASH),
             User(
                 user_id=4,
@@ -131,7 +131,7 @@ def test_the_pending_list_is_for_member_managers_of_that_faction(world):
     assert [x["username"] for x in r.json()] == ["bob"]
 
 
-def test_accepting_moves_the_applicant_in_as_a_guest(world):
+def test_accepting_moves_the_applicant_in_as_a_member(world):
     request_id = ask(world).json()["request_id"]
     r = world.client.post(
         f"/join_requests/{request_id}/accept", headers=world.h("alice")
@@ -191,7 +191,7 @@ def test_the_applicant_can_withdraw_but_nobody_else(world):
     )
 
 
-def test_accepting_fails_cleanly_when_the_faction_has_no_guest_role(world):
+def test_accepting_fails_cleanly_when_the_faction_has_no_member_role(world):
     s = world.Session()
     s.delete(s.get(Role, 30))
     s.commit()

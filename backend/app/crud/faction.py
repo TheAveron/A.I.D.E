@@ -120,7 +120,6 @@ def update_faction_validation(
 
 
 NO_FACTION_NAME = "Sans Faction"
-MEMBER_ROLE_NAME = "Membre"
 
 
 def archive_faction(db: Session, faction: Faction, actor: User) -> None:
@@ -138,7 +137,7 @@ def archive_faction(db: Session, faction: Faction, actor: User) -> None:
       offers and transactions refer to it.
     """
     from ..database import CurrencyLinkRequest, MapMarker, MapTerritory, Offer
-    from ..misc import OfferAction, OfferStatus
+    from ..misc import MEMBER_ROLE_NAME, OfferAction, OfferStatus
     from .currencies import is_currency_referenced
     from .notification import notify
     from .offer_history import create_offer_history

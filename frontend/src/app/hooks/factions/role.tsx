@@ -12,7 +12,7 @@ import type { UserType } from "../../types/users";
 export function useRole(role_id: number | null): RoleHook {
     const { data, loading, error } = useApiGet<RoleType>(
         role_id ? `/roles/detail/${role_id}` : null,
-        "Error fetching role",
+        "Impossible de charger le rôle",
     );
 
     return { role: data, loading, error };
@@ -43,12 +43,12 @@ export function useUpdateUser(): UseUpdateUserHook {
             data: UpdateUserPayload,
         ): Promise<UserType | null> => {
             if (!token) {
-                setError("No authentication token");
+                setError("Vous n'êtes pas connecté.");
                 return null;
             }
 
             if (!userId) {
-                setError("No User Id provided");
+                setError("Utilisateur inconnu.");
                 return null;
             }
 
@@ -66,7 +66,7 @@ export function useUpdateUser(): UseUpdateUserHook {
 
                 return res.data;
             } catch (err) {
-                setError(`Error updating user: ${getErrorMessage(err)}`);
+                setError(`Mise à jour impossible : ${getErrorMessage(err)}`);
                 return null;
             } finally {
                 setLoading(false);

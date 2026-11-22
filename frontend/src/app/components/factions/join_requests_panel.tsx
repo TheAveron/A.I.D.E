@@ -8,7 +8,7 @@ import { Link } from "react-router";
 
 /**
  * Pending requests to join a faction, for the members who handle members:
- * accepting one makes the applicant a guest of the faction.
+ * accepting one makes the applicant a member ("Membre") of the faction.
  */
 export default function JoinRequestsPanel({
     factionId,

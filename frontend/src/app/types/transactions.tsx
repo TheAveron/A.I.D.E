@@ -12,6 +12,10 @@ export interface TransactionType {
     // Set when an admin cancelled the transaction
     cancelled_at?: string | null;
     cancel_reason?: string | null;
+    // The offer it came from (sent with it, not fetched row by row)
+    offer_item_description?: string | null;
+    offer_user_id?: number | null;
+    offer_faction_id?: number | null;
 }
 
 export interface TransactionHook extends HookResult {

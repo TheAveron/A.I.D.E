@@ -14,29 +14,32 @@ export function isSafeInternalHref(href: string): boolean {
     return href.startsWith("/") && !href.startsWith("//");
 }
 
-export function getDocumentRoute(documentName: string): string {
+/**
+ * The in-app route of a "doc://" link, under `base`: the archives' links stay
+ * in the archives, and the current server's in the current server's pages.
+ */
+export function getDocumentRoute(documentName: string, base: string): string {
     const segments = documentName
         .split("/")
         .filter((segment) => segment && segment !== "." && segment !== "..");
 
-    return `/archives/documentation/${segments
+    return `${base.replace(/\/?$/, "/")}${segments
         .map((segment) => encodeURIComponent(segment))
         .join("/")}`;
 }
-
-const DOCUMENTATION_PREFIX = "/archives/documentation/";
 
 /**
  * The in-app route a relative link of a document points to, or null.
  *
  * Documents link to each other with relative paths ("../zones/spawn",
  * "citadelle_paix", optionally ending in ".md"), resolved like in a browser
- * against the address of the document being read. Only links that stay inside
- * the documentation are followed.
+ * against the address of the document being read. Only links that stay under
+ * `base` (the section the document belongs to) are followed.
  */
 export function resolveRelativeDocumentLink(
     href: string,
     currentPath: string,
+    base: string,
 ): string | null {
     // Anything with a scheme ("mailto:", "javascript:"...) or starting with
     // "/", "//" or "#" is not a relative path.
@@ -44,16 +47,20 @@ export function resolveRelativeDocumentLink(
         return null;
     }
 
+    const root = base.replace(/\/?$/, "/");
+    // The section's index ("/documentation/AgeOfSteam") is read as its folder
+    const from = `${currentPath}/` === root ? root : currentPath;
+
     let resolved: URL;
     try {
-        resolved = new URL(href, `http://local${currentPath}`);
+        resolved = new URL(href, `http://local${from}`);
     } catch {
         return null;
     }
 
     if (
         resolved.origin !== "http://local" ||
-        !resolved.pathname.startsWith(DOCUMENTATION_PREFIX)
+        !resolved.pathname.startsWith(root)
     ) {
         return null;
     }

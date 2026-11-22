@@ -3,6 +3,7 @@ import { useMe } from "../../hooks/users/me";
 import { useMemberCounts } from "../../hooks/factions/member_counts";
 import { useMembership } from "../../hooks/factions/membership";
 import { useRole } from "../../hooks/factions/role";
+import { isLeaderRole } from "../../utils/roles";
 
 const NO_FACTION = "Sans Faction";
 
@@ -15,7 +16,7 @@ export function LeaveFactionButton() {
     const { leave, loading, error } = useMembership();
 
     if (!user?.faction_id || faction?.name === NO_FACTION) return null;
-    if (role?.name === "Chef") return null;
+    if (isLeaderRole(role)) return null;
 
     const onClick = async () => {
         if (!window.confirm("Quitter votre faction ?")) return;

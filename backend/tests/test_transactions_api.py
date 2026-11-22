@@ -84,3 +84,11 @@ def test_paging_does_not_widen_what_a_user_may_see(many):
     s.close()
     r = many.client.get("/transactions/?limit=500", headers=many.h("stranger"))
     assert r.json() == []
+
+
+def test_each_transaction_tells_what_its_offer_was(many):
+    # The listing shows the item and the offer's author without fetching
+    # every offer (one request per row before).
+    row = many.client.get("/transactions/?limit=1", headers=many.h("alice")).json()[0]
+    assert row["offer_item_description"] == "x"
+    assert (row["offer_user_id"], row["offer_faction_id"]) == (1, None)

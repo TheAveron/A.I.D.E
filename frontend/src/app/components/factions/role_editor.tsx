@@ -7,6 +7,7 @@ import {
     type RolePermission,
     type RoleType,
 } from "../../types/roles";
+import { isMemberRole } from "../../utils/roles";
 
 type Draft = {
     name: string;
@@ -26,8 +27,8 @@ function draftOf(role: RoleType | null): Draft {
 
 /**
  * Create a role (`role` is null) or edit one. Nobody grants powers they don't
- * hold themselves: those checkboxes are disabled here (and refused by the
- * server anyway).
+ * hold themselves (the server refuses it): those permissions are not offered,
+ * unless the role already has them, shown then as they are.
  */
 export default function RoleEditor({
     factionId,
@@ -84,6 +85,8 @@ export default function RoleEditor({
                     id="role-name"
                     type="text"
                     maxLength={50}
+                    // The member role keeps its name: joining relies on it
+                    readOnly={isMemberRole(role)}
                     value={draft.name}
                     onChange={(e) =>
                         setDraft({ ...draft, name: e.target.value })
@@ -102,12 +105,14 @@ export default function RoleEditor({
                 />
             </div>
             {ROLE_PERMISSIONS.map(([key, label]) => {
+                const grantable = !!actorRole[key];
+                if (!grantable && !role?.[key]) return null;
                 return (
                     <label key={key} style={{ display: "block" }}>
                         <input
                             type="checkbox"
                             checked={draft.permissions[key]}
-                            disabled={!actorRole[key]}
+                            disabled={!grantable}
                             onChange={(e) =>
                                 setDraft({
                                     ...draft,
@@ -119,6 +124,9 @@ export default function RoleEditor({
                             }
                         />{" "}
                         {label}
+                        {!grantable && (
+                            <small> (vous ne pouvez pas le retirer)</small>
+                        )}
                     </label>
                 );
             })}

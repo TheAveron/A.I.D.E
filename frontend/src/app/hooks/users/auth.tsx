@@ -26,38 +26,38 @@ const PASSWORD_MIN = 4;
 const PASSWORD_MAX = 40;
 
 const LoginSchema = Yup.object().shape({
-    username: Yup.string().required("Username is required"),
-    password: Yup.string().required("Password is required"),
+    username: Yup.string().required("Le nom d'utilisateur est obligatoire"),
+    password: Yup.string().required("Le mot de passe est obligatoire"),
 });
 
 const RegisterSchema = Yup.object().shape({
     username: Yup.string()
-        .required("Username is required")
+        .required("Le nom d'utilisateur est obligatoire")
         .max(
             USERNAME_MAX,
-            `Username cannot exceed more than ${USERNAME_MAX} characters`,
+            `Le nom d'utilisateur ne peut pas dépasser ${USERNAME_MAX} caractères`,
         ),
     password: Yup.string()
-        .required("Password is required")
+        .required("Le mot de passe est obligatoire")
         .min(
             PASSWORD_MIN,
-            `Password length should be at least ${PASSWORD_MIN} characters`,
+            `Le mot de passe doit faire au moins ${PASSWORD_MIN} caractères`,
         )
         .max(
             PASSWORD_MAX,
-            `Password cannot exceed more than ${PASSWORD_MAX} characters`,
+            `Le mot de passe ne peut pas dépasser ${PASSWORD_MAX} caractères`,
         ),
     cpassword: Yup.string()
-        .required("Confirm Password is required")
+        .required("Confirmez le mot de passe")
         .min(
             PASSWORD_MIN,
-            `Password length should be at least ${PASSWORD_MIN} characters`,
+            `Le mot de passe doit faire au moins ${PASSWORD_MIN} caractères`,
         )
         .max(
             PASSWORD_MAX,
-            `Password cannot exceed more than ${PASSWORD_MAX} characters`,
+            `Le mot de passe ne peut pas dépasser ${PASSWORD_MAX} caractères`,
         )
-        .oneOf([Yup.ref("password")], "Passwords do not match"),
+        .oneOf([Yup.ref("password")], "Les mots de passe ne correspondent pas"),
 });
 
 /** The notice RequireAuth/AuthProvider attach to the navigation to /login. */

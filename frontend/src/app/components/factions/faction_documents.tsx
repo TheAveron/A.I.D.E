@@ -55,7 +55,7 @@ export default function FactionDocuments({ factionId }: { factionId: string }) {
                     {documents.map((doc) => (
                         <li key={doc.doc_name}>
                             <Link
-                                to={`/archives/documentation/${encodeURIComponent(doc.server)}/${encodeURIComponent(doc.folder)}/${encodeURIComponent(doc.doc_name)}`}
+                                to={`/faction/${factionId}/documents/${encodeURIComponent(doc.doc_name)}`}
                             >
                                 {doc.title}
                             </Link>

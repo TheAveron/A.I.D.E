@@ -8,6 +8,9 @@ import ToolbarPanels from "../network/toolbar_panels";
 import SortControl from "../common/sort_control";
 import { sortSummary } from "../common/sort_utils";
 import { useFaction } from "../../hooks/factions/faction";
+import { useCurrencies } from "../../hooks/currencies/currency_links";
+
+const NO_FACTION = "Sans Faction";
 
 type Props = {
     search: string;
@@ -77,36 +80,51 @@ export default function FactionList() {
 
     const { counts: memberCounts, refresh: refreshCounts } = useMemberCounts();
 
+    // Every currency with its factions, in one request (one per row before)
+    const { currencies, loading: currenciesLoading } = useCurrencies(true);
+    const currencyByFaction = useMemo(() => {
+        const names: Record<number, string> = {};
+        for (const currency of currencies) {
+            for (const f of currency.factions)
+                names[f.faction_id] = currency.name;
+        }
+        return names;
+    }, [currencies]);
+
     const filteredFactions = useMemo(() => {
         if (!factions) return [];
 
-        return factions
-            .filter((f) =>
-                [f.name, f.description]
-                    .join(" ")
-                    .toLowerCase()
-                    .includes(search.toLowerCase()),
-            )
-            .sort((a, b) => {
-                let comp = 0;
+        return (
+            factions
+                // "Sans Faction" is where accounts wait, not a faction to join
+                .filter((f) => f.name !== NO_FACTION)
+                .filter((f) =>
+                    [f.name, f.description]
+                        .join(" ")
+                        .toLowerCase()
+                        .includes(search.toLowerCase()),
+                )
+                .sort((a, b) => {
+                    let comp = 0;
 
-                if (sortKey === "name") {
-                    comp = a.name.localeCompare(b.name);
-                } else if (sortKey === "members") {
-                    comp =
-                        (memberCounts[a.faction_id] ?? 0) -
-                        (memberCounts[b.faction_id] ?? 0);
-                } else if (sortKey === "approved") {
-                    comp =
-                        a.is_approved === b.is_approved
-                            ? 0
-                            : a.is_approved
-                              ? -1
-                              : 1;
-                }
+                    if (sortKey === "name") {
+                        comp = a.name.localeCompare(b.name);
+                    } else if (sortKey === "members") {
+                        comp =
+                            (memberCounts[a.faction_id] ?? 0) -
+                            (memberCounts[b.faction_id] ?? 0);
+                    } else if (sortKey === "approved") {
+                        comp =
+                            a.is_approved === b.is_approved
+                                ? 0
+                                : a.is_approved
+                                  ? -1
+                                  : 1;
+                    }
 
-                return sortAsc ? comp : -comp;
-            });
+                    return sortAsc ? comp : -comp;
+                })
+        );
     }, [factions, search, sortKey, sortAsc, memberCounts]);
 
     const totalPages = Math.ceil(filteredFactions.length / pageSize);
@@ -122,7 +140,7 @@ export default function FactionList() {
         <div className="snippet-container factions-container">
             <div className="factions-header">
                 <h2>Liste des factions</h2>
-                {(!UserFaction || UserFaction?.name === "Sans Faction") && (
+                {(!UserFaction || UserFaction.name === NO_FACTION) && (
                     <NewFaction
                         onCreated={() => {
                             refresh();
@@ -147,6 +165,12 @@ export default function FactionList() {
             <FactionTable
                 factions={paginated}
                 memberCounts={memberCounts}
+                currencyByFaction={currenciesLoading ? null : currencyByFaction}
+                currentFactionName={
+                    UserFaction && UserFaction.name !== NO_FACTION
+                        ? UserFaction.name
+                        : null
+                }
                 onJoined={refreshCounts}
                 loading={loading}
                 error={error}

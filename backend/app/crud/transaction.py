@@ -3,7 +3,7 @@ from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy import or_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, contains_eager
 
 from ..database import Offer, Transaction, User
 from ..misc import OfferAction, OfferStatus
@@ -103,7 +103,10 @@ def get_transactions(
         query = query.filter(Transaction.offer_id == offer_id)
 
     return (
-        query.order_by(Transaction.timestamp.desc(), Transaction.transaction_id.desc())
+        # The offer is already joined: load it with the rows (its item and
+        # author are in the response) instead of one query per transaction
+        query.options(contains_eager(Transaction.offer))
+        .order_by(Transaction.timestamp.desc(), Transaction.transaction_id.desc())
         .offset(skip)
         .limit(limit)
         .all()

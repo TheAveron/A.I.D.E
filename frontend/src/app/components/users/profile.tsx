@@ -49,23 +49,30 @@ function Profile({ value }: { value: UserType }) {
                             )}
                         </div>
                         <div className="info-values">
-                            <Link
-                                to={
-                                    faction
-                                        ? `/faction/${faction.faction_id}`
-                                        : "#"
-                                }
-                                style={{ width: "100%" }}
-                            >
+                            {faction ? (
+                                <Link
+                                    to={`/faction/${faction.faction_id}`}
+                                    style={{ width: "100%" }}
+                                >
+                                    <div className="info-row">
+                                        <span className="info-label">
+                                            Faction:
+                                        </span>
+                                        <span className="info-value-field">
+                                            {faction.name}
+                                        </span>
+                                    </div>
+                                </Link>
+                            ) : (
                                 <div className="info-row">
                                     <span className="info-label">Faction:</span>
                                     <span className="info-value-field">
-                                        {faction?.name ?? "Aucune"}
+                                        Aucune
                                     </span>
                                 </div>
-                            </Link>
+                            )}
                             <div className="info-row">
-                                <span className="info-label">Role:</span>
+                                <span className="info-label">Rôle:</span>
                                 <span className="info-value-field">
                                     {!roleError
                                         ? !roleLoading

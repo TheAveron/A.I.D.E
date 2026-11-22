@@ -1,6 +1,7 @@
 import { useNewOffer } from "../../hooks/offers/offers";
 import { useMe } from "../../hooks/users/me";
 import { useRole } from "../../hooks/factions/role";
+import { useCurrencies } from "../../hooks/currencies/currency_links";
 
 export function NewOffer({ onCreated }: { onCreated?: () => void }) {
     const { user } = useMe();
@@ -22,6 +23,8 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
         expiresAt,
         setExpiresAt,
     } = useNewOffer(onCreated);
+    // Loaded when the form opens: the server refuses an unknown currency
+    const { currencies, loading: currenciesLoading } = useCurrencies(isOpen);
 
     const {
         register,
@@ -73,10 +76,31 @@ export function NewOffer({ onCreated }: { onCreated?: () => void }) {
 
                             <div className="modal-field">
                                 <label>Monnaie</label>
-                                <input
-                                    type="text"
+                                <select
                                     {...register("currency_name")}
-                                />
+                                    disabled={currenciesLoading}
+                                >
+                                    <option value="">
+                                        {currenciesLoading
+                                            ? "Chargement..."
+                                            : "Choisir une monnaie"}
+                                    </option>
+                                    {[...currencies]
+                                        .sort((a, b) =>
+                                            a.name.localeCompare(b.name),
+                                        )
+                                        .map((c) => (
+                                            <option
+                                                key={c.currency_id}
+                                                value={c.name}
+                                            >
+                                                {c.name}
+                                                {c.symbol
+                                                    ? ` (${c.symbol})`
+                                                    : ""}
+                                            </option>
+                                        ))}
+                                </select>
                                 {errors.currency_name && (
                                     <p>{errors.currency_name.message}</p>
                                 )}

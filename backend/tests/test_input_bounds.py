@@ -213,7 +213,7 @@ class TestDocumentLimits:
     def test_read_errors_do_not_reveal_server_paths(
         self, env, monkeypatch
     ):  # noqa: F811
-        folder = self.root / "AOS"
+        folder = self.root / "AgeOfSteam"
         folder.mkdir(parents=True)
         (folder / "doc.md").write_text("hello")
 
@@ -221,7 +221,7 @@ class TestDocumentLimits:
             raise PermissionError(f"[Errno 13] Permission denied: '{self}'")
 
         monkeypatch.setattr(type(folder), "read_text", broken)
-        r = env.client.get("/documents/AOS/doc/doc")
+        r = env.client.get("/documents/aos/doc")
         assert r.status_code == 500
         assert str(self.root) not in r.text
 

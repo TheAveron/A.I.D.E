@@ -72,6 +72,21 @@ class TrainService(str, Enum):
     LIQUID = "L"
 
 
+# The roles every faction is created with, recognized by their name: the
+# leader's can't be changed, the member's (the role new members get) can't be
+# renamed or deleted, and nobody else may take these two names (api/role.py).
+LEADER_ROLE_NAME = "Chef"
+DEPUTY_ROLE_NAME = "Chef Adjoint"
+MEMBER_ROLE_NAME = "Membre"
+
+
+# The maps of the current server, Age of Steam (folders of documents/maps):
+# the only ones whose territories and markers may change. Every other map is
+# an archive of a former server, frozen. Same list as CURRENT_MAP_VARIANTS in
+# frontend/src/app/utils/maps.ts.
+CURRENT_MAPS = frozenset({"OAOS_zoom", "NAOS_zoom", "EAOS_zoom"})
+
+
 class MarkerKind(str, Enum):
     """What a point of interest on the map is (picks its icon and legend)."""
 

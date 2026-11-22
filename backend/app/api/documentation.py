@@ -27,8 +27,65 @@ MAX_CONTENT_LENGTH = 100_000
 MAX_FILENAME_BYTES = 200  # most file systems refuse names over 255 bytes
 MAX_DOCUMENTS_PER_FACTION = 200
 
-# Faction documents are written under this server's folder.
-FACTION_DOCS_SERVER = "AOS"
+# Two kinds of documents, kept apart:
+# - the archives: the rules of former servers, frozen. They are only read, and
+#   only from the folders listed here;
+# - the current server, Age of Steam, in one folder: its own pages
+#   (AgeOfSteam/*.md) and the documents its factions write
+#   (AgeOfSteam/factions/<faction>/*.md, not versioned).
+ARCHIVED_SERVERS = frozenset({"CubeCrusaders"})
+CURRENT_DOCS_FOLDER = "AgeOfSteam"
+FACTION_DOCS = (CURRENT_DOCS_FOLDER, "factions")
+# Where faction documents were kept before (moved by migrate_legacy_folders)
+LEGACY_FACTION_DOCS = "AOS"
+
+
+def migrate_legacy_folders() -> list[str]:
+    """Move the faction documents of the former layouts into
+    AgeOfSteam/factions/, once (called at startup). Returns what was moved.
+
+    - documents/AOS/<faction>/ (and AOS/_archive/) -> AgeOfSteam/factions/;
+    - empty folders left directly in AgeOfSteam/ by an even older layout
+      (AgeOfSteam/<faction>/) are removed, non-empty ones are kept and logged.
+    Nothing is overwritten: a folder already at the target stays where it is.
+    """
+    moved: list[str] = []
+    docs = DOCS_DIR.resolve()
+    target_root = _faction_root()
+    legacy = docs / LEGACY_FACTION_DOCS
+    if legacy.is_dir():
+        target_root.mkdir(parents=True, exist_ok=True)
+        for source in sorted(legacy.iterdir()):
+            target = target_root / source.name
+            if target.exists():
+                logger.warning("Documents not moved, %s already exists", target)
+                continue
+            source.rename(target)
+            moved.append(f"{LEGACY_FACTION_DOCS}/{source.name}")
+        try:
+            legacy.rmdir()  # only if it is now empty
+        except OSError:
+            logger.warning("%s still holds files: kept", legacy)
+
+    current = docs / CURRENT_DOCS_FOLDER
+    if current.is_dir():
+        for folder in sorted(current.iterdir()):
+            if not folder.is_dir() or folder == target_root:
+                continue
+            try:
+                folder.rmdir()
+                moved.append(f"{CURRENT_DOCS_FOLDER}/{folder.name} (empty, removed)")
+            except OSError:
+                logger.warning("Old documents folder %s is not empty: kept", folder)
+    for entry in moved:
+        logger.info("Documents layout: %s", entry)
+    return moved
+
+
+def _faction_root() -> Path:
+    """The folder holding one folder per faction (read at call time: the
+    tests point DOCS_DIR elsewhere)."""
+    return DOCS_DIR.resolve().joinpath(*FACTION_DOCS)
 
 logger = logging.getLogger("aide")
 
@@ -41,10 +98,8 @@ class DocBase(BaseModel):
 
 
 class DocSummary(BaseModel):
-    """A faction document in a listing: where to open it, and its title."""
+    """A faction document in a listing: its name in the URLs, and its title."""
 
-    server: str
-    folder: str
     doc_name: str
     title: str
 
@@ -68,7 +123,7 @@ def move_faction_folder(old_name: str, new_name: str) -> bool:
     if old_folder == new_folder:
         return False
 
-    root = DOCS_DIR.resolve() / FACTION_DOCS_SERVER
+    root = _faction_root()
     source = root / old_folder
     target = root / new_folder
     if (
@@ -98,12 +153,12 @@ def move_faction_folder(old_name: str, new_name: str) -> bool:
 def archive_faction_folder(name: str, faction_id: int) -> tuple[Path, Path] | None:
     """Move a deleted faction's documents out of the way, keeping them.
 
-    They go to AOS/_archive/<folder>-<faction id>. Returns (source, target) so
+    They go to AgeOfSteam/factions/_archive/<folder>-<faction id>. Returns (source, target) so
     that the caller can move them back if the deletion fails, or None when
     the faction had no documents.
     """
     folder = normalize(name)
-    root = DOCS_DIR.resolve() / FACTION_DOCS_SERVER
+    root = _faction_root()
     source = root / folder
     if not folder or not _SAFE_FOLDER.fullmatch(folder) or not source.is_dir():
         return None
@@ -183,7 +238,7 @@ def create_document(
             detail="This faction's name can't be used as a folder name",
         )
 
-    file_path = DOCS_DIR / FACTION_DOCS_SERVER / faction_name / f"{doc_name}.md"
+    file_path = DOCS_DIR.joinpath(*FACTION_DOCS, faction_name, f"{doc_name}.md")
 
     if file_path.parent.is_dir():
         existing = sum(1 for _ in file_path.parent.glob("*.md"))
@@ -227,6 +282,32 @@ def _title_of(path: Path) -> str:
     return path.stem
 
 
+class FactionDocs(BaseModel):
+    """A faction and the documents it has written."""
+
+    faction_id: int
+    faction_name: str
+    documents: list[DocSummary]
+
+
+@router.get("/factions", response_model=list[FactionDocs])
+def list_all_faction_documents(db: Session = Depends(get_db)):
+    """Every faction that has written documents, with them (public, like
+    reading them): the documentation page of the current server lists them."""
+    listing = []
+    for faction in faction_crud.list_factions(db, limit=1000):
+        documents = _summaries(faction.name)
+        if documents:
+            listing.append(
+                FactionDocs(
+                    faction_id=faction.faction_id,
+                    faction_name=faction.name,
+                    documents=documents,
+                )
+            )
+    return sorted(listing, key=lambda f: f.faction_name.lower())
+
+
 @router.get(
     "/faction/{faction_id}",
     response_model=list[DocSummary],
@@ -239,19 +320,21 @@ def list_faction_documents(faction_id: int, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Faction not found"
         )
+    return _summaries(faction.name)
 
-    folder = normalize(faction.name)
+
+def _summaries(faction_name: str) -> list[DocSummary]:
+    """The documents in the folder of the faction named so (sorted)."""
+    folder = normalize(faction_name)
     if not folder or not _SAFE_FOLDER.fullmatch(folder):
         return []
-    directory = (DOCS_DIR / FACTION_DOCS_SERVER / folder).resolve()
+    directory = DOCS_DIR.joinpath(*FACTION_DOCS, folder).resolve()
     if not directory.is_relative_to(DOCS_DIR.resolve()) or not directory.is_dir():
         return []
 
     files = sorted(directory.glob("*.md"))[:MAX_DOCUMENTS_PER_FACTION]
     return [
         DocSummary(
-            server=FACTION_DOCS_SERVER,
-            folder=folder,
             doc_name=path.stem,
             title=_title_of(path),
         )
@@ -272,7 +355,7 @@ def _faction_folder(db: Session, faction_id: int) -> Path:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
         )
-    return DOCS_DIR.resolve() / FACTION_DOCS_SERVER / folder
+    return _faction_root() / folder
 
 
 def _split_title(text: str, fallback: str) -> tuple[str, str]:
@@ -293,7 +376,7 @@ def get_faction_document_for_edit(
 ):
     """A faction document split into its title and body (for an editor)."""
     folder = _faction_folder(db, faction_id)
-    path = _document_path(FACTION_DOCS_SERVER, folder.name, doc_name=doc_name)
+    path = _document_path(*FACTION_DOCS, folder.name, doc_name=doc_name)
     if not path.is_file():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
@@ -327,7 +410,7 @@ def update_document(
         current_user, FactionPermission.MANAGE_DOCS, target_faction_id=faction_id
     )
     folder = _faction_folder(db, faction_id)
-    path = _document_path(FACTION_DOCS_SERVER, folder.name, doc_name=doc_name)
+    path = _document_path(*FACTION_DOCS, folder.name, doc_name=doc_name)
     if not path.is_file():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
@@ -384,7 +467,7 @@ def delete_document(
         current_user, FactionPermission.MANAGE_DOCS, target_faction_id=faction_id
     )
     folder = _faction_folder(db, faction_id)
-    path = _document_path(FACTION_DOCS_SERVER, folder.name, doc_name=doc_name)
+    path = _document_path(*FACTION_DOCS, folder.name, doc_name=doc_name)
     try:
         path.unlink()
     except FileNotFoundError:
@@ -400,53 +483,46 @@ def delete_document(
     return None
 
 
-@router.get(
-    "/{server}/doc/{doc_name}",
-    response_model=DocBase,
-    status_code=status.HTTP_200_OK,
-)
-def get_document(server: str, doc_name: str):
-    file_path = _document_path(server, doc_name=doc_name)
-
-    if not file_path.is_file():
+def _read_document(path: Path) -> DocBase:
+    """A whole markdown document (title included), or 404 / 500."""
+    if not path.is_file():
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
         )
-
     try:
-        content = file_path.read_text(encoding="utf-8")
+        content = path.read_text(encoding="utf-8")
     except OSError:
-        logger.exception("Could not read document %s", file_path)
+        logger.exception("Could not read document %s", path)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Could not read the document",
         )
+    return DocBase(title=path.stem, content=content)
 
-    return DocBase(title=doc_name, content=content)
+
+@router.get("/aos/{doc_name}", response_model=DocBase)
+def get_current_document(doc_name: str):
+    """A page of the current server's documentation."""
+    return _read_document(_document_path(CURRENT_DOCS_FOLDER, doc_name=doc_name))
 
 
-@router.get(
-    "/{server}/faction_doc/{faction}/{doc_name}",
-    response_model=DocBase,
-    status_code=status.HTTP_200_OK,
-)
-def get_faction_document(server: str, faction: str, doc_name: str):
-    file_path = _document_path(server, normalize(faction), doc_name=doc_name)
-
-    if not file_path.is_file():
+def _archived_server(server: str) -> str:
+    """The folder of a former server, or 404: nothing else is an archive."""
+    if server not in ARCHIVED_SERVERS:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Document not found",
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
         )
+    return server
 
-    try:
-        content = file_path.read_text(encoding="utf-8")
-    except OSError:
-        logger.exception("Could not read document %s", file_path)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Could not read the document",
-        )
 
-    return DocBase(title=doc_name, content=content)
+# The archives are only read: there is, on purpose, no route writing to them.
+@router.get("/archives/{server}/{doc_name}", response_model=DocBase)
+def get_archived_document(server: str, doc_name: str):
+    return _read_document(_document_path(_archived_server(server), doc_name=doc_name))
+
+
+@router.get("/archives/{server}/{folder}/{doc_name}", response_model=DocBase)
+def get_archived_document_in_folder(server: str, folder: str, doc_name: str):
+    return _read_document(
+        _document_path(_archived_server(server), folder, doc_name=doc_name)
+    )

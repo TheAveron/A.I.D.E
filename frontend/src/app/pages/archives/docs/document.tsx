@@ -1,29 +1,24 @@
 import { useParams } from "react-router";
 import DocuLoader from "../../../utils/doc_loader";
 
-type DocumentLoader = {
-    server: string;
-    page: string;
-};
-
+/** A document of a former server (read only, like all the archives). */
 function Document() {
-    const { server, page } = useParams() as DocumentLoader;
+    const { server, page } = useParams();
 
-    if (!server) {
+    if (!server || !page) {
         return (
             <p>
-                Invalid document URL, missing server name: {server}/{page}
-            </p>
-        );
-    } else if (!page) {
-        return (
-            <p>
-                Invalid document URL, missing page name: {server}/{page}
+                Invalid document URL: {server}/{page}
             </p>
         );
     }
 
-    return <DocuLoader server={server} page={page} />;
+    return (
+        <DocuLoader
+            url={`/documents/archives/${encodeURIComponent(server)}/${encodeURIComponent(page)}`}
+            linkBase="/archives/documentation/"
+        />
+    );
 }
 
 export default Document;
