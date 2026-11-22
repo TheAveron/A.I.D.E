@@ -68,11 +68,20 @@ rm -rf frontend/build.new
 mv "$TMP/out/build" frontend/build.new
 
 # --- 5. La base : où aller, puis une sauvegarde ---
+# Le helper de la version installée, ou celui de la version déployée si
+# l'installée est trop ancienne pour en avoir un
+export AIDE_BACKEND="$PWD/backend"
+HELPER="$PWD/backend/scripts/deploy_helper.py"
+if [ ! -f "$HELPER" ]; then
+  HELPER="$TMP/deploy_helper.py"
+  git show "$TAG:backend/scripts/deploy_helper.py" > "$HELPER" \
+    || fail "Ni la version installée ni $TAG n'ont de scripts/deploy_helper.py, rien n'a été modifié."
+fi
 cd backend
 # Avec le code ACTUEL : lui seul sait défaire ses propres migrations
-DOWN="$(python -m scripts.deploy_helper downgrade-target "$TAG")" \
+DOWN="$(python "$HELPER" downgrade-target "$TAG")" \
   || fail "Impossible de comparer la base à $TAG, rien n'a été modifié."
-BACKUP="$(python -m scripts.deploy_helper backup "$TAG")" \
+BACKUP="$(python "$HELPER" backup "$TAG")" \
   || fail "Sauvegarde de la base impossible, rien n'a été modifié."
 echo "Base sauvegardée : $BACKUP"
 

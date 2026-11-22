@@ -86,16 +86,28 @@ if errorlevel 8 exit /b 1
 rmdir /s /q "%TMP_DIR%"
 
 REM --- 5. La base : ou aller, puis une sauvegarde ---
+REM Le helper de la version installee, ou celui de la version deployee si
+REM l'installee est trop ancienne pour en avoir un
+set "AIDE_BACKEND=%CD%\backend"
+set "HELPER=%CD%\backend\scripts\deploy_helper.py"
+if not exist "!HELPER!" (
+  set "HELPER=%TEMP%\aide_deploy_helper.py"
+  git show "!TAG!:backend/scripts/deploy_helper.py" > "!HELPER!"
+  if errorlevel 1 (
+    echo Ni la version installee ni !TAG! n'ont de scripts\deploy_helper.py, rien n'a ete modifie.
+    exit /b 1
+  )
+)
 pushd backend
 REM Avec le code ACTUEL : lui seul sait defaire ses propres migrations
 set DOWN=
-for /f "delims=" %%r in ('python -m scripts.deploy_helper downgrade-target !TAG!') do set DOWN=%%r
+for /f "delims=" %%r in ('python "!HELPER!" downgrade-target !TAG!') do set DOWN=%%r
 if not defined DOWN (
   echo Impossible de comparer la base a !TAG!, rien n'a ete modifie.
   exit /b 1
 )
 set BACKUP=
-for /f "delims=" %%b in ('python -m scripts.deploy_helper backup !TAG!') do set BACKUP=%%b
+for /f "delims=" %%b in ('python "!HELPER!" backup !TAG!') do set BACKUP=%%b
 if not defined BACKUP (
   echo Sauvegarde de la base impossible, rien n'a ete modifie.
   exit /b 1
