@@ -391,11 +391,11 @@ def test_deleting_a_faction_keeps_its_currency_run(senv):
 def test_deleting_a_faction_drops_its_link_and_invitations(senv):
     c = senv.client
     _join(senv, "bob")
-    rid = c.post(
+    c.post(
         f"/currencies/{DIAMANT}/links/invite",
         json={"faction_id": 4},
         headers=senv.h("alice"),
-    ).json()["request_id"]
+    )
     # Gamma's and Beta's leaders delete their factions
     s = senv.Session()
     s.add_all(
