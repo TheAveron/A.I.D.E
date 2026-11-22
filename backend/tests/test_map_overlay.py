@@ -467,3 +467,11 @@ def test_a_generic_point_has_a_colour(menv):
     )
     put(color="#00ff00")
     assert put(kind="city").json()["color"] is None
+
+
+def test_the_woodland_mansion_is_a_structure(menv):
+    mid = _marker(menv, "bob", kind="woodland_mansion").json()["marker_id"]
+    r = menv.client.put(
+        f"/map/markers/{mid}/explored", json={"explored": True}, headers=menv.h("bob")
+    )
+    assert (r.status_code, r.json()["explored"]) == (200, True)

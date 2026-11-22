@@ -9,6 +9,7 @@ export const MARKER_KINDS = {
     nether_bastion: "Bastion du Nether",
     nether_fortress: "Forteresse du Nether",
     end_city: "Cité de l'End",
+    woodland_mansion: "Manoir des bois",
     spawn: "Spawn",
     generic: "Point d'intérêt",
 } as const;
@@ -25,6 +26,7 @@ export const STRUCTURE_KINDS: ReadonlySet<MarkerKind> = new Set<MarkerKind>([
     "nether_bastion",
     "nether_fortress",
     "end_city",
+    "woodland_mansion",
 ]);
 
 export function isStructure(kind: MarkerKind): boolean {
