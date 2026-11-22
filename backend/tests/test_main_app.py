@@ -130,9 +130,10 @@ def test_files_of_the_frontend_build_are_served_not_index_html(
     assert client.get("/factions", headers=page).text == "<html>spa</html>"
     # Nothing outside the build is reachable
     assert "not in the build" not in client.get("/%2e%2e/%2e%2e/secret.txt").text
-    assert "not in the build" not in client.get(
-        "/images/%2e%2e/%2e%2e/%2e%2e/secret.txt", headers=page
-    ).text
+    assert (
+        "not in the build"
+        not in client.get("/images/%2e%2e/%2e%2e/%2e%2e/secret.txt", headers=page).text
+    )
 
 
 def test_unknown_paths_are_a_404_not_the_spa(main_app, monkeypatch, tmp_path):

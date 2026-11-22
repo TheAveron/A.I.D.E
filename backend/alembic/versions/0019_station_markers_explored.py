@@ -64,7 +64,9 @@ def upgrade() -> None:
         ).first()
         if taken:
             bind.execute(
-                sa.text("UPDATE map_markers SET kind = 'generic' WHERE marker_id = :id"),
+                sa.text(
+                    "UPDATE map_markers SET kind = 'generic' WHERE marker_id = :id"
+                ),
                 {"id": m.marker_id},
             )
             continue
@@ -95,9 +97,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     # The stations made from markers stay stations: they are real ones now
-    op.drop_constraint(
-        "fk_map_markers_explored_by", "map_markers", type_="foreignkey"
-    )
+    op.drop_constraint("fk_map_markers_explored_by", "map_markers", type_="foreignkey")
     op.drop_column("map_markers", "explored_at")
     op.drop_column("map_markers", "explored_by_user_id")
     op.drop_column("map_markers", "explored")

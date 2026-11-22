@@ -424,9 +424,12 @@ def test_a_structure_is_marked_explored_by_anybody(menv):
         None,
     )
     assert _audit(menv) == []
-    assert menv.client.put(
-        f"/map/markers/{mid}/explored", json={"explored": True}
-    ).status_code == 401
+    assert (
+        menv.client.put(
+            f"/map/markers/{mid}/explored", json={"explored": True}
+        ).status_code
+        == 401
+    )
     assert _explored(menv, 999, "newbie").status_code == 404
 
 
@@ -456,8 +459,11 @@ def test_a_generic_point_has_a_colour(menv):
     assert put(color="#00ff00").json()["color"] == "#00ff00"
     assert put(color=None).json()["color"] is None
     # the other kinds have their icon, not a colour
-    assert _marker(menv, "newbie", label="v", kind="village", color="#ff0000").json()[
-        "color"
-    ] is None
+    assert (
+        _marker(menv, "newbie", label="v", kind="village", color="#ff0000").json()[
+            "color"
+        ]
+        is None
+    )
     put(color="#00ff00")
     assert put(kind="city").json()["color"] is None

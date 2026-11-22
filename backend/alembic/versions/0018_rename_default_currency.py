@@ -71,9 +71,7 @@ def _rename_currency(old: str, new: str) -> None:
     )
 
     # Single-column foreign keys referencing currencies.name.
-    references = bind.execute(
-        sa.text(
-            """
+    references = bind.execute(sa.text("""
             SELECT c.conrelid::regclass::text AS tbl, a.attname AS col
             FROM pg_constraint c
             JOIN pg_attribute a
@@ -84,14 +82,10 @@ def _rename_currency(old: str, new: str) -> None:
               AND c.confrelid = 'currencies'::regclass
               AND cardinality(c.conkey) = 1
               AND af.attname = 'name'
-            """
-        )
-    ).all()
+            """)).all()
     for tbl, col in references:
         bind.execute(
-            sa.text(
-                f"UPDATE {tbl} SET {quote(col)} = :new WHERE {quote(col)} = :old"
-            ),
+            sa.text(f"UPDATE {tbl} SET {quote(col)} = :new WHERE {quote(col)} = :old"),
             {"new": new, "old": old},
         )
 
