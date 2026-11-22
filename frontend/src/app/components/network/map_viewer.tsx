@@ -32,6 +32,7 @@ import { iconUrl } from "../../utils/mapicons";
 import { buildGeometry } from "../../utils/unmined";
 import type { MapGeometry, UnminedData } from "../../utils/unmined";
 import { useMapOverlay, useUnminedData } from "../../hooks/network/map";
+import { useSavedMapDisplay } from "../../hooks/network/mapdisplay";
 import MapEditor, { type EntityRef } from "./map_editor";
 
 export interface Selection {
@@ -198,6 +199,38 @@ function MapCanvas({
     const [goError, setGoError] = useState<string | null>(null);
     const [gotoOpen, setGotoOpen] = useState(false);
     const [legendOpen, setLegendOpen] = useState(initialLegendOpen);
+
+    // What was shown last time: put back once known, then saved on each
+    // change, silently (hooks/network/mapdisplay.tsx)
+    const saved = useSavedMapDisplay();
+    const [restored, setRestored] = useState(false);
+    useEffect(() => {
+        if (!saved.ready || restored) return;
+        const d = saved.initial;
+        if (d) {
+            setVisible({
+                territories: !d.hidden_layers.includes("territories"),
+                stations: !d.hidden_layers.includes("stations"),
+                markers: !d.hidden_layers.includes("markers"),
+                players: !d.hidden_layers.includes("players"),
+            });
+            setHidden(d.hidden_factions);
+            setHiddenKindList(d.hidden_kinds as MarkerKind[]);
+        }
+        setRestored(true);
+    }, [saved.ready, saved.initial, restored]);
+    const { save } = saved;
+    useEffect(() => {
+        // Not before it was put back: the defaults would replace it
+        if (!restored) return;
+        save({
+            hidden_layers: (Object.keys(visible) as LayerKey[]).filter(
+                (key) => !visible[key],
+            ),
+            hidden_kinds: hiddenKindList,
+            hidden_factions: hidden,
+        });
+    }, [restored, visible, hidden, hiddenKindList, save]);
 
     function toggleLegend() {
         setLegendOpen((open) => {
