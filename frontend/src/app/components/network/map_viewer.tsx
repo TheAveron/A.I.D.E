@@ -82,6 +82,21 @@ function labelStyle(text: string, color = "#fff") {
 const ICON_SIZE = { station: 32, other: 40 };
 const iconCache = new Map<string, Icon>();
 
+const dotCache = new Map<string, CircleStyle>();
+
+function pointDot(color: string): CircleStyle {
+    let circle = dotCache.get(color);
+    if (!circle) {
+        circle = new CircleStyle({
+            radius: 10,
+            fill: new Fill({ color }),
+            stroke: new Stroke({ color: "#1b1b1b", width: 3 }),
+        });
+        dotCache.set(color, circle);
+    }
+    return circle;
+}
+
 /* The icon of a kind and colour (built once: the image is loaded once), with
    a label. An explored structure is faded: nothing left to take there. */
 function iconStyle(
@@ -90,6 +105,19 @@ function iconStyle(
     color?: string,
     explored = false,
 ) {
+    if (kind === "generic" && color) {
+        // A generic point with a chosen colour: a dot like generic.svg
+        return new Style({
+            image: pointDot(color),
+            text: new Text({
+                text,
+                offsetY: 22,
+                font: "600 12px sans-serif",
+                fill: new Fill({ color: "#fff" }),
+                stroke: new Stroke({ color: "rgba(0,0,0,0.85)", width: 3 }),
+            }),
+        });
+    }
     const key = `${kind}:${color ?? ""}:${explored ? "x" : ""}`;
     let icon = iconCache.get(key);
     if (!icon) {
@@ -163,6 +191,7 @@ function MapCanvas({
     const [selection, setSelection] = useState<Selection | null>(null);
     const [coords, setCoords] = useState({ x: "", z: "" });
     const [goError, setGoError] = useState<string | null>(null);
+    const [gotoOpen, setGotoOpen] = useState(false);
     const [legendOpen, setLegendOpen] = useState(initialLegendOpen);
 
     function toggleLegend() {
@@ -410,7 +439,9 @@ function MapCanvas({
                                       m.faction_id,
                                       colors.get(m.faction_id),
                                   )
-                                : undefined,
+                                : m.kind === "generic"
+                                  ? (m.color ?? undefined)
+                                  : undefined,
                         markerKind: m.kind,
                         explored: m.explored,
                         kindLabel: MARKER_KINDS[m.kind] ?? "Point d'intérêt",
@@ -465,14 +496,15 @@ function MapCanvas({
         layers.current?.markers.changed();
     }, [hiddenKindList]);
 
-    // The kinds on the map, in the order of the list of kinds
+    // The kinds of the points on the map, in the order of the list of kinds.
+    // Stations are not among them: their own layer ("Gares") shows or hides
+    // them.
     const kinds = useMemo(() => {
         const present = new Set<MarkerKind>(overlay.markers.map((m) => m.kind));
-        if (overlay.stations.length > 0) present.add("station");
         return (Object.keys(MARKER_KINDS) as MarkerKind[]).filter((k) =>
             present.has(k),
         );
-    }, [overlay.markers, overlay.stations]);
+    }, [overlay.markers]);
 
     const factions = useMemo(() => {
         const seen = new Map<number, { name: string; color: string }>();
@@ -507,6 +539,7 @@ function MapCanvas({
             return;
         }
         setGoError(null);
+        setGotoOpen(false);
         map.getView().animate({
             center: geometry.toView([x, z]),
             duration: 400,
@@ -529,6 +562,60 @@ function MapCanvas({
         );
     }
 
+    // Going to coordinates is rare: a small button, opened into a form
+    const gotoControl = gotoOpen ? (
+        <form
+            className="map-goto"
+            onSubmit={goTo}
+            onKeyDown={(e) => {
+                if (e.key === "Escape") setGotoOpen(false);
+            }}
+        >
+            <input
+                type="text"
+                inputMode="numeric"
+                placeholder="X"
+                aria-label="Aller à X"
+                autoFocus
+                value={coords.x}
+                onChange={(e) => setCoords({ ...coords, x: e.target.value })}
+            />
+            <input
+                type="text"
+                inputMode="numeric"
+                placeholder="Z"
+                aria-label="Aller à Z"
+                value={coords.z}
+                onChange={(e) => setCoords({ ...coords, z: e.target.value })}
+            />
+            <button type="submit" className="map-icon-button" title="Aller">
+                →
+            </button>
+            <button
+                type="button"
+                className="map-close"
+                aria-label="Fermer"
+                onClick={() => {
+                    setGotoOpen(false);
+                    setGoError(null);
+                }}
+            >
+                ×
+            </button>
+            {goError && <p className="map-error">{goError}</p>}
+        </form>
+    ) : (
+        <button
+            type="button"
+            className="map-icon-button"
+            title="Aller aux coordonnées"
+            aria-label="Aller aux coordonnées"
+            onClick={() => setGotoOpen(true)}
+        >
+            ⌖
+        </button>
+    );
+
     return (
         <div className="map-viewer">
             <div
@@ -540,33 +627,6 @@ function MapCanvas({
 
             {/* Left: where to go, what to add, what is selected */}
             <div className="map-left">
-                <form className="map-float map-goto" onSubmit={goTo}>
-                    <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="X"
-                        aria-label="Aller à X"
-                        value={coords.x}
-                        onChange={(e) =>
-                            setCoords({ ...coords, x: e.target.value })
-                        }
-                    />
-                    <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="Z"
-                        aria-label="Aller à Z"
-                        value={coords.z}
-                        onChange={(e) =>
-                            setCoords({ ...coords, z: e.target.value })
-                        }
-                    />
-                    <button type="submit" title="Aller aux coordonnées">
-                        Aller
-                    </button>
-                    {goError && <p className="map-error">{goError}</p>}
-                </form>
-
                 {mapState && (
                     <MapEditor
                         folder={folder}
@@ -583,6 +643,7 @@ function MapCanvas({
                             setSelection(null);
                             overlay.refresh();
                         }}
+                        leading={gotoControl}
                     />
                 )}
             </div>

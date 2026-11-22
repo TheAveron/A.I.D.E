@@ -53,6 +53,8 @@ export interface MarkerType {
     kind: MarkerKind;
     x: number;
     z: number;
+    /** A generic point's dot colour ("#rrggbb"); null: the default one. */
+    color: string | null;
     /** For a structure: its valuable loot was already taken. */
     explored: boolean;
     explored_by_name: string | null;

@@ -89,6 +89,9 @@ class MapMarker(Base):
     x: Mapped[int] = mapped_column(Integer, nullable=False)
     z: Mapped[int] = mapped_column(Integer, nullable=False)
 
+    # "#rrggbb" of a generic point's dot; empty: the default one
+    color: Mapped[Optional[str]] = mapped_column(String(7), nullable=True)
+
     # For a structure (misc.STRUCTURE_KINDS): its valuable loot was taken,
     # by whom (as they say) and when. Anybody logged in may tell.
     explored: Mapped[bool] = mapped_column(

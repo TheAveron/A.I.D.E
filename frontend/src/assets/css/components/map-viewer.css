@@ -59,33 +59,17 @@
     flex-shrink: 0;
 }
 
-.map-float.map-goto {
+/* The toolbar: "go to" as a small button, then what can be added */
+.map-tools {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.35rem;
     padding: 0.35rem;
-}
-
-.map-goto input {
-    width: 0;
-    flex: 1;
-    min-width: 0;
-}
-
-.map-goto .map-error {
-    flex-basis: 100%;
-    margin: 0;
-}
-
-.map-tools {
-    flex-direction: row;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.4rem 0.5rem;
+    /* As wide as its buttons, not as the column */
+    align-self: flex-start;
+    max-width: 100%;
 }
 
 .map-tools .button {
@@ -93,16 +77,51 @@
     padding: 0.2rem 0.65rem;
 }
 
-.map-tools-label {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin-right: 0.15rem;
-}
-
-.map-tools.map-hint {
-    margin: 0;
+.map-tools .map-hint {
+    margin: 0 0.3rem;
     opacity: 1;
     color: var(--muted);
+}
+
+.map-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: inherit;
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.map-icon-button:hover {
+    background: var(--hover);
+    border-color: var(--accent);
+}
+
+/* Opened, it takes its own line in the toolbar */
+.map-goto {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    flex-basis: 100%;
+}
+
+.map-goto input {
+    width: 4.5rem;
+    min-width: 0;
+    padding: 0.25rem 0.4rem;
+}
+
+.map-goto .map-error {
+    flex-basis: 100%;
+    margin: 0;
 }
 
 /* The selected element, and the forms: they scroll inside, never the page */
@@ -141,6 +160,15 @@
 .map-card-icon {
     width: 2rem;
     height: 2rem;
+}
+
+.map-card-dot {
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin: 0.2rem 0.45rem;
+    border: 2px solid #1b1b1b;
+    border-radius: 50%;
 }
 
 .map-close {
@@ -307,6 +335,59 @@
 .map-kind-option .map-kind-icon {
     width: 1.8rem;
     height: 1.8rem;
+}
+
+/* A generic point's colour: picker, hex code, ready-made swatches */
+.map-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.map-color-inputs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.map-color-inputs input[type="color"] {
+    width: 2.4rem;
+    height: 2rem;
+    padding: 0.1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.map-hex {
+    width: 6.5rem;
+    font-family: var(--font-mono, monospace);
+}
+
+.map-hex[aria-invalid="true"] {
+    border-color: var(--danger);
+}
+
+.map-swatches {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.map-swatch-button {
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: 1px solid rgb(0 0 0 / 0.6);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.map-swatch-button[aria-pressed="true"] {
+    outline: 2px solid var(--text);
+    outline-offset: 1px;
 }
 
 .map-kind-fixed {

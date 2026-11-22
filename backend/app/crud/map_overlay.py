@@ -289,6 +289,8 @@ def create_marker(
             )
         owner = {"user_id": owner_id}
     marker = MapMarker(**fields, **owner)
+    if marker.kind != MarkerKind.GENERIC.value:
+        marker.color = None  # the icon says what it is
     db.add(marker)
     db.flush()
     return marker, override
@@ -303,6 +305,8 @@ def update_marker(
         setattr(marker, name, value.value if hasattr(value, "value") else value)
     if marker.kind not in STRUCTURE_KINDS:
         _forget_explored(marker)  # only a structure has loot to take
+    if marker.kind != MarkerKind.GENERIC.value:
+        marker.color = None  # only a generic point is a coloured dot
     db.flush()
     return marker
 

@@ -442,3 +442,22 @@ def test_leaving_the_structure_kinds_forgets_explored(menv):
         f"/map/markers/{mid}", json={"kind": "city"}, headers=menv.h("newbie")
     )
     assert (r.json()["explored"], r.json()["explored_by_name"]) == (False, None)
+
+
+def test_a_generic_point_has_a_colour(menv):
+    r = _marker(menv, "newbie", kind="generic", color="#1A2B3C")
+    assert r.status_code == 201, r.text
+    assert r.json()["color"] == "#1a2b3c"
+    mid = r.json()["marker_id"]
+    assert _marker(menv, "newbie", label="x", color="rouge").status_code == 422
+    put = lambda **b: menv.client.put(  # noqa: E731
+        f"/map/markers/{mid}", json=b, headers=menv.h("newbie")
+    )
+    assert put(color="#00ff00").json()["color"] == "#00ff00"
+    assert put(color=None).json()["color"] is None
+    # the other kinds have their icon, not a colour
+    assert _marker(menv, "newbie", label="v", kind="village", color="#ff0000").json()[
+        "color"
+    ] is None
+    put(color="#00ff00")
+    assert put(kind="city").json()["color"] is None
