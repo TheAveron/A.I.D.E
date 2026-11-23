@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 624 476" width="624" height="476" role="img" aria-label="Gabarit d'une ligne à double voie : 1 + 3 + 3 + 3 + 1 blocs">
+<title>Gabarit d'une ligne à double voie : 1 + 3 + 3 + 3 + 1 blocs</title>
+<defs>
+  <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="8" height="8" fill="#ece8de"/>
+    <line x1="0" y1="0" x2="0" y2="8" stroke="#b5ae9c" stroke-width="3"/>
+  </pattern>
+  <pattern id="phatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="7" height="7" fill="#b9bec4"/>
+    <line x1="0" y1="0" x2="0" y2="7" stroke="#9aa0a7" stroke-width="2.5"/>
+  </pattern>
+  <marker id="dimarrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 1 L9 5 L0 9" fill="none" stroke="#6b6b6b" stroke-width="1.6"/>
+  </marker>
+</defs>
+<rect x="1" y="1" width="622" height="474" rx="12" fill="#f8f6f0" stroke="#d6d0c0" stroke-width="2"/>
+<g font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" fill="#2b2b2b">
+<text x="312.0" y="40" font-size="20" text-anchor="middle" font-weight="bold" fill="#2b2b2b">Gabarit d'une ligne à double voie</text>
+<text x="312.0" y="62" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b" font-style="italic">coupe transversale — 1 case = 1 bloc</text>
+<rect x="70" y="124" width="44" height="176" fill="url(#hatch)"/>
+<text x="92.0" y="112" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b">Buffer</text>
+<rect x="114" y="124" width="132" height="176" fill="#dfe7ee"/>
+<text x="180.0" y="112" font-size="13" text-anchor="middle" font-weight="bold" fill="#2b2b2b">Voie</text>
+<rect x="246" y="124" width="132" height="176" fill="#eef0e6"/>
+<text x="312.0" y="112" font-size="13" text-anchor="middle" font-weight="normal" fill="#2b2b2b">Dégagement</text>
+<rect x="378" y="124" width="132" height="176" fill="#dfe7ee"/>
+<text x="444.0" y="112" font-size="13" text-anchor="middle" font-weight="bold" fill="#2b2b2b">Voie</text>
+<rect x="510" y="124" width="44" height="176" fill="url(#hatch)"/>
+<text x="532.0" y="112" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b">Buffer</text>
+<rect x="290" y="124" width="44" height="176" fill="#f2d675" opacity="0.75"/>
+<line x1="70" y1="124" x2="70" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="114" y1="124" x2="114" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="158" y1="124" x2="158" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="202" y1="124" x2="202" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="246" y1="124" x2="246" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="290" y1="124" x2="290" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="334" y1="124" x2="334" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="378" y1="124" x2="378" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="422" y1="124" x2="422" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="466" y1="124" x2="466" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="510" y1="124" x2="510" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="554" y1="124" x2="554" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="70" y1="300" x2="554" y2="300" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="70" y1="256" x2="554" y2="256" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="70" y1="212" x2="554" y2="212" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="70" y1="168" x2="554" y2="168" stroke="#e4dfd2" stroke-width="1"/>
+<line x1="70" y1="124" x2="554" y2="124" stroke="#e4dfd2" stroke-width="1"/>
+<rect x="70" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="114" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="158" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="202" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="246" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="290" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="334" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="378" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="422" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="466" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="510" y="300" width="44" height="26.4" fill="#a7a39a" stroke="#8e8a81"/>
+<rect x="104.32" y="154.8" width="151.36" height="135.2" rx="10" fill="#7f8a96" fill-opacity="0.18" stroke="#56606b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="140.4" y="290" width="79.2" height="10" fill="#56606b" opacity="0.5"/>
+<rect x="164" y="294" width="6" height="6" fill="#3a3a3a"/>
+<rect x="190" y="294" width="6" height="6" fill="#3a3a3a"/>
+<rect x="160" y="297" width="40" height="3" fill="#8b6a43"/>
+<polyline points="169.0,209.8 180.0,223.0 191.0,209.8" fill="none" stroke="#e8891c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="368.32" y="154.8" width="151.36" height="135.2" rx="10" fill="#7f8a96" fill-opacity="0.18" stroke="#56606b" stroke-width="2" stroke-dasharray="7 5"/>
+<rect x="404.4" y="290" width="79.2" height="10" fill="#56606b" opacity="0.5"/>
+<rect x="428" y="294" width="6" height="6" fill="#3a3a3a"/>
+<rect x="454" y="294" width="6" height="6" fill="#3a3a3a"/>
+<rect x="424" y="297" width="40" height="3" fill="#8b6a43"/>
+<polyline points="455.0,223.0 444.0,209.8 433.0,223.0" fill="none" stroke="#e8891c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+<g stroke="#2b2b2b" stroke-width="3" stroke-linecap="round" fill="none"><circle cx="312.0" cy="238" r="7" fill="#2b2b2b"/><line x1="312.0" y1="246" x2="312.0" y2="274"/><line x1="312.0" y1="274" x2="303.0" y2="296"/><line x1="312.0" y1="274" x2="321.0" y2="296"/><line x1="301.0" y1="256" x2="323.0" y2="256"/></g>
+<text x="312.0" y="146" font-size="12" text-anchor="middle" font-weight="bold" fill="#7a6420">piéton</text>
+<text x="180.0" y="146.8" font-size="11" text-anchor="middle" font-weight="normal" fill="#2b2b2b"></text>
+<line x1="70" y1="356.4" x2="114" y2="356.4" stroke="#6b6b6b" stroke-width="1.4" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/><text x="92.0" y="350.4" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b">1</text>
+<line x1="114" y1="356.4" x2="246" y2="356.4" stroke="#6b6b6b" stroke-width="1.4" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/><text x="180.0" y="350.4" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b">3</text>
+<line x1="246" y1="356.4" x2="378" y2="356.4" stroke="#6b6b6b" stroke-width="1.4" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/><text x="312.0" y="350.4" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b">3</text>
+<line x1="378" y1="356.4" x2="510" y2="356.4" stroke="#6b6b6b" stroke-width="1.4" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/><text x="444.0" y="350.4" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b">3</text>
+<line x1="510" y1="356.4" x2="554" y2="356.4" stroke="#6b6b6b" stroke-width="1.4" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/><text x="532.0" y="350.4" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b">1</text>
+<line x1="70" y1="394.4" x2="554" y2="394.4" stroke="#6b6b6b" stroke-width="1.4" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/><text x="312.0" y="388.4" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b">11 blocs</text>
+<text x="312.0" y="434.4" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b" font-style="italic">Les trains font 3 blocs de large mais débordent légèrement :</text>
+<text x="312.0" y="452.4" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b" font-style="italic">on ne circule à pied que sur le bloc central.</text>
+</g>
+</svg>
