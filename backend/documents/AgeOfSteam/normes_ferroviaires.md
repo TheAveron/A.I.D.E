@@ -10,6 +10,7 @@ Ces normes s'appliquent à toute nouvelle construction raccordée au réseau. Un
 - [Principes généraux](#principes-généraux)
 - [Gabarit d'une ligne](#gabarit-dune-ligne)
 - [Tunnels](#tunnels)
+- [Courbes](#courbes)
 - [Signalisation](#signalisation)
 - [Intersection en T](#intersection-en-t)
 - [Gare : quai le long de la ligne](#gare--quai-le-long-de-la-ligne)
@@ -17,7 +18,7 @@ Ces normes s'appliquent à toute nouvelle construction raccordée au réseau. Un
 
 ## Légende des schémas
 
-Tous les schémas utilisent les mêmes symboles :
+Les vues de dessus sont tracées sur une grille où **une case vaut un bloc**. Les voies passent au centre des blocs ; les deux voies d'une ligne sont espacées de **6 blocs** (d'axe en axe). Tous les schémas utilisent les mêmes symboles :
 
 | Symbole | Signification |
 | --- | --- |
@@ -26,6 +27,7 @@ Tous les schémas utilisent les mêmes symboles :
 | Chevron **rouge** simple | Signal simple, placé dans le sens qu'il protège |
 | Double chevron **rouge** | Signal chaîné, placé dans le sens qu'il protège |
 | Cadre rouge en pointillés | Zone d'aiguillages ou de croisements |
+| Bandes bleues, jaune et hachurées | Couloirs de voie, passage piéton et buffers du [gabarit](#gabarit-dune-ligne) |
 
 Un signal se pose toujours **à droite de la voie** dans le sens de la marche, comme le voit le conducteur.
 
@@ -66,6 +68,22 @@ Un tunnel reprend exactement le gabarit de la ligne :
 
 Les angles coupés allègent la silhouette du tunnel sans gêner les trains, qui ne montent pas jusque-là au niveau des buffers.
 
+## Courbes
+
+Create refuse de poser une courbe trop serrée. Les dimensions des schémas reposent sur ces limites, arrondies pour qu'une courbe passe à coup sûr :
+
+Pour un virage, Create mesure la distance entre chaque extrémité de la courbe et l'**angle**, c'est-à-dire le point où se croiseraient les deux voies droites prolongées. Pour un virage à 90°, cette distance est aussi le rayon du virage.
+
+| Courbe | Limite de Create | Norme du réseau |
+| --- | --- | --- |
+| Virage à 90° | environ 7 blocs jusqu'à l'angle | **8 blocs** (rayon de 8) |
+| Virage à 45° | environ 3,25 blocs jusqu'à l'angle | **4 blocs** |
+| Courbe en S (passage sur une voie parallèle décalée de _d_ blocs) | longueur d'au moins 2 × _d_ (et 3 au minimum), uniquement à plat | **longueur de 2 × _d_ + 2** |
+
+Une communication entre les deux voies d'une ligne (décalage de 6 blocs) mesure ainsi **14 blocs de long**.
+
+Les distances se comptent sur l'axe des voies, au centre des blocs. Une courbe plus large que la norme est toujours permise, et même préférable sur une ligne rapide.
+
 ## Signalisation
 
 Les signaux découpent le réseau en **sections** (ou cantons). Un train n'entre dans une section que si aucun autre train ne l'occupe. Deux types de signaux sont utilisés :
@@ -86,7 +104,9 @@ Les règles à respecter :
 
 ![Intersection en T : une ligne principale à double voie et une ligne secondaire raccordée vers le sud, avec des signaux chaînés à chaque entrée et des signaux simples à chaque sortie](/images/docs/ferroviaire/intersection_t.svg)
 
-Une ligne secondaire se raccorde à la ligne principale par une intersection en T. Les quatre mouvements sont possibles : depuis chaque sens de la ligne principale vers la ligne secondaire, et inversement.
+Une ligne secondaire se raccorde à la ligne principale par une intersection en T. Les quatre mouvements sont possibles : depuis chaque sens de la ligne principale vers la ligne secondaire, et inversement. Chacun est un virage à 90° de **rayon 8**.
+
+L'ensemble occupe environ **23 blocs de long** sur la ligne principale (de la première à la dernière courbe) et **15 blocs** sur la ligne secondaire. Les virages venant de la voie la plus éloignée croisent l'autre voie de la ligne principale à angle droit.
 
 - Les **trois voies qui entrent** dans l'intersection (les deux voies de la ligne principale et la voie montante de la ligne secondaire) sont protégées par un **signal chaîné**, placé avant le premier aiguillage.
 - Les **trois voies qui en sortent** reçoivent un **signal simple**, juste après le dernier aiguillage.
@@ -100,7 +120,8 @@ Toute la zone d'aiguillages ne forme ainsi qu'une seule section : un train n'y e
 C'est le modèle de gare de passage, construit directement sur la ligne sans l'élargir.
 
 - Le **quai** est placé le long de la voie de droite.
-- La gare est encadrée par deux **doubles communications** : deux aiguillages croisés qui permettent de passer d'une voie à l'autre dans les deux sens.
+- La gare est encadrée par deux **doubles communications** : deux courbes en S croisées qui permettent de passer d'une voie à l'autre dans les deux sens. Chacune mesure **14 blocs de long** (voir [Courbes](#courbes)).
+- La **longueur du quai**, et donc celle de la section banalisée, reste à définir.
 - Entre ces deux doubles communications, les deux voies forment une **section banalisée** : elles peuvent être parcourues dans les deux sens. Un train peut ainsi rejoindre le quai quelle que soit sa voie d'origine, ou repartir dans l'autre sens.
 
 Signalisation :
@@ -114,6 +135,8 @@ Signalisation :
 ![Raquette de retournement : en fin de ligne, la voie montante fait une boucle et revient sur la voie descendante](/images/docs/ferroviaire/terminus_raquette.svg)
 
 En bout de ligne, les deux voies sont reliées par une **boucle de retournement**, appelée raquette. Le train qui arrive sur sa voie fait le tour de la boucle et repart sur l'autre voie, dans l'autre sens, sans manœuvre ni changement de conducteur.
+
+La boucle est faite de **deux virages à 90° de rayon 8**. Ils demandent 16 blocs entre les deux voies, alors qu'elles n'en ont que 6. Chaque voie s'écarte donc d'abord de 5 blocs par une **courbe en S de 12 blocs**. La raquette occupe en tout **17 blocs de large** et une vingtaine de blocs de long.
 
 La boucle n'est parcourue que dans un seul sens : elle n'a pas besoin de signal particulier. Une gare terminus peut être placée sur la boucle elle-même ou juste avant.
 

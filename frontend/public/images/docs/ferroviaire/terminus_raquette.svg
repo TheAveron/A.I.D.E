@@ -1,31 +1,110 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 500" width="540" height="500" role="img" aria-label="Mode terminus : boucle de retournement reliant les deux voies">
-<title>Mode terminus : boucle de retournement reliant les deux voies</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 464 674" width="464" height="674" role="img" aria-label="Raquette de retournement sur grille : deux virages de 90° de rayon 8 et deux courbes en S">
+<title>Raquette de retournement sur grille : deux virages de 90° de rayon 8 et deux courbes en S</title>
 <defs>
-  <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-    <rect width="8" height="8" fill="#ece8de"/>
-    <line x1="0" y1="0" x2="0" y2="8" stroke="#b5ae9c" stroke-width="3"/>
+  <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="6" height="6" fill="#ece8de"/><line x1="0" y1="0" x2="0" y2="6" stroke="#b5ae9c" stroke-width="2"/>
   </pattern>
   <pattern id="phatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-    <rect width="7" height="7" fill="#b9bec4"/>
-    <line x1="0" y1="0" x2="0" y2="7" stroke="#9aa0a7" stroke-width="2.5"/>
+    <rect width="7" height="7" fill="#b9bec4"/><line x1="0" y1="0" x2="0" y2="7" stroke="#9aa0a7" stroke-width="2.5"/>
   </pattern>
   <marker id="dimarrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
     <path d="M0 1 L9 5 L0 9" fill="none" stroke="#6b6b6b" stroke-width="1.6"/>
   </marker>
 </defs>
-<rect x="1" y="1" width="538" height="498" rx="12" fill="#f8f6f0" stroke="#d6d0c0" stroke-width="2"/>
+<rect x="1" y="1" width="462" height="672" rx="12" fill="#f8f6f0" stroke="#d6d0c0" stroke-width="2"/>
 <g font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" fill="#2b2b2b">
-<text x="270" y="38" font-size="20" text-anchor="middle" font-weight="bold" fill="#2b2b2b">Mode terminus : raquette</text>
-<text x="270" y="60" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b" font-style="italic">vue de dessus — fin de ligne</text>
-<path d="M 310 470 L 310 270 C 310 240, 355 215, 355 165 A 85 85 0 0 0 185 165 C 185 215, 230 240, 230 270 L 230 470" fill="none" stroke="#cfc8b6" stroke-width="13" stroke-linecap="butt" stroke-dasharray="3 6"/><path d="M 310 470 L 310 270 C 310 240, 355 215, 355 165 A 85 85 0 0 0 185 165 C 185 215, 230 240, 230 270 L 230 470" fill="none" stroke="#3a3a3a" stroke-width="5" stroke-linecap="round"/>
-<polyline points="318.0,404.8 310.0,395.2 302.0,404.8" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-<polyline points="222.0,395.2 230.0,404.8 238.0,395.2" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-<polyline points="274.8,72.0 265.2,80.0 274.8,88.0" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-<polyline points="363.0,169.8 355.0,160.2 347.0,169.8" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-<polyline points="177.0,160.2 185.0,169.8 193.0,160.2" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="270" y="171" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b" font-style="italic">retournement</text>
-<text x="270" y="187" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b" font-style="italic">sans manœuvre</text>
-<text x="328" y="460" font-size="12" text-anchor="start" font-weight="normal" fill="#6b6b6b">arrivée</text>
-<text x="212" y="460" font-size="12" text-anchor="end" font-weight="normal" fill="#6b6b6b">départ</text>
+<text x="232.0" y="38" font-size="20" font-weight="bold" text-anchor="middle">Mode terminus : raquette</text>
+<text x="232.0" y="60" font-size="13" text-anchor="middle" fill="#6b6b6b" font-style="italic">vue de dessus — fin de ligne — 1 case = 1 bloc</text>
+<rect x="40" y="80" width="384" height="480" fill="#fdfcf8"/>
+<line x1="40" y1="80" x2="40" y2="560" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="56" y1="80" x2="56" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="72" y1="80" x2="72" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="88" y1="80" x2="88" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="104" y1="80" x2="104" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="120" y1="80" x2="120" y2="560" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="136" y1="80" x2="136" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="152" y1="80" x2="152" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="168" y1="80" x2="168" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="184" y1="80" x2="184" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="200" y1="80" x2="200" y2="560" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="216" y1="80" x2="216" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="232" y1="80" x2="232" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="248" y1="80" x2="248" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="264" y1="80" x2="264" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="280" y1="80" x2="280" y2="560" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="296" y1="80" x2="296" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="312" y1="80" x2="312" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="328" y1="80" x2="328" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="344" y1="80" x2="344" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="360" y1="80" x2="360" y2="560" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="376" y1="80" x2="376" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="392" y1="80" x2="392" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="408" y1="80" x2="408" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="424" y1="80" x2="424" y2="560" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="80" x2="424" y2="80" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="40" y1="96" x2="424" y2="96" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="112" x2="424" y2="112" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="128" x2="424" y2="128" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="144" x2="424" y2="144" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="160" x2="424" y2="160" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="40" y1="176" x2="424" y2="176" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="192" x2="424" y2="192" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="208" x2="424" y2="208" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="224" x2="424" y2="224" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="240" x2="424" y2="240" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="40" y1="256" x2="424" y2="256" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="272" x2="424" y2="272" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="288" x2="424" y2="288" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="304" x2="424" y2="304" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="320" x2="424" y2="320" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="40" y1="336" x2="424" y2="336" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="352" x2="424" y2="352" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="368" x2="424" y2="368" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="384" x2="424" y2="384" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="400" x2="424" y2="400" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="40" y1="416" x2="424" y2="416" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="432" x2="424" y2="432" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="448" x2="424" y2="448" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="464" x2="424" y2="464" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="480" x2="424" y2="480" stroke="#cfc7b4" stroke-width="1"/>
+<line x1="40" y1="496" x2="424" y2="496" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="512" x2="424" y2="512" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="528" x2="424" y2="528" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="544" x2="424" y2="544" stroke="#e6e1d4" stroke-width="1"/>
+<line x1="40" y1="560" x2="424" y2="560" stroke="#cfc7b4" stroke-width="1"/>
+<rect x="136" y="440.0" width="16" height="120.0" fill="url(#hatch)" fill-opacity="0.8"/>
+<rect x="152" y="440.0" width="48" height="120.0" fill="#dfe7ee" fill-opacity="0.7"/>
+<rect x="216" y="440.0" width="16" height="120.0" fill="#f2d675" fill-opacity="0.6"/>
+<rect x="248" y="440.0" width="48" height="120.0" fill="#dfe7ee" fill-opacity="0.7"/>
+<rect x="296" y="440.0" width="16" height="120.0" fill="url(#hatch)" fill-opacity="0.8"/>
+<path d="M 176.0 440.0 L 176.0 560.0" fill="none" stroke="#cdbf9f" stroke-width="12.8" stroke-dasharray="3.5 4.5"/><path d="M 176.0 440.0 L 176.0 560.0" fill="none" stroke="#3a3a3a" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M 272.0 440.0 L 272.0 560.0" fill="none" stroke="#cdbf9f" stroke-width="12.8" stroke-dasharray="3.5 4.5"/><path d="M 272.0 440.0 L 272.0 560.0" fill="none" stroke="#3a3a3a" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M 272.0 440.0 C 272.0 344.0, 352.0 344.0, 352.0 248.0" fill="none" stroke="#cdbf9f" stroke-width="12.8" stroke-dasharray="3.5 4.5"/><path d="M 272.0 440.0 C 272.0 344.0, 352.0 344.0, 352.0 248.0" fill="none" stroke="#3a3a3a" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M 176.0 440.0 C 176.0 344.0, 96.0 344.0, 96.0 248.0" fill="none" stroke="#cdbf9f" stroke-width="12.8" stroke-dasharray="3.5 4.5"/><path d="M 176.0 440.0 C 176.0 344.0, 96.0 344.0, 96.0 248.0" fill="none" stroke="#3a3a3a" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M 352.0 248.0 A 128 128 0 0 0 224.0 120.0" fill="none" stroke="#cdbf9f" stroke-width="12.8" stroke-dasharray="3.5 4.5"/><path d="M 352.0 248.0 A 128 128 0 0 0 224.0 120.0" fill="none" stroke="#3a3a3a" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M 224.0 120.0 A 128 128 0 0 0 96.0 248.0" fill="none" stroke="#cdbf9f" stroke-width="12.8" stroke-dasharray="3.5 4.5"/><path d="M 224.0 120.0 A 128 128 0 0 0 96.0 248.0" fill="none" stroke="#3a3a3a" stroke-width="3.2" stroke-linecap="round"/>
+<polyline points="278.7,532.0 272.0,524.0 265.3,532.0" fill="none" stroke="#e8891c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="169.3,524.0 176.0,532.0 182.7,524.0" fill="none" stroke="#e8891c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="228.0,113.3 220.0,120.0 228.0,126.7" fill="none" stroke="#e8891c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="358.7,252.0 352.0,244.0 345.3,252.0" fill="none" stroke="#e8891c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="89.3,244.0 96.0,252.0 102.7,244.0" fill="none" stroke="#e8891c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="224.0" y1="248.0" x2="288.0" y2="137.14874831559186" stroke="#6b6b6b" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#dimarrow)"/><circle cx="224.0" cy="248.0" r="2.5" fill="#6b6b6b"/>
+<text x="256.0" y="187.8" font-size="12" text-anchor="middle" font-weight="normal" fill="#6b6b6b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" stroke-linejoin="round">r = 8</text>
+<line x1="379.2" y1="248.0" x2="379.2" y2="440.0" stroke="#6b6b6b" stroke-width="1.4" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/>
+<text x="372.2" y="344.0" font-size="12" text-anchor="middle" fill="#6b6b6b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" transform="rotate(-90 372.2 344.0)">12</text>
+<line x1="96.0" y1="472.0" x2="176.0" y2="472.0" stroke="#6b6b6b" stroke-width="1.4" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/>
+<text x="136.0" y="466.4" font-size="12" text-anchor="middle" font-weight="normal" fill="#6b6b6b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" stroke-linejoin="round">5</text>
+<text x="291.2" y="550.4" font-size="12" text-anchor="start" font-weight="normal" fill="#6b6b6b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" stroke-linejoin="round">arrivée</text>
+<text x="156.8" y="550.4" font-size="12" text-anchor="end" font-weight="normal" fill="#6b6b6b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" stroke-linejoin="round">départ</text>
+<text x="224.0" y="254.4" font-size="12" text-anchor="middle" font-weight="normal" fill="#6b6b6b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" stroke-linejoin="round">deux virages</text>
+<text x="224.0" y="273.6" font-size="12" text-anchor="middle" font-weight="normal" fill="#6b6b6b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" stroke-linejoin="round">de 90°</text><rect x="40" y="578" width="384" height="76" rx="8" fill="#ffffff" stroke="#d6d0c0" stroke-width="1.5"/>
+<polyline points="71.0,606.2 64.0,597.8 57.0,606.2" fill="none" stroke="#e8891c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="82" y="607" font-size="13" fill="#2b2b2b">Sens de circulation</text>
+<rect x="231" y="594" width="16" height="16" fill="#dfe7ee" stroke="#b8c4cf"/>
+<text x="257" y="607" font-size="13" fill="#2b2b2b">Couloir de voie</text>
+<rect x="56" y="622" width="16" height="16" fill="#f2d675" stroke="#d1b552"/>
+<text x="82" y="635" font-size="13" fill="#2b2b2b">Passage piéton</text>
+<rect x="231" y="622" width="16" height="16" fill="#fdfcf8" stroke="#cfc7b4"/>
+<text x="257" y="635" font-size="13" fill="#2b2b2b">1 case = 1 bloc</text>
 </g>
 </svg>
