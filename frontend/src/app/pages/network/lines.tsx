@@ -4,6 +4,7 @@ import { useLines } from "../../hooks/network/trains";
 import { useTrainRights } from "../../hooks/network/trainrights";
 import LineSwatch from "../../components/network/line_swatch";
 import NewLine from "../../components/network/new_line";
+import PageHeader from "../../components/common/page_header";
 
 /** All the lines, with their two ends. */
 export default function LinesPage() {
@@ -13,10 +14,12 @@ export default function LinesPage() {
 
     return (
         <div className="information-container">
+            <PageHeader
+                title="Lignes"
+                description="Les lignes du réseau, de terminus à terminus, avec le nombre de gares desservies."
+                actions={canCreate && <NewLine />}
+            />
             <div className="snippet-container">
-                <div className="offers-header">
-                    <h2>Lignes</h2>
-                </div>
                 <div className="table-container">
                     <table>
                         <thead>
@@ -75,7 +78,6 @@ export default function LinesPage() {
                     </table>
                 </div>
             </div>
-            {canCreate && <NewLine />}
         </div>
     );
 }

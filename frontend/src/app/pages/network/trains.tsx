@@ -9,6 +9,7 @@ import ToolbarPanels from "../../components/network/toolbar_panels";
 import TrainOwner from "../../components/network/train_owner";
 import { SERVICE_NAMES } from "../../utils/trains";
 import type { TrainService } from "../../types/trains";
+import PageHeader from "../../components/common/page_header";
 
 const PER_PAGE = 20;
 
@@ -37,13 +38,16 @@ export default function TrainsPage() {
 
     return (
         <div className="information-container">
-            <div className="snippet-container">
-                <div className="offers-header">
-                    <h2>Trains</h2>
+            <PageHeader
+                title="Trains"
+                description="Le registre des trains en circulation : leur ligne, leur service et leur propriétaire."
+                actions={
                     <Link className="button" to="/trains/new">
                         Enregistrer un train
                     </Link>
-                </div>
+                }
+            />
+            <div className="snippet-container">
 
                 <ToolbarPanels
                     activeFilters={

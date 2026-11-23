@@ -5,16 +5,22 @@ read for what concerns trains, lines and stations, and money admins for what
 concerns currencies.
 """
 
+from datetime import timedelta
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from pydantic import BaseModel
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..core import hash_password, require_global_role
 from ..crud import audit
 from ..crud import faction as faction_crud
 from ..crud.notification import notify
-from ..database import AuditLog, Faction, GlobalRoleName, Role, User, get_db
+from ..database import (AuditLog, Faction, GlobalRole, GlobalRoleName, Offer,
+                        Role, Schematic, User, get_db)
+from ..database.clock import utcnow
+from ..misc import OfferStatus
 from ..schemas import (AdminFactionOut, AdminPasswordReset, AdminUserOut,
                        AuditLogOut)
 from .user import LEADER_ROLE_NAME, _in_a_real_faction, _send_to_no_faction
@@ -224,3 +230,42 @@ def list_all_factions(
         )
         for f in factions
     ]
+
+
+class AdminOverview(BaseModel):
+    """What the panel shows first: the size of things, and what needs doing."""
+
+    users: int
+    staff: int
+    factions: int
+    factions_pending: int
+    offers_open: int
+    schematics: int
+    audit_last_week: int
+
+
+@router.get("/overview", response_model=AdminOverview)
+def overview(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(_staff),
+):
+    def count(column, *conditions) -> int:
+        return db.query(func.count(column)).filter(*conditions).scalar() or 0
+
+    real_faction = (
+        Faction.deleted_at.is_(None),
+        Faction.name != faction_crud.NO_FACTION_NAME,
+    )
+    return AdminOverview(
+        users=count(User.user_id),
+        staff=db.query(func.count(func.distinct(GlobalRole.user_id))).scalar() or 0,
+        factions=count(Faction.faction_id, Faction.is_approved.is_(True), *real_faction),
+        factions_pending=count(
+            Faction.faction_id, Faction.is_approved.is_(False), *real_faction
+        ),
+        offers_open=count(Offer.offer_id, Offer.status == OfferStatus.OPEN),
+        schematics=count(Schematic.schematic_id),
+        audit_last_week=count(
+            AuditLog.log_id, AuditLog.created_at >= utcnow() - timedelta(days=7)
+        ),
+    )

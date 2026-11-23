@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 
+import FormDialog from "../common/form_dialog";
 import { getErrorMessage } from "../../utils/apierror";
 import { parseCoordinate, parsePlatforms } from "../../utils/trains";
 import { DIMENSIONS, type StationType } from "../../types/trains";
@@ -49,14 +50,14 @@ export default function NewStation() {
     };
 
     return (
-        <div className="snippet-container">
-            <h2>Enregistrer une gare</h2>
+        <FormDialog label="Enregistrer une gare" title="Enregistrer une gare">
             <form onSubmit={submit}>
                 <div className="modal-field">
                     <label htmlFor="station-name">Nom</label>
                     <input
                         id="station-name"
                         type="text"
+                        autoFocus
                         maxLength={60}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -142,6 +143,6 @@ export default function NewStation() {
                     {saving ? "Enregistrement..." : "Enregistrer la gare"}
                 </button>
             </form>
-        </div>
+        </FormDialog>
     );
 }

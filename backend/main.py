@@ -11,7 +11,8 @@ from fastapi.staticfiles import StaticFiles
 from app.api import (admin, admin_market, auth, currencies, documentation,
                      faction, global_roles, join_requests, lines, map_overlay,
                      notifications, offer, offer_history, preferences, role,
-                     schematics, stations, trains, transactions, user)
+                     schematics, stations, stats, trains, transactions,
+                     user)
 from app.core.errors import register_error_handlers
 from app.core.logger import log_safe, setup_logger
 from app.core.settings import ORIGINS
@@ -157,6 +158,7 @@ app.include_router(stations.router)
 app.include_router(lines.router)
 app.include_router(trains.router)
 app.include_router(schematics.router)
+app.include_router(stats.router)
 app.include_router(notifications.router)
 app.include_router(preferences.router)
 app.include_router(map_overlay.router)

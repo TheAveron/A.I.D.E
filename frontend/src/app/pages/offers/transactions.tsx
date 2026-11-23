@@ -2,6 +2,7 @@ import { useMe } from "../../hooks/users/me";
 import { useRole } from "../../hooks/factions/role";
 import HistoryTable from "../../components/transactions/history_table";
 import TransactionsTable from "../../components/transactions/transaction_table";
+import PageHeader from "../../components/common/page_header";
 
 /**
  * The logged-in user's trades (as buyer or as seller), their faction's trades
@@ -21,6 +22,10 @@ function Transactions() {
 
     return (
         <div className="information-container">
+            <PageHeader
+                title="Transactions"
+                description="L'historique de vos échanges sur le marché, et ceux de votre faction si votre rôle le permet."
+            />
             <TransactionsTable
                 userId={user.user_id.toString()}
                 perPage={15}

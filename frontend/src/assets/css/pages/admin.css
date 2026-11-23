@@ -1,0 +1,183 @@
+/* ── Administration panel ── */
+
+/* Tabs: underlined, like the section tabs; scroll sideways on a phone */
+.information-container > .admin-tabs {
+    grid-column: 1 / -1;
+}
+
+.admin-tabs {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25rem;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+}
+
+.admin-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.admin-tabs [role="tab"] {
+    flex: none;
+    padding: 0.7rem 1rem;
+    color: var(--text-700);
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition:
+        color var(--speed) var(--ease),
+        border-color var(--speed) var(--ease);
+}
+
+.admin-tabs [role="tab"]:hover {
+    color: var(--text);
+    border-bottom-color: var(--border-strong);
+}
+
+.admin-tabs [role="tab"][aria-selected="true"] {
+    color: var(--text);
+    font-weight: 600;
+    border-bottom-color: var(--danger);
+}
+
+.admin-tabs [role="tab"]:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: -2px;
+    border-radius: var(--radius-sm);
+}
+
+/* The content of a tab takes the whole width, its cards one under another */
+.information-container > .admin-panel {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    min-width: 0;
+}
+
+/* ── Overview ── */
+
+.admin-overview {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.admin-todo {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--pending-bg);
+    border: 1px solid color-mix(in srgb, var(--secondary) 45%, transparent);
+    border-left: 4px solid var(--secondary);
+    border-radius: var(--radius-lg);
+}
+
+.admin-todo p {
+    flex: 1 1 22rem;
+    margin: 0;
+    line-height: 1.55;
+}
+
+.admin-all-clear {
+    margin: 0;
+    padding: 0.9rem 1.25rem;
+    color: var(--success-fg);
+    background-color: var(--success-bg);
+    border-radius: var(--radius-lg);
+    font-weight: 500;
+}
+
+.admin-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.admin-tiles > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 1rem 1.15rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.admin-tiles dt {
+    order: 2;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.admin-tiles dd {
+    order: 1;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-tiles dd.admin-tile-hint {
+    order: 3;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.admin-shortcuts {
+    padding: var(--card-padding);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.admin-shortcuts h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+}
+
+.admin-shortcuts ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.admin-note {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+/* An action that reads like a link */
+.link-button {
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 0.2em;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.link-button:hover {
+    text-decoration-thickness: 2px;
+}

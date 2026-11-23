@@ -1,0 +1,143 @@
+/* ── Top of a page (components/common/page_header.tsx) ── */
+
+.page-header {
+    --section-color: var(--primary);
+
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
+    padding: clamp(1.1rem, 2.5vw, 1.6rem) clamp(1.1rem, 3vw, 1.75rem);
+    overflow: hidden;
+    background:
+        radial-gradient(
+            ellipse 45% 120% at 100% 0%,
+            color-mix(in srgb, var(--section-color) 13%, transparent),
+            transparent 70%
+        ),
+        var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--section-color);
+    border-radius: var(--radius-lg);
+}
+
+/* In the card grid of a page, it spans every column */
+.information-container > .page-header {
+    grid-column: 1 / -1;
+}
+
+.page-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(
+            color-mix(in srgb, var(--text) 4%, transparent) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--text) 4%, transparent) 1px,
+            transparent 1px
+        );
+    background-size: 24px 24px;
+    mask-image: linear-gradient(90deg, transparent 40%, #000);
+    pointer-events: none;
+}
+
+.page-header > * {
+    position: relative;
+}
+
+.page-header-economie {
+    --section-color: var(--secondary);
+}
+
+.page-header-ressources {
+    --section-color: var(--accent);
+}
+
+.page-header-admin {
+    --section-color: var(--danger);
+}
+
+/* The light theme's primary and secondary are pale: darker tones for text */
+:root[data-theme="light"] .page-header {
+    --section-color: var(--success-fg);
+}
+
+:root[data-theme="light"] .page-header-economie {
+    --section-color: color-mix(in srgb, var(--secondary) 45%, #6b5b00);
+}
+
+:root[data-theme="light"] .page-header-ressources {
+    --section-color: color-mix(in srgb, var(--accent) 55%, #000);
+}
+
+:root[data-theme="light"] .page-header-admin {
+    --section-color: var(--danger);
+}
+
+.page-header-icon {
+    width: 3rem;
+    height: 3rem;
+    padding: 0.65rem;
+    color: var(--section-color);
+    background-color: color-mix(in srgb, var(--section-color) 14%, transparent);
+    border-radius: var(--radius-md);
+}
+
+.page-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.page-header-eyebrow {
+    margin: 0;
+    color: var(--section-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.page-header-text h1 {
+    margin: 0;
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.2rem);
+    line-height: 1.15;
+}
+
+.page-header-description {
+    max-width: 46rem;
+    margin: 0.15rem 0 0;
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.page-header-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.6rem;
+}
+
+@media only screen and (max-width: 720px) {
+    .page-header {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .page-header-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0.5rem;
+    }
+
+    .page-header-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}

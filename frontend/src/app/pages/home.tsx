@@ -1,45 +1,18 @@
-import type { ReactNode } from "react";
 import { Link } from "react-router";
 
+import SectionIcon from "../components/common/section_icon";
+
+import { usePublicStats } from "../hooks/common/public_stats";
 import { usePublicLines } from "../hooks/network/map";
 import { useAuth } from "../utils/authcontext";
 import { NAV_SECTIONS, visibleItems } from "../utils/navigation";
 import type { LineType } from "../types/trains";
 
-/** What each section is for, and its icon. */
-const SECTIONS: Record<string, { intro: string; icon: ReactNode }> = {
-    economie: {
-        intro: "Les factions, leurs monnaies et les échanges entre joueurs.",
-        icon: (
-            <>
-                <circle cx="9" cy="9" r="6" />
-                <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
-                <path d="M7 6h1v4" />
-                <path d="m16.71 13.88.7.71-2.82 2.82" />
-            </>
-        ),
-    },
-    reseau: {
-        intro: "Le chemin de fer : plan, lignes, gares et trains.",
-        icon: (
-            <>
-                <rect x="5" y="3" width="14" height="14" rx="3" />
-                <path d="M5 11h14M12 3v8" />
-                <circle cx="8.5" cy="14" r=".5" />
-                <circle cx="15.5" cy="14" r=".5" />
-                <path d="m8 21 1.5-4M16 21l-1.5-4" />
-            </>
-        ),
-    },
-    ressources: {
-        intro: "La documentation du serveur, les schematics et les archives.",
-        icon: (
-            <>
-                <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z" />
-                <path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
-            </>
-        ),
-    },
+/** What each section is for, in one line. */
+const SECTION_INTROS: Record<string, string> = {
+    economie: "Les factions, leurs monnaies et les échanges entre joueurs.",
+    reseau: "Le chemin de fer : plan, lignes, gares et trains.",
+    ressources: "La documentation du serveur, les schematics et les archives.",
 };
 
 // Used when the network has no line yet: the drawing still has its colors
@@ -158,10 +131,7 @@ function Home() {
     const { token } = useAuth();
     const loggedIn = !!token;
     const { lines } = usePublicLines();
-
-    const stations = new Set(
-        lines.flatMap((l) => l.stops.map((s) => s.station.station_id)),
-    ).size;
+    const stats = usePublicStats();
 
     return (
         <div className="home">
@@ -169,7 +139,7 @@ function Home() {
                 <div className="home-hero-text">
                     <p className="home-eyebrow">
                         <span className="home-block" aria-hidden="true" />
-                        Serveur Minecraft roleplay · saison actuelle
+                        Serveur Minecraft · saison actuelle
                     </p>
                     <h1 id="home-title">
                         Cube Crusader
@@ -198,61 +168,56 @@ function Home() {
                 <RailwayArt lines={lines} />
             </section>
 
-            {lines.length > 0 && (
+            {stats && (
                 <dl className="home-stats">
                     <div>
-                        <dt>Lignes</dt>
-                        <dd>{lines.length}</dd>
+                        <dt>Joueurs inscrits</dt>
+                        <dd>{stats.members.toLocaleString()}</dd>
                     </div>
                     <div>
-                        <dt>Gares desservies</dt>
-                        <dd>{stations}</dd>
+                        <dt>Projets sur la carte</dt>
+                        <dd>{stats.projects.toLocaleString()}</dd>
                     </div>
-                    <div className="home-stats-lines">
-                        <dt>Le réseau</dt>
-                        <dd>
-                            {lines.slice(0, 12).map((l) => (
-                                <span
-                                    key={l.code}
-                                    className="home-line-chip"
-                                    style={{
-                                        backgroundColor: l.color ?? undefined,
-                                        color: l.color ? textOn(l.color) : undefined,
-                                    }}
-                                    title={l.name ?? `Ligne ${l.code}`}
-                                >
-                                    {l.code}
-                                </span>
-                            ))}
-                        </dd>
-                    </div>
+                    {lines.length > 0 && (
+                        <div className="home-stats-lines">
+                            <dt>Le réseau</dt>
+                            <dd>
+                                {lines.slice(0, 12).map((l) => (
+                                    <span
+                                        key={l.code}
+                                        className="home-line-chip"
+                                        style={{
+                                            backgroundColor: l.color ?? undefined,
+                                            color: l.color
+                                                ? textOn(l.color)
+                                                : undefined,
+                                        }}
+                                        title={l.name ?? `Ligne ${l.code}`}
+                                    >
+                                        {l.code}
+                                    </span>
+                                ))}
+                            </dd>
+                        </div>
+                    )}
                 </dl>
             )}
 
             <div className="home-sections">
                 {NAV_SECTIONS.map((section) => {
                     const items = visibleItems(section, loggedIn);
-                    const info = SECTIONS[section.id];
                     if (items.length === 0) return null;
                     return (
                         <article
                             key={section.id}
                             className={`home-card home-card-${section.id}`}
                         >
-                            <svg
+                            <SectionIcon
+                                section={section.id}
                                 className="home-card-icon"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.75"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                            >
-                                {info?.icon}
-                            </svg>
+                            />
                             <h2>{section.label}</h2>
-                            <p>{info?.intro}</p>
+                            <p>{SECTION_INTROS[section.id]}</p>
                             <ul>
                                 {items.map((item) => (
                                     <li key={item.to}>

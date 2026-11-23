@@ -100,3 +100,22 @@ export function useAdminCurrencies() {
     );
     return { currencies: data ?? [], loading, error, refresh };
 }
+
+export interface AdminOverviewType {
+    users: number;
+    staff: number;
+    factions: number;
+    factions_pending: number;
+    offers_open: number;
+    schematics: number;
+    audit_last_week: number;
+}
+
+/** The figures of the panel's first tab. */
+export function useAdminOverview() {
+    const { data, loading, error, refresh } = useApiGet<AdminOverviewType>(
+        "/admin/overview",
+        "Erreur lors du chargement de l'aperçu",
+    );
+    return { overview: data, loading, error, refresh };
+}

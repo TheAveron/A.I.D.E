@@ -8,6 +8,7 @@ import ComplianceBadge from "../../components/schematics/compliance_badge";
 import SchematicPreview from "../../components/schematics/schematic_preview";
 import { formatSize } from "../../utils/schematics";
 import type { SchematicSummaryType } from "../../types/schematics";
+import PageHeader from "../../components/common/page_header";
 
 /** The schematics gallery. Filters live in the URL, so a view can be shared. */
 export default function SchematicsGallery() {
@@ -41,17 +42,16 @@ export default function SchematicsGallery() {
 
     return (
         <div className="information-container">
-            <div className="snippet-container schematics-wide">
-                <div className="offers-header">
-                    <h2>Schematics</h2>
+            <PageHeader
+                title="Schematics"
+                description="Les constructions partagées par les joueurs, à coller en jeu avec la Schematicannon de Create ou un bloc de structure."
+                actions={
                     <Link className="button" to="/schematiques/nouveau">
                         Déposer un schematic
                     </Link>
-                </div>
-                <p>
-                    Les constructions partagées par les joueurs, à coller en jeu
-                    avec la Schematicannon de Create ou un bloc de structure.
-                </p>
+                }
+            />
+            <div className="snippet-container schematics-wide">
 
                 <div className="toolbar">
                     <input
