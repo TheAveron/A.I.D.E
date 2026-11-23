@@ -15,7 +15,7 @@ interface State<T> {
 
 /** GET without a login: the map is public, `useApiGet` needs a token.
  *  A null url fetches nothing (a hook cannot be called conditionally). */
-function usePublicGet<T>(url: string | null, errorLabel: string) {
+export function usePublicGet<T>(url: string | null, errorLabel: string) {
     const [state, setState] = useState<State<T> | null>(null);
     const [nonce, setNonce] = useState(0);
 

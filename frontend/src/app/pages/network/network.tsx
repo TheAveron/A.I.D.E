@@ -3,6 +3,7 @@ import { Link } from "react-router";
 
 import { usePublicLines } from "../../hooks/network/map";
 import LineDiagram from "../../components/network/line_diagram";
+import PageHeader from "../../components/common/page_header";
 
 /** The train network as linear metro strips, one per line. Public. */
 export default function NetworkPage() {
@@ -13,13 +14,16 @@ export default function NetworkPage() {
 
     return (
         <div className="information-container">
-            <div className="snippet-container network-header">
-                <div className="offers-header">
-                    <h2>Réseau ferré</h2>
+            <PageHeader
+                title="Plan du réseau"
+                description="Chaque ligne et ses gares, dans l'ordre, comme sur un plan de métro."
+                actions={
                     <Link className="button" to="/actual">
-                        Carte
+                        Voir sur la carte
                     </Link>
-                </div>
+                }
+            />
+            <div className="snippet-container network-header">
                 <label>
                     Ligne{" "}
                     <select

@@ -7,6 +7,7 @@ import NewStation from "../../components/network/new_station";
 import { Pagination } from "../../components/common/pagination";
 import ToolbarPanels from "../../components/network/toolbar_panels";
 import { DIMENSIONS } from "../../types/trains";
+import PageHeader from "../../components/common/page_header";
 
 const PER_PAGE = 20;
 
@@ -22,16 +23,12 @@ export default function StationsPage() {
 
     return (
         <div className="information-container">
+            <PageHeader
+                title="Gares"
+                description="Toutes les gares enregistrées, avec leurs coordonnées et leurs quais. Tout joueur peut en ajouter une."
+                actions={<NewStation />}
+            />
             <div className="snippet-container">
-                <div className="offers-header">
-                    <h2>Gares</h2>
-                    <Link className="button" to="/lines">
-                        Lignes
-                    </Link>
-                    <Link className="button" to="/trains">
-                        Trains
-                    </Link>
-                </div>
                 <ToolbarPanels
                     activeFilters={dimension ? 1 : 0}
                     search={
@@ -113,7 +110,6 @@ export default function StationsPage() {
                     setPage={setPage}
                 />
             </div>
-            <NewStation />
         </div>
     );
 }

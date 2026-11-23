@@ -115,6 +115,9 @@ p.empty-state {
 /* List pages (factions, offers, trains...) */
 .faction-box,
 .offer-box {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
     width: min(100%, var(--content-width));
     margin-top: 2rem;
     padding: 0 var(--page-gutter) clamp(2rem, 5vw, 3.5rem);

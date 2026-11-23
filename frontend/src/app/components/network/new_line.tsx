@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 
+import FormDialog from "../common/form_dialog";
 import { getErrorMessage } from "../../utils/apierror";
 import { isLineCode } from "../../utils/trains";
 
@@ -43,8 +44,7 @@ export default function NewLine() {
     };
 
     return (
-        <div className="snippet-container">
-            <h2>Créer une ligne</h2>
+        <FormDialog label="Créer une ligne" title="Créer une ligne">
             <form onSubmit={submit}>
                 <div className="toolbar">
                     <input
@@ -52,6 +52,7 @@ export default function NewLine() {
                         aria-label="Code de la ligne"
                         placeholder="A ou A2"
                         maxLength={2}
+                        autoFocus
                         value={code}
                         onChange={(e) => setCode(e.target.value.toUpperCase())}
                         required
@@ -100,6 +101,6 @@ export default function NewLine() {
                     Créer la ligne
                 </button>
             </form>
-        </div>
+        </FormDialog>
     );
 }

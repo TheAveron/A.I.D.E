@@ -5,16 +5,22 @@ read for what concerns trains, lines and stations, and money admins for what
 concerns currencies.
 """
 
+from datetime import timedelta
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from pydantic import BaseModel
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from ..core import hash_password, require_global_role
 from ..crud import audit
 from ..crud import faction as faction_crud
 from ..crud.notification import notify
-from ..database import AuditLog, Faction, GlobalRoleName, Role, User, get_db
+from ..database import (AuditLog, Faction, GlobalRole, GlobalRoleName, Offer,
+                        Role, Schematic, User, get_db)
+from ..database.clock import utcnow
+from ..misc import OfferStatus
 from ..schemas import (AdminFactionOut, AdminPasswordReset, AdminUserOut,
                        AuditLogOut)
 from .user import LEADER_ROLE_NAME, _in_a_real_faction, _send_to_no_faction
@@ -42,16 +48,21 @@ def read_audit(
     db: Session = Depends(get_db),
     staff: User = Depends(_staff),
 ):
-    """The staff trail, newest first. A train admin only sees train matters,
-    a money admin currency matters (both, for somebody holding both roles)."""
+    """The staff trail, newest first. A train admin only sees train matters
+    (and the schematics' standards reviews), a money admin currency matters
+    (both, for somebody holding both roles)."""
     query = db.query(AuditLog)
     if not staff.has_global_role(ADMIN):
         targets: list[str] = []
+        actions: list[str] = []
         if staff.has_global_role(TRAIN_ADMIN):
             targets += audit.TRAIN_TARGETS
+            actions += audit.TRAIN_ACTIONS
         if staff.has_global_role(MONEY_ADMIN):
             targets += audit.MONEY_TARGETS
-        query = query.filter(AuditLog.target_type.in_(targets))
+        query = query.filter(
+            or_(AuditLog.target_type.in_(targets), AuditLog.action.in_(actions))
+        )
     if action:
         query = query.filter(AuditLog.action == action)
     if target_type:
@@ -224,3 +235,42 @@ def list_all_factions(
         )
         for f in factions
     ]
+
+
+class AdminOverview(BaseModel):
+    """What the panel shows first: the size of things, and what needs doing."""
+
+    users: int
+    staff: int
+    factions: int
+    factions_pending: int
+    offers_open: int
+    schematics: int
+    audit_last_week: int
+
+
+@router.get("/overview", response_model=AdminOverview)
+def overview(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(_staff),
+):
+    def count(column, *conditions) -> int:
+        return db.query(func.count(column)).filter(*conditions).scalar() or 0
+
+    real_faction = (
+        Faction.deleted_at.is_(None),
+        Faction.name != faction_crud.NO_FACTION_NAME,
+    )
+    return AdminOverview(
+        users=count(User.user_id),
+        staff=db.query(func.count(func.distinct(GlobalRole.user_id))).scalar() or 0,
+        factions=count(Faction.faction_id, Faction.is_approved.is_(True), *real_faction),
+        factions_pending=count(
+            Faction.faction_id, Faction.is_approved.is_(False), *real_faction
+        ),
+        offers_open=count(Offer.offer_id, Offer.status == OfferStatus.OPEN),
+        schematics=count(Schematic.schematic_id),
+        audit_last_week=count(
+            AuditLog.log_id, AuditLog.created_at >= utcnow() - timedelta(days=7)
+        ),
+    )

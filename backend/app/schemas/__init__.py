@@ -29,3 +29,5 @@ from .train import (LineCreate, LineOut, LineUpdate, StopsUpdate, TrainCreate,
 from .transaction import TransactionCreate, TransactionOut
 from .user import (PasswordChange, UserCreate, UserFull, UserLogin, UserOut,
                    UserPublic, UserUpdate)
+from .schematic import (ComplianceUpdate, SchematicOut, SchematicSummary,
+                        SchematicUpdate, TagCount, VersionOut)

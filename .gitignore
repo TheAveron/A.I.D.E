@@ -232,3 +232,6 @@ backend/documents/AgeOfSteam/factions/
 backend/documents/AOS/
 # Database dumps taken by deploy.bat / deploy.sh
 backend/backups/
+
+# Uploaded schematics (backend/uploads/schematics by default)
+backend/uploads/

@@ -1,0 +1,517 @@
+/* ── Home page ── */
+
+.home {
+    /* Colors of the title gradient and of each section (dark theme) */
+    --home-title-from: var(--primary);
+    --home-title-to: var(--accent);
+    --home-economie: var(--secondary);
+    --home-reseau: var(--primary);
+    --home-ressources: var(--accent);
+
+    width: min(100%, var(--content-width));
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    padding: clamp(1.5rem, 4vw, 3rem) var(--page-gutter) clamp(2.5rem, 6vw, 4rem);
+}
+
+/* The light theme's primary is a pale green: darker tones keep the contrast */
+:root[data-theme="light"] .home {
+    --home-title-from: var(--success-fg);
+    --home-title-to: color-mix(in srgb, var(--accent) 55%, #000);
+    --home-economie: color-mix(in srgb, var(--secondary) 45%, #6b5b00);
+    --home-reseau: var(--success-fg);
+    --home-ressources: color-mix(in srgb, var(--accent) 55%, #000);
+}
+
+/* ── Hero ── */
+
+/* `section` is a full-height centered block elsewhere (sections.css) */
+.home-hero {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    padding: clamp(1.75rem, 4vw, 3.25rem);
+    overflow: hidden;
+    background:
+        radial-gradient(
+            ellipse 60% 80% at 85% 20%,
+            color-mix(in srgb, var(--home-title-to) 16%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            ellipse 50% 70% at 10% 100%,
+            color-mix(in srgb, var(--home-title-from) 14%, transparent),
+            transparent 70%
+        ),
+        var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+/* The build grid of the page, a little stronger inside the hero */
+.home-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image:
+        linear-gradient(
+            color-mix(in srgb, var(--text) 5%, transparent) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--text) 5%, transparent) 1px,
+            transparent 1px
+        );
+    background-size: 32px 32px;
+    mask-image: linear-gradient(110deg, transparent 15%, #000 70%);
+    pointer-events: none;
+}
+
+.home-hero > * {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+}
+
+.home-hero-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.1rem;
+}
+
+.home-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* The beveled block of the logo */
+.home-block {
+    flex: none;
+    width: 0.8rem;
+    height: 0.8rem;
+    background-color: var(--primary);
+    box-shadow:
+        inset -0.2rem -0.2rem 0 rgb(0 0 0 / 0.28),
+        inset 0.1rem 0.1rem 0 rgb(255 255 255 / 0.4);
+}
+
+.home-hero h1 {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    font-size: clamp(1.35rem, 1rem + 1.4vw, 1.9rem);
+    font-weight: 600;
+    color: var(--text-800);
+}
+
+.home-hero h1 span {
+    font-size: clamp(2.6rem, 1.6rem + 4.4vw, 4.6rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: var(--home-title-from);
+    background: linear-gradient(
+        100deg,
+        var(--home-title-from),
+        var(--home-title-to)
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.home-lead {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--text-800);
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    line-height: 1.7;
+}
+
+.home-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    margin-top: 0.4rem;
+}
+
+.home-actions .button {
+    min-height: 2.75rem;
+    padding-inline: 1.3rem;
+    font-weight: 600;
+}
+
+.button.home-button-ghost {
+    background-color: transparent;
+    color: var(--text);
+    border-color: var(--border-strong);
+}
+
+.button.home-button-ghost:hover {
+    background-color: var(--hover);
+    border-color: var(--home-title-from);
+    color: var(--text);
+}
+
+.home-login {
+    color: var(--text-800);
+    font-size: 0.95rem;
+}
+
+/* ── The metro diagram ── */
+
+.home-railway {
+    width: 100%;
+    height: auto;
+    max-height: 20rem;
+    overflow: visible;
+}
+
+.home-railway-line path {
+    fill: none;
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Lines to come: dashed and quiet, they only fill the drawing */
+.home-railway-planned path {
+    stroke-width: 5;
+    stroke-dasharray: 2 12;
+}
+
+.home-railway-planned .home-railway-station {
+    stroke-width: 2;
+    r: 4;
+}
+
+.home-railway-station {
+    fill: var(--surface);
+    stroke-width: 4;
+}
+
+.home-railway text {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.home-railway-train {
+    fill: var(--text);
+    stroke: var(--surface);
+    stroke-width: 2;
+    translate: 150px 0;
+}
+
+.home-railway-train rect + rect {
+    fill: var(--surface);
+    stroke: none;
+}
+
+/* ── Key figures ── */
+
+.home-stats {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.home-stats > div {
+    flex: 1 1 10rem;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 0.2rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.home-stats dt {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.home-stats dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.home-stats > .home-stats-lines {
+    flex: 3 1 18rem;
+}
+
+.home-stats-lines dd {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding-block: 0.25rem;
+}
+
+.home-line-chip {
+    display: grid;
+    place-items: center;
+    min-width: 2.1rem;
+    height: 2.1rem;
+    padding-inline: 0.4rem;
+    border-radius: var(--radius-md);
+    background-color: var(--surface-2);
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+/* ── Sections ── */
+
+.home-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.home-card {
+    --card-color: var(--home-reseau);
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: var(--card-padding);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--card-color);
+    border-radius: var(--radius-lg);
+    transition:
+        border-color var(--speed) var(--ease),
+        box-shadow var(--speed) var(--ease),
+        translate var(--speed) var(--ease);
+}
+
+.home-card-economie {
+    --card-color: var(--home-economie);
+}
+
+.home-card-ressources {
+    --card-color: var(--home-ressources);
+}
+
+.home-card:hover,
+.home-card:focus-within {
+    border-color: color-mix(in srgb, var(--card-color) 55%, var(--border));
+    border-top-color: var(--card-color);
+    box-shadow: 0 14px 32px rgb(0 0 0 / 0.22);
+
+    @media (prefers-reduced-motion: no-preference) {
+        translate: 0 -3px;
+    }
+}
+
+.home-card-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0.55rem;
+    color: var(--card-color);
+    background-color: color-mix(in srgb, var(--card-color) 14%, transparent);
+    border-radius: var(--radius-md);
+}
+
+.home-card h2 {
+    margin: 0.25rem 0 0;
+    font-size: 1.4rem;
+}
+
+.home-card p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.home-card ul {
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--border);
+}
+
+.home-card li {
+    border-bottom: 1px solid var(--border);
+}
+
+.home-card li a {
+    display: flex;
+    width: 100%;
+    max-width: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0.25rem;
+    color: var(--text);
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition:
+        background-color var(--speed) var(--ease),
+        color var(--speed) var(--ease);
+}
+
+.home-card li a::after {
+    content: "→";
+    color: var(--card-color);
+    transition: translate var(--speed) var(--ease);
+}
+
+.home-card li a:hover {
+    background-color: var(--hover);
+    padding-inline: 0.6rem;
+}
+
+.home-card li a:hover::after {
+    @media (prefers-reduced-motion: no-preference) {
+        translate: 4px 0;
+    }
+}
+
+.home-card li a:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+}
+
+/* ── Entrance (only for those who don't ask for reduced motion) ── */
+
+@keyframes home-rise {
+    from {
+        opacity: 0;
+        translate: 0 14px;
+    }
+}
+
+@keyframes home-draw {
+    from {
+        stroke-dashoffset: 520;
+    }
+}
+
+@keyframes home-train {
+    from {
+        translate: -40px 0;
+        opacity: 0;
+    }
+    15% {
+        opacity: 1;
+    }
+    to {
+        translate: 150px 0;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .home-hero-text > * {
+        animation: home-rise 0.6s var(--ease) both;
+    }
+
+    .home-hero-text > :nth-child(2) {
+        animation-delay: 0.08s;
+    }
+
+    .home-hero-text > :nth-child(3) {
+        animation-delay: 0.16s;
+    }
+
+    .home-hero-text > :nth-child(4) {
+        animation-delay: 0.24s;
+    }
+
+    .home-railway-line:not(.home-railway-planned) path {
+        stroke-dasharray: 520;
+        animation: home-draw 1.4s var(--ease) both;
+    }
+
+    .home-railway-planned {
+        animation: home-rise 0.8s 0.5s var(--ease) both;
+    }
+
+    .home-railway-line:nth-child(2) path {
+        animation-delay: 0.15s;
+    }
+
+    .home-railway-line:nth-child(3) path {
+        animation-delay: 0.3s;
+    }
+
+    .home-railway-line:nth-child(4) path {
+        animation-delay: 0.45s;
+    }
+
+    /* Runs once and stops at its final place: nothing keeps moving */
+    .home-railway-train {
+        animation: home-train 2.8s 0.6s var(--ease) both;
+    }
+
+    .home-stats,
+    .home-card {
+        --stagger-time: 0.09s;
+        animation: home-rise 0.55s var(--ease) both;
+        animation-delay: 0.2s;
+    }
+}
+
+/* Cards rise one after the other: sibling-index() where it exists,
+   :nth-child() otherwise (its specificity must not override the former) */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-delay: calc(sibling-index() * 0.1s)) {
+        .home-card {
+            animation-delay: calc(0.2s + sibling-index() * var(--stagger-time));
+        }
+    }
+
+    @supports not (animation-delay: calc(sibling-index() * 0.1s)) {
+        .home-card:nth-child(1) {
+            animation-delay: 0.29s;
+        }
+
+        .home-card:nth-child(2) {
+            animation-delay: 0.38s;
+        }
+
+        .home-card:nth-child(3) {
+            animation-delay: 0.47s;
+        }
+    }
+}
+
+/* ── Narrow screens ── */
+
+@media only screen and (max-width: 860px) {
+    .home-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .home-railway {
+        max-height: 13rem;
+    }
+}

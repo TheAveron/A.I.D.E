@@ -1,0 +1,92 @@
+/* ── Tabs of the current section, under the header ── */
+:root {
+    --section-tabs-height: 3rem;
+}
+
+/* `nav` is styled for the header (header.css): undo what does not apply */
+.section-tabs {
+    flex: none;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 1.25rem;
+    margin: 0;
+    width: min(100%, var(--content-width));
+    height: var(--section-tabs-height);
+    padding: 0 var(--page-gutter);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.section-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.section-tabs-title {
+    display: flex;
+    align-items: center;
+    flex: none;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.section-tabs ul {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.section-tabs li {
+    display: flex;
+}
+
+.section-tabs a {
+    display: flex;
+    align-items: center;
+    padding: 0 0.85rem;
+    color: var(--text-700);
+    font-size: 0.92rem;
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition:
+        color var(--speed) var(--ease),
+        border-color var(--speed) var(--ease);
+}
+
+.section-tabs a:hover,
+.section-tabs a:focus-visible {
+    color: var(--text);
+    border-bottom-color: var(--border-strong);
+}
+
+.section-tabs a[aria-current="page"] {
+    color: var(--text);
+    font-weight: 600;
+    border-bottom-color: var(--primary);
+}
+
+/* The back button floats under the header: under the tabs when there are some */
+main:has(> .section-tabs) #previous {
+    top: calc(var(--header-height) + var(--section-tabs-height));
+}
+
+@media only screen and (max-width: 640px) {
+    .section-tabs {
+        gap: 0.5rem;
+    }
+
+    .section-tabs-title {
+        display: none;
+    }
+}

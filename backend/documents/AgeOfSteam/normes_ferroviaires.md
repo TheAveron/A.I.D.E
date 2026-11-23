@@ -170,4 +170,4 @@ La boucle n'est parcourue que dans un seul sens : elle n'a pas besoin de signal 
 
 ---
 
-_À venir : une bibliothèque de schematics prêtes à poser, conformes à ces normes._
+Des constructions prêtes à poser sont partagées dans la [galerie de schematics](/schematiques). Celles qu'un admin trains a vérifiées portent le badge **« Conforme aux normes »** ([voir uniquement celles-ci](/schematiques?conforme=1)).

@@ -29,3 +29,10 @@ if ENV == "development":
 
 else:
     ORIGINS = []
+
+# Where the schematics (.nbt files and preview images) are stored. Outside of
+# the repository in production, e.g. SCHEMATICS_DIR=/var/lib/aide/schematics
+SCHEMATICS_DIR = Path(
+    os.getenv("SCHEMATICS_DIR")
+    or Path(__file__).resolve().parent.parent.parent / "uploads" / "schematics"
+)
