@@ -67,7 +67,7 @@ A.I.D.E/
 ## Prérequis
 
 - Python 3.11 ou plus récent
-- Node.js 20 ou plus récent et npm
+- Node.js 22.22 ou plus récent et npm (version utilisée pour les releases : `frontend/.nvmrc`, actuellement Node 26 LTS)
 - PostgreSQL
 
 ## Installation
