@@ -745,7 +745,9 @@ class TestDocuments:
         assert r.status_code == 200 and "slot" in r.json()["content"]
 
     def test_unknown_document_is_404(self, env):
-        assert env.client.get("/documents/archives/CubeCrusaders/nope").status_code == 404
+        assert (
+            env.client.get("/documents/archives/CubeCrusaders/nope").status_code == 404
+        )
 
     def test_the_archives_only_serve_former_servers(self, env):
         # The current server's pages and the factions' documents are not

@@ -80,7 +80,9 @@ def _role_ids(conn, faction_id: int, name: str) -> list[int]:
 
 def upgrade() -> None:
     conn = op.get_bind()
-    faction_ids = [r[0] for r in conn.execute(sa.text("SELECT faction_id FROM factions"))]
+    faction_ids = [
+        r[0] for r in conn.execute(sa.text("SELECT faction_id FROM factions"))
+    ]
     for faction_id in faction_ids:
         members = _role_ids(conn, faction_id, MEMBER)
         if not members:
@@ -95,14 +97,14 @@ def upgrade() -> None:
                 sa.text("UPDATE users SET role_id = :m WHERE role_id = :g"),
                 {"m": member, "g": guest},
             )
-            conn.execute(
-                sa.text("DELETE FROM roles WHERE role_id = :g"), {"g": guest}
-            )
+            conn.execute(sa.text("DELETE FROM roles WHERE role_id = :g"), {"g": guest})
 
 
 def downgrade() -> None:
     conn = op.get_bind()
-    faction_ids = [r[0] for r in conn.execute(sa.text("SELECT faction_id FROM factions"))]
+    faction_ids = [
+        r[0] for r in conn.execute(sa.text("SELECT faction_id FROM factions"))
+    ]
     for faction_id in faction_ids:
         if not _role_ids(conn, faction_id, GUEST):
             _insert_role(conn, faction_id, GUEST, "Souhaite rejoindre la faction")

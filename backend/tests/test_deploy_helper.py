@@ -11,10 +11,10 @@ CHAIN = {"a1": set(), "0001": {"a1"}, "0002": {"0001"}, "0003": {"0002"}}
 
 
 def test_a_migration_file_gives_its_revision_and_parents():
-    source = '''
+    source = """
 revision: str = "0019"
 down_revision: Union[str, Sequence[str], None] = "0018"
-'''
+"""
     assert parse_migration(source) == ("0019", {"0018"})
     assert parse_migration('revision = "a1"\ndown_revision = None\n') == ("a1", set())
     merge = 'revision = "m"\ndown_revision = ("x", "y")\n'

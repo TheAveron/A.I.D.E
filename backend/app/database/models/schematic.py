@@ -114,7 +114,9 @@ class SchematicVersion(Base):
     compliant_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     schematic = relationship("Schematic", back_populates="versions")
-    uploaded_by = relationship("User", foreign_keys=[uploaded_by_user_id], lazy="joined")
+    uploaded_by = relationship(
+        "User", foreign_keys=[uploaded_by_user_id], lazy="joined"
+    )
 
     def __repr__(self) -> str:
         return f"<SchematicVersion(schematic={self.schematic_id}, v{self.number})>"

@@ -135,10 +135,26 @@ def test_the_maps_of_the_archives_are_frozen(menv):
         assert r.status_code == 403
     # ...and what is already there stays as it is (rows from before the rule)
     s = menv.Session()
-    s.add(MapTerritory(territory_id=900, map_name="OUtopia_zoom", faction_id=1,
-                       name="Vieux", points=SQUARE))
-    s.add(MapMarker(marker_id=900, map_name="OUtopia_zoom", faction_id=1,
-                    label="Vieux", kind="village", x=0, z=0))
+    s.add(
+        MapTerritory(
+            territory_id=900,
+            map_name="OUtopia_zoom",
+            faction_id=1,
+            name="Vieux",
+            points=SQUARE,
+        )
+    )
+    s.add(
+        MapMarker(
+            marker_id=900,
+            map_name="OUtopia_zoom",
+            faction_id=1,
+            label="Vieux",
+            kind="village",
+            x=0,
+            z=0,
+        )
+    )
     s.commit()
     s.close()
     h = menv.h("root")

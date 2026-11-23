@@ -234,9 +234,7 @@ def download_version(
     )
 
 
-@router.put(
-    "/{schematic_id}/versions/{number}/compliance", response_model=SchematicOut
-)
+@router.put("/{schematic_id}/versions/{number}/compliance", response_model=SchematicOut)
 def set_compliance(
     schematic_id: int,
     number: int,

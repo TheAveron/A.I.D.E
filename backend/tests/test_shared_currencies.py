@@ -225,9 +225,7 @@ def test_refusing_and_withdrawing(senv):
         "request_id"
     ]
     # only the asking side withdraws
-    r = c.delete(
-        f"/currencies/links/{rid}", headers=senv.h("alice")
-    )
+    r = c.delete(f"/currencies/links/{rid}", headers=senv.h("alice"))
     assert r.status_code == 403
     r = c.delete(f"/currencies/links/{rid}", headers=senv.h("bob"))
     assert r.status_code == 204
@@ -278,9 +276,7 @@ def test_a_currency_keeps_at_least_one_issuer(senv):
         f"/currencies/update/{DIAMANT}", json={"symbol": "D"}, headers=senv.h("bob")
     )
     assert r.status_code == 202
-    response = c.delete(
-        f"/currencies/{DIAMANT}/factions/1/issuer", headers=h
-    )
+    response = c.delete(f"/currencies/{DIAMANT}/factions/1/issuer", headers=h)
     assert response.status_code == 200
     assert _links(senv) == [(1, False), (2, True)]
     # alice's faction no longer issues it

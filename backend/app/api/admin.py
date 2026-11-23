@@ -264,7 +264,9 @@ def overview(
     return AdminOverview(
         users=count(User.user_id),
         staff=db.query(func.count(func.distinct(GlobalRole.user_id))).scalar() or 0,
-        factions=count(Faction.faction_id, Faction.is_approved.is_(True), *real_faction),
+        factions=count(
+            Faction.faction_id, Faction.is_approved.is_(True), *real_faction
+        ),
         factions_pending=count(
             Faction.faction_id, Faction.is_approved.is_(False), *real_faction
         ),

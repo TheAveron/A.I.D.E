@@ -81,10 +81,14 @@ def backup(label: str) -> int:
         [
             pg_dump,
             "--format=custom",
-            "--host", params["host"],
-            "--port", str(params["port"]),
-            "--username", params["user"],
-            "--file", str(target),
+            "--host",
+            params["host"],
+            "--port",
+            str(params["port"]),
+            "--username",
+            params["user"],
+            "--file",
+            str(target),
             params["database"],
         ],
         env=env,
@@ -155,7 +159,6 @@ def migrations_of(tag: str) -> dict[str, set[str]]:
 
 def current_revisions() -> set[str]:
     from alembic.migration import MigrationContext
-
     from app.database.database import engine
 
     with engine.connect() as connection:

@@ -28,14 +28,26 @@ def _string(name, value):
 
 
 def _list(name, item_type, payloads):
-    return b"\x09" + _s(name) + bytes([item_type]) + struct.pack(">i", len(payloads)) + b"".join(payloads)
+    return (
+        b"\x09"
+        + _s(name)
+        + bytes([item_type])
+        + struct.pack(">i", len(payloads))
+        + b"".join(payloads)
+    )
 
 
 def _compound_payload(*entries):
     return b"".join(entries) + b"\x00"
 
 
-def structure(size=(3, 2, 5), palette=("minecraft:air", "minecraft:stone"), states=(0, 1, 1), extra=b"", compress=True):
+def structure(
+    size=(3, 2, 5),
+    palette=("minecraft:air", "minecraft:stone"),
+    states=(0, 1, 1),
+    extra=b"",
+    compress=True,
+):
     """A structure file as Create / the structure block saves it."""
     blocks = [
         _compound_payload(
@@ -49,10 +61,16 @@ def structure(size=(3, 2, 5), palette=("minecraft:air", "minecraft:stone"), stat
     body = _compound_payload(
         _int("DataVersion", 3955),
         _list("size", nbt.INT, [struct.pack(">i", v) for v in size]),
-        _list("palette", nbt.COMPOUND, [
-            _compound_payload(_string("Name", n), b"\x0a" + _s("Properties") + _compound_payload())
-            for n in palette
-        ]),
+        _list(
+            "palette",
+            nbt.COMPOUND,
+            [
+                _compound_payload(
+                    _string("Name", n), b"\x0a" + _s("Properties") + _compound_payload()
+                )
+                for n in palette
+            ],
+        ),
         _list("blocks", nbt.COMPOUND, blocks),
         _list("entities", nbt.COMPOUND, []),
         extra,
@@ -81,9 +99,16 @@ def test_uncompressed_files_are_read_too():
 def test_several_palettes_use_the_first():
     body = _compound_payload(
         _list("size", nbt.INT, [struct.pack(">i", 1)] * 3),
-        b"\x09" + _s("palettes") + bytes([nbt.LIST]) + struct.pack(">i", 2)
-        + bytes([nbt.COMPOUND]) + struct.pack(">i", 1) + _compound_payload(_string("Name", "minecraft:stone"))
-        + bytes([nbt.COMPOUND]) + struct.pack(">i", 1) + _compound_payload(_string("Name", "minecraft:air")),
+        b"\x09"
+        + _s("palettes")
+        + bytes([nbt.LIST])
+        + struct.pack(">i", 2)
+        + bytes([nbt.COMPOUND])
+        + struct.pack(">i", 1)
+        + _compound_payload(_string("Name", "minecraft:stone"))
+        + bytes([nbt.COMPOUND])
+        + struct.pack(">i", 1)
+        + _compound_payload(_string("Name", "minecraft:air")),
         _list("blocks", nbt.COMPOUND, [_compound_payload(_int("state", 0))]),
     )
     info = nbt.read_structure(gzip.compress(b"\x0a" + _s("") + body))
@@ -97,7 +122,9 @@ def test_several_palettes_use_the_first():
         b"not an nbt file at all",
         gzip.compress(b"\x0a" + _s("") + _compound_payload(_int("x", 1))),  # no size
         structure()[:-12],  # truncated gzip
-        gzip.compress(b"\x0a" + _s("") + b"\x09" + _s("size") + b"\x03" + struct.pack(">i", -5)),
+        gzip.compress(
+            b"\x0a" + _s("") + b"\x09" + _s("size") + b"\x03" + struct.pack(">i", -5)
+        ),
         structure(size=(0, 1, 1)),
         structure(size=(1, 1, 99999)),
     ],
@@ -123,7 +150,14 @@ def test_deep_nesting_is_refused():
 
 def test_a_decompression_bomb_is_refused(monkeypatch):
     monkeypatch.setattr(nbt, "MAX_DECOMPRESSED_BYTES", 10_000)
-    bomb = gzip.compress(b"\x0a" + _s("") + b"\x07" + _s("x") + struct.pack(">i", 50_000) + b"\x00" * 50_000)
+    bomb = gzip.compress(
+        b"\x0a"
+        + _s("")
+        + b"\x07"
+        + _s("x")
+        + struct.pack(">i", 50_000)
+        + b"\x00" * 50_000
+    )
     assert len(bomb) < 1_000
     with pytest.raises(nbt.NbtError, match="too large"):
         nbt.read_structure(bomb)
@@ -158,8 +192,22 @@ def senv(env, tmp_path, monkeypatch):  # noqa: F811
     assert r.status_code == 200, r.text
     env.files = tmp_path / "files"
 
-    def upload(who="alice", title="Gare de passage", data=None, name="gare.nbt", tags="Gare, train", preview=None, **form):
-        files = {"file": (name, data if data is not None else structure(), "application/octet-stream")}
+    def upload(
+        who="alice",
+        title="Gare de passage",
+        data=None,
+        name="gare.nbt",
+        tags="Gare, train",
+        preview=None,
+        **form,
+    ):
+        files = {
+            "file": (
+                name,
+                data if data is not None else structure(),
+                "application/octet-stream",
+            )
+        }
         if preview is not None:
             files["preview"] = ("apercu.png", preview, "image/png")
         return env.client.post(
@@ -183,10 +231,16 @@ def _audit(env, action):
 
 def test_everything_needs_an_account(senv):
     sid = senv.upload().json()["schematic_id"]
-    for url in ("/schematics", "/schematics/tags", f"/schematics/{sid}",
-                f"/schematics/{sid}/versions/1/download"):
+    for url in (
+        "/schematics",
+        "/schematics/tags",
+        f"/schematics/{sid}",
+        f"/schematics/{sid}/versions/1/download",
+    ):
         assert senv.client.get(url).status_code == 401, url
-    r = senv.client.post("/schematics", data={"title": "x"}, files={"file": ("a.nbt", structure())})
+    r = senv.client.post(
+        "/schematics", data={"title": "x"}, files={"file": ("a.nbt", structure())}
+    )
     assert r.status_code == 401
 
 
@@ -205,7 +259,10 @@ def test_an_upload_reads_the_file_and_stores_it_under_a_random_name(senv):
     stored = [p.name for p in senv.files.iterdir()]
     assert len(stored) == 1 and stored[0].endswith(".nbt") and stored[0] != "gare.nbt"
 
-    r = senv.client.get(f"/schematics/{body['schematic_id']}/versions/1/download", headers=senv.h("newbie"))
+    r = senv.client.get(
+        f"/schematics/{body['schematic_id']}/versions/1/download",
+        headers=senv.h("newbie"),
+    )
     assert r.status_code == 200
     assert r.content == structure()
     assert "Gare_de_passage-v1.nbt" in r.headers["content-disposition"]
@@ -243,13 +300,22 @@ def test_the_preview_is_served_to_accounts(senv):
 
     # replaced, then removed: the old files go
     jpg = b"\xff\xd8\xff\xe0" + b"\x00" * 32
-    r = senv.client.put(f"/schematics/{sid}/preview", files={"preview": ("a.jpg", jpg)}, headers=senv.h("alice"))
+    r = senv.client.put(
+        f"/schematics/{sid}/preview",
+        files={"preview": ("a.jpg", jpg)},
+        headers=senv.h("alice"),
+    )
     assert r.status_code == 200, r.text
     assert sorted(p.suffix for p in senv.files.iterdir()) == [".jpg", ".nbt"]
     r = senv.client.delete(f"/schematics/{sid}/preview", headers=senv.h("alice"))
     assert r.json()["has_preview"] is False
     assert [p.suffix for p in senv.files.iterdir()] == [".nbt"]
-    assert senv.client.get(f"/schematics/{sid}/preview", headers=senv.h("alice")).status_code == 404
+    assert (
+        senv.client.get(
+            f"/schematics/{sid}/preview", headers=senv.h("alice")
+        ).status_code
+        == 404
+    )
 
 
 def test_tags_filter_the_gallery_and_are_suggested(senv):
@@ -280,20 +346,30 @@ def test_only_the_author_or_an_admin_changes_it(senv):
     r = senv.client.put(url, json={"title": "Volé"}, headers=senv.h("rails"))
     assert r.status_code == 403
 
-    r = senv.client.put(url, json={"title": "Gare v2", "tags": ["Fret"], "description": None}, headers=senv.h("alice"))
+    r = senv.client.put(
+        url,
+        json={"title": "Gare v2", "tags": ["Fret"], "description": None},
+        headers=senv.h("alice"),
+    )
     assert r.status_code == 200, r.text
     assert (r.json()["title"], r.json()["tags"]) == ("Gare v2", ["fret"])
     r = senv.client.put(url, json={"title": None}, headers=senv.h("alice"))
     assert r.status_code == 422
 
-    r = senv.client.put(url, json={"title": "Renommé par l'admin"}, headers=senv.h("root"))
+    r = senv.client.put(
+        url, json={"title": "Renommé par l'admin"}, headers=senv.h("root")
+    )
     assert r.status_code == 200
     assert len(_audit(senv, "schematic_changed")) == 1
 
 
 def test_versions_keep_the_history_and_reset_the_badge(senv):
     sid = senv.upload().json()["schematic_id"]
-    r = senv.client.put(f"/schematics/{sid}/versions/1/compliance", json={"compliant": True}, headers=senv.h("rails"))
+    r = senv.client.put(
+        f"/schematics/{sid}/versions/1/compliance",
+        json={"compliant": True},
+        headers=senv.h("rails"),
+    )
     assert r.status_code == 200, r.text
     assert r.json()["current"]["compliant"] is True
 
@@ -320,9 +396,16 @@ def test_versions_keep_the_history_and_reset_the_badge(senv):
     assert [v["number"] for v in body["versions"]] == [2, 1]  # newest first
     assert body["versions"][1]["compliant"] is True
 
-    one = senv.client.get(f"/schematics/{sid}/versions/1/download", headers=senv.h("alice"))
+    one = senv.client.get(
+        f"/schematics/{sid}/versions/1/download", headers=senv.h("alice")
+    )
     assert one.content == structure()
-    assert senv.client.get(f"/schematics/{sid}/versions/3/download", headers=senv.h("alice")).status_code == 404
+    assert (
+        senv.client.get(
+            f"/schematics/{sid}/versions/3/download", headers=senv.h("alice")
+        ).status_code
+        == 404
+    )
 
 
 def test_only_train_admins_and_admins_give_the_badge(senv):
@@ -334,7 +417,9 @@ def test_only_train_admins_and_admins_give_the_badge(senv):
     assert r.status_code == 200
 
     def compliant_titles(flag):
-        r = senv.client.get("/schematics", params={"compliant": flag}, headers=senv.h("alice"))
+        r = senv.client.get(
+            "/schematics", params={"compliant": flag}, headers=senv.h("alice")
+        )
         return [s["schematic_id"] for s in r.json()]
 
     assert compliant_titles(True) == [sid]
@@ -355,7 +440,10 @@ def test_deleting_removes_the_files(senv):
     r = senv.client.delete(f"/schematics/{sid}", headers=senv.h("alice"))
     assert r.status_code == 204
     assert len(list(senv.files.iterdir())) == 1
-    assert senv.client.get(f"/schematics/{sid}", headers=senv.h("alice")).status_code == 404
+    assert (
+        senv.client.get(f"/schematics/{sid}", headers=senv.h("alice")).status_code
+        == 404
+    )
 
     # an admin deletes somebody else's, and it is audited
     r = senv.client.delete(f"/schematics/{other}", headers=senv.h("root"))
@@ -368,7 +456,9 @@ def test_a_failed_commit_leaves_no_file(senv, monkeypatch):
     def boom(*args, **kwargs):
         raise RuntimeError("database down")
 
-    monkeypatch.setattr(crud, "_commit", lambda db, written: (crud._remove(written), boom()))
+    monkeypatch.setattr(
+        crud, "_commit", lambda db, written: (crud._remove(written), boom())
+    )
     assert senv.upload().status_code == 500
     assert not any(senv.files.iterdir())
 

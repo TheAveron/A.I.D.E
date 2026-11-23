@@ -170,10 +170,10 @@ class _Reader:
 
 def _read_size(r: _Reader, tag: int) -> tuple[int, int, int]:
     if tag != LIST:
-        raise NbtError("The file's \"size\" field is invalid")
+        raise NbtError('The file\'s "size" field is invalid')
     item_type, length = r.list_header()
     if item_type != INT or length != 3:
-        raise NbtError("The file's \"size\" field is invalid")
+        raise NbtError('The file\'s "size" field is invalid')
     x, y, z = r.i32(), r.i32(), r.i32()
     if not all(0 < v <= MAX_AXIS for v in (x, y, z)):
         raise NbtError("The file's dimensions are invalid")
