@@ -85,8 +85,10 @@ cd A.I.D.E
 cd backend
 python -m venv .venv
 source .venv/bin/activate        # Windows : .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
+
+`requirements-dev.txt` inclut `requirements.txt` et ajoute les outils de développement (pytest, httpx, black, isort). En production, `deploy.sh` n'installe que `requirements.txt`.
 
 Créez le dossier `backend/app/config/` (il n'est pas versionné) avec deux fichiers.
 

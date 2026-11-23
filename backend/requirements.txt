@@ -1,9 +1,8 @@
+# Runtime dependencies, installed in production by deploy.sh.
+# Tools only used for tests and formatting live in requirements-dev.txt.
 fastapi==0.165.0
 fastapi-cli==0.0.34
-fastapi-cloud-cli==0.28.0
 pydantic==2.14.4
-pydantic_core==2.50.5
-pytest==9.2.0
 SQLAlchemy==2.1.9
 SQLAlchemy-Utils==0.43.0
 PyJWT==2.15.1
@@ -11,3 +10,4 @@ psycopg2==2.9.13
 bcrypt==5.0.0
 alembic==1.20.1
 python-multipart==0.0.34
+python-dotenv==1.2.4
