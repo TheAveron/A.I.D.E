@@ -43,12 +43,6 @@ export default function TrainsPage() {
                     <Link className="button" to="/trains/new">
                         Enregistrer un train
                     </Link>
-                    <Link className="button" to="/lines">
-                        Lignes
-                    </Link>
-                    <Link className="button" to="/stations">
-                        Gares
-                    </Link>
                 </div>
 
                 <ToolbarPanels

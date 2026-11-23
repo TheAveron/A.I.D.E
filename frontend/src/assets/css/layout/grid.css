@@ -109,3 +109,22 @@
         padding: var(--card-padding);
     }
 }
+
+/* Home page: the welcome across the top, then one card per section */
+.information-container > .home-intro {
+    grid-column: 1 / -1;
+}
+
+:where(.information-container) > .home-section {
+    grid-column: span 4;
+}
+
+@media only screen and (min-width: 900px) {
+    :where(.information-container) > .home-section {
+        grid-column: span 1;
+    }
+
+    .information-container:has(> .home-section) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

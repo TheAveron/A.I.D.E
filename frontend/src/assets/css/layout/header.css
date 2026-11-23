@@ -243,6 +243,40 @@ header nav .nav-menu .link:focus-visible {
     background-color: var(--hover);
 }
 
+/* The account menu opens under its button, along the right edge */
+.nav-more-end .nav-menu {
+    right: var(--page-gutter);
+    margin-left: 0;
+}
+
+.nav-menu .nav-logout {
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Where we are: the section in the bar, the page in its menu */
+header nav .link.active,
+header nav .link[aria-current="page"] {
+    color: var(--text);
+}
+
+header nav .nav-links > .link.active::after,
+header nav .nav-more-toggle.active::after {
+    transform: scaleX(1);
+}
+
+header nav .nav-menu .link[aria-current="page"] {
+    background-color: var(--hover);
+    box-shadow: inset 3px 0 0 var(--primary);
+    font-weight: 600;
+}
+
+/* The title of a group only shows in the narrow-screen menu */
+.nav-group-title {
+    display: none;
+}
+
 /* ── Menu button (narrow screens only) ── */
 .nav-toggle {
     display: none;
@@ -380,13 +414,34 @@ header nav .nav-menu .link:focus-visible {
         background-color: var(--hover);
     }
 
-    /* "Plus" disappears: its pages are listed with the others */
+    /* Each menu becomes a titled group of links */
     .nav-more {
-        display: contents;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.15rem;
+        padding-top: 0.5rem;
     }
 
     .nav-more-toggle {
         display: none;
+    }
+
+    .nav-group-title {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.25rem 0.6rem;
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .nav-group-title .nav-icon {
+        width: 0.95rem;
+        height: 0.95rem;
     }
 
     header .nav-more .nav-menu {

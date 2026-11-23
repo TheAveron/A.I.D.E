@@ -25,12 +25,6 @@ export default function StationsPage() {
             <div className="snippet-container">
                 <div className="offers-header">
                     <h2>Gares</h2>
-                    <Link className="button" to="/lines">
-                        Lignes
-                    </Link>
-                    <Link className="button" to="/trains">
-                        Trains
-                    </Link>
                 </div>
                 <ToolbarPanels
                     activeFilters={dimension ? 1 : 0}

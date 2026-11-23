@@ -6,11 +6,17 @@ import {
     type MouseEvent as ReactMouseEvent,
     type ReactNode,
 } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 import { useAuth } from "../../utils/authcontext";
 import { useMe } from "../../hooks/users/me";
 import { useUnreadCount } from "../../hooks/users/notifications";
+import {
+    NAV_SECTIONS,
+    findActive,
+    visibleItems,
+    type NavSection,
+} from "../../utils/navigation";
 
 /** Runs `close` when a click lands on a link: the menus close after navigating. */
 const closeOnLink = (close: () => void) => (event: ReactMouseEvent) => {
@@ -69,12 +75,30 @@ function NavShell({
     );
 }
 
-/** The rarely used pages, behind a "Plus" button (listed flat in the mobile menu). */
-function MoreMenu({ children }: { children: ReactNode }) {
+/**
+ * A menu of the header: a button that opens a list of links. On a narrow
+ * screen the button gives way to a plain title and the links are listed
+ * under it.
+ */
+function NavDropdown({
+    label,
+    active = false,
+    align = "start",
+    children,
+}: {
+    label: ReactNode;
+    active?: boolean;
+    align?: "start" | "end";
+    children: ReactNode;
+}) {
     const [open, setOpen] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const menuId = useId();
+    const { pathname } = useLocation();
+
+    // Another page: the menu closes (also when it was reached another way)
+    useEffect(() => setOpen(false), [pathname]);
 
     useEffect(() => {
         if (!open) return;
@@ -97,26 +121,89 @@ function MoreMenu({ children }: { children: ReactNode }) {
         };
     }, [open]);
 
+    const classes = ["nav-more"];
+    if (open) classes.push("open");
+    if (align === "end") classes.push("nav-more-end");
+
     return (
         <div
             ref={wrapperRef}
-            className={open ? "nav-more open" : "nav-more"}
+            className={classes.join(" ")}
             onClick={closeOnLink(() => setOpen(false))}
         >
             <button
                 ref={buttonRef}
                 type="button"
-                className="link nav-more-toggle"
+                className={active ? "link nav-more-toggle active" : "link nav-more-toggle"}
                 aria-expanded={open}
                 aria-controls={menuId}
                 onClick={() => setOpen((current) => !current)}
             >
-                Plus
+                {label}
             </button>
+            <span className="nav-group-title" aria-hidden="true">
+                {label}
+            </span>
             <div id={menuId} className="nav-menu">
                 {children}
             </div>
         </div>
+    );
+}
+
+/** A section of the site: a menu of its pages, or a link if it has one. */
+function SectionMenu({
+    section,
+    loggedIn,
+}: {
+    section: NavSection;
+    loggedIn: boolean;
+}) {
+    const { pathname } = useLocation();
+    const { section: activeSection, item: activeItem } = findActive(pathname);
+    const items = visibleItems(section, loggedIn);
+    const active = activeSection?.id === section.id;
+
+    if (items.length === 0) return null;
+    if (items.length === 1) {
+        return (
+            <Link
+                className={active ? "link active" : "link"}
+                to={items[0].to}
+                aria-current={active ? "page" : undefined}
+            >
+                {section.label}
+            </Link>
+        );
+    }
+    return (
+        <NavDropdown label={section.label} active={active}>
+            {items.map((item) => (
+                <Link
+                    key={item.to}
+                    className="link"
+                    to={item.to}
+                    aria-current={item === activeItem ? "page" : undefined}
+                >
+                    {item.label}
+                </Link>
+            ))}
+        </NavDropdown>
+    );
+}
+
+/** The map: a page of its own, not part of a section. */
+function MapLink() {
+    const { pathname } = useLocation();
+    const active = pathname === "/actual";
+    return (
+        <Link
+            className={active ? "link active" : "link"}
+            to="/actual"
+            aria-current={active ? "page" : undefined}
+        >
+            Carte
+        </Link>
     );
 }
 
@@ -155,61 +242,19 @@ function NotificationsLink({ count }: { count: number }) {
     );
 }
 
-/** The panel link, only for the server staff (admins and train admins). */
-function AdminLink() {
+/** The account menu: profile, administration (staff only), logout. */
+function AccountMenu() {
     const { user } = useMe();
-    if (!user?.global_roles?.length) return null;
-    return (
-        <Link className="link" to="/admin">
-            Administration
-        </Link>
-    );
-}
-
-function LoggedInNav() {
-    const { count } = useUnreadCount();
     const { logout } = useAuth();
+    const { pathname } = useLocation();
+    const active = ["/profile", "/admin"].includes(pathname);
 
     return (
-        <NavShell unread={count}>
-            <div className="nav-links">
-                <Link className="link" to="/actual">
-                    Carte
-                </Link>
-                <Link className="link" to="/factions">
-                    Factions
-                </Link>
-                <Link className="link" to="/offers">
-                    Offres
-                </Link>
-                <Link className="link" to="/trains">
-                    Trains
-                </Link>
-                <MoreMenu>
-                    <Link className="link" to="/network">
-                        Réseau ferré
-                    </Link>
-                    <Link className="link" to="/documentation">
-                        Documentation
-                    </Link>
-                    <Link className="link" to="/schematiques">
-                        Schematics
-                    </Link>
-                    <Link className="link" to="/archives">
-                        Archives
-                    </Link>
-                    <Link className="link" to="/transactions">
-                        Transactions
-                    </Link>
-                    <Link className="link" to="/contribuer">
-                        Contribuer
-                    </Link>
-                    <AdminLink />
-                </MoreMenu>
-            </div>
-            <div className="nav-account">
-                <NotificationsLink count={count} />
-                <Link className="link nav-profile" to="/profile">
+        <NavDropdown
+            align="end"
+            active={active}
+            label={
+                <>
                     <svg
                         className="nav-icon"
                         viewBox="0 0 24 24"
@@ -223,15 +268,47 @@ function LoggedInNav() {
                         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                         <circle cx="12" cy="7" r="4" />
                     </svg>
-                    <span>Profil</span>
-                </Link>
-                <button
-                    type="button"
-                    className="link nav-logout"
-                    onClick={logout}
+                    <span>{user?.username ?? "Compte"}</span>
+                </>
+            }
+        >
+            <Link
+                className="link"
+                to="/profile"
+                aria-current={pathname === "/profile" ? "page" : undefined}
+            >
+                Mon profil
+            </Link>
+            {!!user?.global_roles?.length && (
+                <Link
+                    className="link"
+                    to="/admin"
+                    aria-current={pathname === "/admin" ? "page" : undefined}
                 >
-                    Déconnexion
-                </button>
+                    Administration
+                </Link>
+            )}
+            <button type="button" className="link nav-logout" onClick={logout}>
+                Déconnexion
+            </button>
+        </NavDropdown>
+    );
+}
+
+function LoggedInNav() {
+    const { count } = useUnreadCount();
+
+    return (
+        <NavShell unread={count}>
+            <div className="nav-links">
+                <MapLink />
+                {NAV_SECTIONS.map((section) => (
+                    <SectionMenu key={section.id} section={section} loggedIn />
+                ))}
+            </div>
+            <div className="nav-account">
+                <NotificationsLink count={count} />
+                <AccountMenu />
             </div>
         </NavShell>
     );
@@ -241,18 +318,14 @@ function LoggedOutNav() {
     return (
         <NavShell>
             <div className="nav-links">
-                <Link className="link" to="/actual">
-                    Carte
-                </Link>
-                <Link className="link" to="/network">
-                    Réseau ferré
-                </Link>
-                <Link className="link" to="/documentation">
-                    Documentation
-                </Link>
-                <Link className="link" to="/archives">
-                    Archives
-                </Link>
+                <MapLink />
+                {NAV_SECTIONS.map((section) => (
+                    <SectionMenu
+                        key={section.id}
+                        section={section}
+                        loggedIn={false}
+                    />
+                ))}
             </div>
             <div className="nav-account">
                 <Link className="button" id="signin" to="/login">

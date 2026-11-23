@@ -28,6 +28,7 @@
 /* layout */
 @import "./layout/header.css";
 @import "./layout/grid.css";
+@import "./layout/section-tabs.css";
 
 /* page-specific */
 @import "./pages/login.css";
