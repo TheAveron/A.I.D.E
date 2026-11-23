@@ -275,13 +275,16 @@ def test_tags_filter_the_gallery_and_are_suggested(senv):
 def test_only_the_author_or_an_admin_changes_it(senv):
     sid = senv.upload().json()["schematic_id"]
     url = f"/schematics/{sid}"
-    assert senv.client.put(url, json={"title": "Volé"}, headers=senv.h("newbie")).status_code == 403
-    assert senv.client.put(url, json={"title": "Volé"}, headers=senv.h("rails")).status_code == 403
+    r = senv.client.put(url, json={"title": "Volé"}, headers=senv.h("newbie"))
+    assert r.status_code == 403
+    r = senv.client.put(url, json={"title": "Volé"}, headers=senv.h("rails"))
+    assert r.status_code == 403
 
     r = senv.client.put(url, json={"title": "Gare v2", "tags": ["Fret"], "description": None}, headers=senv.h("alice"))
     assert r.status_code == 200, r.text
     assert (r.json()["title"], r.json()["tags"]) == ("Gare v2", ["fret"])
-    assert senv.client.put(url, json={"title": None}, headers=senv.h("alice")).status_code == 422
+    r = senv.client.put(url, json={"title": None}, headers=senv.h("alice"))
+    assert r.status_code == 422
 
     r = senv.client.put(url, json={"title": "Renommé par l'admin"}, headers=senv.h("root"))
     assert r.status_code == 200
@@ -325,8 +328,10 @@ def test_versions_keep_the_history_and_reset_the_badge(senv):
 def test_only_train_admins_and_admins_give_the_badge(senv):
     sid = senv.upload().json()["schematic_id"]
     url = f"/schematics/{sid}/versions/1/compliance"
-    assert senv.client.put(url, json={"compliant": True}, headers=senv.h("alice")).status_code == 403
-    assert senv.client.put(url, json={"compliant": True}, headers=senv.h("root")).status_code == 200
+    r = senv.client.put(url, json={"compliant": True}, headers=senv.h("alice"))
+    assert r.status_code == 403
+    r = senv.client.put(url, json={"compliant": True}, headers=senv.h("root"))
+    assert r.status_code == 200
 
     def compliant_titles(flag):
         r = senv.client.get("/schematics", params={"compliant": flag}, headers=senv.h("alice"))
@@ -344,13 +349,17 @@ def test_deleting_removes_the_files(senv):
     other = senv.upload(who="newbie", title="Autre").json()["schematic_id"]
     assert len(list(senv.files.iterdir())) == 3
 
-    assert senv.client.delete(f"/schematics/{sid}", headers=senv.h("newbie")).status_code == 403
-    assert senv.client.delete(f"/schematics/{sid}", headers=senv.h("alice")).status_code == 204
+    r = senv.client.delete(f"/schematics/{sid}", headers=senv.h("newbie"))
+
+    assert r.status_code == 403
+    r = senv.client.delete(f"/schematics/{sid}", headers=senv.h("alice"))
+    assert r.status_code == 204
     assert len(list(senv.files.iterdir())) == 1
     assert senv.client.get(f"/schematics/{sid}", headers=senv.h("alice")).status_code == 404
 
     # an admin deletes somebody else's, and it is audited
-    assert senv.client.delete(f"/schematics/{other}", headers=senv.h("root")).status_code == 204
+    r = senv.client.delete(f"/schematics/{other}", headers=senv.h("root"))
+    assert r.status_code == 204
     assert list(senv.files.iterdir()) == []
     assert len(_audit(senv, "schematic_deleted")) == 1
 
@@ -375,8 +384,10 @@ def test_train_admins_only_see_the_reviews_of_schematics(senv):
     train admin only sees the standards reviews."""
     sid = senv.upload().json()["schematic_id"]
     url = f"/schematics/{sid}/versions/1/compliance"
-    assert senv.client.put(url, json={"compliant": True}, headers=senv.h("rails")).status_code == 200
-    assert senv.client.delete(f"/schematics/{sid}", headers=senv.h("root")).status_code == 204
+    r = senv.client.put(url, json={"compliant": True}, headers=senv.h("rails"))
+    assert r.status_code == 200
+    r = senv.client.delete(f"/schematics/{sid}", headers=senv.h("root"))
+    assert r.status_code == 204
 
     def actions(who):
         r = senv.client.get("/admin/audit", headers=senv.h(who))
