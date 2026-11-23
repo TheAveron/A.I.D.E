@@ -171,3 +171,66 @@ def test_unknown_paths_are_a_404_not_the_spa(main_app, monkeypatch, tmp_path):
     # ... while a browser opening a client-side route gets the SPA
     assert client.get("/owa/", headers=page).text == "<html>spa</html>"
     assert client.get("/faction/3", headers=page).text == "<html>spa</html>"
+
+
+def test_pages_sharing_a_path_with_the_api_get_the_spa(main_app, monkeypatch, tmp_path):
+    """/trains is both a page and GET /trains: a browser reloading the page
+    must get the React app, an API client the JSON."""
+    import main
+
+    client_dir = tmp_path / "build" / "client"
+    client_dir.mkdir(parents=True)
+    (client_dir / "index.html").write_text("<html>spa</html>")
+    monkeypatch.setattr(main, "frontend_dist_path", tmp_path / "build")
+
+    client = TestClient(main_app, raise_server_exceptions=False)
+    page = {"Accept": "text/html,application/xhtml+xml,*/*;q=0.8"}
+    axios = {"Accept": "application/json, text/plain, */*"}
+
+    for path in ("/trains", "/trains/new", "/lines", "/stations", "/notifications"):
+        r = client.get(path, headers=page)
+        assert r.status_code == 200, path
+        assert r.text == "<html>spa</html>", path
+
+    # API clients still reach the routes. No auth here: /notifications is a
+    # 401, and /trains/new (GET /trains/{id}) a 422, but JSON either way.
+    for path in ("/trains/new", "/notifications"):
+        r = client.get(path, headers=axios)
+        assert r.status_code in (401, 422), path
+        assert r.headers["content-type"].startswith("application/json"), path
+    # A non-GET with a browser's Accept is never the SPA
+    assert "<html>" not in client.post("/trains/", headers=page).text
+
+
+def test_docs_and_static_folders_are_not_replaced_by_the_spa(
+    main_app, monkeypatch, tmp_path
+):
+    import main
+
+    client_dir = tmp_path / "build" / "client"
+    client_dir.mkdir(parents=True)
+    (client_dir / "index.html").write_text("<html>spa</html>")
+    monkeypatch.setattr(main, "frontend_dist_path", tmp_path / "build")
+
+    client = TestClient(main_app, raise_server_exceptions=False)
+    page = {"Accept": "text/html,application/xhtml+xml"}
+
+    docs = client.get("/docs", headers=page)
+    assert docs.status_code == 200
+    assert "swagger" in docs.text.lower()
+    assert "spa" not in client.get("/redoc", headers=page).text
+    assert client.get("/openapi.json", headers=page).json()["openapi"]
+    # The mounted folders answer themselves (here: missing directories)
+    for path in ("/maps/nothing", "/assets/nothing"):
+        assert "<html>spa</html>" not in client.get(path, headers=page).text, path
+
+
+def test_without_a_frontend_build_html_requests_reach_the_api(
+    main_app, monkeypatch, tmp_path
+):
+    import main
+
+    monkeypatch.setattr(main, "frontend_dist_path", tmp_path / "no-build")
+    client = TestClient(main_app, raise_server_exceptions=False)
+    r = client.get("/notifications", headers={"Accept": "text/html"})
+    assert r.status_code == 401

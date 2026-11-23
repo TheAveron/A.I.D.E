@@ -61,6 +61,50 @@ def custom_openapi():
 app.openapi = custom_openapi
 
 
+# Paths a browser opens that are not pages of the React app: FastAPI's docs and
+# the mounted static folders.
+_NOT_SPA_PREFIXES = tuple(
+    p
+    for p in (
+        app.docs_url,
+        app.redoc_url,
+        app.swagger_ui_oauth2_redirect_url,
+        app.openapi_url,
+        "/maps",
+        "/assets",
+    )
+    if p
+)
+
+
+def _is_spa_excluded(path: str) -> bool:
+    return any(path == p or path.startswith(p + "/") for p in _NOT_SPA_PREFIXES)
+
+
+# Defined before log_requests so that one stays the outermost middleware and
+# still logs the pages answered here.
+@app.middleware("http")
+async def serve_spa_pages(request: Request, call_next):
+    """Answer index.html to a browser opening a page, before API routing.
+
+    The API has no prefix, so some pages share their path with a GET route
+    (/trains, /lines, /stations, /notifications...): opening or reloading them
+    returned JSON. A browser asks for text/html, API clients don't (axios sends
+    "application/json, text/plain, */*"), so the Accept header tells them apart.
+    """
+    path = request.url.path
+    if (
+        request.method == "GET"
+        and not _is_spa_excluded(path)
+        and _built_file(path.lstrip("/")) is None
+        and _is_page_request(request, path)
+    ):
+        index_path = frontend_dist_path / "client" / "index.html"
+        if index_path.is_file():  # no frontend build (development): API only
+            return FileResponse(index_path)
+    return await call_next(request)
+
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start_time = time.time()
