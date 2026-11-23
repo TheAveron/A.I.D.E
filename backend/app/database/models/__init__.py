@@ -9,6 +9,7 @@ from .map_overlay import MapMarker, MapTerritory
 from .notification import Notification
 from .offer import Offer, OfferStatus, OfferType
 from .offer_history import OfferAction, OfferHistory
+from .schematic import Schematic, SchematicTag, SchematicVersion
 from .station import Platform, Station
 from .train import Line, LineStop, Train, TrainHistory
 from .transaction import Transaction

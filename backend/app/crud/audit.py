@@ -42,10 +42,15 @@ class AuditAction(str, Enum):
     LINE_DELETED = "line_deleted"
     STATION_CHANGED = "station_changed"
     STATION_DELETED = "station_deleted"
+    # Schematics: train admins checking them against the railway standards,
+    # admins changing or deleting those of others
+    SCHEMATIC_COMPLIANCE = "schematic_compliance"
+    SCHEMATIC_CHANGED = "schematic_changed"
+    SCHEMATIC_DELETED = "schematic_deleted"
 
 
 # What a train admin (who is not an admin) is allowed to read in the trail
-TRAIN_TARGETS = ("train", "line", "station")
+TRAIN_TARGETS = ("train", "line", "station", "schematic")
 # ... and a money admin
 MONEY_TARGETS = ("currency",)
 

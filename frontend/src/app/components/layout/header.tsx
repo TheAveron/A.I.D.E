@@ -192,6 +192,9 @@ function LoggedInNav() {
                     <Link className="link" to="/documentation">
                         Documentation
                     </Link>
+                    <Link className="link" to="/schematiques">
+                        Schematics
+                    </Link>
                     <Link className="link" to="/archives">
                         Archives
                     </Link>

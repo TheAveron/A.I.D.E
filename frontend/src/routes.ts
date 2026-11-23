@@ -26,6 +26,12 @@ const aideRoutes = [
         route("line/:code", "./app/pages/network/line_page.tsx"),
         route("stations", "./app/pages/network/stations.tsx"),
         route("station/:stationid", "./app/pages/network/station_page.tsx"),
+        route("schematiques", "./app/pages/schematics/gallery.tsx"),
+        route("schematiques/nouveau", "./app/pages/schematics/new.tsx"),
+        route(
+            "schematique/:schematicid",
+            "./app/pages/schematics/detail.tsx",
+        ),
         route("admin", "./app/pages/admin/admin.tsx"),
 
         route("faction/:factionid", "./app/pages/factions/faction_page.tsx"),

@@ -23,6 +23,7 @@
 @import "./components/sort-control.css";
 @import "./components/tables.css";
 @import "./components/trains.css";
+@import "./components/schematics.css";
 
 /* layout */
 @import "./layout/header.css";
