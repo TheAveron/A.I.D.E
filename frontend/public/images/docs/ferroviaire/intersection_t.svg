@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 500" width="720" height="500" role="img" aria-label="Intersection en T : signaux chaînés à l'entrée, signaux simples à la sortie">
+<title>Intersection en T : signaux chaînés à l'entrée, signaux simples à la sortie</title>
+<defs>
+  <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="8" height="8" fill="#ece8de"/>
+    <line x1="0" y1="0" x2="0" y2="8" stroke="#b5ae9c" stroke-width="3"/>
+  </pattern>
+  <pattern id="phatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="7" height="7" fill="#b9bec4"/>
+    <line x1="0" y1="0" x2="0" y2="7" stroke="#9aa0a7" stroke-width="2.5"/>
+  </pattern>
+  <marker id="dimarrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 1 L9 5 L0 9" fill="none" stroke="#6b6b6b" stroke-width="1.6"/>
+  </marker>
+</defs>
+<rect x="1" y="1" width="718" height="498" rx="12" fill="#f8f6f0" stroke="#d6d0c0" stroke-width="2"/>
+<g font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" fill="#2b2b2b">
+<text x="360" y="38" font-size="20" text-anchor="middle" font-weight="bold" fill="#2b2b2b">Intersection en T</text>
+<text x="360" y="60" font-size="13" text-anchor="middle" font-weight="normal" fill="#6b6b6b" font-style="italic">vue de dessus — circulation à droite</text>
+<path d="M 30 130 L 690 130" fill="none" stroke="#cfc8b6" stroke-width="13" stroke-linecap="butt" stroke-dasharray="3 6"/><path d="M 30 130 L 690 130" fill="none" stroke="#3a3a3a" stroke-width="5" stroke-linecap="round"/>
+<path d="M 30 190 L 690 190" fill="none" stroke="#cfc8b6" stroke-width="13" stroke-linecap="butt" stroke-dasharray="3 6"/><path d="M 30 190 L 690 190" fill="none" stroke="#3a3a3a" stroke-width="5" stroke-linecap="round"/>
+<path d="M 330 300 L 330 450" fill="none" stroke="#cfc8b6" stroke-width="13" stroke-linecap="butt" stroke-dasharray="3 6"/><path d="M 330 300 L 330 450" fill="none" stroke="#3a3a3a" stroke-width="5" stroke-linecap="round"/>
+<path d="M 390 300 L 390 450" fill="none" stroke="#cfc8b6" stroke-width="13" stroke-linecap="butt" stroke-dasharray="3 6"/><path d="M 390 300 L 390 450" fill="none" stroke="#3a3a3a" stroke-width="5" stroke-linecap="round"/>
+<path d="M 500 130 C 400 130, 330 210, 330 300" fill="none" stroke="#cfc8b6" stroke-width="13" stroke-linecap="butt" stroke-dasharray="3 6"/><path d="M 500 130 C 400 130, 330 210, 330 300" fill="none" stroke="#3a3a3a" stroke-width="5" stroke-linecap="round"/>
+<path d="M 390 300 C 390 210, 320 130, 220 130" fill="none" stroke="#cfc8b6" stroke-width="13" stroke-linecap="butt" stroke-dasharray="3 6"/><path d="M 390 300 C 390 210, 320 130, 220 130" fill="none" stroke="#3a3a3a" stroke-width="5" stroke-linecap="round"/>
+<path d="M 230 190 C 290 190, 330 230, 330 300" fill="none" stroke="#cfc8b6" stroke-width="13" stroke-linecap="butt" stroke-dasharray="3 6"/><path d="M 230 190 C 290 190, 330 230, 330 300" fill="none" stroke="#3a3a3a" stroke-width="5" stroke-linecap="round"/>
+<path d="M 390 300 C 390 230, 430 190, 490 190" fill="none" stroke="#cfc8b6" stroke-width="13" stroke-linecap="butt" stroke-dasharray="3 6"/><path d="M 390 300 C 390 230, 430 190, 490 190" fill="none" stroke="#3a3a3a" stroke-width="5" stroke-linecap="round"/>
+<rect x="200" y="100" width="320" height="220" rx="14" fill="none" stroke="#d1362a" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="510" y="336" font-size="12" text-anchor="end" font-weight="normal" fill="#d1362a">zone d'aiguillages</text>
+<polyline points="54.8,122.0 45.2,130.0 54.8,138.0" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="674.8,122.0 665.2,130.0 674.8,138.0" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="45.2,198.0 54.8,190.0 45.2,182.0" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="665.2,198.0 674.8,190.0 665.2,182.0" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="322.0,435.2 330.0,444.8 338.0,435.2" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="398.0,444.8 390.0,435.2 382.0,444.8" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="584.8,106.0 575.2,114.0 584.8,122.0" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="592.8,106.0 583.2,114.0 592.8,122.0" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="144.8,106.0 135.2,114.0 144.8,122.0" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="135.2,214.0 144.8,206.0 135.2,198.0" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="127.2,214.0 136.8,206.0 127.2,198.0" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="575.2,214.0 584.8,206.0 575.2,198.0" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="414.0,384.8 406.0,375.2 398.0,384.8" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="414.0,392.8 406.0,383.2 398.0,392.8" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="306.0,375.2 314.0,384.8 322.0,375.2" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="40" y="100" font-size="12" text-anchor="start" font-weight="normal" fill="#6b6b6b">vers l'ouest</text>
+<text x="680" y="226" font-size="12" text-anchor="end" font-weight="normal" fill="#6b6b6b">vers l'est</text>
+<rect x="500" y="360" width="200" height="112" rx="8" fill="#ffffff" stroke="#d6d0c0" stroke-width="1.5"/>
+<text x="514" y="382" font-size="13" text-anchor="start" font-weight="bold" fill="#2b2b2b">Légende</text>
+<polyline points="534.0,410.8 526.0,401.2 518.0,410.8" fill="none" stroke="#e8891c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="546" y="411" font-size="13" text-anchor="start" font-weight="normal" fill="#2b2b2b">Sens de circulation</text>
+<polyline points="534.0,436.8 526.0,427.2 518.0,436.8" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="546" y="437" font-size="13" text-anchor="start" font-weight="normal" fill="#2b2b2b">Signal simple</text>
+<polyline points="534.0,466.8 526.0,457.2 518.0,466.8" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="534.0,474.8 526.0,465.2 518.0,474.8" fill="none" stroke="#d1362a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="546" y="463" font-size="13" text-anchor="start" font-weight="normal" fill="#2b2b2b">Signal chaîné</text>
+</g>
+</svg>

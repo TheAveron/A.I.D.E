@@ -18,6 +18,11 @@ export default function DocumentationPage() {
                         Présentation du serveur
                     </Link>
                 </li>
+                <li>
+                    <Link to="/documentation/AgeOfSteam/normes_ferroviaires">
+                        Normes ferroviaires
+                    </Link>
+                </li>
             </ul>
 
             <h2>Documents des factions</h2>

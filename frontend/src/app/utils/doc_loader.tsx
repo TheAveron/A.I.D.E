@@ -1,6 +1,9 @@
 import { Suspense, useEffect, useState, type MouseEvent } from "react";
 
-import ReactMarkdown, { type Components } from "react-markdown";
+import ReactMarkdown, {
+    defaultUrlTransform,
+    type Components,
+} from "react-markdown";
 import { GoBackButton } from "../components/common/return";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
@@ -28,6 +31,14 @@ function slugPreserveAccents(value: string) {
         .toLowerCase()
         .replace(/[^\w\s\-àâäéèêëîïôöùûüç]/g, "") // allow accented chars
         .replace(/\s+/g, "-");
+}
+
+/**
+ * react-markdown empties the URLs of unknown protocols, "doc://" included:
+ * keep those, the `a` component below turns them into in-app routes.
+ */
+function keepDocLinks(url: string) {
+    return url.startsWith("doc://") ? url : defaultUrlTransform(url);
 }
 
 function DocuLoader({ url, linkBase, withTitle = false }: DocParams) {
@@ -144,6 +155,7 @@ function DocuLoader({ url, linkBase, withTitle = false }: DocParams) {
                             [rehypeSlug, { slug: slugPreserveAccents }],
                         ]}
                         components={components}
+                        urlTransform={keepDocLinks}
                     >
                         {content || "# Loading..."}
                     </ReactMarkdown>
