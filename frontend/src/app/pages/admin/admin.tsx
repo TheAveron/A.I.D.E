@@ -265,7 +265,7 @@ function AdminTrains({ isTrainAdmin }: { isTrainAdmin: boolean }) {
             <h2>Réseau ferré</h2>
             <p>
                 {isTrainAdmin
-                    ? "En tant qu'admin trains, vous pouvez modifier ou retirer tous les trains, lignes et gares depuis leurs pages, et attribuer le badge « conforme aux normes » aux schematics. Ces actions sont inscrites au journal."
+                    ? "En tant qu'admin trains, vous pouvez modifier ou retirer tous les trains, lignes et gares depuis leurs pages. Ces actions sont inscrites au journal."
                     : "Seul un admin trains peut modifier les trains, lignes et gares des autres. Donnez ce rôle depuis l'onglet Comptes."}
             </p>
             <div className="toolbar">
@@ -277,9 +277,6 @@ function AdminTrains({ isTrainAdmin }: { isTrainAdmin: boolean }) {
                 </Link>
                 <Link className="button" to="/stations">
                     Gares
-                </Link>
-                <Link className="button" to="/schematiques">
-                    Schematics
                 </Link>
             </div>
         </div>

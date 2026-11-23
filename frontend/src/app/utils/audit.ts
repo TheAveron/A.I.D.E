@@ -25,6 +25,9 @@ export const AUDIT_LABELS: Record<string, string> = {
     currency_faction_added: "Faction ajoutée à une monnaie",
     currency_faction_removed: "Faction retirée d'une monnaie",
     currency_issuer_changed: "Émetteur de monnaie changé",
+    schematic_compliance: "Conformité aux normes d'un schematic",
+    schematic_changed: "Schematic modifié",
+    schematic_deleted: "Schematic supprimé",
 };
 
 export const GLOBAL_ROLE_LABELS: Record<string, string> = {
@@ -47,6 +50,7 @@ export const TARGET_LABELS: Record<string, string> = {
     offer: "Offre",
     transaction: "Transaction",
     currency: "Monnaie",
+    schematic: "Schematic",
 };
 
 /**
@@ -77,6 +81,8 @@ export function targetLink(type: string, id: number | null): string | null {
             return `/station/${id}`;
         case "offer":
             return `/offers`;
+        case "schematic":
+            return `/schematique/${id}`;
         case "territory":
         case "marker":
             return `/actual`;

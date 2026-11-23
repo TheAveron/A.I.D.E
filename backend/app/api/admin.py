@@ -10,7 +10,7 @@ from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from pydantic import BaseModel
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from ..core import hash_password, require_global_role
@@ -48,16 +48,21 @@ def read_audit(
     db: Session = Depends(get_db),
     staff: User = Depends(_staff),
 ):
-    """The staff trail, newest first. A train admin only sees train matters,
-    a money admin currency matters (both, for somebody holding both roles)."""
+    """The staff trail, newest first. A train admin only sees train matters
+    (and the schematics' standards reviews), a money admin currency matters
+    (both, for somebody holding both roles)."""
     query = db.query(AuditLog)
     if not staff.has_global_role(ADMIN):
         targets: list[str] = []
+        actions: list[str] = []
         if staff.has_global_role(TRAIN_ADMIN):
             targets += audit.TRAIN_TARGETS
+            actions += audit.TRAIN_ACTIONS
         if staff.has_global_role(MONEY_ADMIN):
             targets += audit.MONEY_TARGETS
-        query = query.filter(AuditLog.target_type.in_(targets))
+        query = query.filter(
+            or_(AuditLog.target_type.in_(targets), AuditLog.action.in_(actions))
+        )
     if action:
         query = query.filter(AuditLog.action == action)
     if target_type:

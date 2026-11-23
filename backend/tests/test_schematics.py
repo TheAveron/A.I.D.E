@@ -6,7 +6,7 @@ import struct
 import pytest
 from test_hardening import PW_HASH, env  # noqa: F401  (pytest fixture)
 
-from app.api import global_roles, schematics
+from app.api import admin, global_roles, schematics
 from app.core import nbt
 from app.crud import schematic as crud
 from app.database import AuditLog, User
@@ -143,7 +143,7 @@ def senv(env, tmp_path, monkeypatch):  # noqa: F811
     """env + the schematics routes, files in a temporary folder, an admin
     ("root") and a train admin ("rails")."""
     monkeypatch.setattr(crud, "STORAGE_DIR", tmp_path / "files")
-    for module in (global_roles, schematics):
+    for module in (global_roles, schematics, admin):
         env.client.app.include_router(module.router)
     s = env.Session()
     s.add_all(
@@ -368,3 +368,20 @@ def test_stored_names_cannot_point_elsewhere():
     for name in ("../etc/passwd", "a.nbt", "0" * 32 + ".exe", "/" + "0" * 32 + ".nbt"):
         with pytest.raises(ValueError):
             crud.stored_path(name)
+
+
+def test_train_admins_only_see_the_reviews_of_schematics(senv):
+    """Schematics are not part of the network: of their audit entries, a
+    train admin only sees the standards reviews."""
+    sid = senv.upload().json()["schematic_id"]
+    url = f"/schematics/{sid}/versions/1/compliance"
+    assert senv.client.put(url, json={"compliant": True}, headers=senv.h("rails")).status_code == 200
+    assert senv.client.delete(f"/schematics/{sid}", headers=senv.h("root")).status_code == 204
+
+    def actions(who):
+        r = senv.client.get("/admin/audit", headers=senv.h(who))
+        assert r.status_code == 200, r.text
+        return {e["action"] for e in r.json() if e["target_type"] == "schematic"}
+
+    assert actions("rails") == {"schematic_compliance"}
+    assert actions("root") == {"schematic_compliance", "schematic_deleted"}
