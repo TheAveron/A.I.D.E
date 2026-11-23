@@ -5,6 +5,7 @@ import ReactMarkdown, {
     type Components,
 } from "react-markdown";
 import { GoBackButton } from "../components/common/return";
+import MarkdownTable from "../components/common/markdown_table";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 
@@ -73,6 +74,7 @@ function DocuLoader({ url, linkBase, withTitle = false }: DocParams) {
     }, [url, withTitle, retryKey]);
 
     const components: Components = {
+        table: MarkdownTable,
         a: ({ href, children }) => {
             if (!href) return <span>{children}</span>;
 

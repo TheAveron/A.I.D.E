@@ -152,12 +152,10 @@
 <polyline points="253.0,643.8 247.5,637.3 242.0,643.8" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
 <polyline points="216.0,626.6 221.5,633.2 227.0,626.6" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
 <polyline points="216.0,621.2 221.5,627.7 227.0,621.2" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="294.0,330.2 299.5,336.8 305.0,330.2" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
 <polyline points="331.0,339.4 325.5,332.8 320.0,339.4" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
 <polyline points="331.0,344.8 325.5,338.3 320.0,344.8" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-<polyline points="294.0,327.6 299.5,334.2 305.0,327.6" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-<polyline points="294.0,322.2 299.5,328.7 305.0,322.2" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-<polyline points="331.0,638.4 325.5,631.8 320.0,638.4" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-<polyline points="331.0,643.8 325.5,637.3 320.0,643.8" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="331.0,635.8 325.5,629.2 320.0,635.8" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
 <polyline points="294.0,626.6 299.5,633.2 305.0,626.6" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
 <polyline points="294.0,621.2 299.5,627.7 305.0,621.2" fill="none" stroke="#d1362a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
 <text x="139.6" y="223.0" font-size="12" text-anchor="end" font-weight="normal" fill="#d1362a">double</text>
@@ -169,6 +167,7 @@
 <text x="378.8" y="475.2" font-size="14" text-anchor="start" font-weight="bold" fill="#2b2b2b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" stroke-linejoin="round">Quai</text>
 <text x="378.8" y="493.4" font-size="12" text-anchor="start" font-weight="normal" fill="#6b6b6b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" stroke-linejoin="round">longueur</text>
 <text x="378.8" y="509.0" font-size="12" text-anchor="start" font-weight="normal" fill="#6b6b6b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" stroke-linejoin="round">à définir</text>
+<text x="212.4" y="483.0" font-size="12" font-weight="bold" text-anchor="middle" fill="#2b2b2b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" transform="rotate(-90 212.4 483.0)">voie de passage</text>
 <line x1="404.8" y1="132" x2="404.8" y2="314" stroke="#6b6b6b" stroke-width="1.4" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/>
 <text x="397.8" y="223.0" font-size="12" text-anchor="middle" fill="#6b6b6b" paint-order="stroke" stroke="#fdfcf8" stroke-width="4" transform="rotate(-90 397.8 223.0)">14 blocs</text>
 <line x1="234.5" y1="116.4" x2="312.5" y2="116.4" stroke="#6b6b6b" stroke-width="1.4" marker-start="url(#dimarrow)" marker-end="url(#dimarrow)"/>

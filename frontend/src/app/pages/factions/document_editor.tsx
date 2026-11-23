@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import MarkdownTable from "../../components/common/markdown_table";
 import { getErrorMessage } from "../../utils/apierror";
 import { useMe } from "../../hooks/users/me";
 import { useRole } from "../../hooks/factions/role";
@@ -185,7 +186,10 @@ export default function DocumentEditorPage() {
             <div className="snippet-container">
                 <h2>Aperçu</h2>
                 <section className="text-section">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{ table: MarkdownTable }}
+                    >
                         {`# ${title}\n\n${content}`}
                     </ReactMarkdown>
                 </section>

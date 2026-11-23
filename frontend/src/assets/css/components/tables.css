@@ -111,9 +111,9 @@ td [role="alert"] {
     white-space: nowrap;
 }
 
-/* Markdown tables in the documentation */
-.text-section table {
-    display: block;
+/* Markdown tables in the documentation: the wrapper scrolls on a narrow
+   screen, the table itself fills the reading column. */
+.text-section .markdown-table {
     max-width: 100%;
     overflow-x: auto;
     border: 1px solid var(--border);

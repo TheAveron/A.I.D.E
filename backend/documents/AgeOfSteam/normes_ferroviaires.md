@@ -26,8 +26,16 @@ Les vues de dessus sont tracées sur une grille où **une case vaut un bloc**. L
 | Deux chevrons **orange** opposés | Voie à double sens (section banalisée) |
 | Chevron **rouge** simple | Signal simple, placé dans le sens qu'il protège |
 | Double chevron **rouge** | Signal chaîné, placé dans le sens qu'il protège |
+| Trait noir sur traverses | Voie, tracée au centre des blocs |
 | Cadre rouge en pointillés | Zone d'aiguillages ou de croisements |
-| Bandes bleues, jaune et hachurées | Couloirs de voie, passage piéton et buffers du [gabarit](#gabarit-dune-ligne) |
+| Fond orangé | Section banalisée (voies à double sens) |
+| Bande bleue | Couloir de voie (3 blocs) |
+| Bande jaune | Passage piéton (1 bloc) |
+| Bande hachurée beige | Buffer (1 bloc) |
+| Rectangle hachuré gris | Quai |
+| Pointillé gris terminé par une flèche | Rayon d'un virage, depuis son centre |
+| Flèche grise à deux pointes | Cote, en blocs |
+| Case de la grille | 1 bloc ; un trait plus foncé tous les 5 blocs |
 
 Un signal se pose toujours **à droite de la voie** dans le sens de la marche, comme le voit le conducteur.
 
@@ -91,14 +99,18 @@ Les signaux découpent le réseau en **sections** (ou cantons). Un train n'entre
 - le **signal simple** laisse passer le train si la section qui le suit immédiatement est libre ;
 - le **signal chaîné** ne laisse passer le train que s'il peut aussi **ressortir** de la section suivante, c'est-à-dire si la section d'après est libre elle aussi. Un train ne s'arrête ainsi jamais au milieu d'un aiguillage, où il bloquerait les autres voies.
 
+Les signaux chaînés s'enchaînent : un signal chaîné n'est vert que si le signal suivant sur le trajet l'est aussi. Une suite de signaux chaînés oblige donc le train à attendre que **tout le trajet** soit libre, jusqu'au premier signal simple. C'est voulu sur un aiguillage, mais à éviter là où un train peut attendre sans gêner, comme un quai.
+
 Dans Create, un même bloc de signal fait les deux : il est simple par défaut et devient chaîné quand on change son mode à la clé.
 
 Les règles à respecter :
 
 1. **Avant une zone d'aiguillages ou de croisements** : un signal **chaîné**.
 2. **À la sortie** de cette zone : un signal **simple**.
-3. **À chaque extrémité d'une section à double sens** : un signal **chaîné dans chaque sens**, pour qu'un train n'y entre jamais face à un autre.
-4. Le long d'une voie normale, les signaux simples peuvent être espacés librement ; plus ils sont rapprochés, plus les trains peuvent se suivre de près.
+3. **Sur une voie de passage à double sens** : à chaque extrémité, un signal **chaîné dans chaque sens**. Un train n'y entre que s'il peut la traverser en entier.
+4. **Sur une voie à quai** : un signal **simple** pour y entrer (le train peut attendre à quai) et un signal **chaîné** pour en sortir vers un aiguillage.
+5. Une section à double sens ne contient **aucun signal intermédiaire** : elle forme une seule section, que deux trains ne peuvent pas occuper en même temps, et aucun train ne peut donc y arriver face à un autre.
+6. Le long d'une voie normale, les signaux simples peuvent être espacés librement ; plus ils sont rapprochés, plus les trains peuvent se suivre de près.
 
 ## Intersection en T
 
@@ -115,20 +127,36 @@ Toute la zone d'aiguillages ne forme ainsi qu'une seule section : un train n'y e
 
 ## Gare : quai le long de la ligne
 
-![Gare le long de la ligne : deux doubles communications encadrent une section où les deux voies sont à double sens, avec le quai sur la voie de droite](/images/docs/ferroviaire/gare_quai_lateral.svg)
+![Gare le long de la ligne : deux doubles communications encadrent une section où les deux voies sont à double sens, avec un quai sur la voie de droite et la voie de gauche comme voie de passage](/images/docs/ferroviaire/gare_quai_lateral.svg)
 
 C'est le modèle de gare de passage, construit directement sur la ligne sans l'élargir.
 
-- Le **quai** est placé le long de la voie de droite.
 - La gare est encadrée par deux **doubles communications** : deux courbes en S croisées qui permettent de passer d'une voie à l'autre dans les deux sens. Chacune mesure **14 blocs de long** (voir [Courbes](#courbes)).
+- Entre ces deux doubles communications, les voies forment une **section banalisée** : elles peuvent être parcourues dans les deux sens. Un train peut ainsi rejoindre un quai quelle que soit sa voie d'origine, ou repartir dans l'autre sens.
 - La **longueur du quai**, et donc celle de la section banalisée, reste à définir.
-- Entre ces deux doubles communications, les deux voies forment une **section banalisée** : elles peuvent être parcourues dans les deux sens. Un train peut ainsi rejoindre le quai quelle que soit sa voie d'origine, ou repartir dans l'autre sens.
 
-Signalisation :
+### Disposition des quais
 
-- à l'**entrée** de chaque double communication : un **signal chaîné** ;
-- à la **sortie** de la gare, sur la ligne : un **signal simple** ;
-- à **chaque extrémité de la section banalisée**, sur chaque voie : un **signal chaîné dans chaque sens**. Ce sont eux qui empêchent deux trains de s'engager face à face sur la même voie.
+Le schéma montre un seul quai, le long de la voie de droite. Ce n'est qu'un exemple : on peut placer le quai à gauche, mettre un quai de chaque côté, construire un quai central entre deux voies, ajouter des voies à quai…
+
+Une seule règle est obligatoire : la gare doit toujours garder une **voie de passage**, sans quai, où un train qui ne s'arrête pas peut traverser la gare. Quand il y a des quais des deux côtés, c'est la voie du milieu. Elle est équipée, **à chacune de ses extrémités, d'une paire de signaux chaînés** (un par sens). Les voies à quai, elles, suivent la règle des quais : signal simple pour y entrer, chaîné pour en sortir (voir ci-dessous).
+
+### Signalisation
+
+- À l'**entrée** de chaque double communication : un **signal chaîné**.
+- À la **sortie** de la gare, sur la ligne : un **signal simple**.
+- À chaque extrémité de la section banalisée, chaque voie a une paire de signaux, un par sens. Leur type dépend de la voie :
+
+| Voie | Signal pour y entrer | Signal pour en sortir vers la double communication |
+| --- | --- | --- |
+| Voie à quai | **simple** | **chaîné** |
+| Voie de passage | **chaîné** | **chaîné** |
+
+- Aucun signal entre les deux extrémités : chaque voie de la section banalisée forme une seule section. Deux trains ne peuvent pas l'occuper en même temps, donc aucun ne peut s'y engager face à un autre.
+
+Sur une voie à quai, le signal chaîné d'entrée de la double communication est suivi d'un signal simple : il n'exige donc que la **voie à quai libre**, pas la sortie de la gare. Le train entre et peut être obligé d'**attendre à quai** que la voie devant lui se libère. Ce n'est pas un problème, puisqu'il attend en gare et non au milieu d'un aiguillage. Son signal de sortie, chaîné, ne le laisse repartir que s'il peut traverser la double communication suivante sans s'y arrêter.
+
+Sur la voie de passage, au contraire, tous les signaux sont chaînés : un train qui ne s'arrête pas n'y entre que s'il peut traverser toute la gare, et il n'immobilise jamais la seule voie de passage.
 
 ## Mode terminus : la raquette
 
