@@ -303,7 +303,14 @@ class TestDocumentCreation:
         r = env.client.post("/documents/create", json=second, headers=h)
         assert r.status_code == 409
 
-        path = tmp_path / "documents" / "AgeOfSteam" / "factions" / "alpha" / "reglement.md"
+        path = (
+            tmp_path
+            / "documents"
+            / "AgeOfSteam"
+            / "factions"
+            / "alpha"
+            / "reglement.md"
+        )
         assert "original" in path.read_text(encoding="utf-8")
         assert "replacement" not in path.read_text(encoding="utf-8")
 

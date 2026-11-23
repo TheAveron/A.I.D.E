@@ -153,9 +153,7 @@ def _store(data: bytes, ext: str) -> str:
     except OSError:
         tmp.unlink(missing_ok=True)
         logger.exception("Could not store a schematic file")
-        raise _error(
-            status.HTTP_500_INTERNAL_SERVER_ERROR, "Could not store the file"
-        )
+        raise _error(status.HTTP_500_INTERNAL_SERVER_ERROR, "Could not store the file")
     return name
 
 
@@ -215,11 +213,13 @@ def list_schematics(
 ) -> list[Schematic]:
     query = db.query(Schematic)
     for tag in tags:  # every tag asked for
-        query = query.filter(
-            Schematic.tags.any(SchematicTag.tag == tag)
-        )
+        query = query.filter(Schematic.tags.any(SchematicTag.tag == tag))
     if search:
-        pattern = "%" + search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+        pattern = (
+            "%"
+            + search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+            + "%"
+        )
         query = query.filter(Schematic.title.ilike(pattern, escape="\\"))
     if author_user_id is not None:
         query = query.filter(Schematic.author_user_id == author_user_id)
@@ -345,7 +345,14 @@ def add_version(
     number = max((v.number for v in schematic.versions), default=0) + 1
     written: list[str] = []
     version = _new_version(
-        schematic, user, number, data, filename, info, _valid(clean_comment, comment), written
+        schematic,
+        user,
+        number,
+        data,
+        filename,
+        info,
+        _valid(clean_comment, comment),
+        written,
     )
     db.add(version)
     schematic.updated_at = utcnow()

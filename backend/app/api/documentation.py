@@ -87,6 +87,7 @@ def _faction_root() -> Path:
     tests point DOCS_DIR elsewhere)."""
     return DOCS_DIR.resolve().joinpath(*FACTION_DOCS)
 
+
 logger = logging.getLogger("aide")
 
 router = APIRouter(prefix="/documents", tags=["Documentation"])

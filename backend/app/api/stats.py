@@ -6,7 +6,8 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..crud.faction import NO_FACTION_NAME
-from ..database import Faction, GlobalRole, GlobalRoleName, MapMarker, User, get_db
+from ..database import (Faction, GlobalRole, GlobalRoleName, MapMarker, User,
+                        get_db)
 from ..misc import MarkerKind
 
 router = APIRouter(prefix="/stats", tags=["Stats"])

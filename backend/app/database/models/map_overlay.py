@@ -26,9 +26,7 @@ class MapTerritory(Base):
         ),
         # NULLs never collide: each constraint only binds its own kind of owner
         UniqueConstraint("map_name", "faction_id", "name", name="uq_territory_name"),
-        UniqueConstraint(
-            "map_name", "user_id", "name", name="uq_territory_user_name"
-        ),
+        UniqueConstraint("map_name", "user_id", "name", name="uq_territory_user_name"),
     )
 
     territory_id: Mapped[int] = mapped_column(Integer, primary_key=True)

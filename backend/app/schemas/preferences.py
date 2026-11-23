@@ -14,7 +14,9 @@ class MapDisplay(BaseModel):
 
     hidden_layers: list[MapLayer] = Field(default_factory=list, max_length=10)
     # MarkerKind values; an unknown one (a kind since removed) is harmless
-    hidden_kinds: list[Annotated[str, Field(max_length=30)]] = Field(default_factory=list, max_length=50)
+    hidden_kinds: list[Annotated[str, Field(max_length=30)]] = Field(
+        default_factory=list, max_length=50
+    )
     # Faction ids; None stands for the players' own territories
     hidden_factions: list[Optional[int]] = Field(default_factory=list, max_length=500)
 

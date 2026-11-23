@@ -176,8 +176,12 @@ def test_a_failed_deletion_puts_the_documents_back(
         assert _delete(env).status_code == 500
 
     # The folder came back and the faction is untouched
-    assert (tmp_path / "documents" / "AgeOfSteam" / "factions" / "alpha" / "regles.md").is_file()
-    assert not (tmp_path / "documents" / "AgeOfSteam" / "factions" / "_archive" / "alpha-1").exists()
+    assert (
+        tmp_path / "documents" / "AgeOfSteam" / "factions" / "alpha" / "regles.md"
+    ).is_file()
+    assert not (
+        tmp_path / "documents" / "AgeOfSteam" / "factions" / "_archive" / "alpha-1"
+    ).exists()
     s = env.Session()
     assert s.get(Faction, 1).deleted_at is None
     assert s.get(User, 1).faction.name == "Alpha"

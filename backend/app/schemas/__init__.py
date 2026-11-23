@@ -22,6 +22,8 @@ from .offer import (OfferAccept, OfferAcceptOut, OfferBase, OfferCreate,
                     OfferOut, OfferStatus, OfferType, OfferUpdate)
 from .offer_history import OfferHistoryCreate, OfferHistoryOut
 from .preferences import PreferencesOut, PreferencesUpdate
+from .schematic import (ComplianceUpdate, SchematicOut, SchematicSummary,
+                        SchematicUpdate, TagCount, VersionOut)
 from .station import (PlatformCreate, PlatformOut, PlatformUpdate,
                       StationCreate, StationOut, StationUpdate)
 from .train import (LineCreate, LineOut, LineUpdate, StopsUpdate, TrainCreate,
@@ -29,5 +31,3 @@ from .train import (LineCreate, LineOut, LineUpdate, StopsUpdate, TrainCreate,
 from .transaction import TransactionCreate, TransactionOut
 from .user import (PasswordChange, UserCreate, UserFull, UserLogin, UserOut,
                    UserPublic, UserUpdate)
-from .schematic import (ComplianceUpdate, SchematicOut, SchematicSummary,
-                        SchematicUpdate, TagCount, VersionOut)

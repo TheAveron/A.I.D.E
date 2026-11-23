@@ -1,0 +1,32 @@
+{
+    "permissions": {
+        "deny": [
+            "Edit(/backend/documents/maps/**/*.jpeg)",
+            "Edit(/backend/documents/maps/**/*.png)"
+        ]
+    },
+    "hooks": {
+        "PreToolUse": [
+            {
+                "matcher": "Edit|MultiEdit|Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "python3 -I \"$CLAUDE_PROJECT_DIR/.claude/hooks/codeql_assert.py\""
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "Edit|MultiEdit|Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/format_python.sh\""
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -149,9 +149,10 @@ def test_the_map_display_is_saved_and_given_back(penv):
     penv.client.put("/preferences", json={"theme": "light"}, headers=h)
     assert penv.client.get("/preferences", headers=h).json()["map_display"] == shown
     # Each account has its own
-    assert penv.client.get("/preferences", headers=penv.h("newbie")).json()[
-        "map_display"
-    ] is None
+    assert (
+        penv.client.get("/preferences", headers=penv.h("newbie")).json()["map_display"]
+        is None
+    )
 
 
 @pytest.mark.parametrize(

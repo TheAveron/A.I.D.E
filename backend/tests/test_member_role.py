@@ -20,9 +20,7 @@ def test_the_member_role_cant_be_renamed_or_deleted(env):  # noqa: F811
     r = env.client.delete("/roles/delete/50", headers=h)
     assert r.status_code == 403
     # Its permissions may still change
-    r = env.client.put(
-        "/roles/update/50", json={"view_transactions": False}, headers=h
-    )
+    r = env.client.put("/roles/update/50", json={"view_transactions": False}, headers=h)
     assert r.status_code == 200, r.text
 
 
