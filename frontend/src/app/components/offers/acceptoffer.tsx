@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAcceptOffer } from "../../hooks/offers/acceptoffer";
 import { useMe } from "../../hooks/users/me";
 import { useRole } from "../../hooks/factions/role";
@@ -28,7 +28,7 @@ export function AcceptOfferButton({
 
     const [isOpen, setIsOpen] = useState(false);
     const [quantity, setQuantity] = useState<number>(offerQuantity);
-    const [buyFor, setBuyFor] = useState<"self" | "faction">("self");
+    const [chosenBuyFor, setBuyFor] = useState<"self" | "faction">("self");
 
     const quantityValid =
         Number.isInteger(quantity) &&
@@ -44,20 +44,22 @@ export function AcceptOfferButton({
     // Only show the "Acheter pour" section if there is a *choice* (both available)
     const hasChoice = !cantBuySelf && !cantBuyFaction;
 
-    // Reset defaults whenever modal opens or rules change
-    useEffect(() => {
-        if (!isOpen) return;
-        setQuantity(offerQuantity);
+    // The choice only counts when both are allowed; otherwise the allowed one
+    // is used (if both are forbidden, "self" stays and submit is blocked).
+    // Derived rather than reset in an effect, so it also follows the rules
+    // when the user or their role finishes loading after the modal opened.
+    const buyFor: "self" | "faction" = hasChoice
+        ? chosenBuyFor
+        : cantBuySelf && !cantBuyFaction
+          ? "faction"
+          : "self";
 
-        if (!cantBuySelf) {
-            setBuyFor("self");
-        } else if (!cantBuyFaction) {
-            setBuyFor("faction");
-        } else {
-            // both forbidden \u2014 keep 'self' (submit will be blocked), or you could close modal
-            setBuyFor("self");
-        }
-    }, [isOpen, offerQuantity, cantBuySelf, cantBuyFaction]);
+    // Each opening starts from the defaults
+    const openModal = () => {
+        setQuantity(offerQuantity);
+        setBuyFor("self");
+        setIsOpen(true);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -87,7 +89,7 @@ export function AcceptOfferButton({
             <button
                 type="button"
                 className="button"
-                onClick={() => setIsOpen(true)}
+                onClick={openModal}
             >
                 Accepter
             </button>

@@ -13,35 +13,42 @@ export interface FactionDocumentsType {
  * since useApiGet asks for nothing while nobody is logged in.
  */
 export function useAllFactionDocuments() {
-    const [factions, setFactions] = useState<FactionDocumentsType[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
     const [retryKey, setRetryKey] = useState(0);
+    // The answer remembers which attempt it belongs to: while it is not the
+    // current one, the list is loading (no state reset at the start of the
+    // effect). The last list stays shown during a retry and after a failure.
+    const [result, setResult] = useState<{
+        key: number;
+        factions: FactionDocumentsType[];
+        error: string;
+    } | null>(null);
+    const loading = result?.key !== retryKey;
 
     useEffect(() => {
         const controller = new AbortController();
-        setLoading(true);
-        setError("");
         fetch("/documents/factions", { signal: controller.signal })
             .then(async (response) => {
                 if (!response.ok) throw new Error(String(response.status));
-                setFactions(await response.json());
-                setLoading(false);
+                const factions: FactionDocumentsType[] = await response.json();
+                setResult({ key: retryKey, factions, error: "" });
             })
             .catch((err) => {
                 if (err instanceof DOMException && err.name === "AbortError") {
                     return;
                 }
-                setError("Impossible de charger les documents des factions.");
-                setLoading(false);
+                setResult((previous) => ({
+                    key: retryKey,
+                    factions: previous?.factions ?? [],
+                    error: "Impossible de charger les documents des factions.",
+                }));
             });
         return () => controller.abort();
     }, [retryKey]);
 
     return {
-        factions,
+        factions: result?.factions ?? [],
         loading,
-        error,
+        error: !loading && result ? result.error : "",
         retry: () => setRetryKey((key) => key + 1),
     };
 }

@@ -199,9 +199,10 @@ function MapCanvas({
     // What was shown last time: put back once known, then saved on each
     // change, silently (hooks/network/mapdisplay.tsx)
     const saved = useSavedMapDisplay();
+    // Put back during render, once, as soon as it is known: an effect would
+    // first draw the defaults for one frame.
     const [restored, setRestored] = useState(false);
-    useEffect(() => {
-        if (!saved.ready || restored) return;
+    if (saved.ready && !restored) {
         const d = saved.initial;
         if (d) {
             setVisible({
@@ -214,7 +215,7 @@ function MapCanvas({
             setHiddenKindList(d.hidden_kinds as MarkerKind[]);
         }
         setRestored(true);
-    }, [saved.ready, saved.initial, restored]);
+    }
     const { save } = saved;
     useEffect(() => {
         // Not before it was put back: the defaults would replace it

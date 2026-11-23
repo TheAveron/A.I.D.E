@@ -44,30 +44,45 @@ function keepDocLinks(url: string) {
 
 function DocuLoader({ url, linkBase, withTitle = false }: DocParams) {
     const { pathname } = useLocation();
-    const [content, setContent] = useState<string>("");
-    const [error, setError] = useState<string>("");
     const [retryKey, setRetryKey] = useState(0);
+    // The answer remembers the request it belongs to: for another document
+    // (or a retry) nothing is shown until its own answer arrives, with no
+    // state reset at the start of the effect.
+    const request = `${retryKey}|${withTitle}|${url}`;
+    const [result, setResult] = useState<{
+        request: string;
+        content: string;
+        error: string;
+    } | null>(null);
+    const current = result?.request === request ? result : null;
+    const content = current?.content ?? "";
+    const error = current?.error ?? "";
 
     useEffect(() => {
         const controller = new AbortController();
-        setContent("");
-        setError("");
+        const request = `${retryKey}|${withTitle}|${url}`;
         fetch(url, { signal: controller.signal })
             .then(async (response) => {
                 if (!response.ok) throw new Error("Failed to load markdown");
                 const doc = await response.json();
-                setContent(
-                    withTitle
+                setResult({
+                    request,
+                    content: withTitle
                         ? `# ${doc.title}\n\n${doc.content}`
                         : doc.content,
-                );
+                    error: "",
+                });
             })
             .catch((err) => {
                 if (err instanceof DOMException && err.name === "AbortError") {
                     return;
                 }
                 console.error(err);
-                setError("Impossible de charger le document.");
+                setResult({
+                    request,
+                    content: "",
+                    error: "Impossible de charger le document.",
+                });
             });
 
         return () => controller.abort();

@@ -29,7 +29,9 @@ export async function resolveAudience(
             userIds.push(res.data.user_id);
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 404) {
-                throw new Error(`Utilisateur inconnu : ${name}`);
+                throw new Error(`Utilisateur inconnu : ${name}`, {
+                    cause: error,
+                });
             }
             throw error;
         }

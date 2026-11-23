@@ -114,7 +114,11 @@ export function useOffersList(filters: OffersFilters): OffersHook {
         "Impossible de charger les offres",
     );
 
-    return { offers: data ?? [], loading, error, refresh };
+    // The same array while the data is unchanged: `data ?? []` alone gives a
+    // new one on every render, which callers comparing it see as a change.
+    const offers = useMemo(() => data ?? [], [data]);
+
+    return { offers, loading, error, refresh };
 }
 
 export function useNewOffer(onCreated?: () => void): OfferFormHook {
