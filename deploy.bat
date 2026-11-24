@@ -176,5 +176,4 @@ ren frontend\build.new build || exit /b 1
 
 echo.
 echo Deploiement de !TAG! termine. Sauvegarde de la base : !BACKUP!
-echo Relance maintenant le backend : arrete l'ancien processus ^(Ctrl+C^), puis depuis backend\ :
-echo   .venv\Scripts\activate ^&^& fastapi run main.py
+echo Relance maintenant le site : start.bat, depuis la racine du depot.

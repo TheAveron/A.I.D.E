@@ -121,8 +121,8 @@ mv frontend/build.new frontend/build
 echo
 echo "Déploiement de $TAG terminé. Sauvegarde de la base : $BACKUP"
 echo "Relance maintenant le backend : arrête l'ancien processus (Ctrl+C), puis depuis backend/ :"
-echo "  Linux : source .venv/bin/activate && fastapi run main.py"
-echo "  Windows : .venv\\Scripts\\activate && fastapi run main.py"
+echo "  Linux : source .venv/bin/activate && fastapi run main.py --host 127.0.0.1"
+echo "  Windows : .venv\\Scripts\\activate && fastapi run main.py --host 127.0.0.1"
 }
 
 main "$@"
