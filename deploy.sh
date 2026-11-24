@@ -104,6 +104,12 @@ fi
 [ -f backend/alembic.ini ] || cp "$TMP/alembic.ini" backend/alembic.ini
 cd backend
 pip install -r requirements.txt || fail "Échec de pip install. Sauvegarde de la base : $BACKUP"
+# fastapi and older fastapi-cli releases both install the `fastapi` script:
+# upgrading fastapi-cli removes it. Reinstall fastapi to put it back.
+if [ ! -e "$VIRTUAL_ENV/bin/fastapi" ] && [ ! -e "$VIRTUAL_ENV/Scripts/fastapi.exe" ]; then
+  pip install --force-reinstall --no-deps "$(grep -i '^fastapi==' requirements.txt)" \
+    || fail "Échec de la réinstallation de fastapi. Sauvegarde de la base : $BACKUP"
+fi
 alembic upgrade head || fail "Échec de la migration. Restaure la sauvegarde : $BACKUP"
 cd ..
 

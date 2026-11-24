@@ -67,7 +67,7 @@ A.I.D.E/
 ## Prérequis
 
 - Python 3.11 ou plus récent
-- Node.js 20 ou plus récent et npm
+- Node.js 22.22 ou plus récent et npm (version utilisée pour les releases : `frontend/.nvmrc`, actuellement Node 26 LTS)
 - PostgreSQL
 
 ## Installation
@@ -85,8 +85,10 @@ cd A.I.D.E
 cd backend
 python -m venv .venv
 source .venv/bin/activate        # Windows : .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
+
+`requirements-dev.txt` inclut `requirements.txt` et ajoute les outils de développement (pytest, httpx, black, isort). En production, `deploy.sh` n'installe que `requirements.txt`.
 
 Créez le dossier `backend/app/config/` (il n'est pas versionné) avec deux fichiers.
 

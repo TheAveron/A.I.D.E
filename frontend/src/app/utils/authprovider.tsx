@@ -20,6 +20,19 @@ interface DecodedToken {
     [key: string]: unknown;
 }
 
+/** The token's expiry (seconds since the epoch), or null if it has none. */
+function tokenExpiry(token: string | null): number | null {
+    if (!token) return null;
+    try {
+        const { exp } = jwtDecode<DecodedToken>(token);
+        if (Number.isFinite(exp) && exp > 0) return exp;
+        console.warn("Token does not contain an expiration claim");
+    } catch (error) {
+        console.error("Invalid token", error);
+    }
+    return null;
+}
+
 const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(() => {
         if (typeof window === "undefined") return null;
@@ -57,36 +70,29 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         handleLogout(false);
     }, [handleLogout]);
 
+    // An unreadable token, or one without an expiry, counts as no token:
+    // derived here rather than reset to null from the effect below.
+    const expiry = useMemo(() => tokenExpiry(token), [token]);
+    const validToken = expiry === null ? null : token;
+
     useEffect(() => {
         let logoutTimer: number;
 
-        if (token) {
-            try {
-                const decoded = jwtDecode<DecodedToken>(token);
+        if (validToken && expiry !== null) {
+            const expiryTime = expiry * 1000; // convert seconds → ms
+            const timeUntilExpiry = expiryTime - Date.now() - 5000; // 5s safety margin
 
-                if (!Number.isFinite(decoded.exp) || decoded.exp <= 0) {
-                    console.warn("Token does not contain an expiration claim");
-                    setToken(null);
-                    return;
-                }
+            // Already expired: logged out right away, through the same timer
+            // (a callback, not a state change in the effect's body).
+            logoutTimer = setTimeout(
+                () => handleLogout(true),
+                Math.max(0, timeUntilExpiry),
+            );
 
-                const expiryTime = decoded.exp * 1000; // convert seconds → ms
-                const timeUntilExpiry = expiryTime - Date.now() - 5000; // 5s safety margin
-
-                if (timeUntilExpiry <= 0) {
-                    handleLogout(true);
-                } else {
-                    logoutTimer = setTimeout(() => {
-                        handleLogout(true);
-                    }, timeUntilExpiry);
-
-                    axios.defaults.headers.common["Authorization"] =
-                        `Bearer ${token}`;
-                    sessionStorage.setItem("token", token);
-                }
-            } catch (error) {
-                console.error("Invalid token", error);
-                setToken(null);
+            if (timeUntilExpiry > 0) {
+                axios.defaults.headers.common["Authorization"] =
+                    `Bearer ${validToken}`;
+                sessionStorage.setItem("token", validToken);
             }
         } else {
             delete axios.defaults.headers.common["Authorization"];
@@ -96,12 +102,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => {
             if (logoutTimer) clearTimeout(logoutTimer);
         };
-    }, [token, handleLogout]);
+    }, [validToken, expiry, handleLogout]);
 
-    const currentToken = useRef(token);
+    const currentToken = useRef(validToken);
     useEffect(() => {
-        currentToken.current = token;
-    }, [token]);
+        currentToken.current = validToken;
+    }, [validToken]);
 
     useEffect(() => {
         const id = axios.interceptors.response.use(
@@ -123,8 +129,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, [handleLogout]);
 
     const contextValue = useMemo(
-        () => ({ token, setToken, logout }),
-        [token, logout],
+        () => ({ token: validToken, setToken, logout }),
+        [validToken, logout],
     );
 
     return (

@@ -40,10 +40,6 @@ export function UpdateRole({
         ) ?? [];
 
     useEffect(() => {
-        setSelectedRole(currentRoleId ?? "");
-    }, [currentRoleId]);
-
-    useEffect(() => {
         if (!isOpen) return;
 
         const handleKeyDown = (event: KeyboardEvent) => {

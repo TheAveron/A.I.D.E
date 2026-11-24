@@ -1,0 +1,7 @@
+# Development tools: tests (pytest, httpx for FastAPI's TestClient) and the
+# formatters run by the Claude Code hook (black then isort).
+-r requirements.txt
+pytest==9.2.0
+httpx==0.28.1
+black==26.10.1
+isort==9.0.2

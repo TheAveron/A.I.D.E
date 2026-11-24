@@ -165,13 +165,19 @@ export default function OfferList({
         factionId,
     });
 
-    useEffect(() => {
-        setKnownCurrencies((current) => {
-            const currencies = new Set(current);
-            offers?.forEach((offer) => currencies.add(offer.currency_name));
-            return [...currencies].sort((a, b) => a.localeCompare(b));
-        });
-    }, [offers]);
+    // A currency seen in a list of offers stays in the filter choices. Added
+    // during render (React's "adjust state when a prop changes"), not in an
+    // effect, and only when one is missing, so it settles at once.
+    const newCurrencies = (offers ?? [])
+        .map((offer) => offer.currency_name)
+        .filter((name) => !knownCurrencies.includes(name));
+    if (newCurrencies.length > 0) {
+        setKnownCurrencies(
+            [...new Set([...knownCurrencies, ...newCurrencies])].sort((a, b) =>
+                a.localeCompare(b),
+            ),
+        );
+    }
 
     const sortedOffers = useMemo(() => {
         const copy = [...(offers ?? [])];

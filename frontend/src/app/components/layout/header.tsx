@@ -97,8 +97,14 @@ function NavDropdown({
     const menuId = useId();
     const { pathname } = useLocation();
 
-    // Another page: the menu closes (also when it was reached another way)
-    useEffect(() => setOpen(false), [pathname]);
+    // Another page: the menu closes (also when it was reached another way).
+    // Done during render (React's "adjust state when a prop changes"), not in
+    // an effect, so the menu is never drawn open on the new page.
+    const [menuPath, setMenuPath] = useState(pathname);
+    if (pathname !== menuPath) {
+        setMenuPath(pathname);
+        setOpen(false);
+    }
 
     useEffect(() => {
         if (!open) return;
