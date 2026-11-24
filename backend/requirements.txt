@@ -6,7 +6,7 @@ pydantic==2.14.4
 SQLAlchemy==2.1.9
 SQLAlchemy-Utils==0.43.0
 PyJWT==2.15.1
-psycopg2==2.9.13
+psycopg[binary]==3.3.9
 bcrypt==5.0.0
 alembic==1.20.1
 python-multipart==0.0.34

@@ -42,11 +42,11 @@ def build_database_url(params: dict) -> URL:
 
     Built with URL.create so that characters such as "@", ":" or "/" in the
     user name or password are escaped instead of breaking the URL. The driver
-    is named explicitly: since SQLAlchemy 2.1 a bare "postgresql" URL defaults
-    to psycopg 3, while the project installs psycopg2.
+    (psycopg 3) is named explicitly rather than relying on SQLAlchemy's
+    default for a bare "postgresql" URL.
     """
     return URL.create(
-        "postgresql+psycopg2",
+        "postgresql+psycopg",
         username=params["user"],
         password=params["password"],
         host=params["host"],

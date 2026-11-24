@@ -423,7 +423,7 @@ class TestDatabaseUrl:
         }
         url = build_database_url(params)
         rendered = url.render_as_string(hide_password=False)
-        assert rendered.startswith("postgresql+psycopg2://u%40ser:")
+        assert rendered.startswith("postgresql+psycopg://u%40ser:")
         back = make_url(rendered)
         assert (back.username, back.password) == ("u@ser", "p@ss:w/rd#?%")
         assert (back.host, back.port, back.database) == ("db.local", 5433, "aide")

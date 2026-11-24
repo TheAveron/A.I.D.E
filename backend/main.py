@@ -16,7 +16,7 @@ from app.core.errors import register_error_handlers
 from app.core.logger import log_safe, setup_logger
 from app.core.settings import ORIGINS
 
-version = "1.6.0"
+version = "1.6.1"
 
 app = FastAPI(
     title="A.I.D.E API",
