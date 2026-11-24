@@ -145,6 +145,17 @@ if errorlevel 1 (
   echo Echec de pip install. Sauvegarde de la base : !BACKUP!
   exit /b 1
 )
+REM fastapi and older fastapi-cli releases both install the `fastapi` script:
+REM upgrading fastapi-cli removes it. Reinstall fastapi to put it back.
+if not exist "%VIRTUAL_ENV%\Scripts\fastapi.exe" (
+  set "FASTAPI_REQ="
+  for /f "usebackq delims=" %%L in (`findstr /i /b "fastapi==" requirements.txt`) do set "FASTAPI_REQ=%%L"
+  pip install --force-reinstall --no-deps "!FASTAPI_REQ!"
+  if errorlevel 1 (
+    echo Echec de la reinstallation de fastapi. Sauvegarde de la base : !BACKUP!
+    exit /b 1
+  )
+)
 alembic upgrade head
 if errorlevel 1 (
   echo Echec de la migration. Restaure la sauvegarde : !BACKUP!

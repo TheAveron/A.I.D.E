@@ -6,8 +6,8 @@
 
 A.I.D.E est une application web full-stack qui gère l'économie virtuelle d'un serveur Minecraft roleplay : factions, monnaies, marché, transactions, réseau de transport, documentation et cartes du serveur.
 
-- **Backend** : FastAPI + PostgreSQL (SQLAlchemy 2.0, Alembic, authentification JWT)
-- **Frontend** : React 19 + TypeScript, React Router 8 (mode SPA) et Vite
+- **Backend** : FastAPI + PostgreSQL (SQLAlchemy 2.1 avec le pilote psycopg 3, Alembic, authentification JWT)
+- **Frontend** : React 19 + TypeScript 6, React Router 8 (mode SPA) et Vite 8
 - **Déploiement** : le backend sert lui-même le frontend compilé, les cartes et la documentation ; chaque release GitHub fournit le build du frontend, installé par `deploy.bat` / `deploy.sh`
 
 ## Sommaire
@@ -88,7 +88,7 @@ source .venv/bin/activate        # Windows : .venv\Scripts\activate
 pip install -r requirements-dev.txt
 ```
 
-`requirements-dev.txt` inclut `requirements.txt` et ajoute les outils de développement (pytest, httpx, black, isort). En production, `deploy.sh` n'installe que `requirements.txt`.
+`requirements-dev.txt` inclut `requirements.txt` et ajoute les outils de développement (pytest, httpx, black, isort). En production, `deploy.bat` / `deploy.sh` n'installent que `requirements.txt`.
 
 Créez le dossier `backend/app/config/` (il n'est pas versionné) avec deux fichiers.
 
