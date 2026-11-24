@@ -1,0 +1,18 @@
+# HTTPS in front of A.I.D.E (see "HTTPS" in README.md).
+#
+# Caddy gets and renews the certificate on its own (Let's Encrypt, or ZeroSSL
+# as a fallback) and redirects http:// to https://. It needs ports 80 and 443
+# reachable from the Internet; the backend only listens on 127.0.0.1:8000.
+
+cubecrusader.serveminecraft.net {
+	# The parent domain belongs to No-IP: never add includeSubDomains or
+	# preload here, they would apply to hostnames we do not control.
+	header Strict-Transport-Security "max-age=31536000"
+
+	encode zstd gzip
+
+	# Caddy sets X-Forwarded-For / X-Forwarded-Proto; uvicorn trusts them
+	# from 127.0.0.1 by default, so the login limiter sees the real client
+	# address instead of the proxy's.
+	reverse_proxy 127.0.0.1:8000
+}

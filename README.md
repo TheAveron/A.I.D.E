@@ -19,6 +19,7 @@ A.I.D.E est une application web full-stack qui gère l'économie virtuelle d'un 
 - [Lancer le projet](#lancer-le-projet)
 - [Tests](#tests)
 - [Déploiement](#déploiement)
+- [HTTPS](#https)
 - [Sécurité](#sécurité)
 - [Contribuer](#contribuer)
 - [Licence](#licence)
@@ -61,6 +62,8 @@ A.I.D.E/
 │           ├── types/       # Types TypeScript
 │           └── utils/       # Utilitaires (dont la garde d'authentification)
 ├── deploy.bat / deploy.sh   # Mise à jour d'une installation à partir d'une release
+├── start.bat                # Lancement en production sous Windows (Caddy + backend)
+├── Caddyfile                # HTTPS (Caddy)
 └── .github/                 # CodeQL, Dependabot et build du frontend des releases
 ```
 
@@ -204,7 +207,7 @@ Suivez l'[installation](#installation) du backend (le frontend n'est pas nécess
 - dans `backend/app/config/.env`, mettez `ENV=production` (la liste CORS est alors vide, le frontend étant servi par le même domaine que l'API) et une `SECRET_KEY` longue et unique, jamais partagée ;
 - installez les outils clients de PostgreSQL : le déploiement sauvegarde la base avec `pg_dump`. Le script utilise, dans l'ordre : la variable d'environnement `PG_DUMP` (chemin complet de l'exécutable), le `PATH`, puis `C:\Program Files\PostgreSQL\*\bin` ;
 - créez `backend/documents/maps` et déposez-y les exports de carte (voir [Cartes](#cartes)) ;
-- lancez le backend derrière un reverse proxy HTTPS. Les journaux sont écrits dans `backend/logs/aide.log`.
+- installez Caddy, qui fournit le certificat HTTPS (voir [HTTPS](#https)). Les journaux du backend sont écrits dans `backend/logs/aide.log`.
 
 ### Mettre à jour
 
@@ -228,11 +231,7 @@ Les scripts ne modifient rien tant que tout ce qui peut échouer n'a pas été v
 | 7 | `git checkout` du tag, `pip install`, `alembic upgrade head` | le script indique la sauvegarde |
 | 8 | Remplace `frontend/build` par le nouveau build (l'ancien reste dans `frontend/build.old`) | le script dit quoi faire |
 
-Une fois le script terminé, **relancez le backend** : arrêtez l'ancien processus, puis depuis `backend/`, venv activé :
-
-```bash
-fastapi run main.py
-```
+Une fois le script terminé, **relancez le site** (voir [Lancer le site en production](#lancer-le-site-en-production)).
 
 > **Installation en v1.3.2b ou avant** : le `deploy.bat` de ces versions est remplacé par le `git checkout` pendant qu'il s'exécute, et `cmd` lit alors la suite au milieu du nouveau fichier (la migration de la base peut être sautée sans message). Les scripts suivants s'en protègent, mais c'est l'ancien qui lance le déploiement : la première fois, passez d'abord sur la nouvelle version à la main, puis lancez son script, qui ne change alors plus en cours de route.
 >
@@ -241,6 +240,26 @@ fastapi run main.py
 > git checkout vX.Y.Z
 > deploy.bat vX.Y.Z
 > ```
+
+### Lancer le site en production
+
+Sous Windows, depuis la racine du dépôt (double-clic possible) :
+
+```bat
+start.bat
+```
+
+Le script ne déploie rien : il vérifie que l'installation est complète (venv, `.env`, `database.ini`, `frontend/build`, `documents/maps`, `Caddyfile`), démarre Caddy s'il ne tourne pas encore (le service Windows `caddy` s'il existe, sinon `caddy.exe` dans une fenêtre à part), puis lance le backend dans la fenêtre du script. S'il manque quelque chose, ou si le port 80 ou 8000 est déjà occupé, il s'arrête en disant pourquoi.
+
+Pour arrêter le site : `Ctrl+C` dans la fenêtre du backend, puis fermez celle de Caddy (ou `sc.exe stop caddy`). Pour un déploiement, seul le backend doit être arrêté : Caddy peut continuer de tourner.
+
+Sur Linux, depuis `backend/`, venv activé :
+
+```bash
+fastapi run main.py --host 127.0.0.1
+```
+
+`--host 127.0.0.1` n'accepte que les connexions de la machine elle-même, c'est-à-dire de Caddy : les joueurs passent obligatoirement par le HTTPS. Sans Caddy, le site n'est plus joignable de l'extérieur.
 
 ### Revenir à une version précédente
 
@@ -278,8 +297,53 @@ unmined-cli web render --world="chemin/du/monde" --output="backend/documents/map
 - La première lettre du dossier donne la dimension : `O` pour l'Overworld, `N` pour le Nether, `E` pour l'End. Les gares affichées sont celles de cette dimension.
 - Un nouveau dossier se déclare dans `frontend/src/app/utils/maps.ts` : `MAP_LABELS` pour son nom, et `CURRENT_MAP_VARIANTS` pour ajouter une dimension à `/actual` (le sélecteur de dimension apparaît dès qu'il y en a deux).
 
+## HTTPS
+
+Le site est servi en HTTPS par [Caddy](https://caddyserver.com/), placé devant le backend. Caddy obtient le certificat tout seul (Let's Encrypt, ou ZeroSSL en secours), le renouvelle avant son expiration et redirige `http://` vers `https://`. La configuration est dans le [`Caddyfile`](Caddyfile) à la racine du dépôt.
+
+```
+Joueurs ──https:443──▶ Caddy ──http──▶ 127.0.0.1:8000 (fastapi run)
+        ──http:80────▶ (redirection vers https, validation du certificat)
+```
+
+### Installation sur Windows (une seule fois)
+
+1. **Box / routeur** : redirigez les ports **80** et **443** (TCP) vers la machine. Supprimez toute redirection vers le port 8000 : le backend ne doit plus être joignable directement.
+   Si le backend était lancé avec `--port=80`, retirez cette option : le port 80 revient maintenant à Caddy, et le backend écoute sur `127.0.0.1:8000` (valeur par défaut du port).
+2. **Pare-feu Windows**, dans un PowerShell administrateur :
+
+   ```powershell
+   New-NetFirewallRule -DisplayName "Caddy HTTP/HTTPS" -Direction Inbound -Protocol TCP -LocalPort 80,443 -Action Allow
+   ```
+
+3. **Caddy** : téléchargez `caddy_windows_amd64.exe` depuis [la page de téléchargement](https://caddyserver.com/download) ou les [releases GitHub](https://github.com/caddyserver/caddy/releases), renommez-le `caddy.exe` et placez-le dans `C:\caddy\`.
+4. **Premier essai** : lancez `start.bat`, qui démarre Caddy dans une fenêtre à part puis le backend. Pour lancer Caddy seul, depuis la racine du dépôt :
+
+   ```powershell
+   C:\caddy\caddy.exe run --config Caddyfile
+   ```
+
+   Les premières lignes doivent indiquer `certificate obtained successfully`. Ouvrez https://cubecrusader.serveminecraft.net : le cadenas doit apparaître, et `http://` doit rediriger vers `https://`.
+5. **Service Windows**, pour que Caddy démarre avec la machine (PowerShell administrateur, chemin du dépôt à adapter) :
+
+   ```powershell
+   sc.exe create caddy start= auto binPath= "C:\caddy\caddy.exe run --config C:\chemin\vers\A.I.D.E\Caddyfile"
+   sc.exe start caddy
+   ```
+
+   Après une modification du `Caddyfile` : `sc.exe stop caddy` puis `sc.exe start caddy`.
+
+### Bon à savoir
+
+- **Le nom de domaine** est un nom No-IP (`serveminecraft.net`). Une adresse gratuite No-IP doit être confirmée tous les 30 jours, sinon elle est supprimée et le certificat ne peut plus être renouvelé. Si l'adresse IP publique change, le client No-IP (DUC) doit tourner sur la machine pour la mettre à jour.
+- **Certificats** : Caddy les stocke dans `%AppData%\Caddy` (compte qui exécute Caddy ; `C:\Windows\System32\config\systemprofile\AppData\Roaming\Caddy` pour le service). Rien à sauvegarder : en cas de perte, Caddy en redemande un.
+- **HSTS** : le `Caddyfile` demande aux navigateurs de ne plus utiliser que le HTTPS pendant un an. Ne pas y ajouter `includeSubDomains` ni `preload` : le domaine parent appartient à No-IP.
+- **Adresse des joueurs** : Caddy transmet l'adresse réelle du client (`X-Forwarded-For`), que `fastapi run` accepte par défaut depuis `127.0.0.1`. La limitation des tentatives de connexion compte donc bien par joueur, et non pour tout le monde à la fois.
+- **Changer de domaine** : remplacez `cubecrusader.serveminecraft.net` en tête du `Caddyfile`, puis redémarrez Caddy.
+
 ## Sécurité
 
+- Le site n'est servi qu'en HTTPS (Caddy, voir [HTTPS](#https)).
 - Les mots de passe sont hachés ; les sessions utilisent des JWT signés avec `SECRET_KEY`.
 - Seul un administrateur peut approuver une faction ou créer un compte administrateur (via le script en ligne de commande).
 - Un scan CodeQL et Dependabot tournent sur le dépôt.
